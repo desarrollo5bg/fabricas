@@ -1,0 +1,1991 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Arquitectura de Datos v2 — Fábricas de Crédito QUAC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #fafbfc;
+        --white: #ffffff;
+        --text: #1a1a2e;
+        --text-secondary: #555770;
+        --border: #e2e5ea;
+        --border-light: #f0f1f4;
+        --accent: #7633ff;
+        --accent-bg: #f3eeff;
+        --red: #dc2626;
+        --red-bg: #fef2f2;
+        --green: #16a34a;
+        --green-bg: #f0fdf4;
+        --amber: #d97706;
+        --amber-bg: #fffbeb;
+        --violet: #7c3aed;
+        --violet-bg: #f5f3ff;
+        --cyan: #0891b2;
+        --cyan-bg: #ecfeff;
+        --code-bg: #f4f5f7;
+        --sidebar-w: 280px;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family:
+          "Plus Jakarta Sans",
+          -apple-system,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+      }
+      /* Sidebar */
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: var(--sidebar-w);
+        height: 100vh;
+        background: var(--white);
+        border-right: 1px solid var(--border);
+        overflow-y: auto;
+        padding: 24px 0;
+        z-index: 50;
+      }
+      .sidebar-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--accent);
+        padding: 0 20px;
+        margin-bottom: 20px;
+        letter-spacing: -0.01em;
+      }
+      .sidebar nav a {
+        display: block;
+        padding: 6px 20px;
+        font-size: 13px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        border-left: 3px solid transparent;
+        transition: all 0.15s;
+      }
+      .sidebar nav a:hover {
+        color: var(--accent);
+        background: var(--accent-bg);
+        border-left-color: var(--accent);
+      }
+      .sidebar nav a.indent {
+        padding-left: 36px;
+        font-size: 12px;
+      }
+      .sidebar nav a.active {
+        color: var(--accent);
+        font-weight: 600;
+        border-left-color: var(--accent);
+        background: var(--accent-bg);
+      }
+      .sidebar-section {
+        padding: 8px 20px 4px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-secondary);
+      }
+      /* Main content */
+      .main {
+        margin-left: var(--sidebar-w);
+        max-width: 960px;
+        padding: 48px 56px 120px;
+      }
+      /* Typography */
+      h1 {
+        font-size: 32px;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.2;
+        margin-bottom: 8px;
+      }
+      h2 {
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-top: 56px;
+        margin-bottom: 16px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid var(--border);
+      }
+      h3 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-top: 32px;
+        margin-bottom: 12px;
+      }
+      h4 {
+        font-size: 15px;
+        font-weight: 600;
+        margin-top: 24px;
+        margin-bottom: 8px;
+      }
+      p {
+        margin-bottom: 12px;
+        color: var(--text-secondary);
+        font-size: 15px;
+      }
+      strong {
+        color: var(--text);
+      }
+      /* Meta */
+      .meta {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 32px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid var(--border);
+      }
+      .meta-item {
+        font-size: 13px;
+        color: var(--text-secondary);
+      }
+      .meta-item strong {
+        font-weight: 600;
+        color: var(--text);
+      }
+      /* Code / Diagrams */
+      pre {
+        background: var(--code-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 20px 24px;
+        overflow-x: auto;
+        margin: 16px 0 20px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        line-height: 1.65;
+        color: var(--text);
+      }
+      code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        background: var(--code-bg);
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+      pre code {
+        background: none;
+        padding: 0;
+      }
+      /* Tables */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 16px 0 20px;
+        font-size: 13px;
+      }
+      th {
+        background: var(--code-bg);
+        font-weight: 600;
+        text-align: left;
+        padding: 10px 14px;
+        border-bottom: 2px solid var(--border);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-secondary);
+      }
+      td {
+        padding: 9px 14px;
+        border-bottom: 1px solid var(--border-light);
+        color: var(--text);
+      }
+      tr:hover td {
+        background: var(--accent-bg);
+      }
+      td code {
+        font-size: 12px;
+      }
+      /* Lists */
+      ul,
+      ol {
+        margin: 8px 0 16px 24px;
+      }
+      li {
+        font-size: 15px;
+        color: var(--text-secondary);
+        margin-bottom: 4px;
+      }
+      li strong {
+        color: var(--text);
+      }
+      /* Badges */
+      .badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 100px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+      }
+      .badge--accent {
+        background: var(--accent-bg);
+        color: var(--accent);
+      }
+      .badge--red {
+        background: var(--red-bg);
+        color: var(--red);
+      }
+      .badge--green {
+        background: var(--green-bg);
+        color: var(--green);
+      }
+      .badge--amber {
+        background: var(--amber-bg);
+        color: var(--amber);
+      }
+      .badge--violet {
+        background: var(--violet-bg);
+        color: var(--violet);
+      }
+      .badge--cyan {
+        background: var(--cyan-bg);
+        color: var(--cyan);
+      }
+      /* Callouts */
+      .callout {
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin: 16px 0;
+        font-size: 14px;
+      }
+      .callout p {
+        margin-bottom: 4px;
+      }
+      .callout--info {
+        background: var(--accent-bg);
+        border-left: 4px solid var(--accent);
+      }
+      .callout--warn {
+        background: var(--amber-bg);
+        border-left: 4px solid var(--amber);
+      }
+      .callout--danger {
+        background: var(--red-bg);
+        border-left: 4px solid var(--red);
+      }
+      .callout--success {
+        background: var(--green-bg);
+        border-left: 4px solid var(--green);
+      }
+      /* Cards */
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin: 20px 0 24px;
+      }
+      .card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+        border-left: 4px solid var(--accent);
+      }
+      .card--violet {
+        border-left-color: var(--violet);
+      }
+      .card--amber {
+        border-left-color: var(--amber);
+      }
+      .card--green {
+        border-left-color: var(--green);
+      }
+      .card--red {
+        border-left-color: var(--red);
+      }
+      .card--cyan {
+        border-left-color: var(--cyan);
+      }
+      .card h4 {
+        margin-top: 0;
+        font-size: 14px;
+      }
+      .card p {
+        font-size: 13px;
+        margin: 0;
+      }
+      /* ER Diagram */
+      .er-diagram {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 24px;
+        margin: 20px 0;
+        overflow-x: auto;
+      }
+      .er-table {
+        display: inline-block;
+        background: var(--code-bg);
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        margin: 8px 16px 8px 0;
+        vertical-align: top;
+        min-width: 200px;
+      }
+      .er-table-title {
+        background: var(--accent);
+        color: white;
+        padding: 6px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 6px 6px 0 0;
+      }
+      .er-table-title--config {
+        background: var(--violet);
+      }
+      .er-table-title--trans {
+        background: var(--cyan);
+      }
+      .er-table-title--audit {
+        background: var(--green);
+      }
+      .er-table-title--exist {
+        background: var(--amber);
+      }
+      .er-table-col {
+        padding: 4px 12px;
+        font-size: 11px;
+        font-family: "JetBrains Mono", monospace;
+        border-top: 1px solid var(--border);
+      }
+      .er-table-col--pk {
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .er-table-col--fk {
+        color: var(--violet);
+      }
+      /* Flow diagram */
+      .flow-diagram {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 24px;
+        margin: 20px 0;
+      }
+      .flow-phase {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border-light);
+      }
+      .flow-phase:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+      }
+      .flow-num {
+        width: 32px;
+        height: 32px;
+        background: var(--accent);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+        flex-shrink: 0;
+      }
+      .flow-num--config {
+        background: var(--violet);
+      }
+      .flow-num--trans {
+        background: var(--cyan);
+      }
+      .flow-num--audit {
+        background: var(--green);
+      }
+      .flow-content h4 {
+        margin: 0 0 4px;
+        font-size: 14px;
+      }
+      .flow-content p {
+        margin: 0;
+        font-size: 13px;
+      }
+      /* HR */
+      hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 40px 0;
+      }
+      /* Responsive */
+      @media (max-width: 768px) {
+        .sidebar {
+          width: 200px;
+        }
+        .main {
+          margin-left: 200px;
+          padding: 32px 24px 80px;
+        }
+        h1 {
+          font-size: 24px;
+        }
+        h2 {
+          font-size: 20px;
+          margin-top: 40px;
+        }
+        .sidebar nav a {
+          padding: 4px 16px;
+          font-size: 12px;
+        }
+        .sidebar nav a.indent {
+          padding-left: 28px;
+          font-size: 11px;
+        }
+      }
+      @media (max-width: 480px) {
+        .sidebar {
+          width: 100%;
+          height: auto;
+          position: relative;
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+        .main {
+          margin-left: 0;
+        }
+        .sidebar-title {
+          text-align: center;
+        }
+        .sidebar nav {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+        .sidebar nav a {
+          border-left: none;
+          border-top: 1px solid var(--border-light);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-title">FABRICAS DE CRÉDITO v2</div>
+      <nav>
+        <a href="#overview" class="active">Visión General</a>
+        <a href="#resumen-ejecutivo" class="indent">Resumen Ejecutivo</a>
+        <a href="#arquitectura-modelo" class="indent"
+          >Arquitectura del Modelo</a
+        >
+        <div class="sidebar-section">Análisis</div>
+        <a href="#gap-analysis">Análisis de Brechas</a>
+        <a href="#mapeo-tablas" class="indent">Mapeo de Tablas</a>
+        <a href="#estrategia-integracion" class="indent"
+          >Estrategia de Integración</a
+        >
+        <div class="sidebar-section">Diseño</div>
+        <a href="#diccionario-tablas">Diccionario de Tablas</a>
+        <a href="#diagrama-er" class="indent">Diagrama ER</a>
+        <a href="#maquina-estados">Máquina de Estados</a>
+        <a href="#flujo-proceso" class="indent">Flujo del Proceso</a>
+        <div class="sidebar-section">Operación</div>
+        <a href="#trazabilidad">Estrategia de Trazabilidad</a>
+        <a href="#reglas-negocio" class="indent">Reglas de Negocio</a>
+        <a href="#consideraciones">Consideraciones FinTech</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Header -->
+      <section id="overview">
+        <h1>Arquitectura de Datos v2 — Fábricas de Crédito QUAC</h1>
+        <p class="meta">
+          <span class="meta-item"
+            ><strong>Motor:</strong> SQL Server 2019+</span
+          >
+          <span class="meta-item"><strong>Versión:</strong> 2.0</span>
+          <span class="meta-item"
+            ><strong>Fecha:</strong> 17 de marzo de 2026</span
+          >
+          <span class="meta-item"><strong>Tablas Nuevas:</strong> 14</span>
+          <span class="meta-item"><strong>Tablas Modificadas:</strong> 3</span>
+        </p>
+
+        <p>
+          Este documento describe el modelo de datos empresarial versión 2.0
+          para el Sistema de Otorgamiento de Crédito (Loan Origination System -
+          LOS) de QUAC. Esta versión implementa la
+          <strong>"Fusión Inteligente"</strong>: reutiliza las tablas existentes
+          en producción del ERP QUAC y les añade capacidades de trazabilidad,
+          auditoría y automatización sin romper la operación actual.
+        </p>
+
+        <div class="callout callout--info">
+          <p>
+            <strong>Innovación clave:</strong> A diferencia de un diseño desde
+            cero, esta versión respeta el trabajo existente integrando las
+            tablas <code>QUAC.dbo.terceros</code>,
+            <code>QUAC.dbo.bodegas</code>,
+            <code>QUAC.dbo.KCRM_CadenaCreditos</code> y operadores, mientras
+            añade la capa de configuración (máquina de estados), transaccional y
+            auditoría que faltaba.
+          </p>
+        </div>
+      </section>
+
+      <!-- Resumen Ejecutivo -->
+      <section id="resumen-ejecutivo">
+        <h2>Resumen Ejecutivo</h2>
+
+        <div class="card-grid">
+          <div class="card card--violet">
+            <h4>5 Tablas de Configuración</h4>
+            <p>
+              Fases, Pasos, Estados, Transiciones y Reglas parametrizables sin
+              código.
+            </p>
+          </div>
+          <div class="card card--cyan">
+            <h4>6 Tablas Transaccionales</h4>
+            <p>
+              Estudios, OTP, Riesgo, Biometría, Contactabilidad y
+              Consentimientos.
+            </p>
+          </div>
+          <div class="card card--green">
+            <h4>3 Tablas de Auditoría</h4>
+            <p>
+              Historial de estados, cambios de datos y logging de servicios
+              externos.
+            </p>
+          </div>
+          <div class="card card--amber">
+            <h4>3 Tablas Existentes</h4>
+            <p>
+              Extendidas con columnas de fábricas para crédito sin perder
+              estructura original.
+            </p>
+          </div>
+        </div>
+
+        <h3>Principales mejoras sobre el diseño anterior</h3>
+        <ul>
+          <li>
+            <strong>Máquina de estados inmutable</strong> — Cada cambio de
+            estado genera un registro en <code>HistorialEstados</code> que
+            permite reconstruir la línea de tiempo completa.
+          </li>
+          <li>
+            <strong>Auditoría de datos mutables</strong> — Cualquier cambio en
+            datos del cliente durante un estudio se registra en
+            <code>AuditoriaCambiosDatos</code>.
+          </li>
+          <li>
+            <strong>Logging completo de servicios</strong> — Cada invocación a
+            buró, biometría, FOSYGA, UBICA, OTP queda registrada con el payload
+            completo en <code>RegistroServiciosExternos</code>.
+          </li>
+          <li>
+            <strong>Cursor de pausa/reanudación</strong> — El campo
+            <code>IdPasoActual</code> en <code>EstudiosCredito</code> permite
+            que el cliente abandone y retome el proceso.
+          </li>
+          <li>
+            <strong>Parameterización total</strong> — Las reglas de negocio
+            (días de enfriamiento, intentos OTP, timeouts) están en
+            <code>ConfiguracionReglasNegocio</code> y pueden cambiarse sin
+            deploy.
+          </li>
+        </ul>
+      </section>
+
+      <!-- Arquitectura del Modelo -->
+      <section id="arquitectura-modelo">
+        <h2>Arquitectura del Modelo de Datos</h2>
+
+        <p>
+          El modelo se organiza en 4 grupos lógicos que respetan el orden de
+          dependencia (maestras → configuración → transaccionales → auditoría):
+        </p>
+
+        <div class="flow-diagram">
+          <div class="flow-phase">
+            <div class="flow-num">1</div>
+            <div class="flow-content">
+              <h4>Tablas Existentes del ERP (Extendidas)</h4>
+              <p>
+                QUAC.dbo.terceros, QUAC.dbo.bodegas,
+                QUAC.dbo.KCRM_CadenaCreditos, BERP_FABRICASOperadores. Se les
+                añadieron columnas específicas de fábricas manteniendo backwards
+                compatibility.
+              </p>
+            </div>
+          </div>
+          <div class="flow-phase">
+            <div class="flow-num flow-num--config">2</div>
+            <div class="flow-content">
+              <h4>Tablas de Configuración (Nuevas)</h4>
+              <p>
+                Definen el flujo, estados y reglas de negocio. FasesEstudio,
+                PasosEstudio, CatalogoEstados, TransicionesEstado,
+                ConfiguracionReglasNegocio. Permiten modificar el comportamiento
+                sin tocar código.
+              </p>
+            </div>
+          </div>
+          <div class="flow-phase">
+            <div class="flow-num flow-num--trans">3</div>
+            <div class="flow-content">
+              <h4>Tablas Transaccionales (Nuevas)</h4>
+              <p>
+                Registran las operaciones del proceso. EstudiosCredito
+                (orquestador central), RetosSeguridad, EvaluacionesRiesgo,
+                RegistrosBiometria, ValidacionesContactabilidad,
+                ConsentimientosLegales.
+              </p>
+            </div>
+          </div>
+          <div class="flow-phase">
+            <div class="flow-num flow-num--audit">4</div>
+            <div class="flow-content">
+              <h4>Tablas de Auditoría (Nuevas)</h4>
+              <p>
+                Trazabilidad inmutable. HistorialEstados, AuditoriaCambiosDatos,
+                RegistroServiciosExternos. REGLA: Solo INSERT, nunca UPDATE ni
+                DELETE.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Gap Analysis -->
+      <section id="gap-analysis">
+        <h2>Análisis de Brechas</h2>
+        <p>
+          Partiendo del diseño original, se identificaron
+          <strong>brechas críticas</strong> que impedían alcanzar un nivel
+          empresarial de calidad, trazabilidad y cumplimiento regulatorio.
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Brecha</th>
+              <th>Descripción</th>
+              <th>Impacto</th>
+              <th>Solución en v2</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge--red">G-01</span></td>
+              <td>Sin máquina de estados inmutable</td>
+              <td>
+                No se podía reconstruir la línea de tiempo de cambios de estado
+              </td>
+              <td>Alto</td>
+              <td><code>HistorialEstados</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--red">G-02</span></td>
+              <td>Sin auditoría de datos mutables</td>
+              <td>Cambios de correo/teléfono durante estudio se perdían</td>
+              <td>Alto</td>
+              <td><code>AuditoriaCambiosDatos</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--red">G-03</span></td>
+              <td>Sin logging de servicios externos</td>
+              <td>No se guardaban request/response de buró, biometría, etc.</td>
+              <td>Crítico</td>
+              <td><code>RegistroServiciosExternos</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--amber">G-04</span></td>
+              <td>Reglas de negocio hardcodeadas</td>
+              <td>Días enfriamiento, intentos OTP no eran editables</td>
+              <td>Medio</td>
+              <td><code>ConfiguracionReglasNegocio</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--amber">G-05</span></td>
+              <td>Sin cursor de pausa/reanudación</td>
+              <td>Si cliente se retiraba, perdía todo el progreso</td>
+              <td>Alto</td>
+              <td><code>IdPasoActual</code> en EstudiosCredito</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--amber">G-06</span></td>
+              <td>Sin mecanismo de enfriamiento</td>
+              <td>Cliente rechazado podía volver a aplicar inmediatamente</td>
+              <td>Medio</td>
+              <td><code>FechaDesbloqueo</code> en terceros</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--amber">G-07</span></td>
+              <td>Sin trazabilidad del flujo por pasos</td>
+              <td>
+                No había forma de saber en qué paso quedó un estudio pausado
+              </td>
+              <td>Medio</td>
+              <td><code>PasosEstudio</code> + <code>IdPasoActual</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Mapeo de Tablas -->
+      <section id="mapeo-tablas">
+        <h2>Mapeo de Tablas (Homologación)</h2>
+        <p>
+          Este mapeo muestra qué tablas del nuevo diseño fueron reemplazadas por
+          las existentes y cuáles requieren creación o modificación.
+        </p>
+
+        <h3>Tablas Existentes Reutilizadas</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Entidad de Negocio</th>
+              <th>Tabla Existente</th>
+              <th>Uso en v2</th>
+              <th>Modificación</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Cliente</td>
+              <td><code>QUAC.dbo.terceros</code></td>
+              <td>Maestro de clientes con datos demográficos</td>
+              <td><span class="badge badge--cyan">+5 columnas</span></td>
+            </tr>
+            <tr>
+              <td>Tienda / Punto de Venta</td>
+              <td><code>QUAC.dbo.bodegas</code></td>
+              <td>Puntos físicos de originación</td>
+              <td>Sin cambios</td>
+            </tr>
+            <tr>
+              <td>Producto de Crédito</td>
+              <td><code>QUAC.dbo.KCRM_CadenaCreditos</code></td>
+              <td>Cupos, estados y bloqueos</td>
+              <td><span class="badge badge--cyan">+4 columnas</span></td>
+            </tr>
+            <tr>
+              <td>Asesores (Tienda)</td>
+              <td><code>PRUEBASBD.dbo.kcrm_VendedoresExternos</code></td>
+              <td>Vendedores de tiendas</td>
+              <td>Sin cambios</td>
+            </tr>
+            <tr>
+              <td>Operadores (Call Center)</td>
+              <td><code>QUAC.dbo.BERP_FABRICASOperadores</code></td>
+              <td>Operadores de fábricas</td>
+              <td><span class="badge badge--cyan">+1 columna</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Tablas Nuevas Creadas</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Grupo</th>
+              <th>Tabla</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge--violet">Configuración</span></td>
+              <td><code>FasesEstudio</code></td>
+              <td>
+                7 fases macro del proceso (Identificación, Datos,
+                Consentimiento, etc.)
+              </td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--violet">Configuración</span></td>
+              <td><code>PasosEstudio</code></td>
+              <td>
+                13 pasos individuales con actor, servicio externo y timeout
+              </td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--violet">Configuración</span></td>
+              <td><code>CatalogoEstados</code></td>
+              <td>
+                11 estados posibles (Borrador, En Progreso, Aprobado, etc.)
+              </td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--violet">Configuración</span></td>
+              <td><code>TransicionesEstado</code></td>
+              <td>Transiciones válidas entre estados (máquina de estados)</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--violet">Configuración</span></td>
+              <td><code>ConfiguracionReglasNegocio</code></td>
+              <td>
+                Parámetros editables (días enfriamiento, intentos OTP, etc.)
+              </td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--cyan">Transaccional</span></td>
+              <td><code>EstudiosCredito</code></td>
+              <td>Tabla central que orquesta todo el flujo</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--cyan">Transaccional</span></td>
+              <td><code>RetosSeguridad</code></td>
+              <td>OTP, tokenización y retos de verificación</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--cyan">Transaccional</span></td>
+              <td><code>EvaluacionesRiesgo</code></td>
+              <td>Listas restrictivas, buró, Preselecta, FOSYGA</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--cyan">Transaccional</span></td>
+              <td><code>RegistrosBiometria</code></td>
+              <td>Biometría facial, OCR, prueba de vida</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--cyan">Transaccional</span></td>
+              <td><code>ValidacionesContactabilidad</code></td>
+              <td>UBICA y gestión manual de call center</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--cyan">Transaccional</span></td>
+              <td><code>ConsentimientosLegales</code></td>
+              <td>Trazabilidad de aceptaciones de términos</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">Auditoría</span></td>
+              <td><code>HistorialEstados</code></td>
+              <td>Máquina de estados inmutable - solo INSERT</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">Auditoría</span></td>
+              <td><code>AuditoriaCambiosDatos</code></td>
+              <td>Cambios en datos mutables - solo INSERT</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">Auditoría</span></td>
+              <td><code>RegistroServiciosExternos</code></td>
+              <td>Payloads de servicios externos - solo INSERT</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Estrategia de Integración -->
+      <section id="estrategia-integracion">
+        <h2>Estrategia de Integración</h2>
+
+        <div class="callout callout--info">
+          <p>
+            <strong>Principio rector:</strong> Las tablas existentes NUNCA se
+            eliminan ni se altera su estructura original. Solo se les añaden
+            columnas al final mediante <code>ALTER TABLE ADD</code>. Esto
+            garantiza backwards compatibility con el ERP QUAC existente.
+          </p>
+        </div>
+
+        <h3>Columnas añadidas a QUAC.dbo.terceros</h3>
+        <pre><code>ALTER TABLE QUAC.dbo.terceros ADD
+    IdTerceroFabricas     INT NULL,           -- ID interno para fábricas
+    TieneCupoActivo       BIT DEFAULT 0,      -- ¿Tiene cupo activo?
+    EstaBloqueadoFabricas BIT DEFAULT 0,      -- ¿Bloqueado para fábricas?
+    TieneRegistroBiometrico BIT DEFAULT 0,    -- ¿Enrolado biometricamente?
+    FechaDesbloqueo       DATETIME2 NULL;     -- Fin del período de cooling-off</code></pre>
+
+        <h3>Columnas añadidas a QUAC.dbo.KCRM_CadenaCreditos</h3>
+        <pre><code>ALTER TABLE QUAC.dbo.KCRM_CadenaCreditos ADD
+    EstadoActualFabricas     VARCHAR(20) NULL, -- ACTIVO, BLOQUEADO, CANCELADO
+    MotivoBloqueoFabricas    VARCHAR(50) NULL, -- MORA, FRAUDE, SOLICITUD_CLIENTE
+    FechaCancelacionFabricas DATETIME2 NULL,  -- Para regla "renunció en XXX días"
+    ElegibleReactivacion     BIT DEFAULT 0;   -- Reactivación exprés</code></pre>
+
+        <h3>Orden de ejecución del script</h3>
+        <ol>
+          <li>
+            <strong>Crear tablas de configuración</strong> — Sin dependencias
+            externas
+          </li>
+          <li>
+            <strong>Alterar tablas existentes</strong> — Añadir columnas a
+            terceros, CadenaCreditos, Operadores
+          </li>
+          <li>
+            <strong>Crear tablas transaccionales</strong> — Dependen de
+            configuración
+          </li>
+          <li>
+            <strong>Crear tablas de auditoría</strong> — Dependen de
+            transaccionales
+          </li>
+          <li>
+            <strong>Insertar datos semilla</strong> — Estados, fases, pasos,
+            transiciones, reglas
+          </li>
+        </ol>
+      </section>
+
+      <!-- Diccionario de Tablas -->
+      <section id="diccionario-tablas">
+        <h2>Diccionario de Tablas</h2>
+
+        <h3>FasesEstudio</h3>
+        <p>Define las 7 fases macro del proceso de otorgamiento de crédito.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdFase</code></td>
+              <td>INT PK</td>
+              <td>Identificador único de fase</td>
+            </tr>
+            <tr>
+              <td><code>Codigo</code></td>
+              <td>VARCHAR(30)</td>
+              <td>Código único (ej. IDENTIFICACION)</td>
+            </tr>
+            <tr>
+              <td><code>Nombre</code></td>
+              <td>NVARCHAR(100)</td>
+              <td>Nombre descriptivo</td>
+            </tr>
+            <tr>
+              <td><code>OrdenEjecucion</code></td>
+              <td>INT</td>
+              <td>Secuencia de ejecución (1-7)</td>
+            </tr>
+            <tr>
+              <td><code>Descripcion</code></td>
+              <td>NVARCHAR(500)</td>
+              <td>Descripción detallada</td>
+            </tr>
+            <tr>
+              <td><code>Activa</code></td>
+              <td>BIT</td>
+              <td>¿La fase está activa?</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>PasosEstudio</h3>
+        <p>
+          Define los 13 pasos individuales del flujo, cada uno pertenece a una
+          fase.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdPaso</code></td>
+              <td>INT PK</td>
+              <td>Identificador único de paso</td>
+            </tr>
+            <tr>
+              <td><code>IdFase</code></td>
+              <td>INT FK</td>
+              <td>FK a FasesEstudio</td>
+            </tr>
+            <tr>
+              <td><code>Codigo</code></td>
+              <td>VARCHAR(40)</td>
+              <td>Código único (ej. TOKENIZACION)</td>
+            </tr>
+            <tr>
+              <td><code>OrdenGlobal</code></td>
+              <td>INT</td>
+              <td>Orden absoluto (1-13)</td>
+            </tr>
+            <tr>
+              <td><code>Actor</code></td>
+              <td>VARCHAR(30)</td>
+              <td>ASESOR, SISTEMA, CLIENTE, CALL_CENTER</td>
+            </tr>
+            <tr>
+              <td><code>ServicioExterno</code></td>
+              <td>VARCHAR(50)</td>
+              <td>Servicio invocado (ej. PRESELECTA, UBICA)</td>
+            </tr>
+            <tr>
+              <td><code>EsAutomatico</code></td>
+              <td>BIT</td>
+              <td>¿Se ejecuta automáticamente?</td>
+            </tr>
+            <tr>
+              <td><code>RequiereIntervencion</code></td>
+              <td>BIT</td>
+              <td>¿Requiere intervención manual si falla?</td>
+            </tr>
+            <tr>
+              <td><code>TiempoTimeoutSeg</code></td>
+              <td>INT</td>
+              <td>Timeout en segundos para el servicio</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>CatalogoEstados</h3>
+        <p>Define los 11 estados posibles de un estudio de crédito.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdEstado</code></td>
+              <td>INT PK</td>
+              <td>Identificador único</td>
+            </tr>
+            <tr>
+              <td><code>Codigo</code></td>
+              <td>VARCHAR(40)</td>
+              <td>Código (ej. EN_PROGRESO, APROBADO)</td>
+            </tr>
+            <tr>
+              <td><code>Grupo</code></td>
+              <td>VARCHAR(20)</td>
+              <td>INICIAL, PROCESO, TERMINAL</td>
+            </tr>
+            <tr>
+              <td><code>EsTerminal</code></td>
+              <td>BIT</td>
+              <td>¿Es estado final?</td>
+            </tr>
+            <tr>
+              <td><code>PermitePausa</code></td>
+              <td>BIT</td>
+              <td>¿Se puede pausar desde este estado?</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>EstudiosCredito</h3>
+        <p>
+          <strong>Tabla central del sistema.</strong> Orquestador que referencia
+          a todas las demás.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdEstudio</code></td>
+              <td>BIGINT PK</td>
+              <td>Identificador único</td>
+            </tr>
+            <tr>
+              <td><code>NitTercero</code></td>
+              <td>VARCHAR(20)</td>
+              <td>Referencia al cliente (FK lógica)</td>
+            </tr>
+            <tr>
+              <td><code>IdTienda</code></td>
+              <td>INT FK</td>
+              <td>FK a QUAC.dbo.bodegas</td>
+            </tr>
+            <tr>
+              <td><code>IdAsesor</code></td>
+              <td>INT FK</td>
+              <td>FK a BERP_FABRICASOperadores</td>
+            </tr>
+            <tr>
+              <td><code>IdEstadoActual</code></td>
+              <td>INT FK</td>
+              <td>Estado actual de la máquina</td>
+            </tr>
+            <tr>
+              <td><code>IdPasoActual</code></td>
+              <td>INT FK</td>
+              <td>CURSOR: último paso ejecutado</td>
+            </tr>
+            <tr>
+              <td><code>MotivoRechazo</code></td>
+              <td>NVARCHAR(200)</td>
+              <td>Razón de rechazo si aplica</td>
+            </tr>
+            <tr>
+              <td><code>CupoPreaprobado</code></td>
+              <td>DECIMAL(18,2)</td>
+              <td>Monto preaprobado</td>
+            </tr>
+            <tr>
+              <td><code>EsReactivacion</code></td>
+              <td>BIT</td>
+              <td>¿Es reactivación de cupo cancelado?</td>
+            </tr>
+            <tr>
+              <td><code>RequiereCallCenter</code></td>
+              <td>BIT</td>
+              <td>¿Se derivó a call center?</td>
+            </tr>
+            <tr>
+              <td><code>FechaPausa</code></td>
+              <td>DATETIME2</td>
+              <td>Fecha de pausa (NULL si activo)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>HistorialEstados</h3>
+        <p>
+          <strong>Tabla de auditoría inmutable.</strong> Cada cambio de estado
+          genera un registro.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdHistorial</code></td>
+              <td>BIGINT PK</td>
+              <td>Identificador único</td>
+            </tr>
+            <tr>
+              <td><code>IdEstudio</code></td>
+              <td>BIGINT FK</td>
+              <td>FK a EstudiosCredito</td>
+            </tr>
+            <tr>
+              <td><code>IdEstadoAnterior</code></td>
+              <td>INT FK</td>
+              <td>Estado anterior (NULL si es el primero)</td>
+            </tr>
+            <tr>
+              <td><code>IdEstadoNuevo</code></td>
+              <td>INT FK</td>
+              <td>Nuevo estado</td>
+            </tr>
+            <tr>
+              <td><code>IdPasoRelacionado</code></td>
+              <td>INT FK</td>
+              <td>paso que provocó el cambio</td>
+            </tr>
+            <tr>
+              <td><code>IdUsuarioAccion</code></td>
+              <td>INT</td>
+              <td>ID del usuario o sistema</td>
+            </tr>
+            <tr>
+              <td><code>TipoUsuario</code></td>
+              <td>VARCHAR(20)</td>
+              <td>SISTEMA, ASESOR, CALL_CENTER</td>
+            </tr>
+            <tr>
+              <td><code>MotivoTransicion</code></td>
+              <td>NVARCHAR(500)</td>
+              <td>Descripción del cambio</td>
+            </tr>
+            <tr>
+              <td><code>FechaTransicion</code></td>
+              <td>DATETIME2</td>
+              <td>Momento del cambio</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>RegistroServiciosExternos</h3>
+        <p>
+          <strong>Logging completo de invocaciones.</strong> Almacena
+          request/response de todos los servicios.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdRegistro</code></td>
+              <td>BIGINT PK</td>
+              <td>Identificador único</td>
+            </tr>
+            <tr>
+              <td><code>IdEstudio</code></td>
+              <td>BIGINT FK</td>
+              <td>FK a EstudiosCredito</td>
+            </tr>
+            <tr>
+              <td><code>IdPaso</code></td>
+              <td>INT FK</td>
+              <td>Paso que disparó la invocación</td>
+            </tr>
+            <tr>
+              <td><code>NombreServicio</code></td>
+              <td>VARCHAR(50)</td>
+              <td>PRESELECTA, BURO, UBICA, BIOMETRIA, etc.</td>
+            </tr>
+            <tr>
+              <td><code>PayloadRequest</code></td>
+              <td>NVARCHAR(MAX)</td>
+              <td>Request completo en JSON</td>
+            </tr>
+            <tr>
+              <td><code>PayloadResponse</code></td>
+              <td>NVARCHAR(MAX)</td>
+              <td>Response completo en JSON</td>
+            </tr>
+            <tr>
+              <td><code>ResultadoInterpretado</code></td>
+              <td>VARCHAR(20)</td>
+              <td>EXITOSO, FALLIDO, TIMEOUT, ERROR</td>
+            </tr>
+            <tr>
+              <td><code>DuracionMs</code></td>
+              <td>INT</td>
+              <td>Tiempo de respuesta en milisegundos</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Diagrama ER -->
+      <section id="diagrama-er">
+        <h2>Diagrama ER Simplificado</h2>
+        <p>Relaciones principales entre las tablas del modelo de datos v2.</p>
+
+        <div class="er-diagram">
+          <!-- Tablas Existentes -->
+          <div class="er-table">
+            <div class="er-table-title er-table-title--exist">
+              QUAC.dbo.terceros
+            </div>
+            <div class="er-table-col er-table-col--pk">PK nit</div>
+            <div class="er-table-col er-table-col--pk">PK id</div>
+            <div class="er-table-col er-table-col--fk">
+              FK IdTerceroFabricas
+            </div>
+            <div class="er-table-col">TieneCupoActivo</div>
+            <div class="er-table-col">EstaBloqueadoFabricas</div>
+          </div>
+
+          <div class="er-table">
+            <div class="er-table-title er-table-title--exist">
+              QUAC.dbo.KCRM_CadenaCreditos
+            </div>
+            <div class="er-table-col er-table-col--pk">
+              PK Nit + BERP_NitPromotor
+            </div>
+            <div class="er-table-col">EstadoActualFabricas</div>
+            <div class="er-table-col">MotivoBloqueoFabricas</div>
+            <div class="er-table-col">ElegibleReactivacion</div>
+          </div>
+
+          <!-- Configuración -->
+          <div class="er-table">
+            <div class="er-table-title er-table-title--config">
+              CatalogoEstados
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdEstado</div>
+            <div class="er-table-col">Codigo</div>
+            <div class="er-table-col">Grupo</div>
+            <div class="er-table-col">EsTerminal</div>
+          </div>
+
+          <div class="er-table">
+            <div class="er-table-title er-table-title--config">
+              FasesEstudio
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdFase</div>
+            <div class="er-table-col">Codigo</div>
+            <div class="er-table-col">OrdenEjecucion</div>
+          </div>
+
+          <div class="er-table">
+            <div class="er-table-title er-table-title--config">
+              PasosEstudio
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdPaso</div>
+            <div class="er-table-col er-table-col--fk">FK IdFase</div>
+            <div class="er-table-col">OrdenGlobal</div>
+            <div class="er-table-col">Actor</div>
+          </div>
+
+          <div class="er-table">
+            <div class="er-table-title er-table-title--config">
+              TransicionesEstado
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdTransicion</div>
+            <div class="er-table-col er-table-col--fk">FK IdEstadoOrigen</div>
+            <div class="er-table-col er-table-col--fk">FK IdEstadoDestino</div>
+          </div>
+
+          <!-- Transaccionales -->
+          <div class="er-table">
+            <div class="er-table-title er-table-title--trans">
+              EstudiosCredito
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdEstudio</div>
+            <div class="er-table-col">NitTercero</div>
+            <div class="er-table-col er-table-col--fk">FK IdEstadoActual</div>
+            <div class="er-table-col er-table-col--fk">FK IdPasoActual</div>
+            <div class="er-table-col">FechaPausa</div>
+          </div>
+
+          <div class="er-table">
+            <div class="er-table-title er-table-title--trans">
+              EvaluacionesRiesgo
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdEvaluacion</div>
+            <div class="er-table-col er-table-col--fk">FK IdEstudio</div>
+            <div class="er-table-col er-table-col--fk">FK IdPaso</div>
+            <div class="er-table-col">Resultado</div>
+          </div>
+
+          <div class="er-table">
+            <div class="er-table-title er-table-title--trans">
+              RegistrosBiometria
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdBiometria</div>
+            <div class="er-table-col er-table-col--fk">FK IdEstudio</div>
+            <div class="er-table-col">PruebaVidaAprobada</div>
+            <div class="er-table-col">EstadoProceso</div>
+          </div>
+
+          <div class="er-table">
+            <div class="er-table-title er-table-title--trans">
+              RetosSeguridad
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdReto</div>
+            <div class="er-table-col er-table-col--fk">FK IdEstudio</div>
+            <div class="er-table-col">CanalEnvio</div>
+            <div class="er-table-col">Exitoso</div>
+          </div>
+
+          <!-- Auditoría -->
+          <div class="er-table">
+            <div class="er-table-title er-table-title--audit">
+              HistorialEstados
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdHistorial</div>
+            <div class="er-table-col er-table-col--fk">FK IdEstudio</div>
+            <div class="er-table-col er-table-col--fk">FK IdEstadoNuevo</div>
+            <div class="er-table-col">FechaTransicion</div>
+          </div>
+
+          <div class="er-table">
+            <div class="er-table-title er-table-title--audit">
+              RegistroServiciosExternos
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdRegistro</div>
+            <div class="er-table-col er-table-col--fk">FK IdEstudio</div>
+            <div class="er-table-col">NombreServicio</div>
+            <div class="er-table-col">ResultadoInterpretado</div>
+          </div>
+
+          <div class="er-table">
+            <div class="er-table-title er-table-title--audit">
+              AuditoriaCambiosDatos
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdAuditoria</div>
+            <div class="er-table-col er-table-col--fk">FK IdEstudio</div>
+            <div class="er-table-col">NitTercero</div>
+            <div class="er-table-col">NombreCampo</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Máquina de Estados -->
+      <section id="maquina-estados">
+        <h2>Máquina de Estados</h2>
+        <p>
+          El modelo implementa una máquina de estados finitos configurada en las
+          tablas <code>CatalogoEstados</code> y <code>TransicionesEstado</code>.
+        </p>
+
+        <h3>Los 11 Estados</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Grupo</th>
+              <th>Terminal</th>
+              <th>Pausable</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td><code>BORRADOR</code></td>
+              <td>Borrador</td>
+              <td>INICIAL</td>
+              <td>No</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td><code>EN_PROGRESO</code></td>
+              <td>En Progreso</td>
+              <td>PROCESO</td>
+              <td>No</td>
+              <td>Sí</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td><code>PAUSADO</code></td>
+              <td>Pausado</td>
+              <td>PROCESO</td>
+              <td>No</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td><code>PENDIENTE_OTP</code></td>
+              <td>Pendiente OTP</td>
+              <td>PROCESO</td>
+              <td>No</td>
+              <td>Sí</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td><code>PENDIENTE_BIOMETRIA</code></td>
+              <td>Pendiente Biometría</td>
+              <td>PROCESO</td>
+              <td>No</td>
+              <td>Sí</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td><code>PENDIENTE_CALL</code></td>
+              <td>Pendiente Call Center</td>
+              <td>PROCESO</td>
+              <td>No</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td><code>CUPO_PREAPROBADO</code></td>
+              <td>Cupo Preaprobado</td>
+              <td>PROCESO</td>
+              <td>No</td>
+              <td>Sí</td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td><code>APROBADO</code></td>
+              <td>Aprobado y Activado</td>
+              <td>TERMINAL</td>
+              <td>Sí</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>9</td>
+              <td><code>RECHAZADO</code></td>
+              <td>Rechazado</td>
+              <td>TERMINAL</td>
+              <td>Sí</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>10</td>
+              <td><code>EXPIRADO</code></td>
+              <td>Expirado</td>
+              <td>TERMINAL</td>
+              <td>Sí</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>11</td>
+              <td><code>CANCELADO_CLIENTE</code></td>
+              <td>Cancelado por el Cliente</td>
+              <td>TERMINAL</td>
+              <td>Sí</td>
+              <td>—</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Transiciones Válidas</h3>
+        <pre><code>DESDE BORRADOR:
+  BORRADOR → EN_PROGRESO       (Iniciar procesamiento)
+  BORRADOR → CANCELADO_CLIENTE (Cancelación voluntaria)
+
+DESDE EN_PROGRESO:
+  EN_PROGRESO → PAUSADO            (Cliente se retira)
+  EN_PROGRESO → PENDIENTE_OTP      (Esperar validación OTP)
+  EN_PROGRESO → PENDIENTE_BIOMETRIA (Esperar biométrica)
+  EN_PROGRESO → PENDIENTE_CALL     (Fallo automático)
+  EN_PROGRESO → CUPO_PREAPROBADO   (Cupo calculado)
+  EN_PROGRESO → APROBADO           (Activación exitosa)
+  EN_PROGRESO → RECHAZADO          (Validación fallida)
+  EN_PROGRESO → CANCELADO_CLIENTE  (Cancelación voluntaria)
+
+DESDE PAUSADO:
+  PAUSADO → EN_PROGRESO        (Cliente regresa)
+  PAUSADO → EXPIRADO           (Inactividad > 90 días)
+  PAUSADO → CANCELADO_CLIENTE  (Cancelación voluntaria)
+
+DESDE PENDIENTE_OTP:
+  PENDIENTE_OTP → EN_PROGRESO (OTP validado)
+  PENDIENTE_OTP → PAUSADO      (Cliente se retira)
+  PENDIENTE_OTP → RECHAZADO   (Intentos agotados)
+
+DESDE PENDIENTE_BIOMETRIA:
+  PENDIENTE_BIOMETRIA → EN_PROGRESO     (Biometría exitosa)
+  PENDIENTE_BIOMETRIA → PAUSADO        (Cliente se retira)
+  PENDIENTE_BIOMETRIA → PENDIENTE_CALL (Fallo, derivar a fábrica)
+  PENDIENTE_BIOMETRIA → RECHAZADO      (Rechazado definitivamente)
+
+DESDE PENDIENTE_CALL:
+  PENDIENTE_CALL → EN_PROGRESO (Resuelto exitosamente)
+  PENDIENTE_CALL → APROBADO   (Call center aprueba)
+  PENDIENTE_CALL → RECHAZADO  (Call center rechaza)
+
+DESDE CUPO_PREAPROBADO:
+  CUPO_PREAPROBADO → EN_PROGRESO        (Continuar flujo)
+  CUPO_PREAPROBADO → PAUSADO            (Cliente se retira)
+  CUPO_PREAPROBADO → CANCELADO_CLIENTE   (Cancelación voluntaria)</code></pre>
+      </section>
+
+      <!-- Flujo del Proceso -->
+      <section id="flujo-proceso">
+        <h2>Flujo del Proceso (13 Pasos)</h2>
+        <p>
+          El flujo completo de otorgamiento se divide en 7 fases con 13 pasos
+          configurables.
+        </p>
+
+        <div class="flow-diagram">
+          <div class="flow-phase">
+            <div class="flow-num">1</div>
+            <div class="flow-content">
+              <h4>FASE 1: Identificación (3 pasos)</h4>
+              <p>
+                <strong>INGRESO_DOCUMENTO</strong> — El asesor digita el
+                documento del cliente.
+              </p>
+              <p>
+                <strong>VALIDAR_EXISTENCIA</strong> — Verifica si existe en ERP
+                QUAC. Actor: SISTEMA. Servicio: ERP_QUAC. Timeout: 30s.
+              </p>
+              <p>
+                <strong>VALIDAR_CUPO_BLOQUEO</strong> — Verifica cupo activo,
+                bloqueos, mora. Actor: SISTEMA. Servicio: CORE_CREDITO. Timeout:
+                30s.
+              </p>
+            </div>
+          </div>
+          <div class="flow-phase">
+            <div class="flow-num">2</div>
+            <div class="flow-content">
+              <h4>FASE 2: Datos del Cliente (1 paso)</h4>
+              <p>
+                <strong>CAPTURA_DATOS</strong> — Captura o actualización de
+                datos personales, correo, celular, dirección. Actor: ASESOR.
+              </p>
+            </div>
+          </div>
+          <div class="flow-phase">
+            <div class="flow-num">3</div>
+            <div class="flow-content">
+              <h4>FASE 3: Consentimiento Legal (2 pasos)</h4>
+              <p>
+                <strong>CONSENTIMIENTO_DATOS</strong> — El cliente acepta
+                términos y autoriza tratamiento de datos. Actor: CLIENTE.
+              </p>
+              <p>
+                <strong>TOKENIZACION</strong> — Envío de OTP por WhatsApp/Email
+                y validación. Actor: SISTEMA. Servicio: OTP_PROVIDER. Timeout:
+                120s.
+              </p>
+            </div>
+          </div>
+          <div class="flow-phase">
+            <div class="flow-num">4</div>
+            <div class="flow-content">
+              <h4>FASE 4: Validaciones de Riesgo (4 pasos)</h4>
+              <p>
+                <strong>VALIDAR_LISTAS</strong> — Consulta listas restrictivas.
+                Servicio: LISTAS_RESTRICTIVAS. Timeout: 30s.
+              </p>
+              <p>
+                <strong>CONSULTAR_BURO</strong> — Consulta historial crediticio.
+                Servicio: BURO_CREDITO. Timeout: 60s.
+              </p>
+              <p>
+                <strong>EVALUAR_PRESELECTA</strong> — Motor de decisión.
+                Servicio: PRESELECTA. Timeout: 60s.
+              </p>
+              <p>
+                <strong>VALIDAR_FOSYGA</strong> — Verificación seguridad social.
+                Servicio: FOSYGA. Timeout: 30s.
+              </p>
+            </div>
+          </div>
+          <div class="flow-phase">
+            <div class="flow-num">5</div>
+            <div class="flow-content">
+              <h4>FASE 5: Límite de Crédito (1 paso)</h4>
+              <p>
+                <strong>CALCULAR_CUPO</strong> — Cálculo del límite preaprobado
+                según score. Servicio: MOTOR_CUPO. Timeout: 30s.
+              </p>
+            </div>
+          </div>
+          <div class="flow-phase">
+            <div class="flow-num">6</div>
+            <div class="flow-content">
+              <h4>FASE 6: Verificación de Identidad (1 paso)</h4>
+              <p>
+                <strong>VERIFICACION_BIOMETRICA</strong> — Captura facial,
+                prueba de vida, OCR. Servicio: BIOMETRIA. Timeout: 120s.
+                Requiere intervención: Sí.
+              </p>
+            </div>
+          </div>
+          <div class="flow-phase">
+            <div class="flow-num">7</div>
+            <div class="flow-content">
+              <h4>FASE 7: Activación (1 paso)</h4>
+              <p>
+                <strong>ACTIVACION_CUPO</strong> — Validación UBICA y activación
+                automática o derivación a Call Center. Servicio: UBICA. Timeout:
+                60s. Requiere intervención: Sí.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Trazabilidad -->
+      <section id="trazabilidad">
+        <h2>Estrategia de Trazabilidad</h2>
+
+        <div class="callout callout--success">
+          <p>
+            <strong>Principio fundamental:</strong> Las 3 tablas de auditoría
+            (<code>HistorialEstados</code>, <code>AuditoriaCambiosDatos</code>,
+            <code>RegistroServiciosExternos</code>) son de
+            <strong>SOLO INSERCIÓN</strong>. No se permite UPDATE ni DELETE en
+            estas tablas bajo ninguna circunstancia.
+          </p>
+        </div>
+
+        <h3>Capa 1: Historial de Estados</h3>
+        <p>
+          Cada transición de estado genera un registro inmutable que permite
+          reconstruir la línea de tiempo completa del estudio.
+        </p>
+        <pre><code>-- Ejemplo de registro generado al cambiar de BORRADOR a EN_PROGRESO:
+INSERT INTO HistorialEstados (IdEstudio, IdEstadoAnterior, IdEstadoNuevo, 
+    IdPasoRelacionado, TipoUsuario, MotivoTransicion)
+VALUES (12345, 1, 2, 2, 'SISTEMA', 'Iniciar procesamiento del estudio');</code></pre>
+
+        <h3>Capa 2: Auditoría de Cambios</h3>
+        <p>
+          Cuando un dato del cliente cambia durante un estudio activo, se
+          registra el valor anterior y el nuevo.
+        </p>
+        <pre><code>-- Ejemplo: Cliente cambia su correo durante el estudio
+INSERT INTO AuditoriaCambiosDatos (IdEstudio, NitTercero, NombreTabla, 
+    NombreCampo, ValorAnterior, ValorNuevo, TipoUsuario)
+VALUES (12345, '1098765432', 'terceros', 'mail', 
+    'viejo@email.com', 'nuevo@email.com', 'ASESOR');</code></pre>
+
+        <h3>Capa 3: Logging de Servicios Externos</h3>
+        <p>
+          Cada invocación a un servicio externo se registra con el payload
+          completo de request y response.
+        </p>
+        <pre><code>-- Ejemplo: Invocación a Preselecta
+INSERT INTO RegistroServiciosExternos (IdEstudio, IdPaso, NombreServicio, 
+    URLEndpoint, PayloadRequest, PayloadResponse, CodigoHTTPRespuesta,
+    ResultadoInterpretado, DuracionMs)
+VALUES (12345, 9, 'PRESELECTA', 'https://api.preselecta.co/consultar',
+    '{"documento":"1098765432","primerApellido":"Garcia"}',
+    '{"status":1,"score":650,"viable":true}', 200, 'EXITOSO', 1523);</code></pre>
+
+        <h3>Índices para consulta eficiente</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Tabla</th>
+              <th>Índice</th>
+              <th>Uso</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>HistorialEstados</code></td>
+              <td><code>IX_HistorialEstados_Estudio</code></td>
+              <td>Reconstruir timeline de un estudio</td>
+            </tr>
+            <tr>
+              <td><code>HistorialEstados</code></td>
+              <td><code>IX_HistorialEstados_EstadoFecha</code></td>
+              <td>Dashboard: estados por fecha</td>
+            </tr>
+            <tr>
+              <td><code>AuditoriaCambiosDatos</code></td>
+              <td><code>IX_AuditoriaCambiosDatos_Cliente</code></td>
+              <td>Historial de cambios de un cliente</td>
+            </tr>
+            <tr>
+              <td><code>RegistroServiciosExternos</code></td>
+              <td><code>IX_RegServExt_Estudio</code></td>
+              <td>Timeline de servicios de un estudio</td>
+            </tr>
+            <tr>
+              <td><code>RegistroServiciosExternos</code></td>
+              <td><code>IX_RegServExt_Servicio</code></td>
+              <td>Monitoreo de errores por servicio</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Reglas de Negocio -->
+      <section id="reglas-negocio">
+        <h2>Reglas de Negocio Parametrizables</h2>
+        <p>
+          Las siguientes reglas están configuradas en
+          <code>ConfiguracionReglasNegocio</code> y pueden modificarse sin
+          necesidad de cambiar código.
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Valor Default</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>DIAS_ENFRIAMIENTO</code></td>
+              <td>Días de Enfriamiento por Rechazo</td>
+              <td>90</td>
+              <td>
+                Días que un cliente rechazado debe esperar para solicitar
+                nuevamente
+              </td>
+            </tr>
+            <tr>
+              <td><code>DIAS_EXPIRACION_ESTUDIO</code></td>
+              <td>Días de Expiración del Estudio</td>
+              <td>90</td>
+              <td>
+                Días de inactividad antes de que un estudio expire
+                automáticamente
+              </td>
+            </tr>
+            <tr>
+              <td><code>INTENTOS_OTP_MAX</code></td>
+              <td>Intentos Máximos de OTP</td>
+              <td>3</td>
+              <td>
+                Número máximo de intentos de validación OTP antes de bloqueo
+                temporal
+              </td>
+            </tr>
+            <tr>
+              <td><code>VIGENCIA_OTP_SEG</code></td>
+              <td>Vigencia del Token OTP (segundos)</td>
+              <td>300</td>
+              <td>Tiempo de vida del token OTP (default 5 min)</td>
+            </tr>
+            <tr>
+              <td><code>BLOQUEO_OTP_HORAS</code></td>
+              <td>Horas de Bloqueo por OTP Fallidos</td>
+              <td>24</td>
+              <td>Horas de bloqueo después de exceder intentos máximos</td>
+            </tr>
+            <tr>
+              <td><code>INTENTOS_BIOMETRIA_MAX</code></td>
+              <td>Intentos Máximos de Biometría</td>
+              <td>3</td>
+              <td>
+                Número máximo de intentos biométricos antes de derivar a fábrica
+              </td>
+            </tr>
+            <tr>
+              <td><code>UMBRAL_MATCH_FACIAL</code></td>
+              <td>Umbral de Coincidencia Facial (%)</td>
+              <td>85.00</td>
+              <td>
+                Porcentaje mínimo de coincidencia facial para aprobación
+                automática
+              </td>
+            </tr>
+            <tr>
+              <td><code>DIAS_CANCELACION_REACTIV</code></td>
+              <td>Días Desde Cancelación para Reactivación</td>
+              <td>365</td>
+              <td>
+                Días desde cancelación voluntaria tras los cuales se permite
+                reactivación
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Consideraciones FinTech -->
+      <section id="consideraciones">
+        <h2>Consideraciones FinTech y Cumplimiento</h2>
+
+        <div class="card-grid">
+          <div class="card card--green">
+            <h4>Auditoría Regulatoria</h4>
+            <p>
+              Cada decisión de crédito es trazable desde la solicitud hasta el
+              resultado, con timestamps exactos y responsables.
+            </p>
+          </div>
+          <div class="card card--violet">
+            <h4>Aislamiento de Datos</h4>
+            <p>
+              Los consentimientos y cambios se registran inmutablemente,
+              cumpliendo con normatividad de protección de datos.
+            </p>
+          </div>
+          <div class="card card--amber">
+            <h4>Debugging Forense</h4>
+            <p>
+              Los payloads completos de servicios externos permiten reconstruir
+              exactamente qué recibió y envió el sistema.
+            </p>
+          </div>
+          <div class="card card--cyan">
+            <h4>Escalabilidad</h4>
+            <p>
+              El diseño soporta 5,000-10,000 solicitudes/mes con índices
+              optimizados para las consultas más frecuentes.
+            </p>
+          </div>
+        </div>
+
+        <h3>Seguridad de Datos</h3>
+        <ul>
+          <li>
+            <strong>Tokens hash:</strong> Los OTP y tokens de seguridad se
+            almacenan como hash, nunca en texto plano.
+          </li>
+          <li>
+            <strong>Direcciones IP:</strong> Se registra la IP del dispositivo
+            en consentimientos para trazabilidad legal.
+          </li>
+          <li>
+            <strong>User Agent:</strong> Se captura el dispositivo/navegador
+            para análisis de fraude.
+          </li>
+          <li>
+            <strong>Duraciones:</strong> El logging incluye tiempo de respuesta
+            (ms) para detección de ataques de denegación de servicio.
+          </li>
+        </ul>
+
+        <h3>Backwards Compatibility</h3>
+        <p>
+          El script de migración está diseñado para ejecutarse sobre una base de
+          datos en producción sin afectar la operación actual:
+        </p>
+        <ul>
+          <li>Todas las tablas existentes mantienen su estructura original</li>
+          <li>
+            Las nuevas columnas se añaden al final con valores por defecto
+            seguros
+          </li>
+          <li>
+            Los procedures y vistas existentes siguen funcionando sin cambios
+          </li>
+          <li>
+            El nuevo código puede comenzar a usar las tablas de fábricas sin
+            romper el código legacy
+          </li>
+        </ul>
+      </section>
+
+      <!-- Footer -->
+      <hr />
+      <p style="font-size: 13px; color: var(--text-secondary)">
+        <strong>Documento:</strong> Arquitectura de Datos — Fábricas de Crédito
+        QUAC v2.0<br />
+        <strong>Fecha:</strong> 17 de marzo de 2026<br />
+        <strong>Archivos relacionados:</strong>
+        <code>DB/DDL/FABRICASv2.sql</code>
+      </p>
+    </main>
+
+    <script>
+      // Highlight active nav item on scroll
+      const sections = document.querySelectorAll("section[id]");
+      const navLinks = document.querySelectorAll(".sidebar nav a");
+
+      window.addEventListener("scroll", () => {
+        let current = "";
+        sections.forEach((section) => {
+          const sectionTop = section.offsetTop;
+          if (scrollY >= sectionTop - 100) {
+            current = section.getAttribute("id");
+          }
+        });
+
+        navLinks.forEach((link) => {
+          link.classList.remove("active");
+          if (link.getAttribute("href") === "#" + current) {
+            link.classList.add("active");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
