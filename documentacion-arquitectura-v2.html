@@ -318,6 +318,10 @@
       .card--cyan {
         border-left-color: var(--cyan);
       }
+      .card--blue {
+        border-left-color: var(--accent);
+        background-color: var(--accent-bg);
+      }
       .card h4 {
         margin-top: 0;
         font-size: 14px;
@@ -542,11 +546,12 @@
           <p>
             <strong>Innovación clave:</strong> A diferencia de un diseño desde
             cero, esta versión respeta el trabajo existente integrando las
-            tablas <code>QUAC.dbo.terceros</code>,
-            <code>QUAC.dbo.bodegas</code>,
+            tablas <code>QUAC.dbo.bodegas</code>,
             <code>QUAC.dbo.KCRM_CadenaCreditos</code> y operadores, mientras
             añade la capa de configuración (máquina de estados), transaccional y
-            auditoría que faltaba.
+            auditoría que faltaba. Para <code>QUAC.dbo.terceros</code> se creó
+            una tabla propia (<code>TercerosFabricas</code>) que lee de ella
+            mediante FK por NIT, sin alterar la tabla de producción.
           </p>
         </div>
       </section>
@@ -578,10 +583,15 @@
             </p>
           </div>
           <div class="card card--amber">
-            <h4>3 Tablas Existentes</h4>
+            <h4>2 Tablas Extendidas</h4>
             <p>
-              Extendidas con columnas de fábricas para crédito sin perder
-              estructura original.
+              KCRM_CadenaCreditos y BERP_FABRICASOperadores con columnas de fábricas.
+            </p>
+          </div>
+          <div class="card card--blue">
+            <h4>1 Tabla Propia (terceros)</h4>
+            <p>
+              TercerosFabricas como fuente de verdad. Lee de terceros sin modificarlo.
             </p>
           </div>
         </div>
@@ -630,12 +640,11 @@
           <div class="flow-phase">
             <div class="flow-num">1</div>
             <div class="flow-content">
-              <h4>Tablas Existentes del ERP (Extendidas)</h4>
+              <h4>Tablas Existentes del ERP (Extendidas + Tabla Propia)</h4>
               <p>
-                QUAC.dbo.terceros, QUAC.dbo.bodegas,
-                QUAC.dbo.KCRM_CadenaCreditos, BERP_FABRICASOperadores. Se les
-                añadieron columnas específicas de fábricas manteniendo backwards
-                compatibility.
+                QUAC.dbo.bodegas, QUAC.dbo.KCRM_CadenaCreditos, BERP_FABRICASOperadores
+                (extendidas). <code>TercerosFabricas</code> es tabla propia que lee
+                de terceros mediante FK por NIT sin modificar la tabla de producción.
               </p>
             </div>
           </div>
@@ -739,7 +748,7 @@
               <td>Sin mecanismo de enfriamiento</td>
               <td>Cliente rechazado podía volver a aplicar inmediatamente</td>
               <td>Medio</td>
-              <td><code>FechaDesbloqueo</code> en terceros</td>
+              <td><code>FechaDesbloqueo</code> en TercerosFabricas</td>
             </tr>
             <tr>
               <td><span class="badge badge--amber">G-07</span></td>
@@ -776,8 +785,8 @@
             <tr>
               <td>Cliente</td>
               <td><code>QUAC.dbo.terceros</code></td>
-              <td>Maestro de clientes con datos demográficos</td>
-              <td><span class="badge badge--cyan">+5 columnas</span></td>
+              <td>Read-only para validación de existencia por NIT</td>
+              <td>Sin cambios</td>
             </tr>
             <tr>
               <td>Tienda / Punto de Venta</td>
@@ -909,16 +918,38 @@
             eliminan ni se altera su estructura original. Solo se les añaden
             columnas al final mediante <code>ALTER TABLE ADD</code>. Esto
             garantiza backwards compatibility con el ERP QUAC existente.
+            <strong>Excepción:</strong> <code>QUAC.dbo.terceros</code> es demasiado
+            grande para modificar, por lo que se crea una tabla propia que lee de
+            ella mediante FK por NIT.
           </p>
         </div>
 
-        <h3>Columnas añadidas a QUAC.dbo.terceros</h3>
-        <pre><code>ALTER TABLE QUAC.dbo.terceros ADD
-    IdTerceroFabricas     INT NULL,           -- ID interno para fábricas
-    TieneCupoActivo       BIT DEFAULT 0,      -- ¿Tiene cupo activo?
-    EstaBloqueadoFabricas BIT DEFAULT 0,      -- ¿Bloqueado para fábricas?
-    TieneRegistroBiometrico BIT DEFAULT 0,    -- ¿Enrolado biometricamente?
-    FechaDesbloqueo       DATETIME2 NULL;     -- Fin del período de cooling-off</code></pre>
+        <h3>Estrategia para QUAC.dbo.terceros</h3>
+        <pre><code>-- Tabla PROPIA que referencia a terceros sin modificarlo:
+CREATE TABLE dbo.TercerosFabricas (
+    IdTerceroFabricas       INT IDENTITY(1,1) NOT NULL,
+    NitTercero              VARCHAR(20) NOT NULL,  -- FK a terceros.nit
+    NombreTercero           VARCHAR(200) NULL,
+    EstadoTercero           VARCHAR(20) NOT NULL DEFAULT 'ACTIVO',
+    TieneCupoActivo        BIT NOT NULL DEFAULT 0,
+    EstaBloqueadoFabricas  BIT NOT NULL DEFAULT 0,
+    MotivoBloqueo          VARCHAR(100) NULL,
+    FechaBloqueo           DATETIME2 NULL,
+    FechaDesbloqueo        DATETIME2 NULL,  -- Cooling-off
+    TieneRegistroBiometrico BIT NOT NULL DEFAULT 0,
+    PuntajeCredito         DECIMAL(5,2) NULL,
+    FechaCreacion          DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    FechaModificacion      DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    ...
+    CONSTRAINT FK_TercerosFabricas_Terceros FOREIGN KEY (NitTercero)
+        REFERENCES QUAC.dbo.terceros(nit)
+);</code></pre>
+        <p>
+          <strong>Flujo de datos:</strong> Leer de <code>terceros</code> para validar
+          existencia → Escribir en <code>TercerosFabricas</code> como fuente de
+          verdad → Sincronizar actualizaciones de vuelta a <code>terceros</code> según
+          reglas de negocio.
+        </p>
 
         <h3>Columnas añadidas a QUAC.dbo.KCRM_CadenaCreditos</h3>
         <pre><code>ALTER TABLE QUAC.dbo.KCRM_CadenaCreditos ADD
@@ -934,8 +965,12 @@
             externas
           </li>
           <li>
+            <strong>Crear tabla propia de terceros</strong> — TercerosFabricas
+            con FK a terceros
+          </li>
+          <li>
             <strong>Alterar tablas existentes</strong> — Añadir columnas a
-            terceros, CadenaCreditos, Operadores
+            CadenaCreditos, Operadores
           </li>
           <li>
             <strong>Crear tablas transaccionales</strong> — Dependen de
@@ -1306,11 +1341,21 @@
             </div>
             <div class="er-table-col er-table-col--pk">PK nit</div>
             <div class="er-table-col er-table-col--pk">PK id</div>
-            <div class="er-table-col er-table-col--fk">
-              FK IdTerceroFabricas
+            <div class="er-table-col">razon_social</div>
+          </div>
+
+          <!-- Tabla Propia - Fuente de Verdad -->
+          <div class="er-table">
+            <div class="er-table-title er-table-title--trans">
+              TercerosFabricas
             </div>
-            <div class="er-table-col">TieneCupoActivo</div>
+            <div class="er-table-col er-table-col--pk">PK IdTerceroFabricas</div>
+            <div class="er-table-col er-table-col--fk">FK NitTercero → terceros.nit</div>
+            <div class="er-table-col">EstadoTercero</div>
             <div class="er-table-col">EstaBloqueadoFabricas</div>
+            <div class="er-table-col">FechaDesbloqueo</div>
+            <div class="er-table-col">TieneRegistroBiometrico</div>
+            <div class="er-table-col">PuntajeCredito</div>
           </div>
 
           <div class="er-table">
