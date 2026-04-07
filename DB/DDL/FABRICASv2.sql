@@ -4,9 +4,9 @@
   
   ESTRUCTURA DEL SCRIPT:
   ─────────────────────────────────────────────────────────────────────────────
-  1. TABLAS DE CONFIGURACIÓN (5 tablas)      → Parametrización del flujo
+  1. TABLAS DE CONFIGURACIÓN (6 tablas)      → Parametrización del flujo
   2. MODIFICACIÓN DE TABLAS EXISTENTES        → ALTER TABLE a tablas prod.
-  3. TABLAS TRANSACCIONALES (6 tablas)        → Operaciones del proceso
+  3. TABLAS TRANSACCIONALES (7 tablas)        → Operaciones del proceso
   4. TABLAS DE AUDITORÍA (3 tablas)           → Trazabilidad inmutable
   5. DATOS SEMILLA (SEEDS)                    → Catálogos iniciales
   
@@ -15,6 +15,20 @@
     QUAC.dbo.BERP_FABRICASOperadores y QUAC.dbo.KCRM_CadenaCreditos YA EXISTEN
   - Solo se les añaden columnas necesarias mediante ALTER TABLE
   - Las nuevas tablas mantienen coherencia de tipos con las existentes
+  
+  CAMBIOS v2.1:
+  - G-DB-01: Nueva tabla CatalogoCanalesOrigen + FK desde EstudiosCredito.IdCanal
+  - G-DB-02: FK física de EstudiosCredito.NitTercero → TercerosFabricas.NitTercero
+  - G-DB-03: Ampliación CHECK TipoEvaluacion (ANTECEDENTES, UBICA añadidos)
+  - G-DB-04: Columna EstadoUbica en ValidacionesContactabilidad
+  - G-DB-05: Columnas NumeroReenvios y UltimoReenvio en RetosSeguridad
+  - G-DB-06: Columnas EmailCliente y EmailUbica en EstudiosCredito
+  - G-DB-07: Columnas SlugPasoWeb y FechaUltimoAbandono en EstudiosCredito
+  - G-DB-08: Columnas OCR en RegistrosBiometria
+  - G-DB-09: Columna TipoFirma en ConsentimientosLegales
+  - GT-04: Columnas EsCupoExpress y TipoCierre en EstudiosCredito
+  - GT-05: Columnas de dirección capturada en EstudiosCredito
+  - GT-08: Nueva tabla EvidenciasFabrica
 ================================================================================
 */
 
@@ -148,6 +162,28 @@ BEGIN
 END
 GO
 
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 1.6 CatalogoCanalesOrigen: Catálogo de canales por los que ingresa el cliente
+--     G-DB-01: Tabla dominio para EstudiosCredito.IdCanal
+-- ─────────────────────────────────────────────────────────────────────────────
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'CatalogoCanalesOrigen') AND type in (N'U'))
+BEGIN
+    CREATE TABLE CatalogoCanalesOrigen (
+        IdCanal             INT IDENTITY(1,1)   NOT NULL,
+        Codigo              VARCHAR(20)         NOT NULL,
+        Nombre              NVARCHAR(100)       NOT NULL,
+        Descripcion         NVARCHAR(300)       NULL,
+        Activo              BIT                 NOT NULL DEFAULT 1,
+        FechaCreacion       DATETIME2(3)        NOT NULL DEFAULT SYSDATETIME(),
+        FechaActualizacion  DATETIME2(3)        NOT NULL DEFAULT SYSDATETIME(),
+        
+        CONSTRAINT PK_CatalogoCanalesOrigen PRIMARY KEY (IdCanal),
+        CONSTRAINT UQ_CatalogoCanalesOrigen_Codigo UNIQUE (Codigo)
+    );
+    PRINT '✓ Tabla CatalogoCanalesOrigen creada';
+END
+GO
+
 
 -- ==============================================================================
 -- ══════════════════════════════════════════════════════════════════════════════
@@ -264,7 +300,7 @@ BEGIN
         -- Referencias a entidades existentes
         IdTienda               INT                 NULL,       -- FK a QUAC.dbo.bodegas.id
         IdAsesor               INT                 NULL,       -- FK a BERP_FABRICASOperadores.idOperadorFabrica
-        IdCanal                INT                 NULL,       -- Canal de originación
+        IdCanal                INT                 NULL,       -- FK a CatalogoCanalesOrigen.IdCanal (G-DB-01)
         
         -- Estado de la máquina de estados
         IdEstadoActual          INT                 NOT NULL,   -- FK a CatalogoEstados
@@ -279,6 +315,25 @@ BEGIN
         EsReactivacion         BIT                 NOT NULL DEFAULT 0,
         RequiereCallCenter     BIT                 NOT NULL DEFAULT 0,
         
+        -- Tipo de cierre y cupo express (GT-04)
+        EsCupoExpress          BIT                 NOT NULL DEFAULT 0,
+        TipoCierre             VARCHAR(20)         NULL,
+        
+        -- Datos de contacto del cliente capturados en el flujo (G-DB-06)
+        EmailCliente           NVARCHAR(200)       NULL,   -- Email propio declarado por el cliente
+        EmailUbica             NVARCHAR(200)       NULL,   -- Email retornado por el servicio UBICA
+        
+        -- Punto de reanudación del flujo web (G-DB-07)
+        SlugPasoWeb            VARCHAR(50)         NULL,   -- Identificador del paso web para reanudar sesión
+        FechaUltimoAbandono    DATETIME2(3)        NULL,   -- Última vez que el cliente abandonó el flujo
+        
+        -- Dirección capturada durante el flujo (GT-05)
+        -- Campos de staging: se sincronizan a terceros al aprobar el estudio
+        DepartamentoCapturado  NVARCHAR(100)       NULL,
+        CiudadCapturada        NVARCHAR(100)       NULL,
+        DireccionCapturada     NVARCHAR(300)       NULL,
+        BarrioCapturado        NVARCHAR(100)       NULL,
+        
         -- Control temporal
         FechaInicio            DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
         FechaUltimaActividad   DATETIME2(3)       NOT NULL DEFAULT GETDATE(),
@@ -291,20 +346,24 @@ BEGIN
         
         CONSTRAINT PK_EstudiosCredito PRIMARY KEY (IdEstudio),
         CONSTRAINT FK_EstudiosCredito_Estado FOREIGN KEY (IdEstadoActual) REFERENCES CatalogoEstados(IdEstado),
-        CONSTRAINT FK_EstudiosCredito_Paso FOREIGN KEY (IdPasoActual) REFERENCES PasosEstudio(IdPaso)
+        CONSTRAINT FK_EstudiosCredito_Paso FOREIGN KEY (IdPasoActual) REFERENCES PasosEstudio(IdPaso),
+        CONSTRAINT FK_EstudiosCredito_Canal FOREIGN KEY (IdCanal) REFERENCES CatalogoCanalesOrigen(IdCanal),  -- G-DB-01
+        CONSTRAINT FK_EstudiosCredito_Tercero FOREIGN KEY (NitTercero) REFERENCES TercerosFabricas(NitTercero),  -- G-DB-02
+        CONSTRAINT CK_EstudiosCredito_TipoCierre CHECK (TipoCierre IS NULL OR TipoCierre IN ('EXPRESS','NORMAL','FABRICA'))  -- GT-04
     );
     
     CREATE INDEX IX_EstudiosCredito_Cliente ON EstudiosCredito(NitTercero);
     CREATE INDEX IX_EstudiosCredito_Estado ON EstudiosCredito(IdEstadoActual);
     CREATE INDEX IX_EstudiosCredito_Asesor ON EstudiosCredito(IdAsesor) WHERE IdAsesor IS NOT NULL;
     CREATE INDEX IX_EstudiosCredito_Tienda ON EstudiosCredito(IdTienda) WHERE IdTienda IS NOT NULL;
+    CREATE INDEX IX_EstudiosCredito_Canal ON EstudiosCredito(IdCanal) WHERE IdCanal IS NOT NULL;  -- G-DB-01
     CREATE INDEX IX_EstudiosCredito_FechaInicio ON EstudiosCredito(FechaInicio);
     CREATE INDEX IX_EstudiosCredito_ClienteFecha ON EstudiosCredito(NitTercero, FechaInicio) INCLUDE (IdEstadoActual);
     CREATE INDEX IX_EstudiosCredito_CallCenter ON EstudiosCredito(RequiereCallCenter, IdEstadoActual) WHERE RequiereCallCenter = 1;
+    CREATE INDEX IX_EstudiosCredito_SlugWeb ON EstudiosCredito(SlugPasoWeb) WHERE SlugPasoWeb IS NOT NULL;  -- G-DB-07
     
     PRINT '✓ Tabla EstudiosCredito creada';
 END
-GO
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 3.2 RetosSeguridad: OTP, tokenización y retos de verificación
@@ -323,6 +382,10 @@ BEGIN
         NumeroIntentos      INT                 NOT NULL DEFAULT 0,
         Exitoso             BIT                 NOT NULL DEFAULT 0,
         
+        -- G-DB-05: Seguimiento de reenvíos del token
+        NumeroReenvios      INT                 NOT NULL DEFAULT 0,   -- Cantidad de veces que se reenvió el token
+        UltimoReenvio       DATETIME2(3)        NULL,                  -- Fecha y hora del último reenvío realizado
+        
         CONSTRAINT PK_RetosSeguridad PRIMARY KEY (IdReto),
         CONSTRAINT FK_RetosSeguridad_Estudio FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio),
         CONSTRAINT CK_RetosSeguridad_Canal CHECK (CanalEnvio IN ('WHATSAPP','EMAIL','SMS'))
@@ -333,7 +396,6 @@ BEGIN
     
     PRINT '✓ Tabla RetosSeguridad creada';
 END
-GO
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 3.3 EvaluacionesRiesgo: Listas restrictivas, buró, Preselecta, FOSYGA
@@ -365,7 +427,8 @@ BEGIN
         CONSTRAINT PK_EvaluacionesRiesgo PRIMARY KEY (IdEvaluacion),
         CONSTRAINT FK_EvaluacionesRiesgo_Estudio FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio),
         CONSTRAINT FK_EvaluacionesRiesgo_Paso FOREIGN KEY (IdPaso) REFERENCES PasosEstudio(IdPaso),
-        CONSTRAINT CK_EvaluacionesRiesgo_Tipo CHECK (TipoEvaluacion IN ('LISTAS','BURO','PRESELECTA','FOSYGA')),
+        -- G-DB-03: Ampliado para incluir ANTECEDENTES y UBICA
+        CONSTRAINT CK_EvaluacionesRiesgo_Tipo CHECK (TipoEvaluacion IN ('LISTAS','BURO','PRESELECTA','FOSYGA','ANTECEDENTES','UBICA')),
         CONSTRAINT CK_EvaluacionesRiesgo_Resultado CHECK (Resultado IN ('APROBADO','RECHAZADO','PENDIENTE','ERROR'))
     );
     
@@ -374,7 +437,6 @@ BEGIN
     
     PRINT '✓ Tabla EvaluacionesRiesgo creada';
 END
-GO
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 3.4 RegistrosBiometria: Biometría facial, OCR, prueba de vida
@@ -395,6 +457,12 @@ BEGIN
         -- Control de intentos
         NumeroIntentos          INT                 NOT NULL DEFAULT 1,
         EstadoProceso           VARCHAR(20)         NOT NULL,
+        
+        -- G-DB-08: Campos extraídos por OCR del documento de identidad
+        NombreExtraidoOCR           NVARCHAR(200)   NULL,   -- Nombre completo según OCR
+        FechaExpedicionExtraidaOCR  DATE            NULL,   -- Fecha de expedición del documento según OCR
+        NumeroDocumentoExtraidoOCR  VARCHAR(20)     NULL,   -- Número de documento según OCR
+        CoincidenciaOCR             BIT             NULL,   -- TRUE si OCR coincide con datos declarados por el cliente
         
         FechaRegistro           DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
         
@@ -421,6 +489,9 @@ BEGIN
         ScoreUbica                VARCHAR(30)         NULL,
         EsActivacionAutomatica    BIT                 NOT NULL DEFAULT 0,
         
+        -- G-DB-04: Estado granular de UBICA para enrutamiento preciso
+        EstadoUbica               VARCHAR(30)         NULL,   -- Estado detallado retornado por UBICA
+        
         -- Gestión manual
         EstadoVerificacionManual  VARCHAR(20)         NULL,
         IdAsesorCallCenter       INT                 NULL,
@@ -433,16 +504,22 @@ BEGIN
         CONSTRAINT CK_ValidContact_EstadoManual CHECK (
             EstadoVerificacionManual IS NULL OR 
             EstadoVerificacionManual IN ('PENDIENTE','CONFIRMADO','RECHAZADO')
+        ),
+        -- G-DB-04: Valores válidos para el estado granular de UBICA
+        CONSTRAINT CK_ValidContact_EstadoUbica CHECK (
+            EstadoUbica IS NULL OR
+            EstadoUbica IN ('OK_CEL_CORREO','OK_CEL','GESTION_MANUAL_CALL','GESTION_MANUAL_FABRICA','NO_CONTACTABLE','PENDIENTE')
         )
     );
     
     CREATE INDEX IX_ValidContact_Estudio ON ValidacionesContactabilidad(IdEstudio);
     CREATE INDEX IX_ValidContact_Pendientes ON ValidacionesContactabilidad(EstadoVerificacionManual) 
         WHERE EstadoVerificacionManual = 'PENDIENTE';
+    CREATE INDEX IX_ValidContact_EstadoUbica ON ValidacionesContactabilidad(EstadoUbica)  -- G-DB-04
+        WHERE EstadoUbica IS NOT NULL;
     
     PRINT '✓ Tabla ValidacionesContactabilidad creada';
 END
-GO
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 3.6 ConsentimientosLegales: Trazabilidad de aceptaciones
@@ -458,16 +535,66 @@ BEGIN
         Aceptado             BIT                 NOT NULL DEFAULT 0,
         DireccionIP          VARCHAR(45)         NULL,
         UserAgent            NVARCHAR(500)       NULL,
+        
+        -- G-DB-09: Tipo de firma utilizado para el consentimiento
+        TipoFirma            VARCHAR(20)         NOT NULL DEFAULT 'CHECKBOX',
+        
         FechaAceptacion     DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
         
         CONSTRAINT PK_ConsentimientosLegales PRIMARY KEY (IdConsentimiento),
-        CONSTRAINT FK_Consentimientos_Estudio FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio)
+        CONSTRAINT FK_Consentimientos_Estudio FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio),
+        -- G-DB-09: Tipos de firma admitidos
+        CONSTRAINT CK_Consentimientos_TipoFirma CHECK (
+            TipoFirma IN ('OTP_SMS','OTP_EMAIL','OTP_WHATSAPP','CHECKBOX','FIRMA_DIGITAL')
+        )
     );
     
     CREATE INDEX IX_Consentimientos_Estudio ON ConsentimientosLegales(IdEstudio);
     CREATE INDEX IX_Consentimientos_Cliente ON ConsentimientosLegales(NitTercero);
     
     PRINT '✓ Tabla ConsentimientosLegales creada';
+END
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 3.7 EvidenciasFabrica: Archivos adjuntos y evidencias para revisión manual
+--     GT-08: Tabla de evidencias/adjuntos para el proceso de revisión en fábrica
+-- ─────────────────────────────────────────────────────────────────────────────
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'EvidenciasFabrica') AND type in (N'U'))
+BEGIN
+    CREATE TABLE EvidenciasFabrica (
+        IdEvidencia         BIGINT IDENTITY(1,1)    NOT NULL,
+        IdEstudioCredito    BIGINT                  NOT NULL,   -- FK al estudio de crédito asociado
+        
+        -- Clasificación de la evidencia
+        TipoEvidencia       VARCHAR(30)             NOT NULL,   -- Tipo de documento o archivo
+        
+        -- Datos del archivo almacenado
+        UrlArchivo          NVARCHAR(500)           NOT NULL,   -- URL o ruta de almacenamiento del archivo
+        NombreArchivo       NVARCHAR(200)           NOT NULL,   -- Nombre original del archivo
+        ContentType         VARCHAR(100)            NULL,       -- MIME type del archivo (ej. image/jpeg, application/pdf)
+        TamanoBytes         BIGINT                  NULL,       -- Tamaño del archivo en bytes
+        
+        -- Trazabilidad de quien subió el archivo
+        SubidoPor           NVARCHAR(100)           NOT NULL,   -- Usuario o sistema que cargó el archivo
+        Observaciones       NVARCHAR(500)           NULL,       -- Notas adicionales del asesor o sistema
+        
+        FechaCreacion       DATETIME2(3)            NOT NULL DEFAULT SYSDATETIME(),
+        
+        CONSTRAINT PK_EvidenciasFabrica PRIMARY KEY (IdEvidencia),
+        CONSTRAINT FK_EvidenciasFabrica_Estudio FOREIGN KEY (IdEstudioCredito) REFERENCES EstudiosCredito(IdEstudio),
+        CONSTRAINT CK_EvidenciasFabrica_Tipo CHECK (
+            TipoEvidencia IN ('FOTO_DOCUMENTO','SELFIE','COMPROBANTE','NOTA_ASESOR','DOCUMENTO_SOPORTE','OTRO')
+        )
+    );
+    
+    -- Índice principal para consultas por estudio
+    CREATE INDEX IX_EvidenciasFabrica_Estudio ON EvidenciasFabrica(IdEstudioCredito);
+    -- Índice para filtrar por tipo de evidencia dentro de un estudio
+    CREATE INDEX IX_EvidenciasFabrica_EstudioTipo ON EvidenciasFabrica(IdEstudioCredito, TipoEvidencia);
+    -- Índice para auditoría por usuario que subió el archivo
+    CREATE INDEX IX_EvidenciasFabrica_SubidoPor ON EvidenciasFabrica(SubidoPor, FechaCreacion);
+    
+    PRINT '✓ Tabla EvidenciasFabrica creada';
 END
 GO
 
@@ -711,6 +838,21 @@ BEGIN
 END
 GO
 
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 5.6 Insertar CatalogoCanalesOrigen (canales iniciales)
+--     G-DB-01: Seeds para los 3 canales base del sistema
+-- ─────────────────────────────────────────────────────────────────────────────
+IF NOT EXISTS (SELECT * FROM CatalogoCanalesOrigen)
+BEGIN
+    INSERT INTO CatalogoCanalesOrigen (Codigo, Nombre, Descripcion, Activo) VALUES
+    ('WEB',      'Canal Web',      'Originación a través del portal web o app del cliente',              1),
+    ('TIENDA',   'Canal Tienda',   'Originación presencial en punto de venta asistida por asesor',       1),
+    ('EXTERNO',  'Canal Externo',  'Originación por fuerza de ventas externas o aliados comerciales',    1);
+    
+    PRINT '✓ Seeds insertados en CatalogoCanalesOrigen';
+END
+GO
+
 
 -- ==============================================================================
 -- ══════════════════════════════════════════════════════════════════════════════
@@ -718,35 +860,58 @@ GO
 -- ==============================================================================
 /*
   ╔══════════════════════════════════════════════════════════════════════════════╗
-  ║                        RESUMEN DE IMPLEMENTACIÓN V2                           ║
+  ║                        RESUMEN DE IMPLEMENTACIÓN V2.1                        ║
   ╠══════════════════════════════════════════════════════════════════════════════╣
   ║                                                                              ║
-  ║  TABLAS CREADAS:                     15 tablas                               ║
-  ║  ├── Configuración:                  5 tablas                                ║
-  ║  ├── Transaccionales:                6 tablas                                ║
+  ║  TABLAS CREADAS:                     17 tablas                               ║
+  ║  ├── Configuración:                  6 tablas                                ║
+  ║  │   └── CatalogoCanalesOrigen       (G-DB-01 — nueva)                       ║
+  ║  ├── Transaccionales:                7 tablas                                ║
+  ║  │   └── EvidenciasFabrica           (GT-08 — nueva)                         ║
   ║  ├── Auditoría:                      3 tablas                                ║
-  ║  └── Integración:                     1 tabla (TercerosFabricas)       ║
+  ║  └── Integración:                    1 tabla (TercerosFabricas)              ║
   ║                                                                              ║
-  ║  TABLAS MODIFICADAS (ALTER):         2 tablas                                ║
+  ║  TABLAS MODIFICADAS (ALTER):         6 tablas                                ║
   ║  ├── QUAC.dbo.KCRM_CadenaCreditos   +4 columnas                             ║
-  ║  └── QUAC.dbo.BERP_FABRICASOperadores +1 columna                            ║
+  ║  ├── QUAC.dbo.BERP_FABRICASOperadores +1 columna                            ║
+  ║  ├── EstudiosCredito                 +10 columnas + 2 FK (G-DB-01,02,06,07,GT-04,GT-05)
+  ║  ├── RetosSeguridad                  +2 columnas (G-DB-05)                   ║
+  ║  ├── EvaluacionesRiesgo              CHECK ampliado (G-DB-03)                ║
+  ║  ├── RegistrosBiometria              +4 columnas OCR (G-DB-08)               ║
+  ║  ├── ValidacionesContactabilidad     +1 columna (G-DB-04)                    ║
+  ║  └── ConsentimientosLegales          +1 columna (G-DB-09)                    ║
   ║                                                                              ║
-  ║  ESTRATEGIA TERCEROS:                                                    ║
-  ║  ├── QUAC.dbo.terceros: SIN MODIFICACIÓN (tabla producción existente)    ║
-  ║  └── TercerosFabricas: Tabla propia como fuente de verdad           ║
+  ║  ESTRATEGIA TERCEROS:                                                        ║
+  ║  ├── QUAC.dbo.terceros: SIN MODIFICACIÓN (tabla producción existente)        ║
+  ║  └── TercerosFabricas: Tabla propia como fuente de verdad                    ║
   ║                                                                              ║
-  ║  DATOS SEMILLA INSERTADOS:          5 catálogos                             ║
+  ║  DATOS SEMILLA INSERTADOS:           6 catálogos                             ║
   ║  ├── FasesEstudio:                   7 registros                             ║
-  ║  ├── CatalogoEstados:               11 registros                            ║
-  ║  ├── PasosEstudio:                  13 registros                            ║
-  ║  ├── TransicionesEstado:             26 registros                           ║
-  ║  └── ConfiguracionReglasNegocio:     8 registros                            ║
+  ║  ├── CatalogoEstados:               11 registros                             ║
+  ║  ├── PasosEstudio:                  13 registros                             ║
+  ║  ├── TransicionesEstado:             26 registros                            ║
+  ║  ├── ConfiguracionReglasNegocio:     8 registros                             ║
+  ║  └── CatalogoCanalesOrigen:          3 registros (G-DB-01)                   ║
+  ║                                                                              ║
+  ║  GAPS CORREGIDOS:                                                            ║
+  ║  ├── G-DB-01: CatalogoCanalesOrigen + FK EstudiosCredito.IdCanal             ║
+  ║  ├── G-DB-02: FK física NitTercero → TercerosFabricas                        ║
+  ║  ├── G-DB-03: CHECK TipoEvaluacion ampliado (ANTECEDENTES, UBICA)            ║
+  ║  ├── G-DB-04: EstadoUbica granular en ValidacionesContactabilidad            ║
+  ║  ├── G-DB-05: NumeroReenvios + UltimoReenvio en RetosSeguridad               ║
+  ║  ├── G-DB-06: EmailCliente + EmailUbica en EstudiosCredito                   ║
+  ║  ├── G-DB-07: SlugPasoWeb + FechaUltimoAbandono en EstudiosCredito           ║
+  ║  ├── G-DB-08: Campos OCR en RegistrosBiometria (4 columnas)                  ║
+  ║  ├── G-DB-09: TipoFirma en ConsentimientosLegales                            ║
+  ║  ├── GT-04: EsCupoExpress + TipoCierre en EstudiosCredito                    ║
+  ║  ├── GT-05: 4 columnas de dirección capturada en EstudiosCredito             ║
+  ║  └── GT-08: Nueva tabla EvidenciasFabrica                                    ║
   ║                                                                              ║
   ╚══════════════════════════════════════════════════════════════════════════════╝
 */
 
 PRINT '================================================================';
-PRINT '  MIGRACIÓN FABRICASV2 COMPLETADA EXITOSAMENTE';
+PRINT '  MIGRACIÓN FABRICASV2.1 COMPLETADA EXITOSAMENTE';
 PRINT '================================================================';
 PRINT '  Fecha: ' + CONVERT(VARCHAR, GETDATE(), 120);
 PRINT '================================================================';

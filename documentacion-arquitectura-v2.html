@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Arquitectura de Datos v2 — Fábricas de Crédito QUAC</title>
+    <title>Arquitectura de Datos v2.1 — Fábricas de Crédito QUAC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -491,15 +491,17 @@
   <body>
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
-      <div class="sidebar-title">FABRICAS DE CRÉDITO v2</div>
+      <div class="sidebar-title">FABRICAS DE CRÉDITO v2.1</div>
       <nav>
         <a href="#overview" class="active">Visión General</a>
         <a href="#resumen-ejecutivo" class="indent">Resumen Ejecutivo</a>
         <a href="#arquitectura-modelo" class="indent"
           >Arquitectura del Modelo</a
         >
+
         <div class="sidebar-section">Análisis</div>
         <a href="#gap-analysis">Análisis de Brechas</a>
+        <a href="#gaps-resueltos" class="indent">Gaps Resueltos v2.1</a>
         <a href="#mapeo-tablas" class="indent">Mapeo de Tablas</a>
         <a href="#estrategia-integracion" class="indent"
           >Estrategia de Integración</a
@@ -520,16 +522,16 @@
     <main class="main">
       <!-- Header -->
       <section id="overview">
-        <h1>Arquitectura de Datos v2 — Fábricas de Crédito QUAC</h1>
+        <h1>Arquitectura de Datos v2.1 — Fábricas de Crédito QUAC</h1>
         <p class="meta">
           <span class="meta-item"
             ><strong>Motor:</strong> SQL Server 2019+</span
           >
-          <span class="meta-item"><strong>Versión:</strong> 2.0</span>
+          <span class="meta-item"><strong>Versión:</strong> 2.1</span>
           <span class="meta-item"
-            ><strong>Fecha:</strong> 17 de marzo de 2026</span
+            ><strong>Fecha:</strong> 6 de abril de 2026</span
           >
-          <span class="meta-item"><strong>Tablas Nuevas:</strong> 14</span>
+          <span class="meta-item"><strong>Tablas Nuevas:</strong> 16</span>
           <span class="meta-item"><strong>Tablas Modificadas:</strong> 3</span>
         </p>
 
@@ -758,6 +760,136 @@
               </td>
               <td>Medio</td>
               <td><code>PasosEstudio</code> + <code>IdPasoActual</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Mapeo de Tablas -->
+      <section id="gaps-resueltos">
+        <h2>Gaps Identificados y Resueltos (v2.1)</h2>
+        <p>
+          Durante la revisión del DDL v2.0 se identificaron brechas adicionales que fueron resueltas en esta versión. A continuación se documentan los gaps de base de datos (G-DB) y gaps de tipado/restricciones (GT).
+        </p>
+
+        <div class="callout callout--success">
+          <p><strong>Estado:</strong> Todos los gaps listados a continuación han sido resueltos en v2.1. El DDL fue actualizado y este documento refleja la arquitectura resultante.</p>
+        </div>
+
+        <h3>Gaps de Base de Datos (G-DB)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Gap Identificado</th>
+              <th>Tabla Afectada</th>
+              <th>Resolución</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge--green">G-DB-01 ✓</span></td>
+              <td>Falta columna de canal de origen en estudios</td>
+              <td><code>EstudiosCredito</code></td>
+              <td>Creada tabla <code>CatalogoCanalesOrigen</code> + columna <code>IdCanal FK</code> en EstudiosCredito</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">G-DB-02 ✓</span></td>
+              <td>Sin soporte para flujo web (retoma de sesión)</td>
+              <td><code>EstudiosCredito</code></td>
+              <td>Añadidas columnas <code>SlugPasoWeb</code> y <code>FechaUltimoAbandono</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">G-DB-03 ✓</span></td>
+              <td>Sin distinción de tipo de cierre del estudio</td>
+              <td><code>EstudiosCredito</code></td>
+              <td>Añadidas columnas <code>EsCupoExpress</code> y <code>TipoCierre</code> (EXPRESS/NORMAL/FABRICA)</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">G-DB-04 ✓</span></td>
+              <td>Sin almacenamiento de datos de dirección en staging durante el flujo</td>
+              <td><code>EstudiosCredito</code></td>
+              <td>Añadidas 4 columnas de dirección: <code>DepartamentoCapturado</code>, <code>CiudadCapturada</code>, <code>DireccionCapturada</code>, <code>BarrioCapturado</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">G-DB-05 ✓</span></td>
+              <td>Sin distinción entre email del cliente vs email de UBICA</td>
+              <td><code>EstudiosCredito</code></td>
+              <td>Añadidas columnas <code>EmailCliente</code> y <code>EmailUbica</code> separadas</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">G-DB-06 ✓</span></td>
+              <td>Sin control de reenvíos de OTP</td>
+              <td><code>RetosSeguridad</code></td>
+              <td>Añadidas columnas <code>NumeroReenvios</code> y <code>UltimoReenvio</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">G-DB-07 ✓</span></td>
+              <td>OCR biométrico sin campos de datos extraídos del documento</td>
+              <td><code>RegistrosBiometria</code></td>
+              <td>Añadidos <code>NombreExtraidoOCR</code>, <code>FechaExpedicionExtraidaOCR</code>, <code>NumeroDocumentoExtraidoOCR</code>, <code>CoincidenciaOCR</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">G-DB-08 ✓</span></td>
+              <td>Sin estado normalizado para resultado de UBICA</td>
+              <td><code>ValidacionesContactabilidad</code></td>
+              <td>Añadida columna <code>EstadoUbica</code> con CHECK de 6 valores posibles</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">G-DB-09 ✓</span></td>
+              <td>Sin tipo de firma en consentimientos</td>
+              <td><code>ConsentimientosLegales</code></td>
+              <td>Añadida columna <code>TipoFirma</code> (OTP_SMS/OTP_EMAIL/OTP_WHATSAPP/CHECKBOX/FIRMA_DIGITAL)</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">G-DB-10 ✓</span></td>
+              <td>Sin tabla para archivos adjuntos / evidencias del estudio</td>
+              <td>—</td>
+              <td>Creada nueva tabla <code>EvidenciasFabrica</code> con FK a EstudiosCredito</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Gaps de Tipado y Restricciones (GT)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Gap Identificado</th>
+              <th>Tabla / Columna</th>
+              <th>Resolución</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge--green">GT-01 ✓</span></td>
+              <td>TipoEvaluacion no incluía ANTECEDENTES ni UBICA</td>
+              <td><code>EvaluacionesRiesgo.TipoEvaluacion</code></td>
+              <td>CHECK constraint expandido: LISTAS / BURO / PRESELECTA / FOSYGA / <strong>ANTECEDENTES / UBICA</strong></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">GT-02 ✓</span></td>
+              <td>PK de TercerosFabricas era INT, insuficiente para escala</td>
+              <td><code>TercerosFabricas.IdTerceroFabrica</code></td>
+              <td>Cambiado a <code>BIGINT IDENTITY</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">GT-03 ✓</span></td>
+              <td>Sin columna FechaUltimaEvaluacion en TercerosFabricas</td>
+              <td><code>TercerosFabricas</code></td>
+              <td>Añadida columna <code>FechaUltimaEvaluacion DATETIME2(3) NULL</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">GT-04 ✓</span></td>
+              <td>MotivoBloqueo era VARCHAR(100), insuficiente para texto legal</td>
+              <td><code>TercerosFabricas.MotivoBloqueo</code></td>
+              <td>Ampliado a <code>NVARCHAR(500)</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">GT-05 ✓</span></td>
+              <td>CatalogoCanalesOrigen no existía (hardcoded en código)</td>
+              <td>—</td>
+              <td>Creada tabla de catálogo con <code>Codigo UNIQUE</code> y <code>Activo BIT</code></td>
             </tr>
           </tbody>
         </table>
@@ -1139,7 +1271,7 @@ CREATE TABLE dbo.TercerosFabricas (
         <h3>EstudiosCredito</h3>
         <p>
           <strong>Tabla central del sistema.</strong> Orquestador que referencia
-          a todas las demás.
+          a todas las demás. Actualizada en v2.1 con nuevas columnas de canal, dirección, cierre y web.
         </p>
         <table>
           <thead>
@@ -1169,6 +1301,11 @@ CREATE TABLE dbo.TercerosFabricas (
               <td><code>IdAsesor</code></td>
               <td>INT FK</td>
               <td>FK a BERP_FABRICASOperadores</td>
+            </tr>
+            <tr>
+              <td><code>IdCanal</code></td>
+              <td>INT FK</td>
+              <td>FK a CatalogoCanalesOrigen — canal de origen del estudio</td>
             </tr>
             <tr>
               <td><code>IdEstadoActual</code></td>
@@ -1204,6 +1341,56 @@ CREATE TABLE dbo.TercerosFabricas (
               <td><code>FechaPausa</code></td>
               <td>DATETIME2</td>
               <td>Fecha de pausa (NULL si activo)</td>
+            </tr>
+            <tr>
+              <td><code>EmailCliente</code></td>
+              <td>NVARCHAR(200) NULL</td>
+              <td><span class="badge badge--accent">v2.1</span> Email proporcionado directamente por el cliente</td>
+            </tr>
+            <tr>
+              <td><code>EmailUbica</code></td>
+              <td>NVARCHAR(200) NULL</td>
+              <td><span class="badge badge--accent">v2.1</span> Email obtenido vía consulta UBICA</td>
+            </tr>
+            <tr>
+              <td><code>SlugPasoWeb</code></td>
+              <td>VARCHAR(50) NULL</td>
+              <td><span class="badge badge--accent">v2.1</span> Punto de retoma para flujo web (URL slug del último paso visitado)</td>
+            </tr>
+            <tr>
+              <td><code>FechaUltimoAbandono</code></td>
+              <td>DATETIME2(3) NULL</td>
+              <td><span class="badge badge--accent">v2.1</span> Timestamp del último abandono del flujo por el cliente</td>
+            </tr>
+            <tr>
+              <td><code>EsCupoExpress</code></td>
+              <td>BIT DEFAULT 0</td>
+              <td><span class="badge badge--accent">v2.1</span> Indica si el cierre es cupo express (activación inmediata)</td>
+            </tr>
+            <tr>
+              <td><code>TipoCierre</code></td>
+              <td>VARCHAR(20) NULL</td>
+              <td><span class="badge badge--accent">v2.1</span> Tipo de cierre del estudio: EXPRESS / NORMAL / FABRICA</td>
+            </tr>
+            <tr>
+              <td><code>DepartamentoCapturado</code></td>
+              <td>NVARCHAR(100) NULL</td>
+              <td><span class="badge badge--accent">v2.1</span> Departamento de residencia capturado en staging durante el flujo</td>
+            </tr>
+            <tr>
+              <td><code>CiudadCapturada</code></td>
+              <td>NVARCHAR(100) NULL</td>
+              <td><span class="badge badge--accent">v2.1</span> Ciudad de residencia capturada en staging durante el flujo</td>
+            </tr>
+            <tr>
+              <td><code>DireccionCapturada</code></td>
+              <td>NVARCHAR(300) NULL</td>
+              <td><span class="badge badge--accent">v2.1</span> Dirección de residencia capturada en staging durante el flujo</td>
+            </tr>
+            <tr>
+              <td><code>BarrioCapturado</code></td>
+              <td>NVARCHAR(100) NULL</td>
+              <td><span class="badge badge--accent">v2.1</span> Barrio de residencia capturado en staging durante el flujo</td>
             </tr>
           </tbody>
         </table>
@@ -1326,12 +1513,693 @@ CREATE TABLE dbo.TercerosFabricas (
             </tr>
           </tbody>
         </table>
+
+        <h3>CatalogoCanalesOrigen <span class="badge badge--accent">Nuevo v2.1</span></h3>
+        <p>Catálogo de canales de origen de los estudios de crédito (WEB, tienda física, externo).</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdCanal</code></td>
+              <td>INT IDENTITY PK</td>
+              <td>Identificador único del canal</td>
+            </tr>
+            <tr>
+              <td><code>Codigo</code></td>
+              <td>VARCHAR(20) UNIQUE NOT NULL</td>
+              <td>Código del canal (ej. WEB, TIENDA, EXTERNO)</td>
+            </tr>
+            <tr>
+              <td><code>Nombre</code></td>
+              <td>NVARCHAR(100) NOT NULL</td>
+              <td>Nombre descriptivo del canal</td>
+            </tr>
+            <tr>
+              <td><code>Activo</code></td>
+              <td>BIT DEFAULT 1</td>
+              <td>¿El canal está activo?</td>
+            </tr>
+            <tr>
+              <td><code>FechaCreacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Fecha de creación del registro</td>
+            </tr>
+            <tr>
+              <td><code>FechaActualizacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Fecha de última actualización</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>TercerosFabricas</h3>
+        <p>
+          <strong>Tabla puente hacia QUAC.dbo.terceros.</strong> Fuente de verdad de clientes en el sistema de fábricas sin modificar la tabla original del ERP.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdTerceroFabrica</code></td>
+              <td>BIGINT IDENTITY PK</td>
+              <td>Identificador único</td>
+            </tr>
+            <tr>
+              <td><code>NitTercero</code></td>
+              <td>VARCHAR(20) UNIQUE NOT NULL</td>
+              <td>FK lógica a QUAC.dbo.terceros.nit</td>
+            </tr>
+            <tr>
+              <td><code>EstadoTercero</code></td>
+              <td>VARCHAR(20)</td>
+              <td>Estado del cliente: ACTIVO / BLOQUEADO / INACTIVO</td>
+            </tr>
+            <tr>
+              <td><code>TieneCupoActivo</code></td>
+              <td>BIT DEFAULT 0</td>
+              <td>¿El cliente tiene cupo vigente?</td>
+            </tr>
+            <tr>
+              <td><code>EstaBloqueadoFabricas</code></td>
+              <td>BIT DEFAULT 0</td>
+              <td>¿Está bloqueado para nuevas solicitudes en fábricas?</td>
+            </tr>
+            <tr>
+              <td><code>MotivoBloqueo</code></td>
+              <td>NVARCHAR(500) NULL</td>
+              <td>Descripción del motivo de bloqueo</td>
+            </tr>
+            <tr>
+              <td><code>FechaBloqueo</code></td>
+              <td>DATETIME2(3) NULL</td>
+              <td>Fecha en que se aplicó el bloqueo</td>
+            </tr>
+            <tr>
+              <td><code>FechaDesbloqueo</code></td>
+              <td>DATETIME2(3) NULL</td>
+              <td>Fecha de fin del período de enfriamiento (cooling-off)</td>
+            </tr>
+            <tr>
+              <td><code>TieneRegistroBiometrico</code></td>
+              <td>BIT DEFAULT 0</td>
+              <td>¿El cliente tiene biometría registrada?</td>
+            </tr>
+            <tr>
+              <td><code>PuntajeCredito</code></td>
+              <td>DECIMAL(5,2) NULL</td>
+              <td>Score crediticio del cliente</td>
+            </tr>
+            <tr>
+              <td><code>FechaUltimaEvaluacion</code></td>
+              <td>DATETIME2(3) NULL</td>
+              <td>Fecha de la última evaluación de riesgo</td>
+            </tr>
+            <tr>
+              <td><code>FechaCreacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Auditoría: fecha de creación</td>
+            </tr>
+            <tr>
+              <td><code>FechaActualizacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Auditoría: fecha de última actualización</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>TransicionesEstado</h3>
+        <p>Define las transiciones válidas entre estados de la máquina de estados. Configurable sin código.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdTransicion</code></td>
+              <td>INT IDENTITY PK</td>
+              <td>Identificador único de la transición</td>
+            </tr>
+            <tr>
+              <td><code>IdEstadoOrigen</code></td>
+              <td>INT FK</td>
+              <td>FK a CatalogoEstados — estado de partida</td>
+            </tr>
+            <tr>
+              <td><code>IdEstadoDestino</code></td>
+              <td>INT FK</td>
+              <td>FK a CatalogoEstados — estado de llegada</td>
+            </tr>
+            <tr>
+              <td><code>RequiereValidacion</code></td>
+              <td>BIT DEFAULT 0</td>
+              <td>¿La transición requiere validación adicional?</td>
+            </tr>
+            <tr>
+              <td><code>Descripcion</code></td>
+              <td>NVARCHAR(200) NULL</td>
+              <td>Descripción de cuándo aplica esta transición</td>
+            </tr>
+            <tr>
+              <td><code>Activo</code></td>
+              <td>BIT DEFAULT 1</td>
+              <td>¿La transición está habilitada?</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>ConfiguracionReglasNegocio</h3>
+        <p>Almacena parámetros de negocio editables en caliente sin necesidad de deploy.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdRegla</code></td>
+              <td>INT IDENTITY PK</td>
+              <td>Identificador único</td>
+            </tr>
+            <tr>
+              <td><code>CodigoRegla</code></td>
+              <td>VARCHAR(50) UNIQUE NOT NULL</td>
+              <td>Clave de la regla (ej. DIAS_ENFRIAMIENTO)</td>
+            </tr>
+            <tr>
+              <td><code>Descripcion</code></td>
+              <td>NVARCHAR(200) NOT NULL</td>
+              <td>Descripción legible de la regla</td>
+            </tr>
+            <tr>
+              <td><code>Valor</code></td>
+              <td>NVARCHAR(200) NOT NULL</td>
+              <td>Valor de la regla como cadena</td>
+            </tr>
+            <tr>
+              <td><code>TipoDato</code></td>
+              <td>VARCHAR(10)</td>
+              <td>Tipo de dato: INT / DECIMAL / BOOL / TEXT / JSON</td>
+            </tr>
+            <tr>
+              <td><code>Activo</code></td>
+              <td>BIT DEFAULT 1</td>
+              <td>¿La regla está vigente?</td>
+            </tr>
+            <tr>
+              <td><code>FechaCreacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Auditoría: fecha de creación</td>
+            </tr>
+            <tr>
+              <td><code>FechaActualizacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Auditoría: fecha de última actualización</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>RetosSeguridad</h3>
+        <p>Registra los retos OTP enviados al cliente para verificación de identidad. Incluye control de reenvíos.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdReto</code></td>
+              <td>BIGINT IDENTITY PK</td>
+              <td>Identificador único</td>
+            </tr>
+            <tr>
+              <td><code>IdEstudioCredito</code></td>
+              <td>BIGINT FK</td>
+              <td>FK a EstudiosCredito</td>
+            </tr>
+            <tr>
+              <td><code>CodigoHash</code></td>
+              <td>VARCHAR(256) NOT NULL</td>
+              <td>Hash del OTP — nunca se almacena en texto plano</td>
+            </tr>
+            <tr>
+              <td><code>CanalEnvio</code></td>
+              <td>VARCHAR(20)</td>
+              <td>Canal: WHATSAPP / EMAIL / SMS</td>
+            </tr>
+            <tr>
+              <td><code>FechaEnvio</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Fecha y hora de envío del reto</td>
+            </tr>
+            <tr>
+              <td><code>FechaExpiracion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Fecha y hora de vencimiento del OTP</td>
+            </tr>
+            <tr>
+              <td><code>FechaValidacion</code></td>
+              <td>DATETIME2(3) NULL</td>
+              <td>Fecha en que fue validado exitosamente (NULL si no validado)</td>
+            </tr>
+            <tr>
+              <td><code>EsValidado</code></td>
+              <td>BIT DEFAULT 0</td>
+              <td>¿El reto fue validado correctamente?</td>
+            </tr>
+            <tr>
+              <td><code>NumeroIntentos</code></td>
+              <td>INT DEFAULT 0</td>
+              <td>Número de intentos de validación realizados</td>
+            </tr>
+            <tr>
+              <td><code>NumeroReenvios</code></td>
+              <td>INT DEFAULT 0</td>
+              <td><span class="badge badge--accent">v2.1</span> Número de veces que se reenvió el OTP</td>
+            </tr>
+            <tr>
+              <td><code>UltimoReenvio</code></td>
+              <td>DATETIME2(3) NULL</td>
+              <td><span class="badge badge--accent">v2.1</span> Timestamp del último reenvío realizado</td>
+            </tr>
+            <tr>
+              <td><code>FechaCreacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Auditoría: fecha de creación</td>
+            </tr>
+            <tr>
+              <td><code>FechaActualizacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Auditoría: fecha de última actualización</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>EvaluacionesRiesgo</h3>
+        <p>Almacena el resultado de cada evaluación de riesgo ejecutada sobre un estudio (listas, buró, Preselecta, etc.).</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdEvaluacion</code></td>
+              <td>BIGINT IDENTITY PK</td>
+              <td>Identificador único</td>
+            </tr>
+            <tr>
+              <td><code>IdEstudioCredito</code></td>
+              <td>BIGINT FK</td>
+              <td>FK a EstudiosCredito</td>
+            </tr>
+            <tr>
+              <td><code>TipoEvaluacion</code></td>
+              <td>VARCHAR(20)</td>
+              <td>Tipo: LISTAS / BURO / PRESELECTA / FOSYGA / ANTECEDENTES / UBICA</td>
+            </tr>
+            <tr>
+              <td><code>Resultado</code></td>
+              <td>VARCHAR(20)</td>
+              <td>Resultado: APROBADO / RECHAZADO / PENDIENTE / ERROR</td>
+            </tr>
+            <tr>
+              <td><code>PuntajeObtenido</code></td>
+              <td>DECIMAL(10,2) NULL</td>
+              <td>Puntaje o score obtenido en la evaluación (si aplica)</td>
+            </tr>
+            <tr>
+              <td><code>DetalleRespuesta</code></td>
+              <td>NVARCHAR(MAX) NULL</td>
+              <td>JSON completo del response del servicio externo</td>
+            </tr>
+            <tr>
+              <td><code>FechaCreacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Auditoría: fecha de creación</td>
+            </tr>
+            <tr>
+              <td><code>FechaActualizacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Auditoría: fecha de última actualización</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>RegistrosBiometria</h3>
+        <p>Registra el proceso biométrico de verificación de identidad (OCR de documento + prueba de vida).</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdRegistro</code></td>
+              <td>BIGINT IDENTITY PK</td>
+              <td>Identificador único</td>
+            </tr>
+            <tr>
+              <td><code>IdEstudioCredito</code></td>
+              <td>BIGINT FK</td>
+              <td>FK a EstudiosCredito</td>
+            </tr>
+            <tr>
+              <td><code>TipoVerificacion</code></td>
+              <td>VARCHAR(20)</td>
+              <td>Tipo: ONBOARDING / AUTENTICACION</td>
+            </tr>
+            <tr>
+              <td><code>EstadoProceso</code></td>
+              <td>VARCHAR(20)</td>
+              <td>Estado: EXITOSO / FALLIDO / REVISION_MANUAL</td>
+            </tr>
+            <tr>
+              <td><code>PuntajeConfianza</code></td>
+              <td>DECIMAL(5,2) NULL</td>
+              <td>Score de confianza del proceso biométrico</td>
+            </tr>
+            <tr>
+              <td><code>EstadoOCR</code></td>
+              <td>TEXT NULL</td>
+              <td>Estado del proceso de reconocimiento óptico de caracteres</td>
+            </tr>
+            <tr>
+              <td><code>NombreExtraidoOCR</code></td>
+              <td>NVARCHAR(200) NULL</td>
+              <td><span class="badge badge--accent">v2.1</span> Nombre extraído del documento por OCR</td>
+            </tr>
+            <tr>
+              <td><code>FechaExpedicionExtraidaOCR</code></td>
+              <td>DATE NULL</td>
+              <td><span class="badge badge--accent">v2.1</span> Fecha de expedición extraída del documento por OCR</td>
+            </tr>
+            <tr>
+              <td><code>NumeroDocumentoExtraidoOCR</code></td>
+              <td>VARCHAR(20) NULL</td>
+              <td><span class="badge badge--accent">v2.1</span> Número de documento extraído por OCR para validación cruzada</td>
+            </tr>
+            <tr>
+              <td><code>CoincidenciaOCR</code></td>
+              <td>BIT NULL</td>
+              <td><span class="badge badge--accent">v2.1</span> ¿El documento extraído coincide con el NIT del cliente?</td>
+            </tr>
+            <tr>
+              <td><code>DetalleVerificacion</code></td>
+              <td>NVARCHAR(MAX) NULL</td>
+              <td>JSON con detalle completo del proceso de verificación</td>
+            </tr>
+            <tr>
+              <td><code>FechaCreacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Auditoría: fecha de creación</td>
+            </tr>
+            <tr>
+              <td><code>FechaActualizacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Auditoría: fecha de última actualización</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>ValidacionesContactabilidad</h3>
+        <p>Registra el resultado de la verificación de contactabilidad del cliente vía UBICA y gestión manual de call center.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdValidacion</code></td>
+              <td>BIGINT IDENTITY PK</td>
+              <td>Identificador único</td>
+            </tr>
+            <tr>
+              <td><code>IdEstudioCredito</code></td>
+              <td>BIGINT FK</td>
+              <td>FK a EstudiosCredito</td>
+            </tr>
+            <tr>
+              <td><code>ScoreUbica</code></td>
+              <td>INT NULL</td>
+              <td>Score de contactabilidad devuelto por UBICA</td>
+            </tr>
+            <tr>
+              <td><code>EstadoUbica</code></td>
+              <td>VARCHAR(30) NULL</td>
+              <td><span class="badge badge--accent">v2.1</span> Estado normalizado UBICA: OK_CEL_CORREO / OK_CEL / GESTION_MANUAL_CALL / GESTION_MANUAL_FABRICA / NO_CONTACTABLE / PENDIENTE</td>
+            </tr>
+            <tr>
+              <td><code>EsActivacionAutomatica</code></td>
+              <td>BIT DEFAULT 0</td>
+              <td>¿La activación procedió de forma automática sin call center?</td>
+            </tr>
+            <tr>
+              <td><code>EstadoVerificacionManual</code></td>
+              <td>VARCHAR(20)</td>
+              <td>Estado de gestión manual: PENDIENTE / CONFIRMADO / RECHAZADO</td>
+            </tr>
+            <tr>
+              <td><code>FechaCreacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Auditoría: fecha de creación</td>
+            </tr>
+            <tr>
+              <td><code>FechaActualizacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Auditoría: fecha de última actualización</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>ConsentimientosLegales</h3>
+        <p>Registra la aceptación de términos y condiciones, autorizaciones de datos y firmas legales del cliente.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdConsentimiento</code></td>
+              <td>BIGINT IDENTITY PK</td>
+              <td>Identificador único</td>
+            </tr>
+            <tr>
+              <td><code>IdEstudioCredito</code></td>
+              <td>BIGINT FK</td>
+              <td>FK a EstudiosCredito</td>
+            </tr>
+            <tr>
+              <td><code>TipoConsentimiento</code></td>
+              <td>VARCHAR(50) NOT NULL</td>
+              <td>Tipo de documento aceptado (ej. TERMINOS_Y_CONDICIONES, HABEAS_DATA)</td>
+            </tr>
+            <tr>
+              <td><code>VersionDocumento</code></td>
+              <td>VARCHAR(20) NOT NULL</td>
+              <td>Versión del documento legal aceptado</td>
+            </tr>
+            <tr>
+              <td><code>TipoFirma</code></td>
+              <td>VARCHAR(20)</td>
+              <td><span class="badge badge--accent">v2.1</span> Mecanismo de firma: OTP_SMS / OTP_EMAIL / OTP_WHATSAPP / CHECKBOX / FIRMA_DIGITAL</td>
+            </tr>
+            <tr>
+              <td><code>FechaAceptacion</code></td>
+              <td>DATETIME2(3) NOT NULL</td>
+              <td>Timestamp exacto de la aceptación</td>
+            </tr>
+            <tr>
+              <td><code>DireccionIP</code></td>
+              <td>VARCHAR(45) NULL</td>
+              <td>IP del dispositivo desde el que se aceptó (IPv4/IPv6)</td>
+            </tr>
+            <tr>
+              <td><code>UserAgent</code></td>
+              <td>NVARCHAR(500) NULL</td>
+              <td>Cadena User-Agent del navegador/dispositivo</td>
+            </tr>
+            <tr>
+              <td><code>FechaCreacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Auditoría: fecha de creación</td>
+            </tr>
+            <tr>
+              <td><code>FechaActualizacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Auditoría: fecha de última actualización</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>AuditoriaCambiosDatos</h3>
+        <p>
+          <strong>Tabla de auditoría inmutable (INSERT-ONLY).</strong> Registra cualquier modificación en datos del cliente durante un estudio activo.
+        </p>
+        <div class="callout callout--danger">
+          <p><strong>Regla crítica:</strong> Esta tabla es de SOLO INSERCIÓN. Está prohibido ejecutar UPDATE o DELETE. Cualquier modificación se registra como nuevo registro.</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdAuditoria</code></td>
+              <td>BIGINT IDENTITY PK</td>
+              <td>Identificador único</td>
+            </tr>
+            <tr>
+              <td><code>IdEstudioCredito</code></td>
+              <td>BIGINT FK</td>
+              <td>FK a EstudiosCredito</td>
+            </tr>
+            <tr>
+              <td><code>TablaAfectada</code></td>
+              <td>VARCHAR(100) NOT NULL</td>
+              <td>Nombre de la tabla donde se realizó el cambio</td>
+            </tr>
+            <tr>
+              <td><code>CampoModificado</code></td>
+              <td>VARCHAR(100) NOT NULL</td>
+              <td>Nombre de la columna modificada</td>
+            </tr>
+            <tr>
+              <td><code>ValorAnterior</code></td>
+              <td>NVARCHAR(MAX) NULL</td>
+              <td>Valor que tenía el campo antes del cambio</td>
+            </tr>
+            <tr>
+              <td><code>ValorNuevo</code></td>
+              <td>NVARCHAR(MAX) NULL</td>
+              <td>Valor nuevo asignado al campo</td>
+            </tr>
+            <tr>
+              <td><code>UsuarioCambio</code></td>
+              <td>NVARCHAR(100) NOT NULL</td>
+              <td>Identificador del usuario o proceso que realizó el cambio</td>
+            </tr>
+            <tr>
+              <td><code>FechaCambio</code></td>
+              <td>DATETIME2(3) DEFAULT SYSDATETIME()</td>
+              <td>Timestamp exacto del cambio</td>
+            </tr>
+            <tr>
+              <td><code>IpOrigen</code></td>
+              <td>VARCHAR(45) NULL</td>
+              <td>IP de origen del cambio para trazabilidad legal</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>EvidenciasFabrica <span class="badge badge--accent">Nuevo v2.1</span></h3>
+        <p>Almacena los archivos adjuntos al estudio: fotos de documento, selfies, comprobantes y notas del asesor.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdEvidencia</code></td>
+              <td>BIGINT IDENTITY PK</td>
+              <td>Identificador único</td>
+            </tr>
+            <tr>
+              <td><code>IdEstudioCredito</code></td>
+              <td>BIGINT FK</td>
+              <td>FK a EstudiosCredito</td>
+            </tr>
+            <tr>
+              <td><code>TipoEvidencia</code></td>
+              <td>VARCHAR(30)</td>
+              <td>Tipo: FOTO_DOCUMENTO / SELFIE / COMPROBANTE / NOTA_ASESOR / DOCUMENTO_SOPORTE / OTRO</td>
+            </tr>
+            <tr>
+              <td><code>UrlArchivo</code></td>
+              <td>NVARCHAR(500) NOT NULL</td>
+              <td>URL de almacenamiento del archivo (blob storage, S3, etc.)</td>
+            </tr>
+            <tr>
+              <td><code>NombreArchivo</code></td>
+              <td>NVARCHAR(200) NOT NULL</td>
+              <td>Nombre original del archivo subido</td>
+            </tr>
+            <tr>
+              <td><code>ContentType</code></td>
+              <td>VARCHAR(100) NULL</td>
+              <td>Tipo MIME del archivo (ej. image/jpeg, application/pdf)</td>
+            </tr>
+            <tr>
+              <td><code>TamanoBytes</code></td>
+              <td>BIGINT NULL</td>
+              <td>Tamaño del archivo en bytes</td>
+            </tr>
+            <tr>
+              <td><code>SubidoPor</code></td>
+              <td>NVARCHAR(100) NOT NULL</td>
+              <td>Identificador del usuario que subió el archivo</td>
+            </tr>
+            <tr>
+              <td><code>Observaciones</code></td>
+              <td>NVARCHAR(500) NULL</td>
+              <td>Notas o comentarios del asesor sobre el archivo</td>
+            </tr>
+            <tr>
+              <td><code>FechaCreacion</code></td>
+              <td>DATETIME2(3) DEFAULT SYSDATETIME()</td>
+              <td>Fecha y hora en que se subió el archivo</td>
+            </tr>
+          </tbody>
+        </table>
       </section>
 
       <!-- Diagrama ER -->
       <section id="diagrama-er">
         <h2>Diagrama ER Simplificado</h2>
-        <p>Relaciones principales entre las tablas del modelo de datos v2.</p>
+        <p>Relaciones principales entre las tablas del modelo de datos v2.1. Las tablas marcadas con <span class="badge badge--accent">v2.1</span> son nuevas en esta versión.</p>
 
         <div class="er-diagram">
           <!-- Tablas Existentes -->
@@ -1349,7 +2217,7 @@ CREATE TABLE dbo.TercerosFabricas (
             <div class="er-table-title er-table-title--trans">
               TercerosFabricas
             </div>
-            <div class="er-table-col er-table-col--pk">PK IdTerceroFabricas</div>
+            <div class="er-table-col er-table-col--pk">PK IdTerceroFabrica</div>
             <div class="er-table-col er-table-col--fk">FK NitTercero → terceros.nit</div>
             <div class="er-table-col">EstadoTercero</div>
             <div class="er-table-col">EstaBloqueadoFabricas</div>
@@ -1409,6 +2277,26 @@ CREATE TABLE dbo.TercerosFabricas (
             <div class="er-table-col er-table-col--fk">FK IdEstadoDestino</div>
           </div>
 
+          <div class="er-table">
+            <div class="er-table-title er-table-title--config">
+              CatalogoCanalesOrigen <span style="font-size:10px;opacity:0.8">v2.1</span>
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdCanal</div>
+            <div class="er-table-col">Codigo</div>
+            <div class="er-table-col">Nombre</div>
+            <div class="er-table-col">Activo</div>
+          </div>
+
+          <div class="er-table">
+            <div class="er-table-title er-table-title--config">
+              ConfiguracionReglasNegocio
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdRegla</div>
+            <div class="er-table-col">CodigoRegla</div>
+            <div class="er-table-col">Valor</div>
+            <div class="er-table-col">TipoDato</div>
+          </div>
+
           <!-- Transaccionales -->
           <div class="er-table">
             <div class="er-table-title er-table-title--trans">
@@ -1416,9 +2304,12 @@ CREATE TABLE dbo.TercerosFabricas (
             </div>
             <div class="er-table-col er-table-col--pk">PK IdEstudio</div>
             <div class="er-table-col">NitTercero</div>
+            <div class="er-table-col er-table-col--fk">FK IdCanal → CatalogoCanalesOrigen</div>
             <div class="er-table-col er-table-col--fk">FK IdEstadoActual</div>
             <div class="er-table-col er-table-col--fk">FK IdPasoActual</div>
             <div class="er-table-col">FechaPausa</div>
+            <div class="er-table-col">SlugPasoWeb</div>
+            <div class="er-table-col">TipoCierre</div>
           </div>
 
           <div class="er-table">
@@ -1426,8 +2317,8 @@ CREATE TABLE dbo.TercerosFabricas (
               EvaluacionesRiesgo
             </div>
             <div class="er-table-col er-table-col--pk">PK IdEvaluacion</div>
-            <div class="er-table-col er-table-col--fk">FK IdEstudio</div>
-            <div class="er-table-col er-table-col--fk">FK IdPaso</div>
+            <div class="er-table-col er-table-col--fk">FK IdEstudioCredito</div>
+            <div class="er-table-col">TipoEvaluacion</div>
             <div class="er-table-col">Resultado</div>
           </div>
 
@@ -1435,10 +2326,10 @@ CREATE TABLE dbo.TercerosFabricas (
             <div class="er-table-title er-table-title--trans">
               RegistrosBiometria
             </div>
-            <div class="er-table-col er-table-col--pk">PK IdBiometria</div>
-            <div class="er-table-col er-table-col--fk">FK IdEstudio</div>
-            <div class="er-table-col">PruebaVidaAprobada</div>
+            <div class="er-table-col er-table-col--pk">PK IdRegistro</div>
+            <div class="er-table-col er-table-col--fk">FK IdEstudioCredito</div>
             <div class="er-table-col">EstadoProceso</div>
+            <div class="er-table-col">CoincidenciaOCR</div>
           </div>
 
           <div class="er-table">
@@ -1446,9 +2337,43 @@ CREATE TABLE dbo.TercerosFabricas (
               RetosSeguridad
             </div>
             <div class="er-table-col er-table-col--pk">PK IdReto</div>
-            <div class="er-table-col er-table-col--fk">FK IdEstudio</div>
+            <div class="er-table-col er-table-col--fk">FK IdEstudioCredito</div>
             <div class="er-table-col">CanalEnvio</div>
-            <div class="er-table-col">Exitoso</div>
+            <div class="er-table-col">EsValidado</div>
+            <div class="er-table-col">NumeroReenvios</div>
+          </div>
+
+          <div class="er-table">
+            <div class="er-table-title er-table-title--trans">
+              ValidacionesContactabilidad
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdValidacion</div>
+            <div class="er-table-col er-table-col--fk">FK IdEstudioCredito</div>
+            <div class="er-table-col">ScoreUbica</div>
+            <div class="er-table-col">EstadoUbica</div>
+            <div class="er-table-col">EsActivacionAutomatica</div>
+          </div>
+
+          <div class="er-table">
+            <div class="er-table-title er-table-title--trans">
+              ConsentimientosLegales
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdConsentimiento</div>
+            <div class="er-table-col er-table-col--fk">FK IdEstudioCredito</div>
+            <div class="er-table-col">TipoConsentimiento</div>
+            <div class="er-table-col">TipoFirma</div>
+            <div class="er-table-col">FechaAceptacion</div>
+          </div>
+
+          <div class="er-table">
+            <div class="er-table-title er-table-title--trans">
+              EvidenciasFabrica <span style="font-size:10px;opacity:0.8">v2.1</span>
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdEvidencia</div>
+            <div class="er-table-col er-table-col--fk">FK IdEstudioCredito</div>
+            <div class="er-table-col">TipoEvidencia</div>
+            <div class="er-table-col">UrlArchivo</div>
+            <div class="er-table-col">SubidoPor</div>
           </div>
 
           <!-- Auditoría -->
@@ -1477,9 +2402,29 @@ CREATE TABLE dbo.TercerosFabricas (
               AuditoriaCambiosDatos
             </div>
             <div class="er-table-col er-table-col--pk">PK IdAuditoria</div>
-            <div class="er-table-col er-table-col--fk">FK IdEstudio</div>
-            <div class="er-table-col">NitTercero</div>
-            <div class="er-table-col">NombreCampo</div>
+            <div class="er-table-col er-table-col--fk">FK IdEstudioCredito</div>
+            <div class="er-table-col">TablaAfectada</div>
+            <div class="er-table-col">CampoModificado</div>
+          </div>
+        </div>
+
+        <h3>Leyenda de Colores</h3>
+        <div class="card-grid">
+          <div class="card" style="border-left-color: var(--amber);">
+            <h4 style="color: var(--amber);">Naranja — Tablas Existentes ERP</h4>
+            <p>Tablas de QUAC.dbo que se reutilizan sin modificación o con columnas adicionales.</p>
+          </div>
+          <div class="card" style="border-left-color: var(--violet);">
+            <h4 style="color: var(--violet);">Morado — Configuración</h4>
+            <p>Catálogos y parámetros del sistema. Editables sin deploy.</p>
+          </div>
+          <div class="card" style="border-left-color: var(--cyan);">
+            <h4 style="color: var(--cyan);">Cyan — Transaccionales</h4>
+            <p>Tablas que registran las operaciones del proceso de otorgamiento.</p>
+          </div>
+          <div class="card" style="border-left-color: var(--green);">
+            <h4 style="color: var(--green);">Verde — Auditoría</h4>
+            <p>Solo INSERT. Trazabilidad inmutable de estados, datos y servicios.</p>
           </div>
         </div>
       </section>
@@ -2003,8 +2948,8 @@ VALUES (12345, 9, 'PRESELECTA', 'https://api.preselecta.co/consultar',
       <hr />
       <p style="font-size: 13px; color: var(--text-secondary)">
         <strong>Documento:</strong> Arquitectura de Datos — Fábricas de Crédito
-        QUAC v2.0<br />
-        <strong>Fecha:</strong> 17 de marzo de 2026<br />
+        QUAC v2.1<br />
+        <strong>Fecha:</strong> 6 de abril de 2026<br />
         <strong>Archivos relacionados:</strong>
         <code>DB/DDL/FABRICASv2.sql</code>
       </p>
