@@ -894,22 +894,36 @@ input, select, textarea { font-family: inherit; }
       <div class="scenario-opt active" data-scenario="nuevo" onclick="setScenario('nuevo')">
         <div class="radio"></div>
         <div>
-          <strong>Sin estudio activo</strong>
-          <span>Primera vez, o solo tiene estudios cerrados (rechazo, abandono). Arranca nuevo → 05</span>
+          <strong>Primera vez</strong>
+          <span>Sin historia en QUAC, o tercero no consolidado → 05 (captura vacía)</span>
+        </div>
+      </div>
+      <div class="scenario-opt" data-scenario="conocido" onclick="setScenario('conocido')">
+        <div class="radio"></div>
+        <div>
+          <strong>Conocido con estudios cerrados</strong>
+          <span>Celular ya verificado antes → 03b → 04 → 05b pre-llenado</span>
+        </div>
+      </div>
+      <div class="scenario-opt" data-scenario="cooldown" onclick="setScenario('cooldown')">
+        <div class="radio"></div>
+        <div>
+          <strong>En cooldown (rechazo reciente)</strong>
+          <span>Último estudio no viable, debe esperar N días → 03b → 04 → 02b</span>
         </div>
       </div>
       <div class="scenario-opt" data-scenario="activo" onclick="setScenario('activo')">
         <div class="radio"></div>
         <div>
           <strong>Con estudio activo</strong>
-          <span>Mensaje genérico + OTP sin exponer datos → 03 → 04 → 19</span>
+          <span>Mensaje genérico + OTP → 03 → 04 → 19 dashboard</span>
         </div>
       </div>
       <div class="scenario-opt" data-scenario="cupo" onclick="setScenario('cupo')">
         <div class="radio"></div>
         <div>
           <strong>Ya tiene cupo activo</strong>
-          <span>Cierre temprano → pantalla 02</span>
+          <span>Cierre temprano → 02</span>
         </div>
       </div>
     </div>
@@ -918,13 +932,16 @@ input, select, textarea { font-family: inherit; }
       <div class="sidebar-group-title">F1 · Identificación</div>
       <div class="sidebar-item active" data-screen="01"><span class="sidebar-item-num">01</span>Landing + documento</div>
       <div class="sidebar-item" data-screen="02"><span class="sidebar-item-num">02</span>Ya tienes cupo</div>
+      <div class="sidebar-item" data-screen="02b"><span class="sidebar-item-num">02b</span>En cooldown (rechazo)</div>
       <div class="sidebar-item" data-screen="03"><span class="sidebar-item-num">03</span>Estudio en curso</div>
-      <div class="sidebar-item" data-screen="04"><span class="sidebar-item-num">04</span>OTP para retomar</div>
+      <div class="sidebar-item" data-screen="03b"><span class="sidebar-item-num">03b</span>Verifica que eres tú (conocido)</div>
+      <div class="sidebar-item" data-screen="04"><span class="sidebar-item-num">04</span>OTP</div>
     </div>
 
     <div class="sidebar-group">
       <div class="sidebar-group-title">F3 + F2 · Datos y consentimiento</div>
       <div class="sidebar-item" data-screen="05"><span class="sidebar-item-num">05</span>Datos básicos</div>
+      <div class="sidebar-item" data-screen="05b"><span class="sidebar-item-num">05b</span>Confirmar datos (pre-llenado)</div>
       <div class="sidebar-item" data-screen="06"><span class="sidebar-item-num">06</span>T&amp;C + OTP celular</div>
       <div class="sidebar-item" data-screen="07"><span class="sidebar-item-num">07</span>F3b · Datos del documento</div>
     </div>
@@ -1046,6 +1063,34 @@ input, select, textarea { font-family: inherit; }
           </div>
         </div>
 
+        <!-- ── 02b · En cooldown por rechazo reciente (post-OTP, terminal) ── -->
+        <div class="screen" data-screen-body="02b">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top"><div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><div></div></div>
+          <div class="screen-body">
+            <div class="hero-illus warning">
+              <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            </div>
+            <h1 class="screen-title">Vuelve más adelante</h1>
+            <p class="screen-subtitle">Tu última solicitud no fue aprobada. Por políticas de QUAC debes esperar un tiempo antes de hacer una nueva.</p>
+
+            <div class="card card-accent">
+              <div class="card-row"><span class="label">Última solicitud</span><span class="value">08 abr 2026</span></div>
+              <div class="card-row"><span class="label">Podrás volver a intentar</span><span class="value" style="color: var(--accent)">07 jul 2026</span></div>
+              <div class="card-row"><span class="label">Faltan</span><span class="value">89 días</span></div>
+            </div>
+
+            <div class="callout">
+              Te enviaremos un SMS cuando puedas volver a solicitar tu cupo. No necesitas hacer nada más por ahora.
+            </div>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary">Entendido</button>
+              <button class="btn btn-link">Hablar con un asesor</button>
+            </div>
+          </div>
+        </div>
+
         <!-- ── 03 · Ya tiene estudio en curso ── -->
         <div class="screen" data-screen-body="03">
           <div class="status-bar"><span>9:41</span><span>●●●</span></div>
@@ -1056,6 +1101,28 @@ input, select, textarea { font-family: inherit; }
             </div>
             <h1 class="screen-title">Tienes un estudio activo</h1>
             <p class="screen-subtitle">Para continuar necesitamos verificar que eres tú. Te enviaremos un código al celular que registraste.</p>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary" onclick="go('04')">Enviar código</button>
+              <button class="btn btn-link">No soy yo · Contactar soporte</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 03b · Verifica que eres tú (cliente conocido sin estudio activo) ── -->
+        <div class="screen" data-screen-body="03b">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top"><div class="back-btn" onclick="go('01')">←</div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><div></div></div>
+          <div class="screen-body">
+            <div class="hero-illus info">
+              <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+            </div>
+            <h1 class="screen-title">Verifica que eres tú</h1>
+            <p class="screen-subtitle">Tenemos información tuya de antes en QUAC. Te enviaremos un código al celular que tenemos registrado para confirmar que eres tú.</p>
+
+            <div class="callout">
+              Es un paso rápido para proteger tu información. No podemos mostrarte detalles de tu historia sin verificar tu identidad.
+            </div>
 
             <div class="cta-stack">
               <button class="btn btn-primary" onclick="go('04')">Enviar código</button>
@@ -1085,7 +1152,7 @@ input, select, textarea { font-family: inherit; }
             <div class="otp-help"><a href="#">Reenviar por SMS</a> · <a href="#">Enviar por WhatsApp</a></div>
 
             <div class="cta-stack">
-              <button class="btn btn-primary" onclick="go('19')">Validar código</button>
+              <button class="btn btn-primary" onclick="continuarDespuesOtp()">Validar código</button>
               <button class="btn btn-link">¿Ya no tengo acceso a este número?</button>
             </div>
           </div>
@@ -1114,6 +1181,41 @@ input, select, textarea { font-family: inherit; }
 
             <div class="callout">
               Vamos a enviarte un código por SMS a este número para firmar los términos. Asegúrate de tenerlo a la mano.
+            </div>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary" onclick="go('06')">Continuar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 05b · Confirmar datos pre-llenados (cliente conocido post-OTP) ── -->
+        <div class="screen" data-screen-body="05b">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top">
+            <div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div>
+            <span class="progress-chip">1 / 6</span>
+          </div>
+          <div class="step-bar">
+            <div class="step-dot current"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div>
+          </div>
+          <div class="screen-body">
+            <h1 class="screen-title">Confirma tus datos</h1>
+            <p class="screen-subtitle">Ya te teníamos registrado. Revisa que tu información siga correcta y actualiza lo que haya cambiado.</p>
+
+            <div class="callout" style="background: var(--success-bg); border-left-color: var(--success); color: var(--text-secondary)">
+              <strong style="color: var(--success)">Datos verificados</strong> — Estos datos vienen de tu última solicitud en QUAC. Si alguno cambió, edítalo ahora.
+            </div>
+
+            <div class="field-row">
+              <div class="field"><label>Nombres</label><input class="control" value="Laura"></div>
+              <div class="field"><label>Apellidos</label><input class="control" value="Rodríguez"></div>
+            </div>
+            <div class="field"><label>Correo electrónico</label><input class="control" type="email" value="laura.r@gmail.com"></div>
+            <div class="field"><label>Celular</label><input class="control" value="310 784 12 98"></div>
+
+            <div class="callout">
+              Si cambiaste el celular, al continuar enviaremos un nuevo código para verificarlo. Es la única forma de proteger tu cuenta.
             </div>
 
             <div class="cta-stack">
@@ -1613,9 +1715,12 @@ const canvasHeader = document.querySelector('.canvas-header');
 const headerMap = {
   '01': { title: '01 · Identificación del cliente', desc: 'Landing del portal. Pocas palabras, confianza y un único campo obligatorio: el documento. Aquí es donde el sistema decide si crea un estudio nuevo o envía a retomar uno existente.', phase: 'Fase F1', state: 'BORRADOR' },
   '02': { title: '02 · El cliente ya tiene cupo activo', desc: 'Cierre temprano. El sistema detecta que el documento ya está asociado a un cupo y lo redirige al portal del cliente.', phase: 'Fase F1', state: 'NO APLICA' },
-  '03': { title: '03 · Tiene un estudio en curso', desc: 'Regla de unicidad en acción. Le muestra el estudio existente y lo obliga a autenticarse con OTP para continuar.', phase: 'Fase F1', state: 'EN_PAUSA' },
-  '04': { title: '04 · OTP para retomar estudio', desc: 'Única forma de autenticarse en el canal web: código al celular registrado en el estudio.', phase: 'Fase F1', state: 'EN_PAUSA' },
+  '02b': { title: '02b · En cooldown por rechazo reciente', desc: 'Terminal post-OTP. El cliente tuvo un estudio no viable recientemente y debe esperar N días antes de volver a solicitar. Esta pantalla expone PII (fecha del último rechazo + fecha de re-habilitación), por eso solo se muestra después de validar OTP.', phase: 'Fase F1', state: 'CERRADO · cooldown' },
+  '03': { title: '03 · Tiene un estudio en curso', desc: 'Regla de unicidad en acción. Mensaje genérico sin filtrar PII. Para continuar, OTP obligatorio.', phase: 'Fase F1', state: 'EN_PAUSA' },
+  '03b': { title: '03b · Puerta de verificación (cliente conocido)', desc: 'Mensaje neutro que sirve para 2 casos: (a) conocido con estudios cerrados fuera de cooldown, y (b) en cooldown por rechazo reciente. No revela cuál es la situación hasta después del OTP. Protege PII desde la entrada.', phase: 'Fase F1', state: 'BORRADOR' },
+  '04': { title: '04 · OTP', desc: 'Única forma de autenticarse en el canal web. Tras validar, el destino depende del escenario: activo → dashboard (19); conocido → datos pre-llenados (05b); cooldown → pantalla terminal con fecha de re-habilitación (02b).', phase: 'Fase F1', state: 'BORRADOR' },
   '05': { title: '05 · Captura mínima de datos', desc: 'F3 reducido del canal web. Solo nombres, apellidos, correo y celular. Los datos del documento se difieren a F3b.', phase: 'Fase F3', state: 'BORRADOR' },
+  '05b': { title: '05b · Confirmar datos (cliente conocido)', desc: 'Variante de 05 para clientes conocidos. Viene post-OTP con los datos del tercero pre-llenados. Si el cliente cambió el celular, se envía un nuevo OTP en F2 (pantalla 06).', phase: 'Fase F3', state: 'BORRADOR' },
   '06': { title: '06 · Consentimiento legal + OTP celular', desc: 'F2 del canal web. Aceptación de T&C + PTD, firmados electrónicamente con el código SMS.', phase: 'Fase F2', state: 'ACTIVO' },
   '07': { title: '07 · Confirmación de datos del documento (F3b)', desc: 'Pantalla exclusiva del canal web. Captura los campos que tienda pide al inicio pero que en web se difieren para reducir fricción.', phase: 'Fase F3', state: 'ACTIVO' },
   '08': { title: '08 · Analizando tu solicitud (F4)', desc: 'Loader que muestra las consultas automáticas: antecedentes, Preselecta, FOSYGA y cálculo de cupo. Sin intervención humana.', phase: 'Fase F4', state: 'ACTIVO' },
@@ -1671,15 +1776,31 @@ function setScenario(name) {
 
 function continuarDesdeIdentificacion() {
   // Simula lo que haría el backend tras consultar el documento:
-  //  - nuevo  → arranca el flujo de cliente nuevo en pantalla 05
-  //  - activo → muestra card del estudio en curso (pantalla 03)
-  //             desde ahí el cliente pasa a OTP (04) y luego al dashboard (19)
-  //  - cupo   → cierre temprano (pantalla 02)
+  //  - nuevo    → primera vez o tercero no consolidado → captura vacía (05)
+  //  - conocido → tercero con estudios cerrados (fuera de cooldown) → verifica identidad (03b → 04 → 05b)
+  //  - cooldown → tercero con rechazo reciente → verifica identidad (03b → 04 → 02b terminal)
+  //  - activo   → estudio activo → verifica identidad (03 → 04 → 19 dashboard)
+  //  - cupo     → ya tiene cupo activo → cierre temprano (02)
   const destino = {
     nuevo: '05',
+    conocido: '03b',
+    cooldown: '03b',
     activo: '03',
     cupo: '02'
   }[currentScenario];
+  go(destino);
+}
+
+function continuarDespuesOtp() {
+  // Tras validar OTP, el destino depende del escenario:
+  //  - activo   → dashboard con el estudio en curso (19)
+  //  - conocido → captura pre-llenada (05b) para iniciar un nuevo estudio
+  //  - cooldown → pantalla terminal con la fecha en que podrá volver (02b)
+  const destino = {
+    activo: '19',
+    conocido: '05b',
+    cooldown: '02b'
+  }[currentScenario] || '19';
   go(destino);
 }
 </script>
