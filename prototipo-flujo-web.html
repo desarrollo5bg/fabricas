@@ -103,6 +103,90 @@ input, select, textarea { font-family: inherit; }
   margin-top: 6px;
 }
 
+/* ─── Scenario selector ─── */
+.scenario-box {
+  margin: 0 18px 18px;
+  padding: 14px;
+  background: linear-gradient(135deg, #FFF7ED 0%, #FEF3C7 100%);
+  border: 1px solid #FCD34D;
+  border-radius: 12px;
+}
+.scenario-box h4 {
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  color: #92400E;
+  font-weight: 700;
+  margin-bottom: 4px;
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.scenario-box h4::before {
+  content: '⚡';
+  font-size: 12px;
+}
+.scenario-box p {
+  font-size: 10.5px;
+  color: #78350F;
+  font-weight: 600;
+  line-height: 1.35;
+  margin-bottom: 10px;
+}
+.scenario-opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #78350F;
+  transition: all .15s;
+  background: rgba(255,255,255,.5);
+  margin-bottom: 5px;
+  border: 1.5px solid transparent;
+}
+.scenario-opt:last-child { margin-bottom: 0; }
+.scenario-opt:hover { background: #fff; }
+.scenario-opt.active {
+  background: #fff;
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+.scenario-opt .radio {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 2px solid #D97706;
+  flex-shrink: 0;
+  margin-top: 2px;
+  position: relative;
+}
+.scenario-opt.active .radio { border-color: var(--accent); }
+.scenario-opt.active .radio::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+.scenario-opt strong {
+  display: block;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  font-size: 11.5px;
+  margin-bottom: 1px;
+}
+.scenario-opt span {
+  font-size: 10px;
+  color: #92400E;
+  line-height: 1.3;
+  font-weight: 600;
+}
+.scenario-opt.active span { color: var(--text-muted); }
+
 .sidebar-group {
   margin-bottom: 18px;
 }
@@ -235,6 +319,40 @@ input, select, textarea { font-family: inherit; }
   flex-direction: column;
   position: relative;
 }
+
+/* ─── Botón flotante de ayuda (WhatsApp) ─── */
+.help-btn {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  background: var(--bg);
+  color: var(--text-primary);
+  padding: 7px 14px 7px 12px;
+  border-radius: 22px 0 0 22px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  box-shadow: -3px 3px 12px rgba(0,0,0,.08);
+  border: 1px solid var(--border);
+  border-right: none;
+  z-index: 20;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all .15s;
+}
+.help-btn:hover {
+  padding-right: 16px;
+  background: var(--bg-secondary);
+}
+.help-btn .wa-icon {
+  width: 18px;
+  height: 18px;
+  color: #25D366;
+  flex-shrink: 0;
+}
 .status-bar {
   height: 38px;
   display: flex;
@@ -284,6 +402,14 @@ input, select, textarea { font-family: inherit; }
   font-size: 18px;
   color: var(--accent);
   letter-spacing: -.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.app-top-logo img {
+  height: 26px;
+  width: auto;
+  display: block;
 }
 .progress-chip {
   font-size: 10px;
@@ -374,6 +500,52 @@ input, select, textarea { font-family: inherit; }
   flex: 0 0 90px;
 }
 .doc-row input { flex: 1; }
+
+/* ─── Bloque read-only del documento ─── */
+.doc-fixed {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+}
+.doc-fixed .doc-icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.doc-fixed .doc-info {
+  flex: 1;
+  min-width: 0;
+}
+.doc-fixed .doc-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  font-family: 'Poppins', sans-serif;
+  margin-bottom: 2px;
+}
+.doc-fixed .doc-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: .3px;
+}
+.doc-fixed .doc-lock {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
 
 /* ─── Button ─── */
 .btn {
@@ -716,6 +888,32 @@ input, select, textarea { font-family: inherit; }
       <span class="sidebar-badge">Canal web · Autogestión</span>
     </div>
 
+    <div class="scenario-box">
+      <h4>Simulador de escenario</h4>
+      <p>Elige qué responde el backend cuando el cliente digite el documento en la pantalla 01.</p>
+      <div class="scenario-opt active" data-scenario="nuevo" onclick="setScenario('nuevo')">
+        <div class="radio"></div>
+        <div>
+          <strong>Sin estudio activo</strong>
+          <span>Primera vez, o solo tiene estudios cerrados (rechazo, abandono). Arranca nuevo → 05</span>
+        </div>
+      </div>
+      <div class="scenario-opt" data-scenario="activo" onclick="setScenario('activo')">
+        <div class="radio"></div>
+        <div>
+          <strong>Con estudio activo</strong>
+          <span>Mensaje genérico + OTP sin exponer datos → 03 → 04 → 19</span>
+        </div>
+      </div>
+      <div class="scenario-opt" data-scenario="cupo" onclick="setScenario('cupo')">
+        <div class="radio"></div>
+        <div>
+          <strong>Ya tiene cupo activo</strong>
+          <span>Cierre temprano → pantalla 02</span>
+        </div>
+      </div>
+    </div>
+
     <div class="sidebar-group">
       <div class="sidebar-group-title">F1 · Identificación</div>
       <div class="sidebar-item active" data-screen="01"><span class="sidebar-item-num">01</span>Landing + documento</div>
@@ -778,6 +976,14 @@ input, select, textarea { font-family: inherit; }
     <div class="phone">
       <div class="phone-screen">
 
+        <!-- ═ Botón flotante de ayuda (aparece en todas las pantallas) ═ -->
+        <a class="help-btn" href="https://wa.me/573001234567" target="_blank" title="Habla con un asesor QUAC">
+          <svg class="wa-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.768.967-.94 1.164-.174.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+          </svg>
+          Ayuda
+        </a>
+
         <!-- ── 01 ── -->
         <div class="screen active" data-screen-body="01">
           <div class="status-bar">
@@ -789,7 +995,7 @@ input, select, textarea { font-family: inherit; }
           </div>
           <div class="app-top">
             <div class="back-btn"></div>
-            <div class="app-top-logo">quac</div>
+            <div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div>
             <div></div>
           </div>
           <div class="screen-body">
@@ -812,8 +1018,7 @@ input, select, textarea { font-family: inherit; }
             </div>
 
             <div class="cta-stack">
-              <button class="btn btn-primary" onclick="go('05')">Continuar</button>
-              <button class="btn btn-link">Ya tengo cuenta · Iniciar sesión</button>
+              <button class="btn btn-primary" onclick="continuarDesdeIdentificacion()">Continuar</button>
             </div>
           </div>
         </div>
@@ -821,7 +1026,7 @@ input, select, textarea { font-family: inherit; }
         <!-- ── 02 · Ya tiene cupo ── -->
         <div class="screen" data-screen-body="02">
           <div class="status-bar"><span>9:41</span><span>●●●</span></div>
-          <div class="app-top"><div class="back-btn">←</div><div class="app-top-logo">quac</div><div></div></div>
+          <div class="app-top"><div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><div></div></div>
           <div class="screen-body">
             <div class="hero-illus success">
               <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
@@ -844,28 +1049,17 @@ input, select, textarea { font-family: inherit; }
         <!-- ── 03 · Ya tiene estudio en curso ── -->
         <div class="screen" data-screen-body="03">
           <div class="status-bar"><span>9:41</span><span>●●●</span></div>
-          <div class="app-top"><div class="back-btn">←</div><div class="app-top-logo">quac</div><div></div></div>
+          <div class="app-top"><div class="back-btn" onclick="go('01')">←</div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><div></div></div>
           <div class="screen-body">
             <div class="hero-illus info">
               <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
             </div>
-            <h1 class="screen-title">Tienes un estudio en curso</h1>
-            <p class="screen-subtitle">Puedes continuarlo donde lo dejaste. Solo necesitamos verificar que eres tú.</p>
-
-            <div class="card card-accent">
-              <div class="card-row"><span class="label">Estudio</span><span class="value">#EST-2026-00873</span></div>
-              <div class="card-row"><span class="label">Inicio</span><span class="value">05 abr · 14:22</span></div>
-              <div class="card-row"><span class="label">Canal</span><span class="value">Tienda Derek 93</span></div>
-              <div class="card-row"><span class="label">Fase actual</span><span class="value">F5 · Identidad</span></div>
-            </div>
-
-            <div class="callout">
-              Para continuar te enviaremos un código al celular con que iniciaste el estudio (<strong>*** *** 78 12</strong>).
-            </div>
+            <h1 class="screen-title">Tienes un estudio activo</h1>
+            <p class="screen-subtitle">Para continuar necesitamos verificar que eres tú. Te enviaremos un código al celular que registraste.</p>
 
             <div class="cta-stack">
-              <button class="btn btn-primary" onclick="go('04')">Continuar mi estudio</button>
-              <button class="btn btn-secondary">Cancelar y empezar uno nuevo</button>
+              <button class="btn btn-primary" onclick="go('04')">Enviar código</button>
+              <button class="btn btn-link">No soy yo · Contactar soporte</button>
             </div>
           </div>
         </div>
@@ -873,10 +1067,10 @@ input, select, textarea { font-family: inherit; }
         <!-- ── 04 · OTP retomar ── -->
         <div class="screen" data-screen-body="04">
           <div class="status-bar"><span>9:41</span><span>●●●</span></div>
-          <div class="app-top"><div class="back-btn">←</div><div class="app-top-logo">quac</div><div></div></div>
+          <div class="app-top"><div class="back-btn" onclick="go('03')">←</div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><div></div></div>
           <div class="screen-body">
             <h1 class="screen-title">Verifica que eres tú</h1>
-            <p class="screen-subtitle">Enviamos un código de 6 dígitos al celular <strong>*** *** 78 12</strong>. Escríbelo aquí para continuar.</p>
+            <p class="screen-subtitle">Enviamos un código de 6 dígitos al celular que registraste. Escríbelo aquí para continuar.</p>
 
             <div class="otp-row">
               <input class="otp-cell filled" value="4" maxlength="1">
@@ -901,7 +1095,7 @@ input, select, textarea { font-family: inherit; }
         <div class="screen" data-screen-body="05">
           <div class="status-bar"><span>9:41</span><span>●●●</span></div>
           <div class="app-top">
-            <div class="back-btn">←</div><div class="app-top-logo">quac</div>
+            <div class="back-btn" onclick="go('01')">←</div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div>
             <span class="progress-chip">1 / 6</span>
           </div>
           <div class="step-bar">
@@ -932,7 +1126,7 @@ input, select, textarea { font-family: inherit; }
         <div class="screen" data-screen-body="06">
           <div class="status-bar"><span>9:41</span><span>●●●</span></div>
           <div class="app-top">
-            <div class="back-btn">←</div><div class="app-top-logo">quac</div>
+            <div class="back-btn" onclick="go('05')">←</div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div>
             <span class="progress-chip">2 / 6</span>
           </div>
           <div class="step-bar">
@@ -980,7 +1174,7 @@ input, select, textarea { font-family: inherit; }
         <div class="screen" data-screen-body="07">
           <div class="status-bar"><span>9:41</span><span>●●●</span></div>
           <div class="app-top">
-            <div class="back-btn">←</div><div class="app-top-logo">quac</div>
+            <div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div>
             <span class="progress-chip">3 / 6</span>
           </div>
           <div class="step-bar">
@@ -990,20 +1184,34 @@ input, select, textarea { font-family: inherit; }
             <h1 class="screen-title">Confirma los datos de tu documento</h1>
             <p class="screen-subtitle">Estos son los últimos datos básicos. En un momento vamos a comparar contra la foto que nos vas a tomar.</p>
 
-            <div class="field-row">
-              <div class="field"><label>Tipo doc</label><input class="control" value="C.C." disabled></div>
-              <div class="field"><label>Número</label><input class="control" value="1.023.456.789" disabled></div>
+            <div class="doc-fixed">
+              <div class="doc-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><circle cx="9" cy="12" r="2.5"/><path d="M14 10h5M14 14h5"/></svg>
+              </div>
+              <div class="doc-info">
+                <div class="doc-label">Cédula de ciudadanía</div>
+                <div class="doc-value">1023456789</div>
+              </div>
+              <div class="doc-lock" title="Dato confirmado al identificarte">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Fecha de expedición</label>
+              <input class="control" type="date" value="2012-09-03">
             </div>
             <div class="field">
               <label>Género</label>
               <select class="control"><option>Femenino</option><option>Masculino</option><option>Otro</option></select>
             </div>
-            <div class="field-row">
-              <div class="field"><label>Fecha de nacimiento</label><input class="control" type="date" value="1994-08-17"></div>
+            <div class="field">
+              <label>Fecha de nacimiento</label>
+              <input class="control" type="date" value="1994-08-17">
             </div>
-            <div class="field-row">
-              <div class="field"><label>Fecha expedición</label><input class="control" type="date" value="2012-09-03"></div>
-              <div class="field"><label>Ciudad expedición</label><input class="control" value="Bogotá"></div>
+            <div class="field">
+              <label>Ciudad de nacimiento</label>
+              <input class="control" value="Bogotá">
             </div>
 
             <div class="cta-stack">
@@ -1015,7 +1223,7 @@ input, select, textarea { font-family: inherit; }
         <!-- ── 08 · Analizando (F4 loader) ── -->
         <div class="screen" data-screen-body="08">
           <div class="status-bar"><span>9:41</span><span>●●●</span></div>
-          <div class="app-top"><div></div><div class="app-top-logo">quac</div><div></div></div>
+          <div class="app-top"><div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><div></div></div>
           <div class="screen-body" style="text-align:center">
             <div class="loader-rings"></div>
             <h1 class="screen-title">Estamos estudiando tu solicitud</h1>
@@ -1033,7 +1241,7 @@ input, select, textarea { font-family: inherit; }
         <!-- ── 09 · Rechazo ── -->
         <div class="screen" data-screen-body="09">
           <div class="status-bar"><span>9:41</span><span>●●●</span></div>
-          <div class="app-top"><div></div><div class="app-top-logo">quac</div><div></div></div>
+          <div class="app-top"><div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><div></div></div>
           <div class="screen-body">
             <div class="hero-illus error">
               <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
@@ -1061,7 +1269,7 @@ input, select, textarea { font-family: inherit; }
         <!-- ── 10 · Cupo preaprobado ── -->
         <div class="screen" data-screen-body="10">
           <div class="status-bar"><span>9:41</span><span>●●●</span></div>
-          <div class="app-top"><div></div><div class="app-top-logo">quac</div><span class="progress-chip">4 / 6</span></div>
+          <div class="app-top"><div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><span class="progress-chip">4 / 6</span></div>
           <div class="step-bar">
             <div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot current"></div><div class="step-dot"></div><div class="step-dot"></div>
           </div>
@@ -1089,7 +1297,7 @@ input, select, textarea { font-family: inherit; }
         <!-- ── 11 · Dirección ── -->
         <div class="screen" data-screen-body="11">
           <div class="status-bar"><span>9:41</span><span>●●●</span></div>
-          <div class="app-top"><div class="back-btn">←</div><div class="app-top-logo">quac</div><span class="progress-chip">4 / 6</span></div>
+          <div class="app-top"><div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><span class="progress-chip">4 / 6</span></div>
           <div class="step-bar">
             <div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot current"></div><div class="step-dot"></div><div class="step-dot"></div>
           </div>
@@ -1119,7 +1327,7 @@ input, select, textarea { font-family: inherit; }
         <!-- ── 12 · Intro prueba de vida ── -->
         <div class="screen" data-screen-body="12">
           <div class="status-bar"><span>9:41</span><span>●●●</span></div>
-          <div class="app-top"><div class="back-btn">←</div><div class="app-top-logo">quac</div><span class="progress-chip">5 / 6</span></div>
+          <div class="app-top"><div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><span class="progress-chip">5 / 6</span></div>
           <div class="step-bar">
             <div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot current"></div><div class="step-dot"></div>
           </div>
@@ -1149,7 +1357,7 @@ input, select, textarea { font-family: inherit; }
         <!-- ── 13 · Foto frontal ── -->
         <div class="screen" data-screen-body="13">
           <div class="status-bar"><span>9:41</span><span>●●●</span></div>
-          <div class="app-top"><div class="back-btn">←</div><div class="app-top-logo">quac</div><span class="progress-chip">1 / 3</span></div>
+          <div class="app-top"><div class="back-btn" onclick="go('12')">←</div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><span class="progress-chip">1 / 3</span></div>
           <div class="screen-body">
             <h1 class="screen-title" style="font-size:18px">Foto frontal de tu cédula</h1>
             <p class="screen-subtitle" style="margin-bottom:12px">Encuadra tu cédula dentro del marco. Evita reflejos y sombras.</p>
@@ -1174,7 +1382,7 @@ input, select, textarea { font-family: inherit; }
         <!-- ── 14 · Foto posterior ── -->
         <div class="screen" data-screen-body="14">
           <div class="status-bar"><span>9:41</span><span>●●●</span></div>
-          <div class="app-top"><div class="back-btn">←</div><div class="app-top-logo">quac</div><span class="progress-chip">2 / 3</span></div>
+          <div class="app-top"><div class="back-btn" onclick="go('13')">←</div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><span class="progress-chip">2 / 3</span></div>
           <div class="screen-body">
             <h1 class="screen-title" style="font-size:18px">Ahora la parte de atrás</h1>
             <p class="screen-subtitle" style="margin-bottom:12px">Voltea tu cédula y toma otra foto enfocada.</p>
@@ -1199,7 +1407,7 @@ input, select, textarea { font-family: inherit; }
         <!-- ── 15 · Selfie ── -->
         <div class="screen" data-screen-body="15">
           <div class="status-bar"><span>9:41</span><span>●●●</span></div>
-          <div class="app-top"><div class="back-btn">←</div><div class="app-top-logo">quac</div><span class="progress-chip">3 / 3</span></div>
+          <div class="app-top"><div class="back-btn" onclick="go('14')">←</div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><span class="progress-chip">3 / 3</span></div>
           <div class="screen-body">
             <h1 class="screen-title" style="font-size:18px">Selfie con movimiento</h1>
             <p class="screen-subtitle" style="margin-bottom:12px">Sigue las instrucciones en pantalla. Es rápido y seguro.</p>
@@ -1222,7 +1430,7 @@ input, select, textarea { font-family: inherit; }
         <!-- ── 16 · UBICA verificando ── -->
         <div class="screen" data-screen-body="16">
           <div class="status-bar"><span>9:41</span><span>●●●</span></div>
-          <div class="app-top"><div></div><div class="app-top-logo">quac</div><span class="progress-chip">5 / 6</span></div>
+          <div class="app-top"><div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><span class="progress-chip">5 / 6</span></div>
           <div class="screen-body" style="text-align:center">
             <div class="loader-rings"></div>
             <h1 class="screen-title">Verificando tu identidad</h1>
@@ -1240,7 +1448,7 @@ input, select, textarea { font-family: inherit; }
         <!-- ── 17 · Token correo ── -->
         <div class="screen" data-screen-body="17">
           <div class="status-bar"><span>9:41</span><span>●●●</span></div>
-          <div class="app-top"><div class="back-btn">←</div><div class="app-top-logo">quac</div><span class="progress-chip">6 / 6</span></div>
+          <div class="app-top"><div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><span class="progress-chip">6 / 6</span></div>
           <div class="step-bar">
             <div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot current"></div>
           </div>
@@ -1272,7 +1480,7 @@ input, select, textarea { font-family: inherit; }
         <!-- ── 18 · Cupo activado ── -->
         <div class="screen" data-screen-body="18">
           <div class="status-bar"><span>9:41</span><span>●●●</span></div>
-          <div class="app-top"><div></div><div class="app-top-logo">quac</div><div></div></div>
+          <div class="app-top"><div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><div></div></div>
           <div class="screen-body">
             <div class="hero-illus success">
               <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
@@ -1303,7 +1511,7 @@ input, select, textarea { font-family: inherit; }
         <div class="screen" data-screen-body="19">
           <div class="status-bar"><span>9:41</span><span>●●●</span></div>
           <div class="app-top">
-            <div class="back-btn">←</div><div class="app-top-logo">quac</div>
+            <div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div>
             <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Poppins';font-weight:700;font-size:12px">LR</div>
           </div>
           <div class="screen-body">
@@ -1362,7 +1570,7 @@ input, select, textarea { font-family: inherit; }
         <!-- ── 20 · Tarea pendiente ── -->
         <div class="screen" data-screen-body="20">
           <div class="status-bar"><span>9:41</span><span>●●●</span></div>
-          <div class="app-top"><div class="back-btn" onclick="go('19')">←</div><div class="app-top-logo">quac</div><div></div></div>
+          <div class="app-top"><div class="back-btn" onclick="go('19')">←</div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><div></div></div>
           <div class="screen-body">
             <div class="callout warn">
               <strong>Equipo QUAC</strong> — Revisamos tu foto y no podemos leer bien los datos. Por favor vuelve a tomarla en un lugar con buena luz y sin reflejos.
@@ -1450,6 +1658,30 @@ function go(screenId) {
 items.forEach(item => {
   item.addEventListener('click', () => go(item.dataset.screen));
 });
+
+// ─── Simulador de escenarios del backend en F1 ───
+let currentScenario = 'nuevo';
+
+function setScenario(name) {
+  currentScenario = name;
+  document.querySelectorAll('.scenario-opt').forEach(opt => {
+    opt.classList.toggle('active', opt.dataset.scenario === name);
+  });
+}
+
+function continuarDesdeIdentificacion() {
+  // Simula lo que haría el backend tras consultar el documento:
+  //  - nuevo  → arranca el flujo de cliente nuevo en pantalla 05
+  //  - activo → muestra card del estudio en curso (pantalla 03)
+  //             desde ahí el cliente pasa a OTP (04) y luego al dashboard (19)
+  //  - cupo   → cierre temprano (pantalla 02)
+  const destino = {
+    nuevo: '05',
+    activo: '03',
+    cupo: '02'
+  }[currentScenario];
+  go(destino);
+}
 </script>
 
 </body>

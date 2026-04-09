@@ -1,0 +1,2470 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QUAC · Journey del cliente en preaprobado.quac.co</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFBFC;
+  --bg-alt: #F4F5F7;
+  --white: #FFFFFF;
+  --text: #1a1a2e;
+  --text-secondary: #555770;
+  --text-muted: #8B8DA8;
+  --border: #E2E5EA;
+  --border-light: #F0F1F4;
+  --accent: #7633FF;
+  --accent-bg: #F3EEFF;
+  --accent-dark: #4B1299;
+  --red: #DC2626;
+  --red-bg: #FEF2F2;
+  --green: #16A34A;
+  --green-bg: #F0FDF4;
+  --amber: #D97706;
+  --amber-bg: #FFFBEB;
+  --violet: #7C3AED;
+  --violet-bg: #F5F3FF;
+  --blue: #2563EB;
+  --blue-bg: #EFF6FF;
+  --code-bg: #F4F5F7;
+  --sidebar-w: 260px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: var(--sidebar-w);
+  height: 100vh;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 28px 0;
+  z-index: 50;
+}
+.sidebar-brand {
+  padding: 0 24px 18px;
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 18px;
+}
+.sidebar-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sidebar-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: -0.02em;
+}
+.sidebar-brand-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+.sidebar-brand-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+.sidebar-version {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  border-radius: 100px;
+}
+.sidebar-section {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  padding: 16px 24px 6px;
+}
+.sidebar nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 24px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: all 0.15s;
+}
+.sidebar nav a:hover {
+  color: var(--accent);
+  background: var(--accent-bg);
+  border-left-color: var(--accent);
+}
+.sidebar nav a.active {
+  color: var(--accent);
+  font-weight: 700;
+  border-left-color: var(--accent);
+  background: var(--accent-bg);
+}
+.sidebar-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--code-bg);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace;
+}
+.sidebar nav a.active .sidebar-num {
+  background: var(--accent);
+  color: var(--white);
+}
+
+/* Main */
+.main {
+  margin-left: var(--sidebar-w);
+  padding: 56px 56px 120px;
+  max-width: 1200px;
+}
+
+/* Hero */
+.hero {
+  margin-bottom: 56px;
+}
+.hero-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+  color: var(--white);
+  border-radius: 100px;
+  margin-bottom: 22px;
+  box-shadow: 0 6px 20px rgba(118,51,255,0.3);
+}
+.hero h1 {
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  margin-bottom: 14px;
+}
+.hero h1 em {
+  color: var(--accent);
+  font-style: normal;
+}
+.hero-sub {
+  font-size: 17px;
+  color: var(--text-secondary);
+  max-width: 680px;
+  line-height: 1.6;
+}
+.hero-meta {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+.hero-meta-item {
+  font-size: 12px;
+}
+.hero-meta-item strong {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+/* Section headers */
+h2 {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  margin-top: 80px;
+  margin-bottom: 8px;
+}
+h2 .h2-num {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  display: block;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.h2-sub {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 36px;
+  max-width: 700px;
+}
+
+h3 {
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin-top: 40px;
+  margin-bottom: 12px;
+}
+
+p { font-size: 15px; color: var(--text-secondary); margin-bottom: 14px; }
+strong { color: var(--text); }
+
+/* ============================
+   JOURNEY MAP - Vista panorámica
+   ============================ */
+.journey-map {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 36px 32px;
+  margin: 32px 0 48px;
+  overflow-x: auto;
+}
+.journey-track {
+  display: flex;
+  gap: 0;
+  align-items: stretch;
+  min-width: 100%;
+}
+.journey-stage {
+  flex: 1;
+  min-width: 160px;
+  padding: 0 14px;
+  position: relative;
+}
+.journey-stage:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: 26px;
+  bottom: 0;
+  width: 1px;
+  background: var(--border-light);
+}
+.journey-stage-num {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 100px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.journey-stage-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+.journey-stage-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+.journey-screens {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.journey-screen-pill {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  background: var(--code-bg);
+  color: var(--text-secondary);
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ============================
+   STORY ROW - Pantalla + contexto
+   ============================ */
+.story-row {
+  display: grid;
+  grid-template-columns: 320px 1fr 280px;
+  gap: 28px;
+  margin: 36px 0;
+  padding: 0;
+  align-items: start;
+}
+.story-screen-col {
+  position: sticky;
+  top: 24px;
+}
+.story-narrative-col {
+  padding-top: 18px;
+}
+.story-meta-col {
+  padding-top: 18px;
+}
+
+/* Phone mockup */
+.phone {
+  width: 320px;
+  background: linear-gradient(180deg, #1a1a2e 0%, #2a2a4e 100%);
+  border-radius: 36px;
+  padding: 14px;
+  box-shadow: 0 24px 60px rgba(20,10,60,0.18), 0 8px 24px rgba(0,0,0,0.08);
+  position: relative;
+}
+.phone-screen {
+  background: var(--white);
+  border-radius: 26px;
+  overflow: hidden;
+  position: relative;
+  min-height: 580px;
+}
+.phone-notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 110px;
+  height: 22px;
+  background: #1a1a2e;
+  border-radius: 0 0 14px 14px;
+  z-index: 10;
+}
+.phone-status {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 22px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+}
+.phone-app-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 22px 14px;
+}
+.phone-back {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 18px;
+  cursor: default;
+}
+.phone-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.phone-logo svg {
+  height: 22px;
+  width: auto;
+  display: block;
+}
+.phone-progress {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 9px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  border-radius: 100px;
+}
+.phone-stepbar {
+  display: flex;
+  gap: 4px;
+  padding: 0 22px 16px;
+}
+.phone-stepdot {
+  flex: 1;
+  height: 3px;
+  border-radius: 100px;
+  background: var(--border);
+}
+.phone-stepdot.done { background: var(--green); }
+.phone-stepdot.current { background: var(--accent); }
+.phone-body {
+  padding: 6px 22px 24px;
+}
+.phone-illus {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--accent-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin-bottom: 18px;
+}
+.phone-illus--success {
+  background: var(--green-bg);
+}
+.phone-illus--info {
+  background: var(--blue-bg);
+}
+.phone-illus--warn {
+  background: var(--amber-bg);
+}
+.phone-illus--error {
+  background: var(--red-bg);
+}
+.phone-h1 {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+.phone-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin-bottom: 18px;
+}
+.phone-label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-top: 12px;
+  margin-bottom: 5px;
+}
+.phone-input {
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--bg-alt);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Plus Jakarta Sans';
+  color: var(--text);
+}
+.phone-input--readonly {
+  opacity: 0.65;
+  font-weight: 500;
+}
+.phone-input--filled {
+  background: var(--green-bg);
+  border-color: var(--green);
+  color: var(--green);
+}
+.phone-input-row {
+  display: flex;
+  gap: 8px;
+}
+.phone-input-row .phone-input { flex: 1; }
+.phone-callout {
+  background: var(--accent-bg);
+  border-radius: 10px;
+  padding: 11px 13px;
+  font-size: 11px;
+  color: var(--accent-dark);
+  line-height: 1.5;
+  margin-top: 14px;
+}
+.phone-callout--warn {
+  background: var(--amber-bg);
+  color: var(--amber);
+}
+.phone-callout--info {
+  background: var(--blue-bg);
+  color: var(--blue);
+}
+.phone-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.phone-check:last-child { border-bottom: none; }
+.phone-check-box {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  background: var(--accent);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.phone-check-text {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.phone-check-text a { color: var(--accent); font-weight: 700; }
+.phone-otp {
+  display: flex;
+  gap: 7px;
+  margin: 14px 0;
+}
+.phone-otp-cell {
+  flex: 1;
+  aspect-ratio: 1;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--white);
+}
+.phone-otp-cell--filled {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.phone-otp-cell--current {
+  border-color: var(--accent);
+  border-width: 2px;
+}
+.phone-otp-help {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 10px 0 14px;
+}
+.phone-otp-help a { color: var(--accent); font-weight: 700; }
+.phone-btn {
+  display: block;
+  width: 100%;
+  padding: 13px;
+  background: var(--accent);
+  color: var(--white);
+  border: none;
+  border-radius: 12px;
+  font-family: 'Plus Jakarta Sans';
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 16px;
+  cursor: default;
+  letter-spacing: -0.01em;
+}
+.phone-btn--ghost {
+  background: transparent;
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+  margin-top: 8px;
+}
+.phone-btn--success { background: var(--green); }
+.phone-btn--text {
+  background: transparent;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  font-weight: 600;
+  font-size: 12px;
+}
+.phone-camera {
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: linear-gradient(135deg, #1a1a2e, #2a2a4e);
+  border-radius: 14px;
+  position: relative;
+  overflow: hidden;
+  margin: 12px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.phone-camera-frame {
+  width: 76%;
+  height: 70%;
+  border: 2px dashed rgba(255,255,255,0.4);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38px;
+  color: rgba(255,255,255,0.4);
+}
+.phone-camera-corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--accent);
+}
+.phone-camera-corner.tl { top: 12px; left: 12px; border-right: 0; border-bottom: 0; border-radius: 4px 0 0 0; }
+.phone-camera-corner.tr { top: 12px; right: 12px; border-left: 0; border-bottom: 0; border-radius: 0 4px 0 0; }
+.phone-camera-corner.bl { bottom: 12px; left: 12px; border-right: 0; border-top: 0; border-radius: 0 0 0 4px; }
+.phone-camera-corner.br { bottom: 12px; right: 12px; border-left: 0; border-top: 0; border-radius: 0 0 4px 0; }
+.phone-camera-circle {
+  width: 70%;
+  aspect-ratio: 1;
+  border: 2px dashed rgba(255,255,255,0.4);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38px;
+  color: rgba(255,255,255,0.4);
+}
+.phone-loader {
+  text-align: center;
+  padding: 40px 0 28px;
+}
+.phone-spinner {
+  width: 44px;
+  height: 44px;
+  border: 3.5px solid var(--bg-alt);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.phone-loader-list {
+  text-align: left;
+  margin: 18px 0;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.phone-loader-list-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary);
+}
+.phone-loader-list-item.done { color: var(--green); }
+.phone-loader-list-item.active { color: var(--accent); font-weight: 600; }
+.phone-result-amount {
+  text-align: center;
+  font-size: 38px;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin: 8px 0 6px;
+}
+.phone-result-label {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.phone-result-sub {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+.phone-card {
+  background: var(--bg-alt);
+  border-radius: 12px;
+  padding: 14px;
+  margin: 14px 0;
+}
+.phone-card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+}
+.phone-card-key {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.phone-card-val {
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 700;
+}
+.phone-task {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: var(--white);
+  border: 1.5px solid var(--accent);
+  border-radius: 12px;
+  margin: 12px 0;
+  box-shadow: 0 4px 14px rgba(118,51,255,0.08);
+}
+.phone-task-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--accent-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.phone-task-text {
+  flex: 1;
+}
+.phone-task-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+.phone-task-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.phone-task-chev {
+  color: var(--accent);
+  font-size: 18px;
+  font-weight: 800;
+}
+.phone-phase-line {
+  display: flex;
+  gap: 6px;
+  margin: 14px 0 4px;
+}
+.phone-phase-dot {
+  flex: 1;
+  height: 6px;
+  border-radius: 100px;
+  background: var(--border);
+}
+.phone-phase-dot.done { background: var(--green); }
+.phone-phase-dot.current {
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+.phone-status-card {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+  color: var(--white);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin: 12px 0;
+}
+.phone-status-card-label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+.phone-status-card-big {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.phone-status-card-meta {
+  font-size: 10px;
+  opacity: 0.7;
+  margin-top: 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ============================
+   NARRATIVE COL - texto explicativo
+   ============================ */
+.narrative-num {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.narrative-num-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+}
+.narrative-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.narrative-body {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+.narrative-body p { font-size: 14px; margin-bottom: 12px; }
+.narrative-body strong { color: var(--text); }
+.narrative-body code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  background: var(--code-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* ============================
+   META COL - estado, datos, decisión
+   ============================ */
+.meta-block {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+}
+.meta-block-label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.meta-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 5px 11px;
+  border-radius: 100px;
+}
+.meta-state::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.meta-state--borrador { background: var(--bg-alt); color: var(--text-secondary); }
+.meta-state--borrador::before { background: var(--text-secondary); }
+.meta-state--activo { background: var(--accent-bg); color: var(--accent); }
+.meta-state--activo::before { background: var(--accent); }
+.meta-state--exitoso { background: var(--green-bg); color: var(--green); }
+.meta-state--exitoso::before { background: var(--green); }
+.meta-state--rechazado { background: var(--red-bg); color: var(--red); }
+.meta-state--rechazado::before { background: var(--red); }
+.meta-state--enfabrica { background: var(--blue-bg); color: var(--blue); }
+.meta-state--enfabrica::before { background: var(--blue); }
+
+.meta-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+.meta-field-pill {
+  font-size: 10px;
+  padding: 3px 8px;
+  background: var(--code-bg);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+}
+.meta-field-pill--new {
+  background: var(--green-bg);
+  color: var(--green);
+  font-weight: 700;
+}
+.meta-decision {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+.meta-decision strong { color: var(--text); }
+.meta-decision-path {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: var(--bg-alt);
+  border-radius: 8px;
+  margin-top: 8px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text);
+}
+.meta-decision-path-arrow { color: var(--accent); }
+.meta-tip {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* ============================
+   BIFURCACIÓN - decision diamond
+   ============================ */
+.bifurcation {
+  background: linear-gradient(135deg, #FFF9F0, #FFFBEB);
+  border: 2px dashed var(--amber);
+  border-radius: 16px;
+  padding: 28px 32px;
+  margin: 36px 0;
+  position: relative;
+}
+.bifurcation::before {
+  content: '⬢';
+  position: absolute;
+  top: -22px;
+  left: 32px;
+  font-size: 36px;
+  color: var(--amber);
+  background: var(--bg);
+  padding: 0 8px;
+  line-height: 1;
+}
+.bifurcation-label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--amber);
+  margin-bottom: 10px;
+}
+.bifurcation-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 14px;
+  color: var(--text);
+}
+.bifurcation-paths {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+.bifurcation-path {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+.bifurcation-path-label {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 100px;
+  margin-bottom: 8px;
+}
+.bifurcation-path-label--happy { background: var(--green-bg); color: var(--green); }
+.bifurcation-path-label--alt { background: var(--blue-bg); color: var(--blue); }
+.bifurcation-path-label--end { background: var(--red-bg); color: var(--red); }
+.bifurcation-path-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.bifurcation-path-text strong { color: var(--text); }
+.bifurcation-path-link {
+  display: block;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ============================
+   ALTERNATIVE FLOW - mini cards
+   ============================ */
+.alt-flow-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+  margin: 28px 0 40px;
+}
+.alt-flow-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px 26px;
+  border-top: 4px solid var(--accent);
+}
+.alt-flow-card--success { border-top-color: var(--green); }
+.alt-flow-card--warn { border-top-color: var(--amber); }
+.alt-flow-card--info { border-top-color: var(--blue); }
+.alt-flow-card-label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.alt-flow-card-title {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+.alt-flow-card-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin-bottom: 14px;
+}
+.alt-flow-card-steps {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+}
+.alt-flow-step {
+  padding: 4px 9px;
+  background: var(--code-bg);
+  border-radius: 6px;
+  color: var(--text-secondary);
+}
+.alt-flow-arrow { color: var(--text-muted); font-size: 12px; }
+
+hr.section-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 80px 0 0;
+}
+
+/* Stats / numbers */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin: 28px 0 36px;
+}
+.stat-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 22px;
+}
+.stat-num {
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--accent);
+  line-height: 1;
+}
+.stat-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+.stat-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .story-row {
+    grid-template-columns: 1fr;
+  }
+  .story-screen-col {
+    position: static;
+    display: flex;
+    justify-content: center;
+  }
+}
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; padding: 32px 24px 80px; }
+  .hero h1 { font-size: 32px; }
+  h2 { font-size: 24px; }
+  .journey-track { flex-direction: column; }
+  .journey-stage:not(:last-child)::after { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-row">
+      <div class="sidebar-logo">Q</div>
+      <div>
+        <div class="sidebar-brand-text">QUAC · Journey</div>
+        <div class="sidebar-brand-sub">preaprobado.quac.co</div>
+      </div>
+    </div>
+    <span class="sidebar-version">Propuesta v2</span>
+  </div>
+
+  <div class="sidebar-section">Navegación</div>
+  <nav>
+    <a href="#vision"><span class="sidebar-num">00</span>Visión global</a>
+    <a href="#happy-path"><span class="sidebar-num">01</span>Happy path</a>
+    <a href="#paso-1" class="indent">Identificación</a>
+    <a href="#paso-2" class="indent">Datos básicos</a>
+    <a href="#paso-3" class="indent">T&C + OTP</a>
+    <a href="#paso-4" class="indent">Estudio de crédito</a>
+    <a href="#paso-5" class="indent">Cupo preaprobado</a>
+    <a href="#paso-6" class="indent">Dirección</a>
+    <a href="#paso-7" class="indent">Verificación identidad</a>
+    <a href="#paso-8" class="indent">Verificación UBICA</a>
+    <a href="#paso-9" class="indent">Token correo</a>
+    <a href="#paso-10" class="indent">Cupo activado</a>
+  </nav>
+
+  <div class="sidebar-section">Variantes</div>
+  <nav>
+    <a href="#variantes"><span class="sidebar-num">A</span>Ya tiene cupo</a>
+    <a href="#variantes-2"><span class="sidebar-num">B</span>Retomar estudio</a>
+    <a href="#variantes-3"><span class="sidebar-num">C</span>En revisión</a>
+    <a href="#variantes-4"><span class="sidebar-num">D</span>Rechazo</a>
+  </nav>
+
+  <div class="sidebar-section">Variante B en detalle</div>
+  <nav>
+    <a href="#retomar-detalle"><span class="sidebar-num">R</span>Retomar estudio</a>
+    <a href="#retomar-1" class="indent">R1 · Estudio detectado</a>
+    <a href="#retomar-2" class="indent">R2 · OTP de seguridad</a>
+    <a href="#retomar-3" class="indent">R3 · Dashboard "Mi estudio"</a>
+  </nav>
+</aside>
+
+<!-- Main -->
+<div class="main">
+
+<!-- ==================== HERO ==================== -->
+<div class="hero">
+  <span class="hero-label">● Journey Map · Propuesta v2</span>
+  <h1>Cómo solicita un cliente su cupo desde <em>preaprobado.quac.co</em></h1>
+  <p class="hero-sub">Este documento muestra el recorrido completo de un cliente cuando entra al portal web de QUAC para solicitar su cupo de crédito. No es solo una galería de pantallas — es la historia de Laura, paso por paso, con el contexto de qué decide el sistema en cada momento, qué se captura, y cómo cambia el estado de su estudio.</p>
+
+  <div class="hero-meta">
+    <div class="hero-meta-item"><strong>Audiencia</strong>Equipo de procesos de crédito</div>
+    <div class="hero-meta-item"><strong>Canal</strong>Web autogestión</div>
+    <div class="hero-meta-item"><strong>Tipo</strong>Journey narrativo + mockups</div>
+    <div class="hero-meta-item"><strong>Versión</strong>v2 · 2026-04-09</div>
+  </div>
+</div>
+
+<!-- ==================== 0. VISIÓN GLOBAL ==================== -->
+<h2 id="vision"><span class="h2-num">Sección 0</span>Visión global del journey</h2>
+<p class="h2-sub">Antes de meternos en cada pantalla, veamos el recorrido completo de un solo vistazo. Estas son las 7 etapas que atraviesa un cliente desde que digita su documento hasta que su cupo queda activo.</p>
+
+<div class="journey-map">
+  <div class="journey-track">
+    <div class="journey-stage">
+      <span class="journey-stage-num">F1</span>
+      <div class="journey-stage-title">Identificación</div>
+      <div class="journey-stage-desc">El sistema reconoce al cliente y decide el camino.</div>
+      <div class="journey-screens">
+        <span class="journey-screen-pill">01</span>
+      </div>
+    </div>
+    <div class="journey-stage">
+      <span class="journey-stage-num">F3</span>
+      <div class="journey-stage-title">Datos básicos</div>
+      <div class="journey-stage-desc">Lo mínimo del cliente y datos del documento.</div>
+      <div class="journey-screens">
+        <span class="journey-screen-pill">02</span>
+      </div>
+    </div>
+    <div class="journey-stage">
+      <span class="journey-stage-num">F2</span>
+      <div class="journey-stage-title">Consentimiento</div>
+      <div class="journey-stage-desc">T&C + token celular como firma electrónica.</div>
+      <div class="journey-screens">
+        <span class="journey-screen-pill">03</span>
+      </div>
+    </div>
+    <div class="journey-stage">
+      <span class="journey-stage-num">F4</span>
+      <div class="journey-stage-title">Estudio</div>
+      <div class="journey-stage-desc">Antecedentes, Preselecta, FOSYGA, cupo.</div>
+      <div class="journey-screens">
+        <span class="journey-screen-pill">04</span>
+        <span class="journey-screen-pill">05</span>
+      </div>
+    </div>
+    <div class="journey-stage">
+      <span class="journey-stage-num">F4</span>
+      <div class="journey-stage-title">Dirección</div>
+      <div class="journey-stage-desc">Departamento, ciudad y dirección de residencia.</div>
+      <div class="journey-screens">
+        <span class="journey-screen-pill">06</span>
+      </div>
+    </div>
+    <div class="journey-stage">
+      <span class="journey-stage-num">F5</span>
+      <div class="journey-stage-title">Verificación identidad</div>
+      <div class="journey-stage-desc">Prueba de vida + foto frontal + foto reverso.</div>
+      <div class="journey-screens">
+        <span class="journey-screen-pill">7a</span>
+        <span class="journey-screen-pill">7b</span>
+        <span class="journey-screen-pill">7c</span>
+      </div>
+    </div>
+    <div class="journey-stage">
+      <span class="journey-stage-num">F6</span>
+      <div class="journey-stage-title">UBICA</div>
+      <div class="journey-stage-desc">Verificación de contacto contra TransUnion.</div>
+      <div class="journey-screens">
+        <span class="journey-screen-pill">08</span>
+      </div>
+    </div>
+    <div class="journey-stage">
+      <span class="journey-stage-num">F7</span>
+      <div class="journey-stage-title">Activación</div>
+      <div class="journey-stage-desc">Token correo + cupo activo.</div>
+      <div class="journey-screens">
+        <span class="journey-screen-pill">09</span>
+        <span class="journey-screen-pill">10</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="stat-row">
+  <div class="stat-card">
+    <div class="stat-num">12</div>
+    <div class="stat-label">Pantallas en el happy path</div>
+    <div class="stat-sub">10 pasos · 12 vistas</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">~6 min</div>
+    <div class="stat-label">Tiempo objetivo</div>
+    <div class="stat-sub">Hasta el cupo activado</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">4</div>
+    <div class="stat-label">Variantes alternas</div>
+    <div class="stat-sub">Cupo activo, retomar, fábrica, rechazo</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">3</div>
+    <div class="stat-label">Decisiones del sistema</div>
+    <div class="stat-sub">Bifurcaciones automáticas</div>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<!-- ==================== 1. HAPPY PATH ==================== -->
+<h2 id="happy-path"><span class="h2-num">Sección 1 · Happy path</span>El camino feliz: Laura solicita su cupo</h2>
+<p class="h2-sub">Esta es la historia de Laura, una clienta nueva que entra a preaprobado.quac.co y completa su solicitud sin ningún tropiezo. Cada paso muestra <strong>la pantalla</strong>, <strong>qué pasa narrativamente</strong>, y <strong>el estado del estudio + las decisiones del sistema</strong> en ese momento.</p>
+
+<!-- ============ PASO 1 ============ -->
+<div class="story-row" id="paso-1">
+  <div class="story-screen-col">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>● ●●●</span></div>
+        <div class="phone-app-bar">
+          <div class="phone-back"></div>
+          <div class="phone-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99.949 42"><g transform="translate(16065.999 15535.625)"><g transform="translate(-16012.538 -15524.503)"><g transform="translate(0 0)"><path d="M14.425,87.15l-2.38,2.362L10.356,87.8a8.071,8.071,0,0,1-3.343.654,7.08,7.08,0,0,1-5.105-1.817,7.168,7.168,0,0,1,0-9.738,7.082,7.082,0,0,1,5.105-1.817A7.082,7.082,0,0,1,12.118,76.9a6.418,6.418,0,0,1,1.907,4.869,6.948,6.948,0,0,1-1.072,3.87ZM7.013,85.424a3.462,3.462,0,0,0,2.6-1,3.656,3.656,0,0,0,.963-2.652A3.732,3.732,0,0,0,9.611,79.1a3.524,3.524,0,0,0-2.6-.981,3.452,3.452,0,0,0-2.58.981,3.668,3.668,0,0,0-.982,2.671,3.594,3.594,0,0,0,.982,2.652,3.392,3.392,0,0,0,2.58,1" transform="translate(0 -75.086)" fill="#7633ff"/><path d="M30.35,79.328h3.307V88.3h-2.87L30.6,87.249a3.407,3.407,0,0,1-2.8,1.253c-2.18,0-3.506-1.49-3.506-4.033V79.328h3.307v4.96c0,.927.473,1.489,1.272,1.489.89,0,1.471-.69,1.471-1.726Z" transform="translate(-8.919 -76.795)" fill="#7633ff"/><path d="M48.2,79.206h2.87v8.975H48.2l-.182-1.054a3.781,3.781,0,0,1-2.87,1.235,3.894,3.894,0,0,1-3.034-1.308,5.373,5.373,0,0,1,0-6.722,3.894,3.894,0,0,1,3.034-1.308,3.764,3.764,0,0,1,2.87,1.217ZM46,85.637a1.728,1.728,0,0,0,1.308-.545,1.962,1.962,0,0,0,.49-1.4,2.038,2.038,0,0,0-.49-1.417A1.78,1.78,0,0,0,46,81.749a1.71,1.71,0,0,0-1.29.527,1.967,1.967,0,0,0-.509,1.417,1.9,1.9,0,0,0,.509,1.4,1.661,1.661,0,0,0,1.29.545" transform="translate(-14.753 -76.672)" fill="#7633ff"/><path d="M60.243,87.115a4.939,4.939,0,0,1,.018-6.831,5.061,5.061,0,0,1,3.616-1.29,4.9,4.9,0,0,1,3.56,1.417l-1.762,1.944a2.313,2.313,0,0,0-1.6-.636,1.963,1.963,0,0,0,0,3.925,2.379,2.379,0,0,0,1.708-.708L67.6,86.843a5.112,5.112,0,0,1-3.67,1.526,5.247,5.247,0,0,1-3.688-1.253" transform="translate(-21.112 -76.659)" fill="#7633ff"/></g></g><g transform="translate(-16065.999 -15535.625)"><g transform="translate(0 0)"><path d="M70.915,59a2.061,2.061,0,0,0-3.784-.431,13.6,13.6,0,0,1-8.168,6.5,2.061,2.061,0,0,0,1.062,3.982l.048-.013.024-.006.216-.062v0a17.713,17.713,0,0,0,10.422-8.4A2.048,2.048,0,0,0,70.915,59" transform="translate(-28.063 -27.613)" fill="#7633ff"/><path d="M19.537,35.247A17.616,17.616,0,0,1,8.607,27.4l-.025-.039A18.032,18.032,0,0,1,6.09,15.053c0-.028,0-.061,0-.086a.832.832,0,0,0-.826-.836H2.205A2.228,2.228,0,0,1,1.89,9.7,17.245,17.245,0,0,0,6.851,8.113l-2.292-.8A2.233,2.233,0,0,1,3.186,4.487a2.193,2.193,0,0,1,2.5-1.469,17.4,17.4,0,0,0,10.08-1.213q.37-.179.779-.354A17.111,17.111,0,0,1,23.491,0,17.582,17.582,0,0,1,39.174,9.726a.818.818,0,0,0,.726.458.556.556,0,0,0,.221-.046,12.957,12.957,0,0,0,3.019-1.97,2.272,2.272,0,0,1,2.005-.7,2.233,2.233,0,0,1,1.24,3.693l-4.392,4.462a3.258,3.258,0,0,0,0,4.47l4.392,4.463a2.232,2.232,0,0,1-1.24,3.691,2.27,2.27,0,0,1-2.007-.7,12.957,12.957,0,0,0-3.019-1.97.567.567,0,0,0-.221-.045.818.818,0,0,0-.726.458v-.008A17.907,17.907,0,0,1,35.715,30.7a.052.052,0,0,1-.008.021v-.008a17.421,17.421,0,0,1-16.169,4.538ZM23.491,29a10.876,10.876,0,0,0,3.2-.48l.017-.005.019-.006A11.222,11.222,0,0,0,29.929,8.8L29.9,8.781l-.01-.007A10.989,10.989,0,0,0,24.387,6.73q-.443-.037-.9-.036-.5,0-.984.044H22.5l-.029,0A11.087,11.087,0,0,0,12.632,16v.011A11.274,11.274,0,0,0,14,23.5l.007.011.007.012a11.1,11.1,0,0,0,5.007,4.521l.013.006.027.012q.414.184.848.335.358.125.722.225a10.881,10.881,0,0,0,2.86.38" fill="#7633ff"/><path d="M50.186,29.467a2.759,2.759,0,0,0,2.071-.8,2.917,2.917,0,0,0,.768-2.114,2.974,2.974,0,0,0-.768-2.129,2.81,2.81,0,0,0-2.071-.781,2.751,2.751,0,0,0-2.056.782,2.924,2.924,0,0,0-.782,2.129,2.866,2.866,0,0,0,.782,2.114,2.7,2.7,0,0,0,2.056.8" transform="translate(-23.119 -11.383)" fill="#7633ff"/></g></g></g></svg></div>
+          <div></div>
+        </div>
+        <div class="phone-body">
+          <div class="phone-illus">🪪</div>
+          <div class="phone-h1">Estrena tu cupo QUAC</div>
+          <div class="phone-subtitle">Solicítalo en pocos pasos. Empezamos con tu documento de identidad.</div>
+          <div class="phone-label">Tipo y número de documento</div>
+          <div class="phone-input-row">
+            <div class="phone-input phone-input--readonly" style="flex:0 0 70px;">CC</div>
+            <div class="phone-input">1.023.456.789</div>
+          </div>
+          <div class="phone-callout">🔒 Tu información está protegida. Solo la usamos para validar tu identidad.</div>
+          <button class="phone-btn">Continuar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">1</span>Identificación</div>
+    <div class="narrative-title">Laura llega al portal y digita su documento</div>
+    <div class="narrative-body">
+      <p>Laura ve un anuncio en Instagram y entra a <code>preaprobado.quac.co</code> desde su celular. Lo primero que ve es una pantalla limpia con un único campo: tipo y número de documento. <strong>Nada más.</strong> No le pedimos que se registre, no le pedimos su nombre, no le pedimos correo. Solo el documento.</p>
+      <p>Esta decisión es deliberada: queremos que el cliente <strong>no abandone por fricción</strong>. Cualquier formulario más largo en este punto baja la conversión.</p>
+      <p>Cuando Laura toca <strong>Continuar</strong>, el sistema ejecuta su primera <strong>decisión automática</strong>: ¿quién es esta persona? ¿Tiene cupo? ¿Tiene un estudio en curso? ¿Es nueva? Según la respuesta, el flujo se ramifica.</p>
+    </div>
+  </div>
+
+  <div class="story-meta-col">
+    <div class="meta-block">
+      <div class="meta-block-label">Estado del estudio</div>
+      <span class="meta-state meta-state--borrador">Sin estudio aún</span>
+      <p class="meta-tip" style="margin-top:8px;">El estudio formal aún no nace. Esto es pre-estudio.</p>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Datos capturados</div>
+      <div class="meta-fields">
+        <span class="meta-field-pill meta-field-pill--new">tipo_doc</span>
+        <span class="meta-field-pill meta-field-pill--new">numero_doc</span>
+      </div>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Decisión del sistema</div>
+      <div class="meta-decision">
+        Consulta el documento contra:
+        <div class="meta-decision-path"><strong>cartera</strong> <span class="meta-decision-path-arrow">→</span> <strong>estudios activos</strong> <span class="meta-decision-path-arrow">→</span> <strong>terceros</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ BIFURCACIÓN 1 ============ -->
+<div class="bifurcation">
+  <div class="bifurcation-label">⬢ Decisión del sistema #1</div>
+  <div class="bifurcation-title">¿Quién es Laura?</div>
+  <p style="font-size:14px;color:var(--text-secondary);margin:0;">Según el resultado de la consulta, el sistema decide qué pantalla mostrarle a Laura a continuación.</p>
+  <div class="bifurcation-paths">
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--happy">Camino feliz</span>
+      <div class="bifurcation-path-text"><strong>Cliente nueva.</strong> No existe en el sistema, no tiene cupo ni estudios. Sigue al paso 2 (datos básicos).</div>
+      <a class="bifurcation-path-link" href="#paso-2">→ continuar al paso 2</a>
+    </div>
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--end">Cupo activo</span>
+      <div class="bifurcation-path-text"><strong>Ya tiene cupo.</strong> Cierre temprano, redirige a la app QUAC. No hay solicitud nueva.</div>
+      <a class="bifurcation-path-link" href="#variantes">→ ver variante A</a>
+    </div>
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--alt">Estudio en curso</span>
+      <div class="bifurcation-path-text"><strong>Tiene un estudio activo.</strong> Lo enviamos a retomar con OTP al celular.</div>
+      <a class="bifurcation-path-link" href="#variantes-2">→ ver variante B</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PASO 2 ============ -->
+<div class="story-row" id="paso-2">
+  <div class="story-screen-col">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>● ●●●</span></div>
+        <div class="phone-app-bar">
+          <div class="phone-back">←</div>
+          <div class="phone-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99.949 42"><g transform="translate(16065.999 15535.625)"><g transform="translate(-16012.538 -15524.503)"><g transform="translate(0 0)"><path d="M14.425,87.15l-2.38,2.362L10.356,87.8a8.071,8.071,0,0,1-3.343.654,7.08,7.08,0,0,1-5.105-1.817,7.168,7.168,0,0,1,0-9.738,7.082,7.082,0,0,1,5.105-1.817A7.082,7.082,0,0,1,12.118,76.9a6.418,6.418,0,0,1,1.907,4.869,6.948,6.948,0,0,1-1.072,3.87ZM7.013,85.424a3.462,3.462,0,0,0,2.6-1,3.656,3.656,0,0,0,.963-2.652A3.732,3.732,0,0,0,9.611,79.1a3.524,3.524,0,0,0-2.6-.981,3.452,3.452,0,0,0-2.58.981,3.668,3.668,0,0,0-.982,2.671,3.594,3.594,0,0,0,.982,2.652,3.392,3.392,0,0,0,2.58,1" transform="translate(0 -75.086)" fill="#7633ff"/><path d="M30.35,79.328h3.307V88.3h-2.87L30.6,87.249a3.407,3.407,0,0,1-2.8,1.253c-2.18,0-3.506-1.49-3.506-4.033V79.328h3.307v4.96c0,.927.473,1.489,1.272,1.489.89,0,1.471-.69,1.471-1.726Z" transform="translate(-8.919 -76.795)" fill="#7633ff"/><path d="M48.2,79.206h2.87v8.975H48.2l-.182-1.054a3.781,3.781,0,0,1-2.87,1.235,3.894,3.894,0,0,1-3.034-1.308,5.373,5.373,0,0,1,0-6.722,3.894,3.894,0,0,1,3.034-1.308,3.764,3.764,0,0,1,2.87,1.217ZM46,85.637a1.728,1.728,0,0,0,1.308-.545,1.962,1.962,0,0,0,.49-1.4,2.038,2.038,0,0,0-.49-1.417A1.78,1.78,0,0,0,46,81.749a1.71,1.71,0,0,0-1.29.527,1.967,1.967,0,0,0-.509,1.417,1.9,1.9,0,0,0,.509,1.4,1.661,1.661,0,0,0,1.29.545" transform="translate(-14.753 -76.672)" fill="#7633ff"/><path d="M60.243,87.115a4.939,4.939,0,0,1,.018-6.831,5.061,5.061,0,0,1,3.616-1.29,4.9,4.9,0,0,1,3.56,1.417l-1.762,1.944a2.313,2.313,0,0,0-1.6-.636,1.963,1.963,0,0,0,0,3.925,2.379,2.379,0,0,0,1.708-.708L67.6,86.843a5.112,5.112,0,0,1-3.67,1.526,5.247,5.247,0,0,1-3.688-1.253" transform="translate(-21.112 -76.659)" fill="#7633ff"/></g></g><g transform="translate(-16065.999 -15535.625)"><g transform="translate(0 0)"><path d="M70.915,59a2.061,2.061,0,0,0-3.784-.431,13.6,13.6,0,0,1-8.168,6.5,2.061,2.061,0,0,0,1.062,3.982l.048-.013.024-.006.216-.062v0a17.713,17.713,0,0,0,10.422-8.4A2.048,2.048,0,0,0,70.915,59" transform="translate(-28.063 -27.613)" fill="#7633ff"/><path d="M19.537,35.247A17.616,17.616,0,0,1,8.607,27.4l-.025-.039A18.032,18.032,0,0,1,6.09,15.053c0-.028,0-.061,0-.086a.832.832,0,0,0-.826-.836H2.205A2.228,2.228,0,0,1,1.89,9.7,17.245,17.245,0,0,0,6.851,8.113l-2.292-.8A2.233,2.233,0,0,1,3.186,4.487a2.193,2.193,0,0,1,2.5-1.469,17.4,17.4,0,0,0,10.08-1.213q.37-.179.779-.354A17.111,17.111,0,0,1,23.491,0,17.582,17.582,0,0,1,39.174,9.726a.818.818,0,0,0,.726.458.556.556,0,0,0,.221-.046,12.957,12.957,0,0,0,3.019-1.97,2.272,2.272,0,0,1,2.005-.7,2.233,2.233,0,0,1,1.24,3.693l-4.392,4.462a3.258,3.258,0,0,0,0,4.47l4.392,4.463a2.232,2.232,0,0,1-1.24,3.691,2.27,2.27,0,0,1-2.007-.7,12.957,12.957,0,0,0-3.019-1.97.567.567,0,0,0-.221-.045.818.818,0,0,0-.726.458v-.008A17.907,17.907,0,0,1,35.715,30.7a.052.052,0,0,1-.008.021v-.008a17.421,17.421,0,0,1-16.169,4.538ZM23.491,29a10.876,10.876,0,0,0,3.2-.48l.017-.005.019-.006A11.222,11.222,0,0,0,29.929,8.8L29.9,8.781l-.01-.007A10.989,10.989,0,0,0,24.387,6.73q-.443-.037-.9-.036-.5,0-.984.044H22.5l-.029,0A11.087,11.087,0,0,0,12.632,16v.011A11.274,11.274,0,0,0,14,23.5l.007.011.007.012a11.1,11.1,0,0,0,5.007,4.521l.013.006.027.012q.414.184.848.335.358.125.722.225a10.881,10.881,0,0,0,2.86.38" fill="#7633ff"/><path d="M50.186,29.467a2.759,2.759,0,0,0,2.071-.8,2.917,2.917,0,0,0,.768-2.114,2.974,2.974,0,0,0-.768-2.129,2.81,2.81,0,0,0-2.071-.781,2.751,2.751,0,0,0-2.056.782,2.924,2.924,0,0,0-.782,2.129,2.866,2.866,0,0,0,.782,2.114,2.7,2.7,0,0,0,2.056.8" transform="translate(-23.119 -11.383)" fill="#7633ff"/></g></g></g></svg></div>
+          <span class="phone-progress">1 / 5</span>
+        </div>
+        <div class="phone-stepbar">
+          <div class="phone-stepdot current"></div>
+          <div class="phone-stepdot"></div>
+          <div class="phone-stepdot"></div>
+          <div class="phone-stepdot"></div>
+          <div class="phone-stepdot"></div>
+        </div>
+        <div class="phone-body">
+          <div class="phone-h1">Cuéntanos quién eres</div>
+          <div class="phone-subtitle">Solo lo básico para empezar tu estudio.</div>
+          <div class="phone-label">Nombres</div>
+          <div class="phone-input">Laura</div>
+          <div class="phone-label">Apellidos</div>
+          <div class="phone-input">Rodríguez Mejía</div>
+          <div class="phone-label">Fecha de expedición de tu cédula</div>
+          <div class="phone-input">15 / Mar / 2015</div>
+          <div class="phone-label">Correo electrónico</div>
+          <div class="phone-input">laura.r@gmail.com</div>
+          <div class="phone-label">Celular</div>
+          <div class="phone-input">310 784 12 98</div>
+          <div class="phone-callout phone-callout--info">📱 Te enviaremos un código por SMS al celular para firmar los términos.</div>
+          <button class="phone-btn">Continuar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">2</span>Datos básicos</div>
+    <div class="narrative-title">Le pedimos lo mínimo necesario para arrancar el estudio</div>
+    <div class="narrative-body">
+      <p>Aparece un formulario corto: <strong>nombres, apellidos, fecha de expedición, correo y celular</strong>. La fecha de expedición es necesaria porque <strong>Preselecta la usa</strong> para el cruce contra centrales en el siguiente bloque.</p>
+      <p>¿Por qué no pedir todo el resto (género, fecha de nacimiento, ciudad de expedición)? Porque cada campo extra es una excusa para abandonar. Esos datos los confirmamos después con la foto del documento, en la verificación de identidad.</p>
+      <p>El celular es especialmente importante: será el <strong>vínculo de seguridad</strong> del estudio. Cualquier vez que Laura quiera retomar, le enviaremos un OTP a este número.</p>
+    </div>
+  </div>
+
+  <div class="story-meta-col">
+    <div class="meta-block">
+      <div class="meta-block-label">Estado del estudio</div>
+      <span class="meta-state meta-state--borrador">Sin estudio aún</span>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Datos capturados</div>
+      <div class="meta-fields">
+        <span class="meta-field-pill meta-field-pill--new">nombres</span>
+        <span class="meta-field-pill meta-field-pill--new">apellidos</span>
+        <span class="meta-field-pill meta-field-pill--new">fecha_expedicion</span>
+        <span class="meta-field-pill meta-field-pill--new">correo</span>
+        <span class="meta-field-pill meta-field-pill--new">celular</span>
+      </div>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Por qué esto y no más</div>
+      <p class="meta-tip">En tienda se piden 9 campos en una sola pantalla. En web pedimos solo 5: lo necesario para arrancar Preselecta. Género, fecha de nacimiento y ciudad de expedición se confirman después con el OCR del documento.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PASO 3 ============ -->
+<div class="story-row" id="paso-3">
+  <div class="story-screen-col">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>● ●●●</span></div>
+        <div class="phone-app-bar">
+          <div class="phone-back">←</div>
+          <div class="phone-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99.949 42"><g transform="translate(16065.999 15535.625)"><g transform="translate(-16012.538 -15524.503)"><g transform="translate(0 0)"><path d="M14.425,87.15l-2.38,2.362L10.356,87.8a8.071,8.071,0,0,1-3.343.654,7.08,7.08,0,0,1-5.105-1.817,7.168,7.168,0,0,1,0-9.738,7.082,7.082,0,0,1,5.105-1.817A7.082,7.082,0,0,1,12.118,76.9a6.418,6.418,0,0,1,1.907,4.869,6.948,6.948,0,0,1-1.072,3.87ZM7.013,85.424a3.462,3.462,0,0,0,2.6-1,3.656,3.656,0,0,0,.963-2.652A3.732,3.732,0,0,0,9.611,79.1a3.524,3.524,0,0,0-2.6-.981,3.452,3.452,0,0,0-2.58.981,3.668,3.668,0,0,0-.982,2.671,3.594,3.594,0,0,0,.982,2.652,3.392,3.392,0,0,0,2.58,1" transform="translate(0 -75.086)" fill="#7633ff"/><path d="M30.35,79.328h3.307V88.3h-2.87L30.6,87.249a3.407,3.407,0,0,1-2.8,1.253c-2.18,0-3.506-1.49-3.506-4.033V79.328h3.307v4.96c0,.927.473,1.489,1.272,1.489.89,0,1.471-.69,1.471-1.726Z" transform="translate(-8.919 -76.795)" fill="#7633ff"/><path d="M48.2,79.206h2.87v8.975H48.2l-.182-1.054a3.781,3.781,0,0,1-2.87,1.235,3.894,3.894,0,0,1-3.034-1.308,5.373,5.373,0,0,1,0-6.722,3.894,3.894,0,0,1,3.034-1.308,3.764,3.764,0,0,1,2.87,1.217ZM46,85.637a1.728,1.728,0,0,0,1.308-.545,1.962,1.962,0,0,0,.49-1.4,2.038,2.038,0,0,0-.49-1.417A1.78,1.78,0,0,0,46,81.749a1.71,1.71,0,0,0-1.29.527,1.967,1.967,0,0,0-.509,1.417,1.9,1.9,0,0,0,.509,1.4,1.661,1.661,0,0,0,1.29.545" transform="translate(-14.753 -76.672)" fill="#7633ff"/><path d="M60.243,87.115a4.939,4.939,0,0,1,.018-6.831,5.061,5.061,0,0,1,3.616-1.29,4.9,4.9,0,0,1,3.56,1.417l-1.762,1.944a2.313,2.313,0,0,0-1.6-.636,1.963,1.963,0,0,0,0,3.925,2.379,2.379,0,0,0,1.708-.708L67.6,86.843a5.112,5.112,0,0,1-3.67,1.526,5.247,5.247,0,0,1-3.688-1.253" transform="translate(-21.112 -76.659)" fill="#7633ff"/></g></g><g transform="translate(-16065.999 -15535.625)"><g transform="translate(0 0)"><path d="M70.915,59a2.061,2.061,0,0,0-3.784-.431,13.6,13.6,0,0,1-8.168,6.5,2.061,2.061,0,0,0,1.062,3.982l.048-.013.024-.006.216-.062v0a17.713,17.713,0,0,0,10.422-8.4A2.048,2.048,0,0,0,70.915,59" transform="translate(-28.063 -27.613)" fill="#7633ff"/><path d="M19.537,35.247A17.616,17.616,0,0,1,8.607,27.4l-.025-.039A18.032,18.032,0,0,1,6.09,15.053c0-.028,0-.061,0-.086a.832.832,0,0,0-.826-.836H2.205A2.228,2.228,0,0,1,1.89,9.7,17.245,17.245,0,0,0,6.851,8.113l-2.292-.8A2.233,2.233,0,0,1,3.186,4.487a2.193,2.193,0,0,1,2.5-1.469,17.4,17.4,0,0,0,10.08-1.213q.37-.179.779-.354A17.111,17.111,0,0,1,23.491,0,17.582,17.582,0,0,1,39.174,9.726a.818.818,0,0,0,.726.458.556.556,0,0,0,.221-.046,12.957,12.957,0,0,0,3.019-1.97,2.272,2.272,0,0,1,2.005-.7,2.233,2.233,0,0,1,1.24,3.693l-4.392,4.462a3.258,3.258,0,0,0,0,4.47l4.392,4.463a2.232,2.232,0,0,1-1.24,3.691,2.27,2.27,0,0,1-2.007-.7,12.957,12.957,0,0,0-3.019-1.97.567.567,0,0,0-.221-.045.818.818,0,0,0-.726.458v-.008A17.907,17.907,0,0,1,35.715,30.7a.052.052,0,0,1-.008.021v-.008a17.421,17.421,0,0,1-16.169,4.538ZM23.491,29a10.876,10.876,0,0,0,3.2-.48l.017-.005.019-.006A11.222,11.222,0,0,0,29.929,8.8L29.9,8.781l-.01-.007A10.989,10.989,0,0,0,24.387,6.73q-.443-.037-.9-.036-.5,0-.984.044H22.5l-.029,0A11.087,11.087,0,0,0,12.632,16v.011A11.274,11.274,0,0,0,14,23.5l.007.011.007.012a11.1,11.1,0,0,0,5.007,4.521l.013.006.027.012q.414.184.848.335.358.125.722.225a10.881,10.881,0,0,0,2.86.38" fill="#7633ff"/><path d="M50.186,29.467a2.759,2.759,0,0,0,2.071-.8,2.917,2.917,0,0,0,.768-2.114,2.974,2.974,0,0,0-.768-2.129,2.81,2.81,0,0,0-2.071-.781,2.751,2.751,0,0,0-2.056.782,2.924,2.924,0,0,0-.782,2.129,2.866,2.866,0,0,0,.782,2.114,2.7,2.7,0,0,0,2.056.8" transform="translate(-23.119 -11.383)" fill="#7633ff"/></g></g></g></svg></div>
+          <span class="phone-progress">2 / 5</span>
+        </div>
+        <div class="phone-stepbar">
+          <div class="phone-stepdot done"></div>
+          <div class="phone-stepdot current"></div>
+          <div class="phone-stepdot"></div>
+          <div class="phone-stepdot"></div>
+          <div class="phone-stepdot"></div>
+        </div>
+        <div class="phone-body">
+          <div class="phone-h1">Autorizaciones</div>
+          <div class="phone-subtitle">Necesitamos tu visto bueno antes de consultar tu información. Tu código por SMS funciona como firma.</div>
+          <div class="phone-check">
+            <div class="phone-check-box">✓</div>
+            <div class="phone-check-text">Acepto los <a>Términos y condiciones</a> del crédito QUAC</div>
+          </div>
+          <div class="phone-check">
+            <div class="phone-check-box">✓</div>
+            <div class="phone-check-text">Acepto la <a>Política de tratamiento de datos</a></div>
+          </div>
+          <div class="phone-check">
+            <div class="phone-check-box">✓</div>
+            <div class="phone-check-text">Autorizo consulta a centrales de riesgo</div>
+          </div>
+          <div class="phone-label" style="margin-top:18px;">Código recibido en *** *** 12 98</div>
+          <div class="phone-otp">
+            <div class="phone-otp-cell phone-otp-cell--filled">8</div>
+            <div class="phone-otp-cell phone-otp-cell--filled">3</div>
+            <div class="phone-otp-cell phone-otp-cell--filled">5</div>
+            <div class="phone-otp-cell phone-otp-cell--current">1</div>
+            <div class="phone-otp-cell"></div>
+            <div class="phone-otp-cell"></div>
+          </div>
+          <div class="phone-otp-help"><a>Reenviar código</a> · <strong>04:48</strong></div>
+          <button class="phone-btn">Firmar y continuar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">3</span>Consentimiento legal + token</div>
+    <div class="narrative-title">Firma electrónica con OTP al celular</div>
+    <div class="narrative-body">
+      <p>En la misma pantalla Laura acepta los <strong>3 textos legales</strong> (T&C, política de tratamiento de datos, autorización a centrales) y digita el código que llegó por SMS al celular que registró en el paso anterior.</p>
+      <p>El código no es solo verificación del celular: es <strong>la firma electrónica vinculante</strong>. Al validar el OTP estamos guardando: timestamp, IP, user-agent y versión de los términos aceptados. Eso es lo que tiene valor legal.</p>
+      <p>Combinar T&C + OTP en una sola pantalla es deliberado. Si los separamos, doblamos la fricción. Una sola pantalla = una sola decisión = más cierre.</p>
+    </div>
+  </div>
+
+  <div class="story-meta-col">
+    <div class="meta-block">
+      <div class="meta-block-label">Estado del estudio</div>
+      <span class="meta-state meta-state--borrador">Sin estudio aún</span>
+      <p class="meta-tip" style="margin-top:8px;">Aún no nace el estudio. Esto sigue siendo pre-estudio, pero los datos legales ya quedan firmados.</p>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Datos capturados</div>
+      <div class="meta-fields">
+        <span class="meta-field-pill meta-field-pill--new">tyc_aceptado_at</span>
+        <span class="meta-field-pill meta-field-pill--new">tyc_ip</span>
+        <span class="meta-field-pill meta-field-pill--new">tyc_user_agent</span>
+        <span class="meta-field-pill meta-field-pill--new">otp_celular_validado</span>
+      </div>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Valor legal</div>
+      <p class="meta-tip">El OTP del celular en este momento <strong>es</strong> la firma electrónica. Sin esto, los datos capturados no tienen validez legal.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PASO 4 ============ -->
+<div class="story-row" id="paso-4">
+  <div class="story-screen-col">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>● ●●●</span></div>
+        <div class="phone-app-bar">
+          <div class="phone-back"></div>
+          <div class="phone-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99.949 42"><g transform="translate(16065.999 15535.625)"><g transform="translate(-16012.538 -15524.503)"><g transform="translate(0 0)"><path d="M14.425,87.15l-2.38,2.362L10.356,87.8a8.071,8.071,0,0,1-3.343.654,7.08,7.08,0,0,1-5.105-1.817,7.168,7.168,0,0,1,0-9.738,7.082,7.082,0,0,1,5.105-1.817A7.082,7.082,0,0,1,12.118,76.9a6.418,6.418,0,0,1,1.907,4.869,6.948,6.948,0,0,1-1.072,3.87ZM7.013,85.424a3.462,3.462,0,0,0,2.6-1,3.656,3.656,0,0,0,.963-2.652A3.732,3.732,0,0,0,9.611,79.1a3.524,3.524,0,0,0-2.6-.981,3.452,3.452,0,0,0-2.58.981,3.668,3.668,0,0,0-.982,2.671,3.594,3.594,0,0,0,.982,2.652,3.392,3.392,0,0,0,2.58,1" transform="translate(0 -75.086)" fill="#7633ff"/><path d="M30.35,79.328h3.307V88.3h-2.87L30.6,87.249a3.407,3.407,0,0,1-2.8,1.253c-2.18,0-3.506-1.49-3.506-4.033V79.328h3.307v4.96c0,.927.473,1.489,1.272,1.489.89,0,1.471-.69,1.471-1.726Z" transform="translate(-8.919 -76.795)" fill="#7633ff"/><path d="M48.2,79.206h2.87v8.975H48.2l-.182-1.054a3.781,3.781,0,0,1-2.87,1.235,3.894,3.894,0,0,1-3.034-1.308,5.373,5.373,0,0,1,0-6.722,3.894,3.894,0,0,1,3.034-1.308,3.764,3.764,0,0,1,2.87,1.217ZM46,85.637a1.728,1.728,0,0,0,1.308-.545,1.962,1.962,0,0,0,.49-1.4,2.038,2.038,0,0,0-.49-1.417A1.78,1.78,0,0,0,46,81.749a1.71,1.71,0,0,0-1.29.527,1.967,1.967,0,0,0-.509,1.417,1.9,1.9,0,0,0,.509,1.4,1.661,1.661,0,0,0,1.29.545" transform="translate(-14.753 -76.672)" fill="#7633ff"/><path d="M60.243,87.115a4.939,4.939,0,0,1,.018-6.831,5.061,5.061,0,0,1,3.616-1.29,4.9,4.9,0,0,1,3.56,1.417l-1.762,1.944a2.313,2.313,0,0,0-1.6-.636,1.963,1.963,0,0,0,0,3.925,2.379,2.379,0,0,0,1.708-.708L67.6,86.843a5.112,5.112,0,0,1-3.67,1.526,5.247,5.247,0,0,1-3.688-1.253" transform="translate(-21.112 -76.659)" fill="#7633ff"/></g></g><g transform="translate(-16065.999 -15535.625)"><g transform="translate(0 0)"><path d="M70.915,59a2.061,2.061,0,0,0-3.784-.431,13.6,13.6,0,0,1-8.168,6.5,2.061,2.061,0,0,0,1.062,3.982l.048-.013.024-.006.216-.062v0a17.713,17.713,0,0,0,10.422-8.4A2.048,2.048,0,0,0,70.915,59" transform="translate(-28.063 -27.613)" fill="#7633ff"/><path d="M19.537,35.247A17.616,17.616,0,0,1,8.607,27.4l-.025-.039A18.032,18.032,0,0,1,6.09,15.053c0-.028,0-.061,0-.086a.832.832,0,0,0-.826-.836H2.205A2.228,2.228,0,0,1,1.89,9.7,17.245,17.245,0,0,0,6.851,8.113l-2.292-.8A2.233,2.233,0,0,1,3.186,4.487a2.193,2.193,0,0,1,2.5-1.469,17.4,17.4,0,0,0,10.08-1.213q.37-.179.779-.354A17.111,17.111,0,0,1,23.491,0,17.582,17.582,0,0,1,39.174,9.726a.818.818,0,0,0,.726.458.556.556,0,0,0,.221-.046,12.957,12.957,0,0,0,3.019-1.97,2.272,2.272,0,0,1,2.005-.7,2.233,2.233,0,0,1,1.24,3.693l-4.392,4.462a3.258,3.258,0,0,0,0,4.47l4.392,4.463a2.232,2.232,0,0,1-1.24,3.691,2.27,2.27,0,0,1-2.007-.7,12.957,12.957,0,0,0-3.019-1.97.567.567,0,0,0-.221-.045.818.818,0,0,0-.726.458v-.008A17.907,17.907,0,0,1,35.715,30.7a.052.052,0,0,1-.008.021v-.008a17.421,17.421,0,0,1-16.169,4.538ZM23.491,29a10.876,10.876,0,0,0,3.2-.48l.017-.005.019-.006A11.222,11.222,0,0,0,29.929,8.8L29.9,8.781l-.01-.007A10.989,10.989,0,0,0,24.387,6.73q-.443-.037-.9-.036-.5,0-.984.044H22.5l-.029,0A11.087,11.087,0,0,0,12.632,16v.011A11.274,11.274,0,0,0,14,23.5l.007.011.007.012a11.1,11.1,0,0,0,5.007,4.521l.013.006.027.012q.414.184.848.335.358.125.722.225a10.881,10.881,0,0,0,2.86.38" fill="#7633ff"/><path d="M50.186,29.467a2.759,2.759,0,0,0,2.071-.8,2.917,2.917,0,0,0,.768-2.114,2.974,2.974,0,0,0-.768-2.129,2.81,2.81,0,0,0-2.071-.781,2.751,2.751,0,0,0-2.056.782,2.924,2.924,0,0,0-.782,2.129,2.866,2.866,0,0,0,.782,2.114,2.7,2.7,0,0,0,2.056.8" transform="translate(-23.119 -11.383)" fill="#7633ff"/></g></g></g></svg></div>
+          <span class="phone-progress">3 / 5</span>
+        </div>
+        <div class="phone-stepbar">
+          <div class="phone-stepdot done"></div>
+          <div class="phone-stepdot done"></div>
+          <div class="phone-stepdot current"></div>
+          <div class="phone-stepdot"></div>
+          <div class="phone-stepdot"></div>
+        </div>
+        <div class="phone-body">
+          <div class="phone-loader">
+            <div class="phone-spinner"></div>
+            <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;">Estamos analizando tu solicitud</div>
+            <div style="font-size:12px;color:var(--text-secondary);">Esto puede tardar unos segundos...</div>
+          </div>
+          <div class="phone-loader-list">
+            <div class="phone-loader-list-item done">✓ Antecedentes — limpio</div>
+            <div class="phone-loader-list-item active">⌛ Evaluando viabilidad crediticia</div>
+            <div class="phone-loader-list-item">○ FOSYGA (si aplica)</div>
+            <div class="phone-loader-list-item">○ Cálculo de cupo</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">4</span>Estudio de crédito</div>
+    <div class="narrative-title">Aquí <em>nace</em> el estudio</div>
+    <div class="narrative-body">
+      <p>Este es el <strong>momento clave del proceso</strong>. El sistema ya tiene todos los datos necesarios y arranca las consultas automáticas:</p>
+      <ol style="margin-left:20px;color:var(--text-secondary);font-size:14px;line-height:1.8;">
+        <li><strong>Antecedentes</strong> (judiciales, disciplinarios, fiscales)</li>
+        <li><strong>Preselecta</strong> — el motor de decisión crediticia. <strong>Aquí nace el estudio formal.</strong></li>
+        <li><strong>FOSYGA</strong> — solo si Laura tiene una edad que lo amerita</li>
+        <li><strong>Cálculo de cupo</strong> preaprobado</li>
+      </ol>
+      <p>Todo esto pasa en segundos sin intervención humana. Laura ve un loader amigable que le muestra el progreso para que sienta que algo está pasando. Si algo se demora más de lo normal, mostramos un mensaje tranquilizador.</p>
+    </div>
+  </div>
+
+  <div class="story-meta-col">
+    <div class="meta-block" style="border-color:var(--accent);background:var(--accent-bg);">
+      <div class="meta-block-label" style="color:var(--accent);">Estado del estudio · Cambia aquí</div>
+      <span class="meta-state meta-state--activo">Activo</span>
+      <p class="meta-tip" style="margin-top:8px;color:var(--accent-dark);"><strong>Aquí nace el estudio.</strong> Cuando Preselecta responde "viable", se crea el registro formal con ID único.</p>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Decisión del sistema</div>
+      <div class="meta-decision">
+        <div class="meta-decision-path"><strong>Antecedentes</strong> <span class="meta-decision-path-arrow">→</span> <strong>Preselecta</strong> <span class="meta-decision-path-arrow">→</span> <strong>FOSYGA?</strong> <span class="meta-decision-path-arrow">→</span> <strong>Cupo</strong></div>
+        <p class="meta-tip" style="margin-top:8px;">Si cualquiera rechaza, el estudio se cierra inmediatamente con motivo.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ BIFURCACIÓN 2 ============ -->
+<div class="bifurcation">
+  <div class="bifurcation-label">⬢ Decisión del sistema #2</div>
+  <div class="bifurcation-title">¿Es viable Laura?</div>
+  <div class="bifurcation-paths">
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--happy">Viable</span>
+      <div class="bifurcation-path-text"><strong>Pasa todas las verificaciones.</strong> Sigue al paso 5 con su cupo preaprobado.</div>
+      <a class="bifurcation-path-link" href="#paso-5">→ continuar al paso 5</a>
+    </div>
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--end">No viable</span>
+      <div class="bifurcation-path-text"><strong>Antecedentes / Preselecta / FOSYGA rechaza.</strong> Cierre con mensaje genérico.</div>
+      <a class="bifurcation-path-link" href="#variantes-4">→ ver variante D</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PASO 5 ============ -->
+<div class="story-row" id="paso-5">
+  <div class="story-screen-col">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>● ●●●</span></div>
+        <div class="phone-app-bar">
+          <div class="phone-back"></div>
+          <div class="phone-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99.949 42"><g transform="translate(16065.999 15535.625)"><g transform="translate(-16012.538 -15524.503)"><g transform="translate(0 0)"><path d="M14.425,87.15l-2.38,2.362L10.356,87.8a8.071,8.071,0,0,1-3.343.654,7.08,7.08,0,0,1-5.105-1.817,7.168,7.168,0,0,1,0-9.738,7.082,7.082,0,0,1,5.105-1.817A7.082,7.082,0,0,1,12.118,76.9a6.418,6.418,0,0,1,1.907,4.869,6.948,6.948,0,0,1-1.072,3.87ZM7.013,85.424a3.462,3.462,0,0,0,2.6-1,3.656,3.656,0,0,0,.963-2.652A3.732,3.732,0,0,0,9.611,79.1a3.524,3.524,0,0,0-2.6-.981,3.452,3.452,0,0,0-2.58.981,3.668,3.668,0,0,0-.982,2.671,3.594,3.594,0,0,0,.982,2.652,3.392,3.392,0,0,0,2.58,1" transform="translate(0 -75.086)" fill="#7633ff"/><path d="M30.35,79.328h3.307V88.3h-2.87L30.6,87.249a3.407,3.407,0,0,1-2.8,1.253c-2.18,0-3.506-1.49-3.506-4.033V79.328h3.307v4.96c0,.927.473,1.489,1.272,1.489.89,0,1.471-.69,1.471-1.726Z" transform="translate(-8.919 -76.795)" fill="#7633ff"/><path d="M48.2,79.206h2.87v8.975H48.2l-.182-1.054a3.781,3.781,0,0,1-2.87,1.235,3.894,3.894,0,0,1-3.034-1.308,5.373,5.373,0,0,1,0-6.722,3.894,3.894,0,0,1,3.034-1.308,3.764,3.764,0,0,1,2.87,1.217ZM46,85.637a1.728,1.728,0,0,0,1.308-.545,1.962,1.962,0,0,0,.49-1.4,2.038,2.038,0,0,0-.49-1.417A1.78,1.78,0,0,0,46,81.749a1.71,1.71,0,0,0-1.29.527,1.967,1.967,0,0,0-.509,1.417,1.9,1.9,0,0,0,.509,1.4,1.661,1.661,0,0,0,1.29.545" transform="translate(-14.753 -76.672)" fill="#7633ff"/><path d="M60.243,87.115a4.939,4.939,0,0,1,.018-6.831,5.061,5.061,0,0,1,3.616-1.29,4.9,4.9,0,0,1,3.56,1.417l-1.762,1.944a2.313,2.313,0,0,0-1.6-.636,1.963,1.963,0,0,0,0,3.925,2.379,2.379,0,0,0,1.708-.708L67.6,86.843a5.112,5.112,0,0,1-3.67,1.526,5.247,5.247,0,0,1-3.688-1.253" transform="translate(-21.112 -76.659)" fill="#7633ff"/></g></g><g transform="translate(-16065.999 -15535.625)"><g transform="translate(0 0)"><path d="M70.915,59a2.061,2.061,0,0,0-3.784-.431,13.6,13.6,0,0,1-8.168,6.5,2.061,2.061,0,0,0,1.062,3.982l.048-.013.024-.006.216-.062v0a17.713,17.713,0,0,0,10.422-8.4A2.048,2.048,0,0,0,70.915,59" transform="translate(-28.063 -27.613)" fill="#7633ff"/><path d="M19.537,35.247A17.616,17.616,0,0,1,8.607,27.4l-.025-.039A18.032,18.032,0,0,1,6.09,15.053c0-.028,0-.061,0-.086a.832.832,0,0,0-.826-.836H2.205A2.228,2.228,0,0,1,1.89,9.7,17.245,17.245,0,0,0,6.851,8.113l-2.292-.8A2.233,2.233,0,0,1,3.186,4.487a2.193,2.193,0,0,1,2.5-1.469,17.4,17.4,0,0,0,10.08-1.213q.37-.179.779-.354A17.111,17.111,0,0,1,23.491,0,17.582,17.582,0,0,1,39.174,9.726a.818.818,0,0,0,.726.458.556.556,0,0,0,.221-.046,12.957,12.957,0,0,0,3.019-1.97,2.272,2.272,0,0,1,2.005-.7,2.233,2.233,0,0,1,1.24,3.693l-4.392,4.462a3.258,3.258,0,0,0,0,4.47l4.392,4.463a2.232,2.232,0,0,1-1.24,3.691,2.27,2.27,0,0,1-2.007-.7,12.957,12.957,0,0,0-3.019-1.97.567.567,0,0,0-.221-.045.818.818,0,0,0-.726.458v-.008A17.907,17.907,0,0,1,35.715,30.7a.052.052,0,0,1-.008.021v-.008a17.421,17.421,0,0,1-16.169,4.538ZM23.491,29a10.876,10.876,0,0,0,3.2-.48l.017-.005.019-.006A11.222,11.222,0,0,0,29.929,8.8L29.9,8.781l-.01-.007A10.989,10.989,0,0,0,24.387,6.73q-.443-.037-.9-.036-.5,0-.984.044H22.5l-.029,0A11.087,11.087,0,0,0,12.632,16v.011A11.274,11.274,0,0,0,14,23.5l.007.011.007.012a11.1,11.1,0,0,0,5.007,4.521l.013.006.027.012q.414.184.848.335.358.125.722.225a10.881,10.881,0,0,0,2.86.38" fill="#7633ff"/><path d="M50.186,29.467a2.759,2.759,0,0,0,2.071-.8,2.917,2.917,0,0,0,.768-2.114,2.974,2.974,0,0,0-.768-2.129,2.81,2.81,0,0,0-2.071-.781,2.751,2.751,0,0,0-2.056.782,2.924,2.924,0,0,0-.782,2.129,2.866,2.866,0,0,0,.782,2.114,2.7,2.7,0,0,0,2.056.8" transform="translate(-23.119 -11.383)" fill="#7633ff"/></g></g></g></svg></div>
+          <span class="phone-progress">3 / 5</span>
+        </div>
+        <div class="phone-body" style="text-align:center;padding-top:30px;">
+          <div style="font-size:64px;line-height:1;margin-bottom:16px;">🎉</div>
+          <div class="phone-result-label">Tu cupo preaprobado es de</div>
+          <div class="phone-result-amount">$1.200.000</div>
+          <div class="phone-result-sub">Cuotas quincenales · Para usar en tiendas aliadas</div>
+          <div class="phone-card" style="text-align:left;margin-top:24px;">
+            <div class="phone-card-row"><span class="phone-card-key">Estudio</span><span class="phone-card-val">#EST-2026-00873</span></div>
+            <div class="phone-card-row"><span class="phone-card-key">Estado</span><span class="phone-card-val" style="color:var(--accent);">● Activo</span></div>
+          </div>
+          <div class="phone-callout phone-callout--info" style="text-align:left;">⚠️ Aún falta verificar tu identidad para activar el cupo.</div>
+          <button class="phone-btn">Continuar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">5</span>Cupo preaprobado</div>
+    <div class="narrative-title">"¡Tienes $1.200.000!" — pero todavía no</div>
+    <div class="narrative-body">
+      <p>Laura ve la cifra grande en pantalla con un confeti emoji. Es el momento de máxima motivación del flujo: ya tiene <strong>casi su cupo</strong>. Pero todavía no está activo — falta la verificación de identidad documental y UBICA.</p>
+      <p>¿Por qué mostrarlo aquí y no al final? Porque <strong>es el ancla emocional</strong> que motiva al cliente a completar los pasos de fricción que vienen (foto del documento, selfie, dirección). Sin ver el monto, muchos abandonarían.</p>
+      <p>Por primera vez, le mostramos a Laura el <strong>número de su estudio</strong> (interno, pero visible para que pueda referenciarlo si llama a soporte) y un mensaje claro: "aún falta verificar tu identidad".</p>
+    </div>
+  </div>
+
+  <div class="story-meta-col">
+    <div class="meta-block">
+      <div class="meta-block-label">Estado del estudio</div>
+      <span class="meta-state meta-state--activo">Activo</span>
+      <p class="meta-tip" style="margin-top:8px;">Paso actual: <code>cupo_preaprobado</code></p>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Datos capturados</div>
+      <div class="meta-fields">
+        <span class="meta-field-pill meta-field-pill--new">cupo_preaprobado</span>
+        <span class="meta-field-pill meta-field-pill--new">score_preselecta</span>
+        <span class="meta-field-pill meta-field-pill--new">estudio_id</span>
+      </div>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Punto sin retorno</div>
+      <p class="meta-tip">A partir de aquí, si Laura abandona el estudio queda <code>activo</code> (esperando cliente) y puede retomarlo más tarde con OTP. Antes de Preselecta, abandonar significaba "sin estudio".</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PASO 6 ============ -->
+<div class="story-row" id="paso-6">
+  <div class="story-screen-col">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>● ●●●</span></div>
+        <div class="phone-app-bar">
+          <div class="phone-back">←</div>
+          <div class="phone-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99.949 42"><g transform="translate(16065.999 15535.625)"><g transform="translate(-16012.538 -15524.503)"><g transform="translate(0 0)"><path d="M14.425,87.15l-2.38,2.362L10.356,87.8a8.071,8.071,0,0,1-3.343.654,7.08,7.08,0,0,1-5.105-1.817,7.168,7.168,0,0,1,0-9.738,7.082,7.082,0,0,1,5.105-1.817A7.082,7.082,0,0,1,12.118,76.9a6.418,6.418,0,0,1,1.907,4.869,6.948,6.948,0,0,1-1.072,3.87ZM7.013,85.424a3.462,3.462,0,0,0,2.6-1,3.656,3.656,0,0,0,.963-2.652A3.732,3.732,0,0,0,9.611,79.1a3.524,3.524,0,0,0-2.6-.981,3.452,3.452,0,0,0-2.58.981,3.668,3.668,0,0,0-.982,2.671,3.594,3.594,0,0,0,.982,2.652,3.392,3.392,0,0,0,2.58,1" transform="translate(0 -75.086)" fill="#7633ff"/><path d="M30.35,79.328h3.307V88.3h-2.87L30.6,87.249a3.407,3.407,0,0,1-2.8,1.253c-2.18,0-3.506-1.49-3.506-4.033V79.328h3.307v4.96c0,.927.473,1.489,1.272,1.489.89,0,1.471-.69,1.471-1.726Z" transform="translate(-8.919 -76.795)" fill="#7633ff"/><path d="M48.2,79.206h2.87v8.975H48.2l-.182-1.054a3.781,3.781,0,0,1-2.87,1.235,3.894,3.894,0,0,1-3.034-1.308,5.373,5.373,0,0,1,0-6.722,3.894,3.894,0,0,1,3.034-1.308,3.764,3.764,0,0,1,2.87,1.217ZM46,85.637a1.728,1.728,0,0,0,1.308-.545,1.962,1.962,0,0,0,.49-1.4,2.038,2.038,0,0,0-.49-1.417A1.78,1.78,0,0,0,46,81.749a1.71,1.71,0,0,0-1.29.527,1.967,1.967,0,0,0-.509,1.417,1.9,1.9,0,0,0,.509,1.4,1.661,1.661,0,0,0,1.29.545" transform="translate(-14.753 -76.672)" fill="#7633ff"/><path d="M60.243,87.115a4.939,4.939,0,0,1,.018-6.831,5.061,5.061,0,0,1,3.616-1.29,4.9,4.9,0,0,1,3.56,1.417l-1.762,1.944a2.313,2.313,0,0,0-1.6-.636,1.963,1.963,0,0,0,0,3.925,2.379,2.379,0,0,0,1.708-.708L67.6,86.843a5.112,5.112,0,0,1-3.67,1.526,5.247,5.247,0,0,1-3.688-1.253" transform="translate(-21.112 -76.659)" fill="#7633ff"/></g></g><g transform="translate(-16065.999 -15535.625)"><g transform="translate(0 0)"><path d="M70.915,59a2.061,2.061,0,0,0-3.784-.431,13.6,13.6,0,0,1-8.168,6.5,2.061,2.061,0,0,0,1.062,3.982l.048-.013.024-.006.216-.062v0a17.713,17.713,0,0,0,10.422-8.4A2.048,2.048,0,0,0,70.915,59" transform="translate(-28.063 -27.613)" fill="#7633ff"/><path d="M19.537,35.247A17.616,17.616,0,0,1,8.607,27.4l-.025-.039A18.032,18.032,0,0,1,6.09,15.053c0-.028,0-.061,0-.086a.832.832,0,0,0-.826-.836H2.205A2.228,2.228,0,0,1,1.89,9.7,17.245,17.245,0,0,0,6.851,8.113l-2.292-.8A2.233,2.233,0,0,1,3.186,4.487a2.193,2.193,0,0,1,2.5-1.469,17.4,17.4,0,0,0,10.08-1.213q.37-.179.779-.354A17.111,17.111,0,0,1,23.491,0,17.582,17.582,0,0,1,39.174,9.726a.818.818,0,0,0,.726.458.556.556,0,0,0,.221-.046,12.957,12.957,0,0,0,3.019-1.97,2.272,2.272,0,0,1,2.005-.7,2.233,2.233,0,0,1,1.24,3.693l-4.392,4.462a3.258,3.258,0,0,0,0,4.47l4.392,4.463a2.232,2.232,0,0,1-1.24,3.691,2.27,2.27,0,0,1-2.007-.7,12.957,12.957,0,0,0-3.019-1.97.567.567,0,0,0-.221-.045.818.818,0,0,0-.726.458v-.008A17.907,17.907,0,0,1,35.715,30.7a.052.052,0,0,1-.008.021v-.008a17.421,17.421,0,0,1-16.169,4.538ZM23.491,29a10.876,10.876,0,0,0,3.2-.48l.017-.005.019-.006A11.222,11.222,0,0,0,29.929,8.8L29.9,8.781l-.01-.007A10.989,10.989,0,0,0,24.387,6.73q-.443-.037-.9-.036-.5,0-.984.044H22.5l-.029,0A11.087,11.087,0,0,0,12.632,16v.011A11.274,11.274,0,0,0,14,23.5l.007.011.007.012a11.1,11.1,0,0,0,5.007,4.521l.013.006.027.012q.414.184.848.335.358.125.722.225a10.881,10.881,0,0,0,2.86.38" fill="#7633ff"/><path d="M50.186,29.467a2.759,2.759,0,0,0,2.071-.8,2.917,2.917,0,0,0,.768-2.114,2.974,2.974,0,0,0-.768-2.129,2.81,2.81,0,0,0-2.071-.781,2.751,2.751,0,0,0-2.056.782,2.924,2.924,0,0,0-.782,2.129,2.866,2.866,0,0,0,.782,2.114,2.7,2.7,0,0,0,2.056.8" transform="translate(-23.119 -11.383)" fill="#7633ff"/></g></g></g></svg></div>
+          <span class="phone-progress">4 / 5</span>
+        </div>
+        <div class="phone-stepbar">
+          <div class="phone-stepdot done"></div>
+          <div class="phone-stepdot done"></div>
+          <div class="phone-stepdot done"></div>
+          <div class="phone-stepdot current"></div>
+          <div class="phone-stepdot"></div>
+        </div>
+        <div class="phone-body">
+          <div class="phone-h1">¿Dónde vives?</div>
+          <div class="phone-subtitle">Ya casi terminamos. Solo necesitamos tu dirección de residencia.</div>
+          <div class="phone-label">Departamento</div>
+          <div class="phone-input">Antioquia ▾</div>
+          <div class="phone-label">Ciudad</div>
+          <div class="phone-input">Medellín ▾</div>
+          <div class="phone-label">Dirección</div>
+          <div class="phone-input">Cra 43A # 1 Sur-100, Apto 502</div>
+          <button class="phone-btn">Continuar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">6</span>Dirección de residencia</div>
+    <div class="narrative-title">El último dato del tercero</div>
+    <div class="narrative-body">
+      <p>Le pedimos solo <strong>departamento, ciudad y dirección</strong>. Nada más. Sin barrio, sin estrato, sin tipo de vivienda — esos campos generan fricción sin aportar valor al estudio crediticio.</p>
+      <p>Lo pedimos <strong>después</strong> del cupo preaprobado por una razón táctica: si lo pidiéramos antes, Laura podría abandonar pensando "ya me pidieron muchos datos, ¿esto vale la pena?". Después de ver el monto, está más comprometida con terminar.</p>
+    </div>
+  </div>
+
+  <div class="story-meta-col">
+    <div class="meta-block">
+      <div class="meta-block-label">Estado del estudio</div>
+      <span class="meta-state meta-state--activo">Activo</span>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Datos capturados</div>
+      <div class="meta-fields">
+        <span class="meta-field-pill meta-field-pill--new">departamento</span>
+        <span class="meta-field-pill meta-field-pill--new">ciudad</span>
+        <span class="meta-field-pill meta-field-pill--new">direccion</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PASO 7 · Verificación de identidad (3 pantallas) ============ -->
+<div class="story-row" id="paso-7">
+  <div class="story-screen-col">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>● ●●●</span></div>
+        <div class="phone-app-bar">
+          <div class="phone-back"></div>
+          <div class="phone-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99.949 42"><g transform="translate(16065.999 15535.625)"><g transform="translate(-16012.538 -15524.503)"><g transform="translate(0 0)"><path d="M14.425,87.15l-2.38,2.362L10.356,87.8a8.071,8.071,0,0,1-3.343.654,7.08,7.08,0,0,1-5.105-1.817,7.168,7.168,0,0,1,0-9.738,7.082,7.082,0,0,1,5.105-1.817A7.082,7.082,0,0,1,12.118,76.9a6.418,6.418,0,0,1,1.907,4.869,6.948,6.948,0,0,1-1.072,3.87ZM7.013,85.424a3.462,3.462,0,0,0,2.6-1,3.656,3.656,0,0,0,.963-2.652A3.732,3.732,0,0,0,9.611,79.1a3.524,3.524,0,0,0-2.6-.981,3.452,3.452,0,0,0-2.58.981,3.668,3.668,0,0,0-.982,2.671,3.594,3.594,0,0,0,.982,2.652,3.392,3.392,0,0,0,2.58,1" transform="translate(0 -75.086)" fill="#7633ff"/><path d="M30.35,79.328h3.307V88.3h-2.87L30.6,87.249a3.407,3.407,0,0,1-2.8,1.253c-2.18,0-3.506-1.49-3.506-4.033V79.328h3.307v4.96c0,.927.473,1.489,1.272,1.489.89,0,1.471-.69,1.471-1.726Z" transform="translate(-8.919 -76.795)" fill="#7633ff"/><path d="M48.2,79.206h2.87v8.975H48.2l-.182-1.054a3.781,3.781,0,0,1-2.87,1.235,3.894,3.894,0,0,1-3.034-1.308,5.373,5.373,0,0,1,0-6.722,3.894,3.894,0,0,1,3.034-1.308,3.764,3.764,0,0,1,2.87,1.217ZM46,85.637a1.728,1.728,0,0,0,1.308-.545,1.962,1.962,0,0,0,.49-1.4,2.038,2.038,0,0,0-.49-1.417A1.78,1.78,0,0,0,46,81.749a1.71,1.71,0,0,0-1.29.527,1.967,1.967,0,0,0-.509,1.417,1.9,1.9,0,0,0,.509,1.4,1.661,1.661,0,0,0,1.29.545" transform="translate(-14.753 -76.672)" fill="#7633ff"/><path d="M60.243,87.115a4.939,4.939,0,0,1,.018-6.831,5.061,5.061,0,0,1,3.616-1.29,4.9,4.9,0,0,1,3.56,1.417l-1.762,1.944a2.313,2.313,0,0,0-1.6-.636,1.963,1.963,0,0,0,0,3.925,2.379,2.379,0,0,0,1.708-.708L67.6,86.843a5.112,5.112,0,0,1-3.67,1.526,5.247,5.247,0,0,1-3.688-1.253" transform="translate(-21.112 -76.659)" fill="#7633ff"/></g></g><g transform="translate(-16065.999 -15535.625)"><g transform="translate(0 0)"><path d="M70.915,59a2.061,2.061,0,0,0-3.784-.431,13.6,13.6,0,0,1-8.168,6.5,2.061,2.061,0,0,0,1.062,3.982l.048-.013.024-.006.216-.062v0a17.713,17.713,0,0,0,10.422-8.4A2.048,2.048,0,0,0,70.915,59" transform="translate(-28.063 -27.613)" fill="#7633ff"/><path d="M19.537,35.247A17.616,17.616,0,0,1,8.607,27.4l-.025-.039A18.032,18.032,0,0,1,6.09,15.053c0-.028,0-.061,0-.086a.832.832,0,0,0-.826-.836H2.205A2.228,2.228,0,0,1,1.89,9.7,17.245,17.245,0,0,0,6.851,8.113l-2.292-.8A2.233,2.233,0,0,1,3.186,4.487a2.193,2.193,0,0,1,2.5-1.469,17.4,17.4,0,0,0,10.08-1.213q.37-.179.779-.354A17.111,17.111,0,0,1,23.491,0,17.582,17.582,0,0,1,39.174,9.726a.818.818,0,0,0,.726.458.556.556,0,0,0,.221-.046,12.957,12.957,0,0,0,3.019-1.97,2.272,2.272,0,0,1,2.005-.7,2.233,2.233,0,0,1,1.24,3.693l-4.392,4.462a3.258,3.258,0,0,0,0,4.47l4.392,4.463a2.232,2.232,0,0,1-1.24,3.691,2.27,2.27,0,0,1-2.007-.7,12.957,12.957,0,0,0-3.019-1.97.567.567,0,0,0-.221-.045.818.818,0,0,0-.726.458v-.008A17.907,17.907,0,0,1,35.715,30.7a.052.052,0,0,1-.008.021v-.008a17.421,17.421,0,0,1-16.169,4.538ZM23.491,29a10.876,10.876,0,0,0,3.2-.48l.017-.005.019-.006A11.222,11.222,0,0,0,29.929,8.8L29.9,8.781l-.01-.007A10.989,10.989,0,0,0,24.387,6.73q-.443-.037-.9-.036-.5,0-.984.044H22.5l-.029,0A11.087,11.087,0,0,0,12.632,16v.011A11.274,11.274,0,0,0,14,23.5l.007.011.007.012a11.1,11.1,0,0,0,5.007,4.521l.013.006.027.012q.414.184.848.335.358.125.722.225a10.881,10.881,0,0,0,2.86.38" fill="#7633ff"/><path d="M50.186,29.467a2.759,2.759,0,0,0,2.071-.8,2.917,2.917,0,0,0,.768-2.114,2.974,2.974,0,0,0-.768-2.129,2.81,2.81,0,0,0-2.071-.781,2.751,2.751,0,0,0-2.056.782,2.924,2.924,0,0,0-.782,2.129,2.866,2.866,0,0,0,.782,2.114,2.7,2.7,0,0,0,2.056.8" transform="translate(-23.119 -11.383)" fill="#7633ff"/></g></g></g></svg></div>
+          <span class="phone-progress">5 / 5</span>
+        </div>
+        <div class="phone-stepbar">
+          <div class="phone-stepdot done"></div>
+          <div class="phone-stepdot done"></div>
+          <div class="phone-stepdot done"></div>
+          <div class="phone-stepdot done"></div>
+          <div class="phone-stepdot current"></div>
+        </div>
+        <div class="phone-body">
+          <div class="phone-h1">Verifica que eres tú</div>
+          <div class="phone-subtitle">Mira directamente a la cámara y mantente quieta unos segundos.</div>
+          <div class="phone-camera" style="aspect-ratio:1;">
+            <div class="phone-camera-circle">😊</div>
+          </div>
+          <div class="phone-callout">💡 Buena luz · Sin gafas · Rostro centrado</div>
+          <button class="phone-btn">Empezar prueba de vida</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">7a</span>Prueba de vida (selfie)</div>
+    <div class="narrative-title">Confirmamos que Laura es una persona real</div>
+    <div class="narrative-body">
+      <p>Empieza el bloque de <strong>verificación de identidad</strong>, el momento más sensible del flujo. Son tres acciones consecutivas: selfie, foto frontal del documento y foto del reverso. Las tres se hacen aquí porque solo tiene sentido invertir en biometría <strong>después</strong> de saber que el cliente es viable (Preselecta dijo OK).</p>
+      <p>Esta primera pantalla es la <strong>prueba de vida</strong>. La cámara se abre con un marco circular. El sistema ejecuta <em>face liveness</em> (Rekognition) para confirmar que Laura está realmente ahí — no es una foto de foto, no es un video pregrabado, no es una máscara.</p>
+    </div>
+  </div>
+
+  <div class="story-meta-col">
+    <div class="meta-block">
+      <div class="meta-block-label">Estado del estudio</div>
+      <span class="meta-state meta-state--activo">Activo</span>
+      <p class="meta-tip" style="margin-top:8px;">Sub-fase: <code>identidad · selfie</code></p>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Datos capturados</div>
+      <div class="meta-fields">
+        <span class="meta-field-pill meta-field-pill--new">selfie</span>
+        <span class="meta-field-pill meta-field-pill--new">face_liveness_score</span>
+      </div>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Validaciones</div>
+      <p class="meta-tip">Face liveness · Detección de suplantación contra base de fraudes · Calidad de imagen</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PASO 7b · Foto frontal documento ============ -->
+<div class="story-row" id="paso-7b">
+  <div class="story-screen-col">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>● ●●●</span></div>
+        <div class="phone-app-bar">
+          <div class="phone-back"></div>
+          <div class="phone-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99.949 42"><g transform="translate(16065.999 15535.625)"><g transform="translate(-16012.538 -15524.503)"><g transform="translate(0 0)"><path d="M14.425,87.15l-2.38,2.362L10.356,87.8a8.071,8.071,0,0,1-3.343.654,7.08,7.08,0,0,1-5.105-1.817,7.168,7.168,0,0,1,0-9.738,7.082,7.082,0,0,1,5.105-1.817A7.082,7.082,0,0,1,12.118,76.9a6.418,6.418,0,0,1,1.907,4.869,6.948,6.948,0,0,1-1.072,3.87ZM7.013,85.424a3.462,3.462,0,0,0,2.6-1,3.656,3.656,0,0,0,.963-2.652A3.732,3.732,0,0,0,9.611,79.1a3.524,3.524,0,0,0-2.6-.981,3.452,3.452,0,0,0-2.58.981,3.668,3.668,0,0,0-.982,2.671,3.594,3.594,0,0,0,.982,2.652,3.392,3.392,0,0,0,2.58,1" transform="translate(0 -75.086)" fill="#7633ff"/><path d="M30.35,79.328h3.307V88.3h-2.87L30.6,87.249a3.407,3.407,0,0,1-2.8,1.253c-2.18,0-3.506-1.49-3.506-4.033V79.328h3.307v4.96c0,.927.473,1.489,1.272,1.489.89,0,1.471-.69,1.471-1.726Z" transform="translate(-8.919 -76.795)" fill="#7633ff"/><path d="M48.2,79.206h2.87v8.975H48.2l-.182-1.054a3.781,3.781,0,0,1-2.87,1.235,3.894,3.894,0,0,1-3.034-1.308,5.373,5.373,0,0,1,0-6.722,3.894,3.894,0,0,1,3.034-1.308,3.764,3.764,0,0,1,2.87,1.217ZM46,85.637a1.728,1.728,0,0,0,1.308-.545,1.962,1.962,0,0,0,.49-1.4,2.038,2.038,0,0,0-.49-1.417A1.78,1.78,0,0,0,46,81.749a1.71,1.71,0,0,0-1.29.527,1.967,1.967,0,0,0-.509,1.417,1.9,1.9,0,0,0,.509,1.4,1.661,1.661,0,0,0,1.29.545" transform="translate(-14.753 -76.672)" fill="#7633ff"/><path d="M60.243,87.115a4.939,4.939,0,0,1,.018-6.831,5.061,5.061,0,0,1,3.616-1.29,4.9,4.9,0,0,1,3.56,1.417l-1.762,1.944a2.313,2.313,0,0,0-1.6-.636,1.963,1.963,0,0,0,0,3.925,2.379,2.379,0,0,0,1.708-.708L67.6,86.843a5.112,5.112,0,0,1-3.67,1.526,5.247,5.247,0,0,1-3.688-1.253" transform="translate(-21.112 -76.659)" fill="#7633ff"/></g></g><g transform="translate(-16065.999 -15535.625)"><g transform="translate(0 0)"><path d="M70.915,59a2.061,2.061,0,0,0-3.784-.431,13.6,13.6,0,0,1-8.168,6.5,2.061,2.061,0,0,0,1.062,3.982l.048-.013.024-.006.216-.062v0a17.713,17.713,0,0,0,10.422-8.4A2.048,2.048,0,0,0,70.915,59" transform="translate(-28.063 -27.613)" fill="#7633ff"/><path d="M19.537,35.247A17.616,17.616,0,0,1,8.607,27.4l-.025-.039A18.032,18.032,0,0,1,6.09,15.053c0-.028,0-.061,0-.086a.832.832,0,0,0-.826-.836H2.205A2.228,2.228,0,0,1,1.89,9.7,17.245,17.245,0,0,0,6.851,8.113l-2.292-.8A2.233,2.233,0,0,1,3.186,4.487a2.193,2.193,0,0,1,2.5-1.469,17.4,17.4,0,0,0,10.08-1.213q.37-.179.779-.354A17.111,17.111,0,0,1,23.491,0,17.582,17.582,0,0,1,39.174,9.726a.818.818,0,0,0,.726.458.556.556,0,0,0,.221-.046,12.957,12.957,0,0,0,3.019-1.97,2.272,2.272,0,0,1,2.005-.7,2.233,2.233,0,0,1,1.24,3.693l-4.392,4.462a3.258,3.258,0,0,0,0,4.47l4.392,4.463a2.232,2.232,0,0,1-1.24,3.691,2.27,2.27,0,0,1-2.007-.7,12.957,12.957,0,0,0-3.019-1.97.567.567,0,0,0-.221-.045.818.818,0,0,0-.726.458v-.008A17.907,17.907,0,0,1,35.715,30.7a.052.052,0,0,1-.008.021v-.008a17.421,17.421,0,0,1-16.169,4.538ZM23.491,29a10.876,10.876,0,0,0,3.2-.48l.017-.005.019-.006A11.222,11.222,0,0,0,29.929,8.8L29.9,8.781l-.01-.007A10.989,10.989,0,0,0,24.387,6.73q-.443-.037-.9-.036-.5,0-.984.044H22.5l-.029,0A11.087,11.087,0,0,0,12.632,16v.011A11.274,11.274,0,0,0,14,23.5l.007.011.007.012a11.1,11.1,0,0,0,5.007,4.521l.013.006.027.012q.414.184.848.335.358.125.722.225a10.881,10.881,0,0,0,2.86.38" fill="#7633ff"/><path d="M50.186,29.467a2.759,2.759,0,0,0,2.071-.8,2.917,2.917,0,0,0,.768-2.114,2.974,2.974,0,0,0-.768-2.129,2.81,2.81,0,0,0-2.071-.781,2.751,2.751,0,0,0-2.056.782,2.924,2.924,0,0,0-.782,2.129,2.866,2.866,0,0,0,.782,2.114,2.7,2.7,0,0,0,2.056.8" transform="translate(-23.119 -11.383)" fill="#7633ff"/></g></g></g></svg></div>
+          <span class="phone-progress">5 / 5</span>
+        </div>
+        <div class="phone-stepbar">
+          <div class="phone-stepdot done"></div>
+          <div class="phone-stepdot done"></div>
+          <div class="phone-stepdot done"></div>
+          <div class="phone-stepdot done"></div>
+          <div class="phone-stepdot current"></div>
+        </div>
+        <div class="phone-body">
+          <div class="phone-h1">Foto del frente de tu cédula</div>
+          <div class="phone-subtitle">Toma una foto clara del frente. Asegúrate de que se vea todo el documento.</div>
+          <div class="phone-camera">
+            <div class="phone-camera-corner tl"></div>
+            <div class="phone-camera-corner tr"></div>
+            <div class="phone-camera-corner bl"></div>
+            <div class="phone-camera-corner br"></div>
+            <div class="phone-camera-frame">🪪</div>
+          </div>
+          <div class="phone-callout">💡 Buena luz · Sin reflejos · Documento completo</div>
+          <button class="phone-btn">Tomar foto frontal</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">7b</span>Foto frontal del documento</div>
+    <div class="narrative-title">El documento físico, lado del rostro</div>
+    <div class="narrative-body">
+      <p>Después de la selfie, Laura toma la foto del <strong>frente de su cédula</strong>. La cámara muestra un marco con guías visuales en las esquinas para que centre el documento.</p>
+      <p>El sistema valida que sea una cédula real (no fotocopia, no foto de pantalla), que el texto sea legible, y que el rostro del documento sea visible. Inmediatamente compara <strong>el rostro de la cédula contra la selfie</strong> que Laura acaba de tomar (umbral de coincidencia ≥ 85%).</p>
+      <p>Si esa comparación falla 2 veces consecutivas, el caso se deriva a la Fábrica.</p>
+    </div>
+  </div>
+
+  <div class="story-meta-col">
+    <div class="meta-block">
+      <div class="meta-block-label">Estado del estudio</div>
+      <span class="meta-state meta-state--activo">Activo</span>
+      <p class="meta-tip" style="margin-top:8px;">Sub-fase: <code>identidad · frontal</code></p>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Datos capturados</div>
+      <div class="meta-fields">
+        <span class="meta-field-pill meta-field-pill--new">foto_frontal</span>
+        <span class="meta-field-pill meta-field-pill--new">match_facial</span>
+        <span class="meta-field-pill meta-field-pill--new">genero (OCR)</span>
+        <span class="meta-field-pill meta-field-pill--new">fecha_nacimiento (OCR)</span>
+      </div>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Validaciones</div>
+      <p class="meta-tip">Etiquetas de documento real · No es copia · Texto legible · <strong>Match facial vs selfie ≥ 85%</strong></p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PASO 7c · Foto reverso documento ============ -->
+<div class="story-row" id="paso-7c">
+  <div class="story-screen-col">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>● ●●●</span></div>
+        <div class="phone-app-bar">
+          <div class="phone-back"></div>
+          <div class="phone-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99.949 42"><g transform="translate(16065.999 15535.625)"><g transform="translate(-16012.538 -15524.503)"><g transform="translate(0 0)"><path d="M14.425,87.15l-2.38,2.362L10.356,87.8a8.071,8.071,0,0,1-3.343.654,7.08,7.08,0,0,1-5.105-1.817,7.168,7.168,0,0,1,0-9.738,7.082,7.082,0,0,1,5.105-1.817A7.082,7.082,0,0,1,12.118,76.9a6.418,6.418,0,0,1,1.907,4.869,6.948,6.948,0,0,1-1.072,3.87ZM7.013,85.424a3.462,3.462,0,0,0,2.6-1,3.656,3.656,0,0,0,.963-2.652A3.732,3.732,0,0,0,9.611,79.1a3.524,3.524,0,0,0-2.6-.981,3.452,3.452,0,0,0-2.58.981,3.668,3.668,0,0,0-.982,2.671,3.594,3.594,0,0,0,.982,2.652,3.392,3.392,0,0,0,2.58,1" transform="translate(0 -75.086)" fill="#7633ff"/><path d="M30.35,79.328h3.307V88.3h-2.87L30.6,87.249a3.407,3.407,0,0,1-2.8,1.253c-2.18,0-3.506-1.49-3.506-4.033V79.328h3.307v4.96c0,.927.473,1.489,1.272,1.489.89,0,1.471-.69,1.471-1.726Z" transform="translate(-8.919 -76.795)" fill="#7633ff"/><path d="M48.2,79.206h2.87v8.975H48.2l-.182-1.054a3.781,3.781,0,0,1-2.87,1.235,3.894,3.894,0,0,1-3.034-1.308,5.373,5.373,0,0,1,0-6.722,3.894,3.894,0,0,1,3.034-1.308,3.764,3.764,0,0,1,2.87,1.217ZM46,85.637a1.728,1.728,0,0,0,1.308-.545,1.962,1.962,0,0,0,.49-1.4,2.038,2.038,0,0,0-.49-1.417A1.78,1.78,0,0,0,46,81.749a1.71,1.71,0,0,0-1.29.527,1.967,1.967,0,0,0-.509,1.417,1.9,1.9,0,0,0,.509,1.4,1.661,1.661,0,0,0,1.29.545" transform="translate(-14.753 -76.672)" fill="#7633ff"/><path d="M60.243,87.115a4.939,4.939,0,0,1,.018-6.831,5.061,5.061,0,0,1,3.616-1.29,4.9,4.9,0,0,1,3.56,1.417l-1.762,1.944a2.313,2.313,0,0,0-1.6-.636,1.963,1.963,0,0,0,0,3.925,2.379,2.379,0,0,0,1.708-.708L67.6,86.843a5.112,5.112,0,0,1-3.67,1.526,5.247,5.247,0,0,1-3.688-1.253" transform="translate(-21.112 -76.659)" fill="#7633ff"/></g></g><g transform="translate(-16065.999 -15535.625)"><g transform="translate(0 0)"><path d="M70.915,59a2.061,2.061,0,0,0-3.784-.431,13.6,13.6,0,0,1-8.168,6.5,2.061,2.061,0,0,0,1.062,3.982l.048-.013.024-.006.216-.062v0a17.713,17.713,0,0,0,10.422-8.4A2.048,2.048,0,0,0,70.915,59" transform="translate(-28.063 -27.613)" fill="#7633ff"/><path d="M19.537,35.247A17.616,17.616,0,0,1,8.607,27.4l-.025-.039A18.032,18.032,0,0,1,6.09,15.053c0-.028,0-.061,0-.086a.832.832,0,0,0-.826-.836H2.205A2.228,2.228,0,0,1,1.89,9.7,17.245,17.245,0,0,0,6.851,8.113l-2.292-.8A2.233,2.233,0,0,1,3.186,4.487a2.193,2.193,0,0,1,2.5-1.469,17.4,17.4,0,0,0,10.08-1.213q.37-.179.779-.354A17.111,17.111,0,0,1,23.491,0,17.582,17.582,0,0,1,39.174,9.726a.818.818,0,0,0,.726.458.556.556,0,0,0,.221-.046,12.957,12.957,0,0,0,3.019-1.97,2.272,2.272,0,0,1,2.005-.7,2.233,2.233,0,0,1,1.24,3.693l-4.392,4.462a3.258,3.258,0,0,0,0,4.47l4.392,4.463a2.232,2.232,0,0,1-1.24,3.691,2.27,2.27,0,0,1-2.007-.7,12.957,12.957,0,0,0-3.019-1.97.567.567,0,0,0-.221-.045.818.818,0,0,0-.726.458v-.008A17.907,17.907,0,0,1,35.715,30.7a.052.052,0,0,1-.008.021v-.008a17.421,17.421,0,0,1-16.169,4.538ZM23.491,29a10.876,10.876,0,0,0,3.2-.48l.017-.005.019-.006A11.222,11.222,0,0,0,29.929,8.8L29.9,8.781l-.01-.007A10.989,10.989,0,0,0,24.387,6.73q-.443-.037-.9-.036-.5,0-.984.044H22.5l-.029,0A11.087,11.087,0,0,0,12.632,16v.011A11.274,11.274,0,0,0,14,23.5l.007.011.007.012a11.1,11.1,0,0,0,5.007,4.521l.013.006.027.012q.414.184.848.335.358.125.722.225a10.881,10.881,0,0,0,2.86.38" fill="#7633ff"/><path d="M50.186,29.467a2.759,2.759,0,0,0,2.071-.8,2.917,2.917,0,0,0,.768-2.114,2.974,2.974,0,0,0-.768-2.129,2.81,2.81,0,0,0-2.071-.781,2.751,2.751,0,0,0-2.056.782,2.924,2.924,0,0,0-.782,2.129,2.866,2.866,0,0,0,.782,2.114,2.7,2.7,0,0,0,2.056.8" transform="translate(-23.119 -11.383)" fill="#7633ff"/></g></g></g></svg></div>
+          <span class="phone-progress">5 / 5</span>
+        </div>
+        <div class="phone-stepbar">
+          <div class="phone-stepdot done"></div>
+          <div class="phone-stepdot done"></div>
+          <div class="phone-stepdot done"></div>
+          <div class="phone-stepdot done"></div>
+          <div class="phone-stepdot current"></div>
+        </div>
+        <div class="phone-body">
+          <div class="phone-h1">Foto del reverso de tu cédula</div>
+          <div class="phone-subtitle">Ahora dale vuelta al documento y toma una foto del reverso.</div>
+          <div class="phone-camera">
+            <div class="phone-camera-corner tl"></div>
+            <div class="phone-camera-corner tr"></div>
+            <div class="phone-camera-corner bl"></div>
+            <div class="phone-camera-corner br"></div>
+            <div class="phone-camera-frame" style="font-size:30px;">🪪</div>
+          </div>
+          <div class="phone-callout">💡 Asegúrate de que se vean los datos del reverso (lugar de expedición, etc).</div>
+          <button class="phone-btn">Tomar foto reverso</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">7c</span>Foto reverso del documento</div>
+    <div class="narrative-title">El reverso para completar la verificación documental</div>
+    <div class="narrative-body">
+      <p>La última pantalla del bloque de identidad. Laura le da vuelta a su cédula y toma la foto del reverso. El sistema valida que sea un reverso de cédula colombiana real y que los datos sean legibles.</p>
+      <p>Del reverso se extrae vía OCR la <strong>ciudad de expedición</strong> y se confirma que coincide con el número de documento. Esto cierra la verificación documental.</p>
+      <p>Si las tres fotos pasan (selfie + frontal + reverso) y no se detecta nada raro, Laura avanza al siguiente bloque: la verificación UBICA.</p>
+    </div>
+  </div>
+
+  <div class="story-meta-col">
+    <div class="meta-block">
+      <div class="meta-block-label">Estado del estudio</div>
+      <span class="meta-state meta-state--activo">Activo</span>
+      <p class="meta-tip" style="margin-top:8px;">Sub-fase: <code>identidad · reverso</code></p>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Datos capturados</div>
+      <div class="meta-fields">
+        <span class="meta-field-pill meta-field-pill--new">foto_reverso</span>
+        <span class="meta-field-pill meta-field-pill--new">ciudad_expedicion (OCR)</span>
+      </div>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Validaciones</div>
+      <p class="meta-tip">Etiquetas de reverso real · No es copia · Texto legible · Sin indicios de fraude</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PASO 8 · UBICA loader ============ -->
+<div class="story-row" id="paso-8">
+  <div class="story-screen-col">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>● ●●●</span></div>
+        <div class="phone-app-bar">
+          <div class="phone-back"></div>
+          <div class="phone-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99.949 42"><g transform="translate(16065.999 15535.625)"><g transform="translate(-16012.538 -15524.503)"><g transform="translate(0 0)"><path d="M14.425,87.15l-2.38,2.362L10.356,87.8a8.071,8.071,0,0,1-3.343.654,7.08,7.08,0,0,1-5.105-1.817,7.168,7.168,0,0,1,0-9.738,7.082,7.082,0,0,1,5.105-1.817A7.082,7.082,0,0,1,12.118,76.9a6.418,6.418,0,0,1,1.907,4.869,6.948,6.948,0,0,1-1.072,3.87ZM7.013,85.424a3.462,3.462,0,0,0,2.6-1,3.656,3.656,0,0,0,.963-2.652A3.732,3.732,0,0,0,9.611,79.1a3.524,3.524,0,0,0-2.6-.981,3.452,3.452,0,0,0-2.58.981,3.668,3.668,0,0,0-.982,2.671,3.594,3.594,0,0,0,.982,2.652,3.392,3.392,0,0,0,2.58,1" transform="translate(0 -75.086)" fill="#7633ff"/><path d="M30.35,79.328h3.307V88.3h-2.87L30.6,87.249a3.407,3.407,0,0,1-2.8,1.253c-2.18,0-3.506-1.49-3.506-4.033V79.328h3.307v4.96c0,.927.473,1.489,1.272,1.489.89,0,1.471-.69,1.471-1.726Z" transform="translate(-8.919 -76.795)" fill="#7633ff"/><path d="M48.2,79.206h2.87v8.975H48.2l-.182-1.054a3.781,3.781,0,0,1-2.87,1.235,3.894,3.894,0,0,1-3.034-1.308,5.373,5.373,0,0,1,0-6.722,3.894,3.894,0,0,1,3.034-1.308,3.764,3.764,0,0,1,2.87,1.217ZM46,85.637a1.728,1.728,0,0,0,1.308-.545,1.962,1.962,0,0,0,.49-1.4,2.038,2.038,0,0,0-.49-1.417A1.78,1.78,0,0,0,46,81.749a1.71,1.71,0,0,0-1.29.527,1.967,1.967,0,0,0-.509,1.417,1.9,1.9,0,0,0,.509,1.4,1.661,1.661,0,0,0,1.29.545" transform="translate(-14.753 -76.672)" fill="#7633ff"/><path d="M60.243,87.115a4.939,4.939,0,0,1,.018-6.831,5.061,5.061,0,0,1,3.616-1.29,4.9,4.9,0,0,1,3.56,1.417l-1.762,1.944a2.313,2.313,0,0,0-1.6-.636,1.963,1.963,0,0,0,0,3.925,2.379,2.379,0,0,0,1.708-.708L67.6,86.843a5.112,5.112,0,0,1-3.67,1.526,5.247,5.247,0,0,1-3.688-1.253" transform="translate(-21.112 -76.659)" fill="#7633ff"/></g></g><g transform="translate(-16065.999 -15535.625)"><g transform="translate(0 0)"><path d="M70.915,59a2.061,2.061,0,0,0-3.784-.431,13.6,13.6,0,0,1-8.168,6.5,2.061,2.061,0,0,0,1.062,3.982l.048-.013.024-.006.216-.062v0a17.713,17.713,0,0,0,10.422-8.4A2.048,2.048,0,0,0,70.915,59" transform="translate(-28.063 -27.613)" fill="#7633ff"/><path d="M19.537,35.247A17.616,17.616,0,0,1,8.607,27.4l-.025-.039A18.032,18.032,0,0,1,6.09,15.053c0-.028,0-.061,0-.086a.832.832,0,0,0-.826-.836H2.205A2.228,2.228,0,0,1,1.89,9.7,17.245,17.245,0,0,0,6.851,8.113l-2.292-.8A2.233,2.233,0,0,1,3.186,4.487a2.193,2.193,0,0,1,2.5-1.469,17.4,17.4,0,0,0,10.08-1.213q.37-.179.779-.354A17.111,17.111,0,0,1,23.491,0,17.582,17.582,0,0,1,39.174,9.726a.818.818,0,0,0,.726.458.556.556,0,0,0,.221-.046,12.957,12.957,0,0,0,3.019-1.97,2.272,2.272,0,0,1,2.005-.7,2.233,2.233,0,0,1,1.24,3.693l-4.392,4.462a3.258,3.258,0,0,0,0,4.47l4.392,4.463a2.232,2.232,0,0,1-1.24,3.691,2.27,2.27,0,0,1-2.007-.7,12.957,12.957,0,0,0-3.019-1.97.567.567,0,0,0-.221-.045.818.818,0,0,0-.726.458v-.008A17.907,17.907,0,0,1,35.715,30.7a.052.052,0,0,1-.008.021v-.008a17.421,17.421,0,0,1-16.169,4.538ZM23.491,29a10.876,10.876,0,0,0,3.2-.48l.017-.005.019-.006A11.222,11.222,0,0,0,29.929,8.8L29.9,8.781l-.01-.007A10.989,10.989,0,0,0,24.387,6.73q-.443-.037-.9-.036-.5,0-.984.044H22.5l-.029,0A11.087,11.087,0,0,0,12.632,16v.011A11.274,11.274,0,0,0,14,23.5l.007.011.007.012a11.1,11.1,0,0,0,5.007,4.521l.013.006.027.012q.414.184.848.335.358.125.722.225a10.881,10.881,0,0,0,2.86.38" fill="#7633ff"/><path d="M50.186,29.467a2.759,2.759,0,0,0,2.071-.8,2.917,2.917,0,0,0,.768-2.114,2.974,2.974,0,0,0-.768-2.129,2.81,2.81,0,0,0-2.071-.781,2.751,2.751,0,0,0-2.056.782,2.924,2.924,0,0,0-.782,2.129,2.866,2.866,0,0,0,.782,2.114,2.7,2.7,0,0,0,2.056.8" transform="translate(-23.119 -11.383)" fill="#7633ff"/></g></g></g></svg></div>
+          <div></div>
+        </div>
+        <div class="phone-body">
+          <div class="phone-loader">
+            <div class="phone-spinner"></div>
+            <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;">Verificando tus datos de contacto</div>
+            <div style="font-size:12px;color:var(--text-secondary);">Esto solo toma unos segundos...</div>
+          </div>
+          <div class="phone-loader-list">
+            <div class="phone-loader-list-item done">✓ Identidad verificada</div>
+            <div class="phone-loader-list-item active">⌛ Consultando UBICA / TransUnion</div>
+            <div class="phone-loader-list-item">○ Validando celular y correo</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">8</span>Verificación UBICA</div>
+    <div class="narrative-title">El sistema cruza datos contra TransUnion</div>
+    <div class="narrative-body">
+      <p>Con la identidad documental ya verificada, el sistema consulta automáticamente <strong>UBICA / TransUnion</strong> para validar que el celular y correo de Laura coinciden con su historial. Es una verificación contra fraude y suplantación de identidad.</p>
+      <p>Si los datos coinciden y el celular tiene antigüedad suficiente, el sistema avanza al cierre. Si hay inconsistencia (celular reciente, correo distinto al histórico, posible suplantación), el caso se deriva a la <strong>Fábrica de Créditos</strong> para revisión humana.</p>
+      <p>Esta pantalla es un loader rápido — Laura no tiene que hacer nada, solo esperar unos segundos.</p>
+    </div>
+  </div>
+
+  <div class="story-meta-col">
+    <div class="meta-block">
+      <div class="meta-block-label">Estado del estudio</div>
+      <span class="meta-state meta-state--activo">Activo</span>
+      <p class="meta-tip" style="margin-top:8px;">Situación: <code>esperando servicio</code></p>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Datos capturados</div>
+      <div class="meta-fields">
+        <span class="meta-field-pill meta-field-pill--new">ubica_status</span>
+        <span class="meta-field-pill meta-field-pill--new">ubica_celular</span>
+        <span class="meta-field-pill meta-field-pill--new">ubica_correo</span>
+      </div>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Punto crítico</div>
+      <p class="meta-tip"><strong>Última puerta antes del cierre.</strong> Si UBICA falla, el estudio puede irse a fábrica aunque las fotos estén perfectas.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ BIFURCACIÓN 3 ============ -->
+<div class="bifurcation">
+  <div class="bifurcation-label">⬢ Decisión del sistema #3</div>
+  <div class="bifurcation-title">¿Pasa la verificación de identidad y UBICA?</div>
+  <div class="bifurcation-paths">
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--happy">Identidad OK + UBICA OK</span>
+      <div class="bifurcation-path-text"><strong>Todo coincide.</strong> Sigue al paso 9 (token correo) para activar el cupo.</div>
+      <a class="bifurcation-path-link" href="#paso-9">→ continuar al paso 9</a>
+    </div>
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--alt">Match bajo o UBICA dudoso</span>
+      <div class="bifurcation-path-text"><strong>Caso a Fábrica.</strong> Operador revisa manualmente. Laura ve un dashboard con su tarea pendiente.</div>
+      <a class="bifurcation-path-link" href="#variantes-3">→ ver variante C</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PASO 9 ============ -->
+<div class="story-row" id="paso-9">
+  <div class="story-screen-col">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>● ●●●</span></div>
+        <div class="phone-app-bar">
+          <div class="phone-back"></div>
+          <div class="phone-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99.949 42"><g transform="translate(16065.999 15535.625)"><g transform="translate(-16012.538 -15524.503)"><g transform="translate(0 0)"><path d="M14.425,87.15l-2.38,2.362L10.356,87.8a8.071,8.071,0,0,1-3.343.654,7.08,7.08,0,0,1-5.105-1.817,7.168,7.168,0,0,1,0-9.738,7.082,7.082,0,0,1,5.105-1.817A7.082,7.082,0,0,1,12.118,76.9a6.418,6.418,0,0,1,1.907,4.869,6.948,6.948,0,0,1-1.072,3.87ZM7.013,85.424a3.462,3.462,0,0,0,2.6-1,3.656,3.656,0,0,0,.963-2.652A3.732,3.732,0,0,0,9.611,79.1a3.524,3.524,0,0,0-2.6-.981,3.452,3.452,0,0,0-2.58.981,3.668,3.668,0,0,0-.982,2.671,3.594,3.594,0,0,0,.982,2.652,3.392,3.392,0,0,0,2.58,1" transform="translate(0 -75.086)" fill="#7633ff"/><path d="M30.35,79.328h3.307V88.3h-2.87L30.6,87.249a3.407,3.407,0,0,1-2.8,1.253c-2.18,0-3.506-1.49-3.506-4.033V79.328h3.307v4.96c0,.927.473,1.489,1.272,1.489.89,0,1.471-.69,1.471-1.726Z" transform="translate(-8.919 -76.795)" fill="#7633ff"/><path d="M48.2,79.206h2.87v8.975H48.2l-.182-1.054a3.781,3.781,0,0,1-2.87,1.235,3.894,3.894,0,0,1-3.034-1.308,5.373,5.373,0,0,1,0-6.722,3.894,3.894,0,0,1,3.034-1.308,3.764,3.764,0,0,1,2.87,1.217ZM46,85.637a1.728,1.728,0,0,0,1.308-.545,1.962,1.962,0,0,0,.49-1.4,2.038,2.038,0,0,0-.49-1.417A1.78,1.78,0,0,0,46,81.749a1.71,1.71,0,0,0-1.29.527,1.967,1.967,0,0,0-.509,1.417,1.9,1.9,0,0,0,.509,1.4,1.661,1.661,0,0,0,1.29.545" transform="translate(-14.753 -76.672)" fill="#7633ff"/><path d="M60.243,87.115a4.939,4.939,0,0,1,.018-6.831,5.061,5.061,0,0,1,3.616-1.29,4.9,4.9,0,0,1,3.56,1.417l-1.762,1.944a2.313,2.313,0,0,0-1.6-.636,1.963,1.963,0,0,0,0,3.925,2.379,2.379,0,0,0,1.708-.708L67.6,86.843a5.112,5.112,0,0,1-3.67,1.526,5.247,5.247,0,0,1-3.688-1.253" transform="translate(-21.112 -76.659)" fill="#7633ff"/></g></g><g transform="translate(-16065.999 -15535.625)"><g transform="translate(0 0)"><path d="M70.915,59a2.061,2.061,0,0,0-3.784-.431,13.6,13.6,0,0,1-8.168,6.5,2.061,2.061,0,0,0,1.062,3.982l.048-.013.024-.006.216-.062v0a17.713,17.713,0,0,0,10.422-8.4A2.048,2.048,0,0,0,70.915,59" transform="translate(-28.063 -27.613)" fill="#7633ff"/><path d="M19.537,35.247A17.616,17.616,0,0,1,8.607,27.4l-.025-.039A18.032,18.032,0,0,1,6.09,15.053c0-.028,0-.061,0-.086a.832.832,0,0,0-.826-.836H2.205A2.228,2.228,0,0,1,1.89,9.7,17.245,17.245,0,0,0,6.851,8.113l-2.292-.8A2.233,2.233,0,0,1,3.186,4.487a2.193,2.193,0,0,1,2.5-1.469,17.4,17.4,0,0,0,10.08-1.213q.37-.179.779-.354A17.111,17.111,0,0,1,23.491,0,17.582,17.582,0,0,1,39.174,9.726a.818.818,0,0,0,.726.458.556.556,0,0,0,.221-.046,12.957,12.957,0,0,0,3.019-1.97,2.272,2.272,0,0,1,2.005-.7,2.233,2.233,0,0,1,1.24,3.693l-4.392,4.462a3.258,3.258,0,0,0,0,4.47l4.392,4.463a2.232,2.232,0,0,1-1.24,3.691,2.27,2.27,0,0,1-2.007-.7,12.957,12.957,0,0,0-3.019-1.97.567.567,0,0,0-.221-.045.818.818,0,0,0-.726.458v-.008A17.907,17.907,0,0,1,35.715,30.7a.052.052,0,0,1-.008.021v-.008a17.421,17.421,0,0,1-16.169,4.538ZM23.491,29a10.876,10.876,0,0,0,3.2-.48l.017-.005.019-.006A11.222,11.222,0,0,0,29.929,8.8L29.9,8.781l-.01-.007A10.989,10.989,0,0,0,24.387,6.73q-.443-.037-.9-.036-.5,0-.984.044H22.5l-.029,0A11.087,11.087,0,0,0,12.632,16v.011A11.274,11.274,0,0,0,14,23.5l.007.011.007.012a11.1,11.1,0,0,0,5.007,4.521l.013.006.027.012q.414.184.848.335.358.125.722.225a10.881,10.881,0,0,0,2.86.38" fill="#7633ff"/><path d="M50.186,29.467a2.759,2.759,0,0,0,2.071-.8,2.917,2.917,0,0,0,.768-2.114,2.974,2.974,0,0,0-.768-2.129,2.81,2.81,0,0,0-2.071-.781,2.751,2.751,0,0,0-2.056.782,2.924,2.924,0,0,0-.782,2.129,2.866,2.866,0,0,0,.782,2.114,2.7,2.7,0,0,0,2.056.8" transform="translate(-23.119 -11.383)" fill="#7633ff"/></g></g></g></svg></div>
+          <div></div>
+        </div>
+        <div class="phone-body">
+          <div class="phone-h1">Último paso</div>
+          <div class="phone-subtitle">Te enviamos un código a <strong>laura.r@***.com</strong> para activar tu cupo.</div>
+          <div class="phone-otp" style="margin-top:18px;">
+            <div class="phone-otp-cell phone-otp-cell--filled">2</div>
+            <div class="phone-otp-cell phone-otp-cell--filled">8</div>
+            <div class="phone-otp-cell phone-otp-cell--filled">4</div>
+            <div class="phone-otp-cell phone-otp-cell--filled">6</div>
+            <div class="phone-otp-cell phone-otp-cell--current"></div>
+            <div class="phone-otp-cell"></div>
+          </div>
+          <div class="phone-otp-help"><a>Reenviar código</a> · <strong>04:32</strong></div>
+          <div class="phone-callout phone-callout--info">📧 Si no lo ves en tu bandeja de entrada, revisa spam.</div>
+          <button class="phone-btn">Activar mi cupo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">9</span>Token al correo</div>
+    <div class="narrative-title">Última verificación: el correo electrónico</div>
+    <div class="narrative-body">
+      <p>Laura recibe un código de 6 dígitos en su correo y lo digita en el portal. Es la <strong>segunda firma electrónica</strong> del proceso (la primera fue el SMS al celular en el paso 3).</p>
+      <p>¿Por qué dos tokens? Porque queremos verificar <strong>dos canales independientes</strong> antes de activar dinero. El celular puede estar comprometido. El correo también. La probabilidad de que ambos lo estén es muy baja.</p>
+      <p>Cuando Laura ingresa el código correcto, el sistema activa el cupo en cuestión de segundos.</p>
+    </div>
+  </div>
+
+  <div class="story-meta-col">
+    <div class="meta-block">
+      <div class="meta-block-label">Estado del estudio</div>
+      <span class="meta-state meta-state--activo">Activo</span>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Datos capturados</div>
+      <div class="meta-fields">
+        <span class="meta-field-pill meta-field-pill--new">otp_correo_validado</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PASO 10 ============ -->
+<div class="story-row" id="paso-10">
+  <div class="story-screen-col">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>● ●●●</span></div>
+        <div class="phone-app-bar">
+          <div class="phone-back"></div>
+          <div class="phone-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99.949 42"><g transform="translate(16065.999 15535.625)"><g transform="translate(-16012.538 -15524.503)"><g transform="translate(0 0)"><path d="M14.425,87.15l-2.38,2.362L10.356,87.8a8.071,8.071,0,0,1-3.343.654,7.08,7.08,0,0,1-5.105-1.817,7.168,7.168,0,0,1,0-9.738,7.082,7.082,0,0,1,5.105-1.817A7.082,7.082,0,0,1,12.118,76.9a6.418,6.418,0,0,1,1.907,4.869,6.948,6.948,0,0,1-1.072,3.87ZM7.013,85.424a3.462,3.462,0,0,0,2.6-1,3.656,3.656,0,0,0,.963-2.652A3.732,3.732,0,0,0,9.611,79.1a3.524,3.524,0,0,0-2.6-.981,3.452,3.452,0,0,0-2.58.981,3.668,3.668,0,0,0-.982,2.671,3.594,3.594,0,0,0,.982,2.652,3.392,3.392,0,0,0,2.58,1" transform="translate(0 -75.086)" fill="#7633ff"/><path d="M30.35,79.328h3.307V88.3h-2.87L30.6,87.249a3.407,3.407,0,0,1-2.8,1.253c-2.18,0-3.506-1.49-3.506-4.033V79.328h3.307v4.96c0,.927.473,1.489,1.272,1.489.89,0,1.471-.69,1.471-1.726Z" transform="translate(-8.919 -76.795)" fill="#7633ff"/><path d="M48.2,79.206h2.87v8.975H48.2l-.182-1.054a3.781,3.781,0,0,1-2.87,1.235,3.894,3.894,0,0,1-3.034-1.308,5.373,5.373,0,0,1,0-6.722,3.894,3.894,0,0,1,3.034-1.308,3.764,3.764,0,0,1,2.87,1.217ZM46,85.637a1.728,1.728,0,0,0,1.308-.545,1.962,1.962,0,0,0,.49-1.4,2.038,2.038,0,0,0-.49-1.417A1.78,1.78,0,0,0,46,81.749a1.71,1.71,0,0,0-1.29.527,1.967,1.967,0,0,0-.509,1.417,1.9,1.9,0,0,0,.509,1.4,1.661,1.661,0,0,0,1.29.545" transform="translate(-14.753 -76.672)" fill="#7633ff"/><path d="M60.243,87.115a4.939,4.939,0,0,1,.018-6.831,5.061,5.061,0,0,1,3.616-1.29,4.9,4.9,0,0,1,3.56,1.417l-1.762,1.944a2.313,2.313,0,0,0-1.6-.636,1.963,1.963,0,0,0,0,3.925,2.379,2.379,0,0,0,1.708-.708L67.6,86.843a5.112,5.112,0,0,1-3.67,1.526,5.247,5.247,0,0,1-3.688-1.253" transform="translate(-21.112 -76.659)" fill="#7633ff"/></g></g><g transform="translate(-16065.999 -15535.625)"><g transform="translate(0 0)"><path d="M70.915,59a2.061,2.061,0,0,0-3.784-.431,13.6,13.6,0,0,1-8.168,6.5,2.061,2.061,0,0,0,1.062,3.982l.048-.013.024-.006.216-.062v0a17.713,17.713,0,0,0,10.422-8.4A2.048,2.048,0,0,0,70.915,59" transform="translate(-28.063 -27.613)" fill="#7633ff"/><path d="M19.537,35.247A17.616,17.616,0,0,1,8.607,27.4l-.025-.039A18.032,18.032,0,0,1,6.09,15.053c0-.028,0-.061,0-.086a.832.832,0,0,0-.826-.836H2.205A2.228,2.228,0,0,1,1.89,9.7,17.245,17.245,0,0,0,6.851,8.113l-2.292-.8A2.233,2.233,0,0,1,3.186,4.487a2.193,2.193,0,0,1,2.5-1.469,17.4,17.4,0,0,0,10.08-1.213q.37-.179.779-.354A17.111,17.111,0,0,1,23.491,0,17.582,17.582,0,0,1,39.174,9.726a.818.818,0,0,0,.726.458.556.556,0,0,0,.221-.046,12.957,12.957,0,0,0,3.019-1.97,2.272,2.272,0,0,1,2.005-.7,2.233,2.233,0,0,1,1.24,3.693l-4.392,4.462a3.258,3.258,0,0,0,0,4.47l4.392,4.463a2.232,2.232,0,0,1-1.24,3.691,2.27,2.27,0,0,1-2.007-.7,12.957,12.957,0,0,0-3.019-1.97.567.567,0,0,0-.221-.045.818.818,0,0,0-.726.458v-.008A17.907,17.907,0,0,1,35.715,30.7a.052.052,0,0,1-.008.021v-.008a17.421,17.421,0,0,1-16.169,4.538ZM23.491,29a10.876,10.876,0,0,0,3.2-.48l.017-.005.019-.006A11.222,11.222,0,0,0,29.929,8.8L29.9,8.781l-.01-.007A10.989,10.989,0,0,0,24.387,6.73q-.443-.037-.9-.036-.5,0-.984.044H22.5l-.029,0A11.087,11.087,0,0,0,12.632,16v.011A11.274,11.274,0,0,0,14,23.5l.007.011.007.012a11.1,11.1,0,0,0,5.007,4.521l.013.006.027.012q.414.184.848.335.358.125.722.225a10.881,10.881,0,0,0,2.86.38" fill="#7633ff"/><path d="M50.186,29.467a2.759,2.759,0,0,0,2.071-.8,2.917,2.917,0,0,0,.768-2.114,2.974,2.974,0,0,0-.768-2.129,2.81,2.81,0,0,0-2.071-.781,2.751,2.751,0,0,0-2.056.782,2.924,2.924,0,0,0-.782,2.129,2.866,2.866,0,0,0,.782,2.114,2.7,2.7,0,0,0,2.056.8" transform="translate(-23.119 -11.383)" fill="#7633ff"/></g></g></g></svg></div>
+          <div></div>
+        </div>
+        <div class="phone-body" style="text-align:center;padding-top:24px;">
+          <div style="font-size:72px;line-height:1;margin-bottom:18px;">✅</div>
+          <div class="phone-h1">¡Tu cupo está activo!</div>
+          <div class="phone-result-amount" style="margin-top:14px;">$1.200.000</div>
+          <div class="phone-result-sub">Disponible ahora mismo</div>
+          <div class="phone-card" style="text-align:left;margin-top:24px;">
+            <div class="phone-card-row"><span class="phone-card-key">Estudio</span><span class="phone-card-val">#EST-2026-00873</span></div>
+            <div class="phone-card-row"><span class="phone-card-key">Activado</span><span class="phone-card-val">9 abr · 9:46 am</span></div>
+            <div class="phone-card-row"><span class="phone-card-key">Modalidad</span><span class="phone-card-val">Cuotas quincenales</span></div>
+          </div>
+          <button class="phone-btn phone-btn--success">Empezar a usarlo</button>
+          <button class="phone-btn phone-btn--text">Descargar mi tarjeta virtual</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">10</span>Cupo activado · Final feliz</div>
+    <div class="narrative-title">¡Listo! Laura ya puede usar su cupo</div>
+    <div class="narrative-body">
+      <p>Pantalla de celebración. Laura ve el monto activado en grande, recibe confirmación por SMS y correo, y tiene dos opciones inmediatas: <strong>empezar a usar el cupo</strong> en la app QUAC, o <strong>descargar su tarjeta virtual</strong>.</p>
+      <p>Desde aquí Laura sale del portal de solicitud y entra al ecosistema regular de QUAC. Su estudio queda <strong>cerrado exitoso</strong> en el sistema.</p>
+      <p>Tiempo total estimado del flujo: <strong>5-7 minutos</strong> en condiciones normales. Si hubo algún hipo en alguna fase (mala foto, OTP que no llegó), puede haber tomado 10-15 min.</p>
+    </div>
+  </div>
+
+  <div class="story-meta-col">
+    <div class="meta-block" style="border-color:var(--green);background:var(--green-bg);">
+      <div class="meta-block-label" style="color:var(--green);">Estado final</div>
+      <span class="meta-state meta-state--exitoso">Cerrado exitoso</span>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Resultado</div>
+      <p class="meta-tip"><strong>Cupo activo:</strong> $1.200.000<br><strong>Modalidad:</strong> cuotas quincenales<br><strong>Tiempo total:</strong> ~6 minutos</p>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Siguiente paso del cliente</div>
+      <p class="meta-tip">Laura sale del portal de solicitud y entra a la app QUAC para empezar a usar su cupo. El portal preaprobado.quac.co ya cumplió su misión.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<!-- ==================== 2. VARIANTES ==================== -->
+<h2 id="variantes"><span class="h2-num">Sección 2 · Variantes</span>Los otros caminos posibles</h2>
+<p class="h2-sub">No todos los clientes pasan por el happy path. Estas son las 4 rutas alternativas que el portal debe manejar. Cada una termina en un estado distinto del estudio.</p>
+
+<div class="alt-flow-grid">
+
+  <!-- Variante A: Ya tiene cupo -->
+  <div class="alt-flow-card alt-flow-card--info">
+    <div class="alt-flow-card-label">Variante A</div>
+    <div class="alt-flow-card-title">Ya tiene cupo activo</div>
+    <div class="alt-flow-card-desc">El cliente intenta solicitar un cupo pero ya tiene uno vigente. El sistema lo detecta en el paso 1 y lo redirige a la app QUAC sin abrir un estudio nuevo.</div>
+    <div class="alt-flow-card-steps">
+      <span class="alt-flow-step">P1</span>
+      <span class="alt-flow-arrow">→</span>
+      <span class="alt-flow-step" style="background:var(--blue-bg);color:var(--blue);">"Ya tienes cupo"</span>
+      <span class="alt-flow-arrow">→</span>
+      <span class="alt-flow-step" style="background:var(--green-bg);color:var(--green);">App QUAC</span>
+    </div>
+    <p style="font-size:12px;margin-top:12px;color:var(--text-muted);"><strong>Sin estudio nuevo.</strong> No se crea registro porque no hay solicitud que evaluar.</p>
+  </div>
+
+  <!-- Variante B: Retomar (resumen — la versión completa está abajo) -->
+  <div class="alt-flow-card" id="variantes-2">
+    <div class="alt-flow-card-label">Variante B</div>
+    <div class="alt-flow-card-title">Retomar estudio en curso</div>
+    <div class="alt-flow-card-desc">El cliente ya empezó un estudio (en tienda o en web) y vuelve a entrar al portal. El sistema lo reconoce y le pide OTP al celular registrado para mostrar el estado de su estudio y continuarlo.</div>
+    <div class="alt-flow-card-steps">
+      <span class="alt-flow-step">P1</span>
+      <span class="alt-flow-arrow">→</span>
+      <span class="alt-flow-step" style="background:var(--accent-bg);color:var(--accent);">"Tienes estudio"</span>
+      <span class="alt-flow-arrow">→</span>
+      <span class="alt-flow-step" style="background:var(--accent-bg);color:var(--accent);">OTP</span>
+      <span class="alt-flow-arrow">→</span>
+      <span class="alt-flow-step" style="background:var(--green-bg);color:var(--green);">Dashboard</span>
+    </div>
+    <p style="font-size:12px;margin-top:12px;color:var(--text-muted);"><strong>Estudio:</strong> sigue activo, en su paso original. <a href="#retomar-detalle" style="color:var(--accent);font-weight:700;">Ver pantallas detalladas ↓</a></p>
+  </div>
+
+  <!-- Variante C: En revisión fábrica -->
+  <div class="alt-flow-card alt-flow-card--warn" id="variantes-3">
+    <div class="alt-flow-card-label">Variante C</div>
+    <div class="alt-flow-card-title">Caso en Fábrica de créditos</div>
+    <div class="alt-flow-card-desc">La verificación facial o UBICA no pasó automáticamente. Un operador humano revisa el caso. Mientras tanto el cliente ve un dashboard con su tarea pendiente y puede subir nuevas fotos si se le piden.</div>
+    <div class="alt-flow-card-steps">
+      <span class="alt-flow-step">P8</span>
+      <span class="alt-flow-arrow">→</span>
+      <span class="alt-flow-step" style="background:var(--blue-bg);color:var(--blue);">Fábrica</span>
+      <span class="alt-flow-arrow">→</span>
+      <span class="alt-flow-step" style="background:var(--amber-bg);color:var(--amber);">Tarea</span>
+      <span class="alt-flow-arrow">→</span>
+      <span class="alt-flow-step" style="background:var(--accent-bg);color:var(--accent);">Continúa</span>
+    </div>
+    <p style="font-size:12px;margin-top:12px;color:var(--text-muted);"><strong>Estudio:</strong> sigue activo, ahora con situación "en fábrica". Cuando el operador resuelve, vuelve al flujo.</p>
+  </div>
+
+  <!-- Variante D: Rechazo -->
+  <div class="alt-flow-card" id="variantes-4" style="border-top-color:var(--red);">
+    <div class="alt-flow-card-label">Variante D</div>
+    <div class="alt-flow-card-title">Rechazo automático</div>
+    <div class="alt-flow-card-desc">Antecedentes, Preselecta o FOSYGA arrojaron rechazo. El sistema cierra el estudio inmediatamente con un mensaje genérico (sin revelar el motivo específico, por compliance).</div>
+    <div class="alt-flow-card-steps">
+      <span class="alt-flow-step">P5</span>
+      <span class="alt-flow-arrow">→</span>
+      <span class="alt-flow-step" style="background:var(--red-bg);color:var(--red);">No viable</span>
+      <span class="alt-flow-arrow">→</span>
+      <span class="alt-flow-step" style="background:var(--red-bg);color:var(--red);">Cierre</span>
+    </div>
+    <p style="font-size:12px;margin-top:12px;color:var(--text-muted);"><strong>Estudio:</strong> nace y muere en el mismo momento. Estado <code>cerrado_no_viable</code>. No se le dice el motivo al cliente.</p>
+  </div>
+
+</div>
+
+<hr class="section-divider">
+
+<!-- ==================== 3. RETOMAR ESTUDIO (DETALLE) ==================== -->
+<h2 id="retomar-detalle"><span class="h2-num">Sección 3 · Variante B en detalle</span>Retomar un estudio en curso</h2>
+<p class="h2-sub">Esta es la historia paralela de Laura, pero <strong>una semana después</strong>: ya había empezado su estudio antes (en una tienda o en otra sesión web) y ahora vuelve al portal a continuarlo. El sistema la reconoce, le pide OTP por seguridad, y le muestra un dashboard con el estado de su estudio y las acciones pendientes.</p>
+
+<!-- ============ R1 · Identificación + estudio detectado ============ -->
+<div class="story-row" id="retomar-1">
+  <div class="story-screen-col">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>● ●●●</span></div>
+        <div class="phone-app-bar">
+          <div class="phone-back">←</div>
+          <div class="phone-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99.949 42"><g transform="translate(16065.999 15535.625)"><g transform="translate(-16012.538 -15524.503)"><g transform="translate(0 0)"><path d="M14.425,87.15l-2.38,2.362L10.356,87.8a8.071,8.071,0,0,1-3.343.654,7.08,7.08,0,0,1-5.105-1.817,7.168,7.168,0,0,1,0-9.738,7.082,7.082,0,0,1,5.105-1.817A7.082,7.082,0,0,1,12.118,76.9a6.418,6.418,0,0,1,1.907,4.869,6.948,6.948,0,0,1-1.072,3.87ZM7.013,85.424a3.462,3.462,0,0,0,2.6-1,3.656,3.656,0,0,0,.963-2.652A3.732,3.732,0,0,0,9.611,79.1a3.524,3.524,0,0,0-2.6-.981,3.452,3.452,0,0,0-2.58.981,3.668,3.668,0,0,0-.982,2.671,3.594,3.594,0,0,0,.982,2.652,3.392,3.392,0,0,0,2.58,1" transform="translate(0 -75.086)" fill="#7633ff"/><path d="M30.35,79.328h3.307V88.3h-2.87L30.6,87.249a3.407,3.407,0,0,1-2.8,1.253c-2.18,0-3.506-1.49-3.506-4.033V79.328h3.307v4.96c0,.927.473,1.489,1.272,1.489.89,0,1.471-.69,1.471-1.726Z" transform="translate(-8.919 -76.795)" fill="#7633ff"/><path d="M48.2,79.206h2.87v8.975H48.2l-.182-1.054a3.781,3.781,0,0,1-2.87,1.235,3.894,3.894,0,0,1-3.034-1.308,5.373,5.373,0,0,1,0-6.722,3.894,3.894,0,0,1,3.034-1.308,3.764,3.764,0,0,1,2.87,1.217ZM46,85.637a1.728,1.728,0,0,0,1.308-.545,1.962,1.962,0,0,0,.49-1.4,2.038,2.038,0,0,0-.49-1.417A1.78,1.78,0,0,0,46,81.749a1.71,1.71,0,0,0-1.29.527,1.967,1.967,0,0,0-.509,1.417,1.9,1.9,0,0,0,.509,1.4,1.661,1.661,0,0,0,1.29.545" transform="translate(-14.753 -76.672)" fill="#7633ff"/><path d="M60.243,87.115a4.939,4.939,0,0,1,.018-6.831,5.061,5.061,0,0,1,3.616-1.29,4.9,4.9,0,0,1,3.56,1.417l-1.762,1.944a2.313,2.313,0,0,0-1.6-.636,1.963,1.963,0,0,0,0,3.925,2.379,2.379,0,0,0,1.708-.708L67.6,86.843a5.112,5.112,0,0,1-3.67,1.526,5.247,5.247,0,0,1-3.688-1.253" transform="translate(-21.112 -76.659)" fill="#7633ff"/></g></g><g transform="translate(-16065.999 -15535.625)"><g transform="translate(0 0)"><path d="M70.915,59a2.061,2.061,0,0,0-3.784-.431,13.6,13.6,0,0,1-8.168,6.5,2.061,2.061,0,0,0,1.062,3.982l.048-.013.024-.006.216-.062v0a17.713,17.713,0,0,0,10.422-8.4A2.048,2.048,0,0,0,70.915,59" transform="translate(-28.063 -27.613)" fill="#7633ff"/><path d="M19.537,35.247A17.616,17.616,0,0,1,8.607,27.4l-.025-.039A18.032,18.032,0,0,1,6.09,15.053c0-.028,0-.061,0-.086a.832.832,0,0,0-.826-.836H2.205A2.228,2.228,0,0,1,1.89,9.7,17.245,17.245,0,0,0,6.851,8.113l-2.292-.8A2.233,2.233,0,0,1,3.186,4.487a2.193,2.193,0,0,1,2.5-1.469,17.4,17.4,0,0,0,10.08-1.213q.37-.179.779-.354A17.111,17.111,0,0,1,23.491,0,17.582,17.582,0,0,1,39.174,9.726a.818.818,0,0,0,.726.458.556.556,0,0,0,.221-.046,12.957,12.957,0,0,0,3.019-1.97,2.272,2.272,0,0,1,2.005-.7,2.233,2.233,0,0,1,1.24,3.693l-4.392,4.462a3.258,3.258,0,0,0,0,4.47l4.392,4.463a2.232,2.232,0,0,1-1.24,3.691,2.27,2.27,0,0,1-2.007-.7,12.957,12.957,0,0,0-3.019-1.97.567.567,0,0,0-.221-.045.818.818,0,0,0-.726.458v-.008A17.907,17.907,0,0,1,35.715,30.7a.052.052,0,0,1-.008.021v-.008a17.421,17.421,0,0,1-16.169,4.538ZM23.491,29a10.876,10.876,0,0,0,3.2-.48l.017-.005.019-.006A11.222,11.222,0,0,0,29.929,8.8L29.9,8.781l-.01-.007A10.989,10.989,0,0,0,24.387,6.73q-.443-.037-.9-.036-.5,0-.984.044H22.5l-.029,0A11.087,11.087,0,0,0,12.632,16v.011A11.274,11.274,0,0,0,14,23.5l.007.011.007.012a11.1,11.1,0,0,0,5.007,4.521l.013.006.027.012q.414.184.848.335.358.125.722.225a10.881,10.881,0,0,0,2.86.38" fill="#7633ff"/><path d="M50.186,29.467a2.759,2.759,0,0,0,2.071-.8,2.917,2.917,0,0,0,.768-2.114,2.974,2.974,0,0,0-.768-2.129,2.81,2.81,0,0,0-2.071-.781,2.751,2.751,0,0,0-2.056.782,2.924,2.924,0,0,0-.782,2.129,2.866,2.866,0,0,0,.782,2.114,2.7,2.7,0,0,0,2.056.8" transform="translate(-23.119 -11.383)" fill="#7633ff"/></g></g></g></svg></div>
+          <div></div>
+        </div>
+        <div class="phone-body">
+          <div class="phone-illus phone-illus--info">⏱️</div>
+          <div class="phone-h1">Tienes un estudio en curso</div>
+          <div class="phone-subtitle">Detectamos que ya empezaste tu solicitud. Puedes continuar donde quedaste.</div>
+          <div class="phone-card">
+            <div class="phone-card-row"><span class="phone-card-key">Estudio</span><span class="phone-card-val">#EST-2026-00873</span></div>
+            <div class="phone-card-row"><span class="phone-card-key">Inició</span><span class="phone-card-val">5 abr · 14:22</span></div>
+            <div class="phone-card-row"><span class="phone-card-key">Canal</span><span class="phone-card-val">Tienda Derek 93</span></div>
+            <div class="phone-card-row"><span class="phone-card-key">Fase actual</span><span class="phone-card-val" style="color:var(--accent);">Verificación identidad</span></div>
+          </div>
+          <div class="phone-callout">📱 Para continuar te enviaremos un código al celular con que iniciaste el estudio: <strong>*** *** 12 98</strong></div>
+          <button class="phone-btn">Continuar mi estudio</button>
+          <button class="phone-btn phone-btn--text">Cancelar y empezar uno nuevo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">R1</span>El sistema reconoce a Laura</div>
+    <div class="narrative-title">"Ya tienes un estudio en curso"</div>
+    <div class="narrative-body">
+      <p>Una semana antes, Laura había iniciado su estudio en la tienda Derek 93 con un cajero. Llegó hasta la fase de verificación de identidad, pero tuvo que salir corriendo y dejó el proceso a medias. El estudio quedó <strong>activo, en situación esperando cliente</strong>.</p>
+      <p>Ahora Laura entra a <code>preaprobado.quac.co</code> desde su celular, digita su documento, y el sistema detecta inmediatamente que tiene un estudio vivo. Le muestra esta pantalla con la información básica del estudio (id, fecha, canal, fase actual) <strong>sin revelar nada sensible</strong>.</p>
+      <p>Antes de mostrarle los detalles del estudio o dejarla continuar, el sistema necesita <strong>autenticarla</strong> — porque cualquier persona puede digitar el número de documento de Laura, pero solo Laura tiene acceso al celular registrado.</p>
+    </div>
+  </div>
+
+  <div class="story-meta-col">
+    <div class="meta-block">
+      <div class="meta-block-label">Estado del estudio</div>
+      <span class="meta-state meta-state--activo">Activo</span>
+      <p class="meta-tip" style="margin-top:8px;">Situación: <code>esperando cliente</code><br>Paso actual: <code>identidad documental</code></p>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Lo que se muestra</div>
+      <p class="meta-tip">Solo metadatos no sensibles: id del estudio, fecha de inicio, canal y fase actual. <strong>No muestra el cupo preaprobado, ni datos personales, ni resultado de verificaciones.</strong></p>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Decisión del sistema</div>
+      <p class="meta-tip">Antes de revelar detalles del estudio o dejar continuar, exige OTP al celular registrado. Es la <strong>única forma de autenticación</strong> en el portal web.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ R2 · OTP para retomar ============ -->
+<div class="story-row" id="retomar-2">
+  <div class="story-screen-col">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>● ●●●</span></div>
+        <div class="phone-app-bar">
+          <div class="phone-back">←</div>
+          <div class="phone-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99.949 42"><g transform="translate(16065.999 15535.625)"><g transform="translate(-16012.538 -15524.503)"><g transform="translate(0 0)"><path d="M14.425,87.15l-2.38,2.362L10.356,87.8a8.071,8.071,0,0,1-3.343.654,7.08,7.08,0,0,1-5.105-1.817,7.168,7.168,0,0,1,0-9.738,7.082,7.082,0,0,1,5.105-1.817A7.082,7.082,0,0,1,12.118,76.9a6.418,6.418,0,0,1,1.907,4.869,6.948,6.948,0,0,1-1.072,3.87ZM7.013,85.424a3.462,3.462,0,0,0,2.6-1,3.656,3.656,0,0,0,.963-2.652A3.732,3.732,0,0,0,9.611,79.1a3.524,3.524,0,0,0-2.6-.981,3.452,3.452,0,0,0-2.58.981,3.668,3.668,0,0,0-.982,2.671,3.594,3.594,0,0,0,.982,2.652,3.392,3.392,0,0,0,2.58,1" transform="translate(0 -75.086)" fill="#7633ff"/><path d="M30.35,79.328h3.307V88.3h-2.87L30.6,87.249a3.407,3.407,0,0,1-2.8,1.253c-2.18,0-3.506-1.49-3.506-4.033V79.328h3.307v4.96c0,.927.473,1.489,1.272,1.489.89,0,1.471-.69,1.471-1.726Z" transform="translate(-8.919 -76.795)" fill="#7633ff"/><path d="M48.2,79.206h2.87v8.975H48.2l-.182-1.054a3.781,3.781,0,0,1-2.87,1.235,3.894,3.894,0,0,1-3.034-1.308,5.373,5.373,0,0,1,0-6.722,3.894,3.894,0,0,1,3.034-1.308,3.764,3.764,0,0,1,2.87,1.217ZM46,85.637a1.728,1.728,0,0,0,1.308-.545,1.962,1.962,0,0,0,.49-1.4,2.038,2.038,0,0,0-.49-1.417A1.78,1.78,0,0,0,46,81.749a1.71,1.71,0,0,0-1.29.527,1.967,1.967,0,0,0-.509,1.417,1.9,1.9,0,0,0,.509,1.4,1.661,1.661,0,0,0,1.29.545" transform="translate(-14.753 -76.672)" fill="#7633ff"/><path d="M60.243,87.115a4.939,4.939,0,0,1,.018-6.831,5.061,5.061,0,0,1,3.616-1.29,4.9,4.9,0,0,1,3.56,1.417l-1.762,1.944a2.313,2.313,0,0,0-1.6-.636,1.963,1.963,0,0,0,0,3.925,2.379,2.379,0,0,0,1.708-.708L67.6,86.843a5.112,5.112,0,0,1-3.67,1.526,5.247,5.247,0,0,1-3.688-1.253" transform="translate(-21.112 -76.659)" fill="#7633ff"/></g></g><g transform="translate(-16065.999 -15535.625)"><g transform="translate(0 0)"><path d="M70.915,59a2.061,2.061,0,0,0-3.784-.431,13.6,13.6,0,0,1-8.168,6.5,2.061,2.061,0,0,0,1.062,3.982l.048-.013.024-.006.216-.062v0a17.713,17.713,0,0,0,10.422-8.4A2.048,2.048,0,0,0,70.915,59" transform="translate(-28.063 -27.613)" fill="#7633ff"/><path d="M19.537,35.247A17.616,17.616,0,0,1,8.607,27.4l-.025-.039A18.032,18.032,0,0,1,6.09,15.053c0-.028,0-.061,0-.086a.832.832,0,0,0-.826-.836H2.205A2.228,2.228,0,0,1,1.89,9.7,17.245,17.245,0,0,0,6.851,8.113l-2.292-.8A2.233,2.233,0,0,1,3.186,4.487a2.193,2.193,0,0,1,2.5-1.469,17.4,17.4,0,0,0,10.08-1.213q.37-.179.779-.354A17.111,17.111,0,0,1,23.491,0,17.582,17.582,0,0,1,39.174,9.726a.818.818,0,0,0,.726.458.556.556,0,0,0,.221-.046,12.957,12.957,0,0,0,3.019-1.97,2.272,2.272,0,0,1,2.005-.7,2.233,2.233,0,0,1,1.24,3.693l-4.392,4.462a3.258,3.258,0,0,0,0,4.47l4.392,4.463a2.232,2.232,0,0,1-1.24,3.691,2.27,2.27,0,0,1-2.007-.7,12.957,12.957,0,0,0-3.019-1.97.567.567,0,0,0-.221-.045.818.818,0,0,0-.726.458v-.008A17.907,17.907,0,0,1,35.715,30.7a.052.052,0,0,1-.008.021v-.008a17.421,17.421,0,0,1-16.169,4.538ZM23.491,29a10.876,10.876,0,0,0,3.2-.48l.017-.005.019-.006A11.222,11.222,0,0,0,29.929,8.8L29.9,8.781l-.01-.007A10.989,10.989,0,0,0,24.387,6.73q-.443-.037-.9-.036-.5,0-.984.044H22.5l-.029,0A11.087,11.087,0,0,0,12.632,16v.011A11.274,11.274,0,0,0,14,23.5l.007.011.007.012a11.1,11.1,0,0,0,5.007,4.521l.013.006.027.012q.414.184.848.335.358.125.722.225a10.881,10.881,0,0,0,2.86.38" fill="#7633ff"/><path d="M50.186,29.467a2.759,2.759,0,0,0,2.071-.8,2.917,2.917,0,0,0,.768-2.114,2.974,2.974,0,0,0-.768-2.129,2.81,2.81,0,0,0-2.071-.781,2.751,2.751,0,0,0-2.056.782,2.924,2.924,0,0,0-.782,2.129,2.866,2.866,0,0,0,.782,2.114,2.7,2.7,0,0,0,2.056.8" transform="translate(-23.119 -11.383)" fill="#7633ff"/></g></g></g></svg></div>
+          <div></div>
+        </div>
+        <div class="phone-body">
+          <div class="phone-h1">Verifica que eres tú</div>
+          <div class="phone-subtitle">Enviamos un código de 6 dígitos al celular <strong>*** *** 12 98</strong>. Escríbelo aquí para continuar.</div>
+          <div class="phone-otp" style="margin-top:18px;">
+            <div class="phone-otp-cell phone-otp-cell--filled">4</div>
+            <div class="phone-otp-cell phone-otp-cell--filled">2</div>
+            <div class="phone-otp-cell phone-otp-cell--filled">9</div>
+            <div class="phone-otp-cell phone-otp-cell--filled">1</div>
+            <div class="phone-otp-cell phone-otp-cell--current"></div>
+            <div class="phone-otp-cell"></div>
+          </div>
+          <div class="phone-otp-help">El código expira en <strong>04:32</strong></div>
+          <div class="phone-otp-help"><a>Reenviar SMS</a> · <a>Enviar por WhatsApp</a></div>
+          <button class="phone-btn">Validar código</button>
+          <button class="phone-btn phone-btn--text">¿Ya no tengo acceso a este número?</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">R2</span>OTP de seguridad</div>
+    <div class="narrative-title">El celular es la llave para retomar</div>
+    <div class="narrative-body">
+      <p>Laura toca <strong>"Continuar mi estudio"</strong> y el sistema le envía un código por SMS al celular que tokenizó cuando empezó el estudio (en la tienda, hace una semana). Solo si Laura tiene acceso a ese mismo celular puede continuar.</p>
+      <p>Esto es importante: aunque alguien más conozca el número de documento de Laura, <strong>no puede ver ni modificar su estudio sin tener el celular</strong>. El celular es el vínculo de seguridad único.</p>
+      <p>Si Laura ya no tiene acceso al celular (lo cambió, lo perdió, etc.), el botón <em>"¿Ya no tengo acceso a este número?"</em> la lleva a un flujo alterno: tendría que <strong>volver a una tienda física</strong> para que un cajero actualice su celular. No hay recovery por correo en este portal.</p>
+    </div>
+  </div>
+
+  <div class="story-meta-col">
+    <div class="meta-block">
+      <div class="meta-block-label">Estado del estudio</div>
+      <span class="meta-state meta-state--activo">Activo</span>
+      <p class="meta-tip" style="margin-top:8px;">Sin cambios — sigue activo, esperando que la cliente pase la autenticación.</p>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Validaciones</div>
+      <p class="meta-tip">OTP de 6 dígitos · Vigencia 5 min · Máximo 3 intentos · Misma lógica que el OTP del paso 3 del flujo principal</p>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Sin acceso al celular</div>
+      <p class="meta-tip">No hay recovery por correo. La cliente debe volver a tienda para actualizar su celular registrado, o llamar a la Fábrica de Créditos.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ R3 · Dashboard del estudio ============ -->
+<div class="story-row" id="retomar-3">
+  <div class="story-screen-col">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>● ●●●</span></div>
+        <div class="phone-app-bar">
+          <div class="phone-back">←</div>
+          <div class="phone-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99.949 42"><g transform="translate(16065.999 15535.625)"><g transform="translate(-16012.538 -15524.503)"><g transform="translate(0 0)"><path d="M14.425,87.15l-2.38,2.362L10.356,87.8a8.071,8.071,0,0,1-3.343.654,7.08,7.08,0,0,1-5.105-1.817,7.168,7.168,0,0,1,0-9.738,7.082,7.082,0,0,1,5.105-1.817A7.082,7.082,0,0,1,12.118,76.9a6.418,6.418,0,0,1,1.907,4.869,6.948,6.948,0,0,1-1.072,3.87ZM7.013,85.424a3.462,3.462,0,0,0,2.6-1,3.656,3.656,0,0,0,.963-2.652A3.732,3.732,0,0,0,9.611,79.1a3.524,3.524,0,0,0-2.6-.981,3.452,3.452,0,0,0-2.58.981,3.668,3.668,0,0,0-.982,2.671,3.594,3.594,0,0,0,.982,2.652,3.392,3.392,0,0,0,2.58,1" transform="translate(0 -75.086)" fill="#7633ff"/><path d="M30.35,79.328h3.307V88.3h-2.87L30.6,87.249a3.407,3.407,0,0,1-2.8,1.253c-2.18,0-3.506-1.49-3.506-4.033V79.328h3.307v4.96c0,.927.473,1.489,1.272,1.489.89,0,1.471-.69,1.471-1.726Z" transform="translate(-8.919 -76.795)" fill="#7633ff"/><path d="M48.2,79.206h2.87v8.975H48.2l-.182-1.054a3.781,3.781,0,0,1-2.87,1.235,3.894,3.894,0,0,1-3.034-1.308,5.373,5.373,0,0,1,0-6.722,3.894,3.894,0,0,1,3.034-1.308,3.764,3.764,0,0,1,2.87,1.217ZM46,85.637a1.728,1.728,0,0,0,1.308-.545,1.962,1.962,0,0,0,.49-1.4,2.038,2.038,0,0,0-.49-1.417A1.78,1.78,0,0,0,46,81.749a1.71,1.71,0,0,0-1.29.527,1.967,1.967,0,0,0-.509,1.417,1.9,1.9,0,0,0,.509,1.4,1.661,1.661,0,0,0,1.29.545" transform="translate(-14.753 -76.672)" fill="#7633ff"/><path d="M60.243,87.115a4.939,4.939,0,0,1,.018-6.831,5.061,5.061,0,0,1,3.616-1.29,4.9,4.9,0,0,1,3.56,1.417l-1.762,1.944a2.313,2.313,0,0,0-1.6-.636,1.963,1.963,0,0,0,0,3.925,2.379,2.379,0,0,0,1.708-.708L67.6,86.843a5.112,5.112,0,0,1-3.67,1.526,5.247,5.247,0,0,1-3.688-1.253" transform="translate(-21.112 -76.659)" fill="#7633ff"/></g></g><g transform="translate(-16065.999 -15535.625)"><g transform="translate(0 0)"><path d="M70.915,59a2.061,2.061,0,0,0-3.784-.431,13.6,13.6,0,0,1-8.168,6.5,2.061,2.061,0,0,0,1.062,3.982l.048-.013.024-.006.216-.062v0a17.713,17.713,0,0,0,10.422-8.4A2.048,2.048,0,0,0,70.915,59" transform="translate(-28.063 -27.613)" fill="#7633ff"/><path d="M19.537,35.247A17.616,17.616,0,0,1,8.607,27.4l-.025-.039A18.032,18.032,0,0,1,6.09,15.053c0-.028,0-.061,0-.086a.832.832,0,0,0-.826-.836H2.205A2.228,2.228,0,0,1,1.89,9.7,17.245,17.245,0,0,0,6.851,8.113l-2.292-.8A2.233,2.233,0,0,1,3.186,4.487a2.193,2.193,0,0,1,2.5-1.469,17.4,17.4,0,0,0,10.08-1.213q.37-.179.779-.354A17.111,17.111,0,0,1,23.491,0,17.582,17.582,0,0,1,39.174,9.726a.818.818,0,0,0,.726.458.556.556,0,0,0,.221-.046,12.957,12.957,0,0,0,3.019-1.97,2.272,2.272,0,0,1,2.005-.7,2.233,2.233,0,0,1,1.24,3.693l-4.392,4.462a3.258,3.258,0,0,0,0,4.47l4.392,4.463a2.232,2.232,0,0,1-1.24,3.691,2.27,2.27,0,0,1-2.007-.7,12.957,12.957,0,0,0-3.019-1.97.567.567,0,0,0-.221-.045.818.818,0,0,0-.726.458v-.008A17.907,17.907,0,0,1,35.715,30.7a.052.052,0,0,1-.008.021v-.008a17.421,17.421,0,0,1-16.169,4.538ZM23.491,29a10.876,10.876,0,0,0,3.2-.48l.017-.005.019-.006A11.222,11.222,0,0,0,29.929,8.8L29.9,8.781l-.01-.007A10.989,10.989,0,0,0,24.387,6.73q-.443-.037-.9-.036-.5,0-.984.044H22.5l-.029,0A11.087,11.087,0,0,0,12.632,16v.011A11.274,11.274,0,0,0,14,23.5l.007.011.007.012a11.1,11.1,0,0,0,5.007,4.521l.013.006.027.012q.414.184.848.335.358.125.722.225a10.881,10.881,0,0,0,2.86.38" fill="#7633ff"/><path d="M50.186,29.467a2.759,2.759,0,0,0,2.071-.8,2.917,2.917,0,0,0,.768-2.114,2.974,2.974,0,0,0-.768-2.129,2.81,2.81,0,0,0-2.071-.781,2.751,2.751,0,0,0-2.056.782,2.924,2.924,0,0,0-.782,2.129,2.866,2.866,0,0,0,.782,2.114,2.7,2.7,0,0,0,2.056.8" transform="translate(-23.119 -11.383)" fill="#7633ff"/></g></g></g></svg></div>
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;">LR</div>
+        </div>
+        <div class="phone-body">
+          <div class="phone-h1">Hola, Laura 👋</div>
+          <div class="phone-subtitle">Estás a mitad de camino. Retomamos donde quedaste.</div>
+
+          <div class="phone-status-card">
+            <div class="phone-status-card-label">Estudio en curso</div>
+            <div class="phone-status-card-big">F5 · Verificación de identidad</div>
+            <div class="phone-status-card-meta">#EST-2026-00873 · Inició 5 abr</div>
+          </div>
+
+          <div class="phone-phase-line">
+            <div class="phone-phase-dot done"></div>
+            <div class="phone-phase-dot done"></div>
+            <div class="phone-phase-dot done"></div>
+            <div class="phone-phase-dot done"></div>
+            <div class="phone-phase-dot current"></div>
+            <div class="phone-phase-dot"></div>
+            <div class="phone-phase-dot"></div>
+          </div>
+          <div style="font-size:9px;color:var(--text-muted);text-align:center;margin-top:4px;letter-spacing:0.04em;">F1 · F2 · F3 · F4 · <strong style="color:var(--accent);">F5</strong> · F6 · F7</div>
+
+          <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:18px 0 6px;">Pendiente por ti</div>
+
+          <div class="phone-task">
+            <div class="phone-task-icon">📷</div>
+            <div class="phone-task-text">
+              <div class="phone-task-title">Toma de nuevo la foto frontal de tu cédula</div>
+              <div class="phone-task-sub">Nuestro equipo revisó la foto y no se ve bien</div>
+            </div>
+            <div class="phone-task-chev">›</div>
+          </div>
+
+          <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:14px 0 6px;">Ya completado</div>
+
+          <div class="phone-card">
+            <div class="phone-card-row"><span class="phone-card-key">✓ Firmaste los términos</span><span class="phone-card-val" style="font-size:10px;color:var(--text-muted);">5 abr</span></div>
+            <div class="phone-card-row"><span class="phone-card-key">✓ Cupo preaprobado</span><span class="phone-card-val" style="font-size:10px;color:var(--text-muted);">5 abr</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">R3</span>Dashboard "Mi estudio"</div>
+    <div class="narrative-title">Lo que ve Laura cuando entra a su estudio</div>
+    <div class="narrative-body">
+      <p>Laura ingresa el OTP correcto y entra al <strong>dashboard de su estudio</strong>. Es la única vista del portal donde puede ver detalles, y solo aparece después de la autenticación.</p>
+      <p>Lo que ve:</p>
+      <ul style="margin-left:18px;color:var(--text-secondary);font-size:14px;line-height:1.7;">
+        <li>Su <strong>fase actual</strong> destacada (F5 · Verificación de identidad)</li>
+        <li>Una <strong>línea de progreso</strong> con las 7 fases del estudio (4 completadas, 1 actual, 2 pendientes)</li>
+        <li>Las <strong>tareas pendientes por ella</strong> (en este caso, repetir una foto que la fábrica le pidió volver a subir)</li>
+        <li>Lo que <strong>ya completó</strong>, en gris, como recordatorio de progreso</li>
+      </ul>
+      <p>Lo que <strong>no ve</strong>: el monto del cupo preaprobado, los datos de las verificaciones (Preselecta, antecedentes, FOSYGA), ni el motivo específico por el que la fábrica rechazó la foto. Esos detalles son sensibles o de compliance.</p>
+      <p>Cuando Laura toca la tarea pendiente, la lleva directamente a la pantalla de captura de foto frontal — el mismo flujo del paso 7b del happy path.</p>
+    </div>
+  </div>
+
+  <div class="story-meta-col">
+    <div class="meta-block">
+      <div class="meta-block-label">Estado del estudio</div>
+      <span class="meta-state meta-state--activo">Activo</span>
+      <p class="meta-tip" style="margin-top:8px;">Situación: <code>en interacción</code> (Laura volvió y está trabajándolo)</p>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Acciones disponibles</div>
+      <p class="meta-tip">Solo las que el sistema considere necesarias en el paso actual. En este caso: <strong>repetir foto frontal</strong>. Sin atajos, sin saltos.</p>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Lo que NO ve</div>
+      <p class="meta-tip">• Monto del cupo<br>• Score crediticio<br>• Resultados específicos de verificaciones<br>• Motivo exacto del rechazo de fábrica<br>• Estudios anteriores cerrados</p>
+    </div>
+  </div>
+</div>
+
+<div class="callout callout--info" style="background:var(--accent-bg);border-left:4px solid var(--accent);padding:18px 22px;border-radius:10px;margin:24px 0;">
+  <p style="margin:0;font-size:14px;color:var(--accent-dark);"><strong>Después de R3:</strong> cuando Laura toca la tarea pendiente, el portal la lleva directamente a la pantalla del paso del happy path donde quedó (en este caso, <strong>paso 7b — foto frontal del documento</strong>). Desde ahí continúa el flujo normal hasta la activación del cupo en el paso 10.</p>
+</div>
+
+<hr class="section-divider">
+
+<!-- Footer -->
+<p style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:48px;">
+  <strong>QUAC · Journey del cliente en preaprobado.quac.co · Propuesta v2</strong><br>
+  Documento narrativo. Las pantallas son aproximaciones visuales — no son los mockups finales.
+</p>
+
+</div>
+
+<script>
+// IntersectionObserver para sidebar activo
+const sections = document.querySelectorAll('h2[id], div[id^="paso-"], div[id^="variantes"], h2#vision');
+const navLinks = document.querySelectorAll('.sidebar nav a');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + id) {
+          link.classList.add('active');
+        }
+      });
+    }
+  });
+}, { rootMargin: '-100px 0px -60% 0px', threshold: 0 });
+
+sections.forEach(section => observer.observe(section));
+</script>
+
+</body>
+</html>
