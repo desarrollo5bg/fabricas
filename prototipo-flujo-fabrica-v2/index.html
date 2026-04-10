@@ -1,0 +1,2030 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QUAC · Journey del operador en Fábrica de Créditos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFBFC;
+  --bg-alt: #F4F5F7;
+  --white: #FFFFFF;
+  --text: #1a1a2e;
+  --text-secondary: #555770;
+  --text-muted: #8B8DA8;
+  --border: #E2E5EA;
+  --border-light: #F0F1F4;
+  --accent: #7633FF;
+  --accent-bg: #F3EEFF;
+  --accent-dark: #4B1299;
+  --red: #DC2626;
+  --red-bg: #FEF2F2;
+  --green: #16A34A;
+  --green-bg: #F0FDF4;
+  --amber: #D97706;
+  --amber-bg: #FFFBEB;
+  --violet: #7C3AED;
+  --violet-bg: #F5F3FF;
+  --blue: #2563EB;
+  --blue-bg: #EFF6FF;
+  --code-bg: #F4F5F7;
+  --sidebar-w: 260px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: var(--sidebar-w);
+  height: 100vh;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 28px 0;
+  z-index: 50;
+}
+.sidebar-brand {
+  padding: 0 24px 18px;
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 18px;
+}
+.sidebar-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sidebar-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+}
+.sidebar-brand-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+.sidebar-brand-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+.sidebar-version {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  border-radius: 100px;
+}
+.sidebar-section {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  padding: 16px 24px 6px;
+}
+.sidebar nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 24px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: all 0.15s;
+}
+.sidebar nav a:hover {
+  color: var(--accent);
+  background: var(--accent-bg);
+  border-left-color: var(--accent);
+}
+.sidebar nav a.active {
+  color: var(--accent);
+  font-weight: 700;
+  border-left-color: var(--accent);
+  background: var(--accent-bg);
+}
+.sidebar nav a.indent {
+  padding-left: 36px;
+  font-size: 12px;
+}
+.sidebar-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--code-bg);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace;
+}
+.sidebar nav a.active .sidebar-num {
+  background: var(--accent);
+  color: var(--white);
+}
+
+/* Main */
+.main {
+  margin-left: var(--sidebar-w);
+  padding: 56px 56px 120px;
+  max-width: 1280px;
+}
+
+/* Hero */
+.hero {
+  margin-bottom: 56px;
+}
+.hero-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+  color: var(--white);
+  border-radius: 100px;
+  margin-bottom: 22px;
+  box-shadow: 0 6px 20px rgba(118,51,255,0.3);
+}
+.hero h1 {
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  margin-bottom: 14px;
+}
+.hero h1 em {
+  color: var(--accent);
+  font-style: normal;
+}
+.hero-sub {
+  font-size: 17px;
+  color: var(--text-secondary);
+  max-width: 720px;
+  line-height: 1.6;
+}
+.hero-meta {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+.hero-meta-item { font-size: 12px; }
+.hero-meta-item strong {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+/* Section headers */
+h2 {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  margin-top: 80px;
+  margin-bottom: 8px;
+}
+h2 .h2-num {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  display: block;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.h2-sub {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 36px;
+  max-width: 760px;
+}
+h3 {
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin-top: 40px;
+  margin-bottom: 12px;
+}
+p { font-size: 15px; color: var(--text-secondary); margin-bottom: 14px; }
+strong { color: var(--text); }
+
+hr.section-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 80px 0 0;
+}
+
+/* Stats / KPIs */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin: 28px 0 36px;
+}
+.stat-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 22px;
+}
+.stat-num {
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--accent);
+  line-height: 1;
+}
+.stat-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+.stat-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+/* Concept cards */
+.concept-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin: 32px 0;
+}
+.concept-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px;
+}
+.concept-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-bottom: 14px;
+}
+.concept-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+.concept-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+/* Story row */
+.story-row {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 32px;
+  margin: 48px 0;
+  align-items: start;
+}
+.story-mockup-col {
+  position: sticky;
+  top: 24px;
+}
+.story-narrative-col {
+  padding-top: 18px;
+}
+.narrative-num {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.narrative-num-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+}
+.narrative-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.narrative-body {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+.narrative-body p { font-size: 14px; margin-bottom: 12px; }
+.narrative-body strong { color: var(--text); }
+.narrative-body code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  background: var(--code-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.narrative-body ul, .narrative-body ol {
+  margin-left: 20px;
+  margin-bottom: 12px;
+}
+.narrative-body li {
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 4px;
+}
+
+/* Meta col block */
+.meta-block {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+}
+.meta-block-label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.meta-tip {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+.meta-tip strong { color: var(--text); }
+
+/* ============================
+   DESKTOP MOCKUP — pantalla del operador
+   ============================ */
+.desktop {
+  background: linear-gradient(180deg, #1a1a2e 0%, #2a2a4e 100%);
+  border-radius: 14px 14px 6px 6px;
+  padding: 12px 12px 14px;
+  box-shadow: 0 24px 60px rgba(20,10,60,0.18), 0 8px 24px rgba(0,0,0,0.08);
+}
+.desktop-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 6px 8px;
+}
+.desktop-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.desktop-dot--r { background: #FF5F56; }
+.desktop-dot--y { background: #FFBD2E; }
+.desktop-dot--g { background: #27C93F; }
+.desktop-url {
+  flex: 1;
+  background: rgba(255,255,255,0.08);
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 10px;
+  color: rgba(255,255,255,0.6);
+  font-family: 'JetBrains Mono', monospace;
+  text-align: center;
+  margin-left: 8px;
+}
+.desktop-screen {
+  background: var(--bg);
+  border-radius: 8px;
+  overflow: hidden;
+  min-height: 480px;
+}
+
+/* App header (dentro del desktop) */
+.app-header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.app-brand-logo {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+}
+.app-brand-text {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+.app-brand-text small {
+  display: block;
+  font-size: 9px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.app-nav {
+  display: flex;
+  gap: 4px;
+  font-size: 11px;
+  flex: 1;
+  margin-left: 12px;
+}
+.app-nav-item {
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+.app-nav-item.active {
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-weight: 700;
+}
+.app-nav-item .count {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 9px;
+  background: var(--text-muted);
+  color: var(--white);
+  padding: 1px 6px;
+  border-radius: 100px;
+  font-weight: 800;
+}
+.app-nav-item.active .count {
+  background: var(--accent);
+}
+.app-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.app-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 800;
+}
+.app-user-info {
+  font-size: 10px;
+  line-height: 1.2;
+}
+.app-user-info strong { color: var(--text); font-weight: 700; }
+.app-user-info small { display: block; color: var(--text-muted); font-size: 9px; }
+
+/* App KPIs sub-bar */
+.app-kpis {
+  background: var(--white);
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.app-kpi {
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 100px;
+  font-weight: 700;
+}
+.app-kpi--urgent { background: var(--red-bg); color: var(--red); }
+.app-kpi--ok { background: var(--green-bg); color: var(--green); }
+.app-kpi--neutral { background: var(--bg-alt); color: var(--text-secondary); }
+.app-kpi::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.app-kpi--urgent::before { background: var(--red); }
+.app-kpi--ok::before { background: var(--green); }
+.app-kpi--neutral::before { background: var(--text-muted); }
+
+/* App body layout */
+.app-body {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  min-height: 380px;
+}
+.app-body--full {
+  grid-template-columns: 1fr;
+}
+.app-body--detail {
+  grid-template-columns: 1fr 200px;
+}
+.app-filters {
+  background: var(--bg-alt);
+  border-right: 1px solid var(--border);
+  padding: 12px 10px;
+}
+.app-filter-group {
+  margin-bottom: 14px;
+}
+.app-filter-title {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.app-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  font-size: 10px;
+  color: var(--text-secondary);
+  border-radius: 5px;
+  margin-bottom: 1px;
+  font-weight: 600;
+}
+.app-filter-item.active {
+  background: var(--white);
+  color: var(--accent);
+  font-weight: 700;
+}
+.app-filter-item .count {
+  margin-left: auto;
+  font-size: 9px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+.app-filter-item.active .count { color: var(--accent); }
+.app-filter-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.app-filter-dot--red { background: var(--red); }
+.app-filter-dot--yellow { background: var(--amber); }
+.app-filter-dot--blue { background: var(--blue); }
+.app-filter-dot--green { background: var(--green); }
+
+/* App content */
+.app-content {
+  padding: 14px 16px;
+  overflow: hidden;
+}
+.app-content-title {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+.app-content-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+/* Table */
+.app-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10px;
+  background: var(--white);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.app-table th {
+  background: var(--bg-alt);
+  font-size: 8px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  padding: 7px 9px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.app-table td {
+  padding: 8px 9px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text);
+  font-weight: 600;
+}
+.app-table tr:last-child td { border-bottom: none; }
+.app-table tr.priority td:first-child::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  background: var(--red);
+  border-radius: 50%;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+.app-table .id-mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--accent);
+}
+.app-table .cliente-name {
+  font-weight: 700;
+}
+.app-table .cliente-doc {
+  font-size: 9px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.app-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 100px;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+.app-badge--purple { background: var(--accent-bg); color: var(--accent); }
+.app-badge--blue { background: var(--blue-bg); color: var(--blue); }
+.app-badge--yellow { background: var(--amber-bg); color: var(--amber); }
+.app-badge--red { background: var(--red-bg); color: var(--red); }
+.app-badge--green { background: var(--green-bg); color: var(--green); }
+.app-badge--gray { background: var(--bg-alt); color: var(--text-muted); }
+.app-time-old {
+  font-size: 9px;
+  color: var(--red);
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+}
+.app-time {
+  font-size: 9px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Detail view */
+.detail-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.detail-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.detail-info {
+  flex: 1;
+}
+.detail-name {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text);
+}
+.detail-meta {
+  font-size: 9px;
+  color: var(--text-muted);
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+.detail-badges {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+/* Photo zones */
+.photo-zone {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+.photo-zone--active {
+  border-left: 3px solid var(--accent);
+}
+.photo-zone--ref {
+  border-left: 3px solid var(--text-muted);
+  background: var(--bg-alt);
+}
+.zone-title {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.zone-title--active { color: var(--accent); }
+.zone-title--ref { color: var(--text-muted); }
+.photo-tiles {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.photo-tile {
+  width: 70px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--white);
+}
+.photo-tile.selected {
+  border-color: var(--accent);
+  border-width: 2px;
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+.photo-tile-img {
+  background: linear-gradient(135deg, #2a2a4e, #1a1a2e);
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.5);
+  font-size: 22px;
+  position: relative;
+}
+.photo-tile-status {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  font-size: 7px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 100px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.photo-tile-status--new { background: var(--accent); color: var(--white); }
+.photo-tile-status--ok { background: var(--green); color: var(--white); }
+.photo-tile-status--bad { background: var(--red); color: var(--white); }
+.photo-tile-status--ref { background: rgba(255,255,255,0.85); color: var(--text-muted); }
+.photo-tile-info {
+  padding: 5px 6px;
+  font-size: 8px;
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* Inspector lateral en mockup */
+.app-inspector {
+  background: var(--white);
+  border-left: 1px solid var(--border);
+  padding: 12px;
+  font-size: 10px;
+}
+.inspector-title {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.inspector-preview {
+  background: linear-gradient(135deg, #2a2a4e, #1a1a2e);
+  height: 88px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.5);
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-secondary);
+}
+.checklist-item:last-child { border-bottom: none; }
+.checklist-icon {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.checklist-icon--ok { background: var(--green); color: var(--white); }
+.checklist-icon--bad { background: var(--red); color: var(--white); }
+.checklist-icon--pending { background: var(--bg-alt); color: var(--text-muted); border: 1px solid var(--border); }
+.inspector-actions {
+  display: flex;
+  gap: 5px;
+  margin-top: 10px;
+}
+.inspector-btn {
+  flex: 1;
+  padding: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  border-radius: 5px;
+  text-align: center;
+  border: none;
+}
+.inspector-btn--ok { background: var(--green); color: var(--white); }
+.inspector-btn--no { background: var(--red); color: var(--white); }
+
+/* Footer sticky en mockup */
+.app-footer {
+  background: linear-gradient(135deg, var(--text) 0%, #2a2a4e 100%);
+  color: var(--white);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+}
+.app-footer .label {
+  flex: 1;
+  font-weight: 600;
+  opacity: 0.9;
+}
+.app-footer-btn {
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 9px;
+  font-weight: 800;
+  border: none;
+}
+.app-footer-btn--ghost {
+  background: rgba(255,255,255,0.1);
+  color: var(--white);
+}
+.app-footer-btn--warn { background: var(--amber); color: var(--white); }
+.app-footer-btn--ok { background: var(--green); color: var(--white); }
+
+/* Bifurcación */
+.bifurcation {
+  background: linear-gradient(135deg, #FFF9F0, #FFFBEB);
+  border: 2px dashed var(--amber);
+  border-radius: 16px;
+  padding: 28px 32px;
+  margin: 36px 0;
+  position: relative;
+}
+.bifurcation::before {
+  content: '⬢';
+  position: absolute;
+  top: -22px;
+  left: 32px;
+  font-size: 36px;
+  color: var(--amber);
+  background: var(--bg);
+  padding: 0 8px;
+  line-height: 1;
+}
+.bifurcation-label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--amber);
+  margin-bottom: 10px;
+}
+.bifurcation-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 14px;
+  color: var(--text);
+}
+.bifurcation-paths {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+.bifurcation-path {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+.bifurcation-path-label {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 100px;
+  margin-bottom: 8px;
+}
+.bifurcation-path-label--happy { background: var(--green-bg); color: var(--green); }
+.bifurcation-path-label--alt { background: var(--blue-bg); color: var(--blue); }
+.bifurcation-path-label--end { background: var(--red-bg); color: var(--red); }
+.bifurcation-path-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.bifurcation-path-text strong { color: var(--text); }
+.bifurcation-path-link {
+  display: block;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Variant cards */
+.alt-flow-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+  margin: 28px 0 40px;
+}
+.alt-flow-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px 24px;
+  border-top: 4px solid var(--accent);
+}
+.alt-flow-card--success { border-top-color: var(--green); }
+.alt-flow-card--warn { border-top-color: var(--amber); }
+.alt-flow-card--info { border-top-color: var(--blue); }
+.alt-flow-card--end { border-top-color: var(--red); }
+.alt-flow-card-label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.alt-flow-card-title {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+.alt-flow-card-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+/* Improvements list */
+.improvement {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 10px;
+  padding: 18px 22px;
+  margin-bottom: 12px;
+}
+.improvement-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.improvement-num {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 800;
+  align-items: center;
+  justify-content: center;
+}
+.improvement-body {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+.improvement-body strong { color: var(--text); }
+
+/* Conexión cliente-operador */
+.connection-card {
+  background: linear-gradient(135deg, var(--violet-bg) 0%, var(--accent-bg) 100%);
+  border: 1px solid var(--violet);
+  border-radius: 14px;
+  padding: 24px 28px;
+  margin: 28px 0;
+}
+.connection-label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--violet);
+  margin-bottom: 6px;
+}
+.connection-title {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+.connection-flow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.connection-step {
+  background: var(--white);
+  border: 1px solid var(--violet);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+  min-width: 130px;
+}
+.connection-arrow {
+  color: var(--violet);
+  font-weight: 800;
+  font-size: 16px;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .story-row { grid-template-columns: 1fr; }
+  .story-mockup-col { position: static; }
+}
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; padding: 32px 24px 80px; }
+  .hero h1 { font-size: 32px; }
+  h2 { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-row">
+      <div class="sidebar-logo">Q</div>
+      <div>
+        <div class="sidebar-brand-text">QUAC · Fábrica</div>
+        <div class="sidebar-brand-sub">Validación de fotos</div>
+      </div>
+    </div>
+    <span class="sidebar-version">Propuesta v2</span>
+  </div>
+
+  <div class="sidebar-section">Navegación</div>
+  <nav>
+    <a href="#vision"><span class="sidebar-num">00</span>Visión global</a>
+    <a href="#happy-path"><span class="sidebar-num">01</span>Happy path</a>
+    <a href="#paso-1" class="indent">Llegada al turno</a>
+    <a href="#paso-2" class="indent">Tomar un caso</a>
+    <a href="#paso-3" class="indent">Vista del estudio</a>
+    <a href="#paso-4" class="indent">Inspeccionar foto</a>
+    <a href="#paso-5" class="indent">Decidir</a>
+    <a href="#paso-6" class="indent">Caso resuelto</a>
+  </nav>
+
+  <div class="sidebar-section">Variantes</div>
+  <nav>
+    <a href="#variantes"><span class="sidebar-num">A</span>Aprobación rápida</a>
+    <a href="#variantes-2"><span class="sidebar-num">B</span>Solicitar nueva foto</a>
+    <a href="#variantes-3"><span class="sidebar-num">C</span>Sospecha de fraude</a>
+    <a href="#variantes-4"><span class="sidebar-num">D</span>UBICA inconsistente</a>
+  </nav>
+
+  <div class="sidebar-section">Contexto</div>
+  <nav>
+    <a href="#conexion"><span class="sidebar-num">↔</span>Conexión con cliente</a>
+    <a href="#mejoras"><span class="sidebar-num">+</span>Mejoras al prototipo</a>
+  </nav>
+</aside>
+
+<!-- Main -->
+<div class="main">
+
+<!-- ==================== HERO ==================== -->
+<div class="hero">
+  <span class="hero-label">● Journey Map · Fábrica de Créditos · v2</span>
+  <h1>Cómo trabaja <em>María</em>, operadora de Fábrica de Créditos</h1>
+  <p class="hero-sub">Este documento muestra el recorrido completo de un operador cuando llega a su turno, toma un caso de validación de fotos, lo evalúa y lo resuelve. No es solo una galería del módulo — es la historia de María, paso a paso, con el contexto de qué decide en cada momento, cómo se conecta con lo que ve el cliente, y dónde se pueden mejorar las herramientas.</p>
+
+  <div class="hero-meta">
+    <div class="hero-meta-item"><strong>Audiencia</strong>Equipo de operaciones de fábrica · Procesos de crédito</div>
+    <div class="hero-meta-item"><strong>Módulo</strong>Fábrica · Validación manual</div>
+    <div class="hero-meta-item"><strong>Tipo</strong>Journey narrativo + mockups</div>
+    <div class="hero-meta-item"><strong>Versión</strong>v2 · 2026-04-09</div>
+  </div>
+</div>
+
+<!-- ==================== 0. VISIÓN GLOBAL ==================== -->
+<h2 id="vision"><span class="h2-num">Sección 0</span>Qué es la Fábrica de Créditos</h2>
+<p class="h2-sub">La Fábrica de Créditos no es un canal de solicitud — es el módulo donde operadores humanos revisan los casos que el sistema no pudo aprobar automáticamente. Cuando una foto del documento no pasa el OCR, cuando el match facial está por debajo del umbral, o cuando UBICA no encuentra información del cliente, el caso se deriva aquí.</p>
+
+<div class="concept-grid">
+  <div class="concept-card">
+    <div class="concept-icon">📥</div>
+    <div class="concept-title">¿Cuándo entra un caso?</div>
+    <p class="concept-desc">Cuando la verificación automática falla 2 veces (foto borrosa, match facial bajo, UBICA inconsistente) o cuando hay sospecha de fraude.</p>
+  </div>
+  <div class="concept-card">
+    <div class="concept-icon">👀</div>
+    <div class="concept-title">¿Qué hace el operador?</div>
+    <p class="concept-desc">Inspecciona las fotos contra un checklist automático, las compara con el historial del cliente, y decide: aprobar, solicitar nueva foto o rechazar.</p>
+  </div>
+  <div class="concept-card">
+    <div class="concept-icon">⏱️</div>
+    <div class="concept-title">¿Cuál es el SLA?</div>
+    <p class="concept-desc">24 horas para tomar el caso · 72 horas máximo para resolverlo. Después escala a supervisor.</p>
+  </div>
+  <div class="concept-card">
+    <div class="concept-icon">🔄</div>
+    <div class="concept-title">¿Y el cliente?</div>
+    <p class="concept-desc">Mientras el operador revisa, el estudio sigue <strong>activo · en fábrica</strong>. El cliente lo ve en su portal pero no puede avanzar.</p>
+  </div>
+</div>
+
+<div class="stat-row">
+  <div class="stat-card">
+    <div class="stat-num">~10%</div>
+    <div class="stat-label">de los estudios web</div>
+    <div class="stat-sub">Llegan a fábrica para revisión</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">38 min</div>
+    <div class="stat-label">SLA promedio actual</div>
+    <div class="stat-sub">Tiempo de resolución</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">3</div>
+    <div class="stat-label">Decisiones posibles</div>
+    <div class="stat-sub">Aprobar · Solicitar foto · Rechazar</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">4</div>
+    <div class="stat-label">Variantes de casos</div>
+    <div class="stat-sub">Aprob. rápida, foto nueva, fraude, UBICA</div>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<!-- ==================== 1. HAPPY PATH ==================== -->
+<h2 id="happy-path"><span class="h2-num">Sección 1 · Happy path</span>El día normal de María</h2>
+<p class="h2-sub">María entra a su turno a las 8:00 am. La bandeja tiene 248 casos en cola. Su trabajo es tomar el siguiente caso, evaluarlo en 3-5 minutos, y dar una decisión. Esta es la historia del primer caso que revisa hoy.</p>
+
+<!-- ============ PASO 1 · Bandeja al llegar ============ -->
+<div class="story-row" id="paso-1">
+  <div class="story-mockup-col">
+    <div class="desktop">
+      <div class="desktop-bar">
+        <div class="desktop-dot desktop-dot--r"></div>
+        <div class="desktop-dot desktop-dot--y"></div>
+        <div class="desktop-dot desktop-dot--g"></div>
+        <div class="desktop-url">fabrica.quac.co/bandeja</div>
+      </div>
+      <div class="desktop-screen">
+        <div class="app-header">
+          <div class="app-brand">
+            <div class="app-brand-logo">Q</div>
+            <div class="app-brand-text">Fábrica<small>Validación</small></div>
+          </div>
+          <div class="app-nav">
+            <div class="app-nav-item active">Bandeja <span class="count">248</span></div>
+            <div class="app-nav-item">Asignadas a mí <span class="count">12</span></div>
+            <div class="app-nav-item">Historial</div>
+            <div class="app-nav-item">Reportes</div>
+          </div>
+          <div class="app-user">
+            <div class="app-avatar">MR</div>
+            <div class="app-user-info">
+              <strong>María Ruiz</strong>
+              <small>Operadora · Turno AM</small>
+            </div>
+          </div>
+        </div>
+        <div class="app-kpis">
+          <span class="app-kpi app-kpi--urgent">14 urgentes (&gt; 4h)</span>
+          <span class="app-kpi app-kpi--neutral">SLA promedio · 38 min</span>
+          <span class="app-kpi app-kpi--ok">37 resueltas hoy</span>
+        </div>
+        <div class="app-body">
+          <aside class="app-filters">
+            <div class="app-filter-group">
+              <div class="app-filter-title">Cola</div>
+              <div class="app-filter-item active"><span class="app-filter-dot app-filter-dot--red"></span>En cola<span class="count">248</span></div>
+              <div class="app-filter-item"><span class="app-filter-dot app-filter-dot--yellow"></span>Mías<span class="count">12</span></div>
+              <div class="app-filter-item"><span class="app-filter-dot app-filter-dot--blue"></span>En revisión<span class="count">6</span></div>
+              <div class="app-filter-item"><span class="app-filter-dot app-filter-dot--green"></span>Resueltas<span class="count">37</span></div>
+            </div>
+            <div class="app-filter-group">
+              <div class="app-filter-title">Canal origen</div>
+              <div class="app-filter-item">Tienda<span class="count">142</span></div>
+              <div class="app-filter-item">Web<span class="count">78</span></div>
+              <div class="app-filter-item">Externos<span class="count">28</span></div>
+            </div>
+            <div class="app-filter-group">
+              <div class="app-filter-title">Motivo</div>
+              <div class="app-filter-item">Match bajo<span class="count">64</span></div>
+              <div class="app-filter-item">Texto ilegible<span class="count">49</span></div>
+              <div class="app-filter-item">UBICA<span class="count">53</span></div>
+              <div class="app-filter-item">Posible fraude<span class="count">8</span></div>
+            </div>
+          </aside>
+          <div class="app-content">
+            <div class="app-content-title">Bandeja de validación</div>
+            <div class="app-content-sub">248 estudios esperando revisión · Ordenado por antigüedad</div>
+            <table class="app-table">
+              <thead>
+                <tr>
+                  <th>Estudio</th>
+                  <th>Cliente</th>
+                  <th>Canal</th>
+                  <th>Motivo</th>
+                  <th>En cola</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="priority">
+                  <td><span class="id-mono">#EST-2026-00873</span></td>
+                  <td><div class="cliente-name">Laura Rodríguez</div><div class="cliente-doc">CC 1.023.***.789</div></td>
+                  <td><span class="app-badge app-badge--purple">Web</span></td>
+                  <td>Texto ilegible</td>
+                  <td><span class="app-time-old">4h 12m</span></td>
+                </tr>
+                <tr class="priority">
+                  <td><span class="id-mono">#EST-2026-00851</span></td>
+                  <td><div class="cliente-name">Carlos Gómez</div><div class="cliente-doc">CC 79.485.***</div></td>
+                  <td><span class="app-badge app-badge--purple">Web</span></td>
+                  <td>Match 72%</td>
+                  <td><span class="app-time-old">4h 28m</span></td>
+                </tr>
+                <tr>
+                  <td><span class="id-mono">#EST-2026-00882</span></td>
+                  <td><div class="cliente-name">Ana María Vélez</div><div class="cliente-doc">CC 1.087.***</div></td>
+                  <td><span class="app-badge app-badge--yellow">Tienda</span></td>
+                  <td>UBICA sin info</td>
+                  <td><span class="app-time">1h 45m</span></td>
+                </tr>
+                <tr>
+                  <td><span class="id-mono">#EST-2026-00891</span></td>
+                  <td><div class="cliente-name">José Andrade</div><div class="cliente-doc">CC 80.234.***</div></td>
+                  <td><span class="app-badge app-badge--purple">Web</span></td>
+                  <td>Foto borrosa</td>
+                  <td><span class="app-time">38 min</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">1</span>Llegada al turno</div>
+    <div class="narrative-title">María entra a su bandeja a las 8:00 am</div>
+    <div class="narrative-body">
+      <p>María llega a su puesto y abre <code>fabrica.quac.co</code>. Lo primero que ve es la <strong>bandeja con 248 casos en cola</strong>, ordenados por antigüedad descendente. Los más urgentes (más de 4h en cola) están marcados con un punto rojo y aparecen primero.</p>
+      <p>En la barra superior tiene los <strong>KPIs del módulo</strong>: cuántos casos urgentes hay, el SLA promedio actual, cuántos casos se resolvieron hoy. Esto le da contexto del estado general del módulo antes de empezar.</p>
+      <p>Los <strong>filtros laterales</strong> le permiten ver solo casos por canal (tienda/web/externos), por motivo (match bajo, texto ilegible, UBICA, fraude) o por antigüedad. María suele filtrar por "Más urgentes primero" para mantener el SLA.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PASO 2 · Tomar un caso ============ -->
+<div class="story-row" id="paso-2">
+  <div class="story-mockup-col">
+    <div class="desktop">
+      <div class="desktop-bar">
+        <div class="desktop-dot desktop-dot--r"></div>
+        <div class="desktop-dot desktop-dot--y"></div>
+        <div class="desktop-dot desktop-dot--g"></div>
+        <div class="desktop-url">fabrica.quac.co/bandeja → tomar siguiente</div>
+      </div>
+      <div class="desktop-screen">
+        <div class="app-header">
+          <div class="app-brand">
+            <div class="app-brand-logo">Q</div>
+            <div class="app-brand-text">Fábrica<small>Validación</small></div>
+          </div>
+          <div class="app-nav">
+            <div class="app-nav-item active">Bandeja <span class="count">247</span></div>
+            <div class="app-nav-item">Mías <span class="count">13</span></div>
+          </div>
+          <div class="app-user">
+            <div class="app-avatar">MR</div>
+            <div class="app-user-info"><strong>María Ruiz</strong><small>Turno AM</small></div>
+          </div>
+        </div>
+        <div class="app-kpis">
+          <span class="app-kpi app-kpi--ok">+ 1 caso tomado</span>
+          <span class="app-kpi app-kpi--neutral">Asignado: #EST-2026-00873</span>
+        </div>
+        <div class="app-body app-body--full">
+          <div class="app-content" style="text-align:center;padding:60px 40px;">
+            <div style="font-size:48px;margin-bottom:14px;">📋</div>
+            <div class="app-content-title" style="font-size:18px;">Caso asignado a María</div>
+            <div class="app-content-sub" style="font-size:11px;margin-bottom:20px;">El sistema te asignó automáticamente el caso más antiguo de la cola.</div>
+            <div style="display:inline-block;background:var(--accent-bg);border:1px solid var(--accent);border-radius:10px;padding:14px 20px;margin-bottom:18px;text-align:left;">
+              <div style="font-size:9px;color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:0.06em;">Estudio</div>
+              <div style="font-size:14px;font-weight:800;color:var(--accent);font-family:'JetBrains Mono', monospace;">#EST-2026-00873</div>
+              <div style="font-size:10px;color:var(--text-secondary);margin-top:4px;">Laura Rodríguez · CC 1.023.***.789 · Web</div>
+              <div style="font-size:10px;color:var(--red);margin-top:2px;font-weight:700;">⏱ En cola hace 4h 12m</div>
+            </div>
+            <div>
+              <button style="padding:9px 18px;background:var(--accent);color:var(--white);border:none;border-radius:8px;font-weight:800;font-size:11px;">Abrir caso →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">2</span>Tomar un caso</div>
+    <div class="narrative-title">"Tomar siguiente" — el sistema asigna por SLA</div>
+    <div class="narrative-body">
+      <p>María toca el botón <strong>"Tomar siguiente"</strong> en la bandeja. El sistema le asigna automáticamente el caso más antiguo de la cola: <code>#EST-2026-00873</code> de Laura Rodríguez, que lleva <strong>4 horas y 12 minutos</strong> esperando.</p>
+      <p>¿Por qué asignación automática y no que María elija? Porque eso evita que los operadores siempre tomen los casos "fáciles" y dejen los difíciles encima de la cola. El sistema balancea el flujo y garantiza que ningún caso se quede atrás.</p>
+      <p>María también puede ir a la bandeja y abrir un caso específico si quiere — por ejemplo, si su supervisor le pidió revisar uno particular. Pero el modo normal es <em>"tomar siguiente"</em>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PASO 3 · Vista del estudio ============ -->
+<div class="story-row" id="paso-3">
+  <div class="story-mockup-col">
+    <div class="desktop">
+      <div class="desktop-bar">
+        <div class="desktop-dot desktop-dot--r"></div>
+        <div class="desktop-dot desktop-dot--y"></div>
+        <div class="desktop-dot desktop-dot--g"></div>
+        <div class="desktop-url">fabrica.quac.co/estudio/#EST-2026-00873</div>
+      </div>
+      <div class="desktop-screen">
+        <div class="app-header">
+          <div class="app-brand">
+            <div class="app-brand-logo">Q</div>
+            <div class="app-brand-text">Fábrica<small>Validación</small></div>
+          </div>
+          <div class="app-nav">
+            <div class="app-nav-item">Bandeja</div>
+            <div class="app-nav-item active">#EST-2026-00873</div>
+          </div>
+          <div class="app-user">
+            <div class="app-avatar">MR</div>
+            <div class="app-user-info"><strong>María Ruiz</strong><small>Turno AM</small></div>
+          </div>
+        </div>
+        <div class="app-body app-body--detail">
+          <div class="app-content">
+            <div class="detail-card">
+              <div class="detail-avatar">LR</div>
+              <div class="detail-info">
+                <div class="detail-name">Laura Rodríguez</div>
+                <div class="detail-meta">
+                  <span>#EST-2026-00873</span> · <span>CC 1.023.456.789</span> · <span>29 años</span> · <span>Bogotá</span>
+                </div>
+                <div class="detail-badges">
+                  <span class="app-badge app-badge--purple">Canal web</span>
+                  <span class="app-badge app-badge--blue">F5 · Identidad</span>
+                  <span class="app-badge app-badge--red">EN_REVISIÓN · 4h 12m</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="photo-zone photo-zone--active">
+              <div class="zone-title zone-title--active">📷 Fotos del estudio actual <span style="margin-left:auto;font-size:9px;background:var(--amber-bg);color:var(--amber);padding:2px 8px;border-radius:100px;">2 pendientes</span></div>
+              <div style="font-size:9px;color:var(--text-muted);margin-bottom:8px;font-weight:600;">Frontales</div>
+              <div class="photo-tiles">
+                <div class="photo-tile selected">
+                  <div class="photo-tile-img">📄<span class="photo-tile-status photo-tile-status--new">NUEVA</span></div>
+                  <div class="photo-tile-info">v2 · OCR 62%<br>hace 12 min</div>
+                </div>
+                <div class="photo-tile">
+                  <div class="photo-tile-img">📄<span class="photo-tile-status photo-tile-status--bad">RECH</span></div>
+                  <div class="photo-tile-info">v1 · OCR 41%<br>hace 4h</div>
+                </div>
+              </div>
+              <div style="font-size:9px;color:var(--text-muted);margin:10px 0 8px;font-weight:600;">Posteriores</div>
+              <div class="photo-tiles">
+                <div class="photo-tile">
+                  <div class="photo-tile-img">📄<span class="photo-tile-status photo-tile-status--ok">OK</span></div>
+                  <div class="photo-tile-info">v1 · OCR 94%<br>aprob. auto</div>
+                </div>
+              </div>
+              <div style="font-size:9px;color:var(--text-muted);margin:10px 0 8px;font-weight:600;">Selfies</div>
+              <div class="photo-tiles">
+                <div class="photo-tile">
+                  <div class="photo-tile-img">🙂<span class="photo-tile-status photo-tile-status--new">NUEVA</span></div>
+                  <div class="photo-tile-info">v2 · 81%<br>hace 18 min</div>
+                </div>
+                <div class="photo-tile">
+                  <div class="photo-tile-img">🙂<span class="photo-tile-status photo-tile-status--bad">RECH</span></div>
+                  <div class="photo-tile-info">v1 · liveness ✗</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="photo-zone photo-zone--ref">
+              <div class="zone-title zone-title--ref">🕓 Historial del cliente · solo lectura</div>
+              <div style="font-size:9px;color:var(--text-muted);margin-bottom:8px;font-weight:600;">Selfies históricas</div>
+              <div class="photo-tiles">
+                <div class="photo-tile">
+                  <div class="photo-tile-img">🙂<span class="photo-tile-status photo-tile-status--ref">REF</span></div>
+                  <div class="photo-tile-info">EST-09421<br>14·OCT·25</div>
+                </div>
+                <div class="photo-tile">
+                  <div class="photo-tile-img">🙂<span class="photo-tile-status photo-tile-status--ref">REF</span></div>
+                  <div class="photo-tile-info">EST-08731<br>11·ENE·24</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <aside class="app-inspector">
+            <div class="inspector-title">Inspector</div>
+            <div style="font-size:9px;color:var(--text-secondary);font-weight:600;line-height:1.5;">Selecciona una foto a la izquierda para ver su checklist y aprobarla.</div>
+            <div style="margin-top:14px;padding:10px;background:var(--bg-alt);border-radius:6px;">
+              <div style="font-size:9px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Progreso</div>
+              <div style="font-size:10px;color:var(--green);font-weight:700;">✓ Posterior aprobada (auto)</div>
+              <div style="font-size:10px;color:var(--amber);font-weight:700;margin-top:3px;">! Frontal pendiente</div>
+              <div style="font-size:10px;color:var(--amber);font-weight:700;margin-top:3px;">! Selfie pendiente</div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">3</span>Vista del estudio</div>
+    <div class="narrative-title">El panorama: dos zonas claramente separadas</div>
+    <div class="narrative-body">
+      <p>Cuando María abre el caso, ve <strong>dos zonas claramente separadas</strong>:</p>
+      <ol>
+        <li><strong>Fotos del estudio actual</strong> (zona morada con borde): son las fotos que ella tiene que aprobar para que el estudio continúe. Incluye versiones múltiples si el cliente subió fotos varias veces (v1 rechazada, v2 nueva).</li>
+        <li><strong>Historial del cliente</strong> (zona gris, solo lectura): son fotos de estudios anteriores del mismo documento. <strong>No se pueden aprobar.</strong> Sirven solo como referencia para detectar suplantación.</li>
+      </ol>
+      <p>Esta separación es la mejor decisión del prototipo actual: deja claro que las fotos históricas son <em>contexto</em>, no <em>casos a resolver</em>. María puede compararlas sin confundirse sobre cuáles tiene que decidir.</p>
+      <p>El <strong>inspector lateral</strong> empieza vacío con el <strong>progreso de aprobación del estudio</strong> (1 de 3 fotos aprobadas). María sabe que tiene que llegar a 3/3 para resolver el caso.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PASO 4 · Inspeccionar foto ============ -->
+<div class="story-row" id="paso-4">
+  <div class="story-mockup-col">
+    <div class="desktop">
+      <div class="desktop-bar">
+        <div class="desktop-dot desktop-dot--r"></div>
+        <div class="desktop-dot desktop-dot--y"></div>
+        <div class="desktop-dot desktop-dot--g"></div>
+        <div class="desktop-url">fabrica.quac.co/estudio/#EST-2026-00873</div>
+      </div>
+      <div class="desktop-screen">
+        <div class="app-header">
+          <div class="app-brand">
+            <div class="app-brand-logo">Q</div>
+            <div class="app-brand-text">Fábrica<small>Validación</small></div>
+          </div>
+          <div class="app-nav">
+            <div class="app-nav-item active">#EST-2026-00873</div>
+          </div>
+          <div class="app-user">
+            <div class="app-avatar">MR</div>
+            <div class="app-user-info"><strong>María Ruiz</strong><small>Turno AM</small></div>
+          </div>
+        </div>
+        <div class="app-body app-body--detail">
+          <div class="app-content">
+            <div class="photo-zone photo-zone--active">
+              <div class="zone-title zone-title--active">📷 Inspeccionando: Frontal v2</div>
+              <div style="background:linear-gradient(135deg,#2a2a4e,#1a1a2e);border-radius:10px;padding:30px;text-align:center;color:rgba(255,255,255,0.4);font-size:60px;">📄</div>
+              <div style="display:flex;gap:8px;margin-top:10px;">
+                <div style="flex:1;background:var(--bg-alt);padding:8px 10px;border-radius:6px;font-size:9px;">
+                  <div style="color:var(--text-muted);font-weight:700;text-transform:uppercase;font-size:8px;">Versión</div>
+                  <div style="font-weight:800;">v2 · NUEVA</div>
+                </div>
+                <div style="flex:1;background:var(--bg-alt);padding:8px 10px;border-radius:6px;font-size:9px;">
+                  <div style="color:var(--text-muted);font-weight:700;text-transform:uppercase;font-size:8px;">Subida</div>
+                  <div style="font-weight:800;">hace 12 min</div>
+                </div>
+                <div style="flex:1;background:var(--bg-alt);padding:8px 10px;border-radius:6px;font-size:9px;">
+                  <div style="color:var(--text-muted);font-weight:700;text-transform:uppercase;font-size:8px;">Tamaño</div>
+                  <div style="font-weight:800;">2.1 MB</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <aside class="app-inspector">
+            <div class="inspector-title">Checklist · frontal</div>
+            <div class="inspector-preview">📄</div>
+            <div style="display:flex;justify-content:space-between;font-size:9px;font-weight:700;margin-bottom:6px;">
+              <span style="color:var(--text-muted);">3 de 6 OK</span>
+              <span style="color:var(--amber);">Pendiente</span>
+            </div>
+            <div class="checklist-item">
+              <div class="checklist-icon checklist-icon--ok">✓</div>
+              <div>Etiquetas válidas</div>
+            </div>
+            <div class="checklist-item">
+              <div class="checklist-icon checklist-icon--ok">✓</div>
+              <div>No es copia</div>
+            </div>
+            <div class="checklist-item">
+              <div class="checklist-icon checklist-icon--ok">✓</div>
+              <div>Rostro detectado</div>
+            </div>
+            <div class="checklist-item">
+              <div class="checklist-icon checklist-icon--bad">✗</div>
+              <div>Imagen nítida</div>
+            </div>
+            <div class="checklist-item">
+              <div class="checklist-icon checklist-icon--bad">✗</div>
+              <div>Texto legible (OCR 62%)</div>
+            </div>
+            <div class="checklist-item">
+              <div class="checklist-icon checklist-icon--pending">?</div>
+              <div>Match con selfie</div>
+            </div>
+            <div class="inspector-actions">
+              <button class="inspector-btn inspector-btn--no">✗ Rechazar</button>
+              <button class="inspector-btn inspector-btn--ok">✓ Aprobar</button>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">4</span>Inspeccionar la foto</div>
+    <div class="narrative-title">El checklist automático le da contexto a María</div>
+    <div class="narrative-body">
+      <p>María hace clic en la foto frontal v2 (la nueva). El inspector lateral cambia y le muestra:</p>
+      <ul>
+        <li><strong>Una preview grande</strong> de la foto (puede hacer zoom)</li>
+        <li><strong>Metadatos:</strong> versión, hora de subida, tamaño, origen, estado</li>
+        <li><strong>Checklist automático con 6 ítems</strong>, cada uno con el resultado de las validaciones de Rekognition: ✓ etiquetas válidas, ✓ no es copia, ✓ rostro detectado, ✗ imagen nítida (laplaciano 38, debería ser >120), ✗ texto legible (OCR 62%), ? match facial (pendiente de validación manual)</li>
+        <li><strong>Botones de decisión</strong>: aprobar / rechazar / motivos</li>
+      </ul>
+      <p>El checklist es <strong>la mitad del trabajo ya hecho</strong> por la máquina. María no tiene que evaluar todo de cero — solo decidir si los ítems en rojo son críticos o no, y si la foto realmente es usable a pesar de los warnings.</p>
+      <p>En este caso, la foto está borrosa Y el OCR no pudo leer la fecha de expedición. María tiene que decidir si pedirle al cliente otra foto o intentar aprobarla manualmente.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ BIFURCACIÓN ============ -->
+<div class="bifurcation">
+  <div class="bifurcation-label">⬢ Decisión de María</div>
+  <div class="bifurcation-title">¿Qué hace con la foto borrosa?</div>
+  <div class="bifurcation-paths">
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--happy">Aprobar manualmente</span>
+      <div class="bifurcation-path-text"><strong>Si los datos son legibles aunque borrosos.</strong> Aprueba con justificación. Sigue al paso 5.</div>
+    </div>
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--alt">Solicitar nueva foto</span>
+      <div class="bifurcation-path-text"><strong>Si no puede leer los datos críticos.</strong> Marca el motivo "borrosa" y solicita re-subida al cliente.</div>
+      <a class="bifurcation-path-link" href="#variantes-2">→ ver variante B</a>
+    </div>
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--end">Rechazar estudio</span>
+      <div class="bifurcation-path-text"><strong>Si detecta algo grave</strong> (fotomontaje, suplantación). Cierra el caso definitivamente.</div>
+      <a class="bifurcation-path-link" href="#variantes-3">→ ver variante C</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PASO 5 · Decidir ============ -->
+<div class="story-row" id="paso-5">
+  <div class="story-mockup-col">
+    <div class="desktop">
+      <div class="desktop-bar">
+        <div class="desktop-dot desktop-dot--r"></div>
+        <div class="desktop-dot desktop-dot--y"></div>
+        <div class="desktop-dot desktop-dot--g"></div>
+        <div class="desktop-url">fabrica.quac.co/estudio/#EST-2026-00873 → revisión completa</div>
+      </div>
+      <div class="desktop-screen">
+        <div class="app-header">
+          <div class="app-brand">
+            <div class="app-brand-logo">Q</div>
+            <div class="app-brand-text">Fábrica<small>Validación</small></div>
+          </div>
+          <div class="app-nav">
+            <div class="app-nav-item active">#EST-2026-00873</div>
+          </div>
+          <div class="app-user">
+            <div class="app-avatar">MR</div>
+            <div class="app-user-info"><strong>María Ruiz</strong><small>Turno AM</small></div>
+          </div>
+        </div>
+        <div class="app-body app-body--full">
+          <div class="app-content">
+            <div class="detail-card">
+              <div class="detail-avatar">LR</div>
+              <div class="detail-info">
+                <div class="detail-name">Laura Rodríguez</div>
+                <div class="detail-meta"><span>#EST-2026-00873</span> · <span>4 fotos revisadas</span></div>
+                <div class="detail-badges">
+                  <span class="app-badge app-badge--green">3/3 fotos aprobadas</span>
+                  <span class="app-badge app-badge--purple">Listo para resolver</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="background:var(--green-bg);border:1px solid var(--green);border-radius:10px;padding:14px 18px;margin-bottom:14px;">
+              <div style="font-size:10px;color:var(--green);font-weight:800;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Resumen del caso</div>
+              <div style="font-size:11px;color:var(--text);font-weight:600;line-height:1.6;">
+                <div>✓ Frontal v2 — aprobada manualmente (foto un poco borrosa pero datos legibles)</div>
+                <div>✓ Posterior v1 — aprobada automáticamente</div>
+                <div>✓ Selfie v2 — aprobada manualmente (match 81%, validado contra historial)</div>
+              </div>
+            </div>
+
+            <div style="font-size:10px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Decisión final del estudio</div>
+            <div style="display:flex;gap:8px;">
+              <button style="flex:1;padding:14px;background:var(--green);color:var(--white);border:none;border-radius:10px;font-weight:800;font-size:12px;">✓ Aprobar estudio</button>
+              <button style="flex:1;padding:14px;background:var(--white);color:var(--amber);border:1.5px solid var(--amber);border-radius:10px;font-weight:800;font-size:12px;">↻ Solicitar foto al cliente</button>
+              <button style="flex:1;padding:14px;background:var(--white);color:var(--red);border:1.5px solid var(--red);border-radius:10px;font-weight:800;font-size:12px;">✗ Rechazar estudio</button>
+            </div>
+          </div>
+        </div>
+        <div class="app-footer">
+          <span style="background:var(--green);padding:3px 9px;border-radius:100px;font-weight:800;font-size:9px;">3/3 OK</span>
+          <span class="label">Todas las fotos aprobadas. Listo para cerrar el caso.</span>
+          <button class="app-footer-btn app-footer-btn--ghost">Escalar</button>
+          <button class="app-footer-btn app-footer-btn--ok">Aprobar estudio</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">5</span>Decidir el estudio completo</div>
+    <div class="narrative-title">Cuando todas las fotos están OK, María cierra el caso</div>
+    <div class="narrative-body">
+      <p>Después de inspeccionar las 3 fotos del estudio actual (frontal, posterior y selfie), María tiene que tomar la <strong>decisión global del caso</strong>. El módulo le presenta un resumen claro:</p>
+      <ul>
+        <li>✓ Frontal v2 — aprobada manualmente</li>
+        <li>✓ Posterior v1 — aprobada automáticamente</li>
+        <li>✓ Selfie v2 — aprobada manualmente (match 81%, validado vs historial)</li>
+      </ul>
+      <p>El footer sticky le confirma <strong>"3/3 OK"</strong> y le habilita el botón "Aprobar estudio". Las opciones siempre disponibles son las 3:</p>
+      <ol>
+        <li><strong>Aprobar estudio</strong> — el estudio vuelve al flujo normal y continúa con UBICA</li>
+        <li><strong>Solicitar foto al cliente</strong> — si todavía falta una foto pendiente</li>
+        <li><strong>Rechazar estudio</strong> — si detectó algo grave que invalida todo</li>
+      </ol>
+      <p>Cuando María toca "Aprobar estudio", el sistema cambia el estado del estudio de <code>en fábrica</code> a <code>activo</code> y lo devuelve al flujo automático. El cliente recibe una notificación.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PASO 6 · Caso resuelto ============ -->
+<div class="story-row" id="paso-6">
+  <div class="story-mockup-col">
+    <div class="desktop">
+      <div class="desktop-bar">
+        <div class="desktop-dot desktop-dot--r"></div>
+        <div class="desktop-dot desktop-dot--y"></div>
+        <div class="desktop-dot desktop-dot--g"></div>
+        <div class="desktop-url">fabrica.quac.co/bandeja</div>
+      </div>
+      <div class="desktop-screen">
+        <div class="app-header">
+          <div class="app-brand">
+            <div class="app-brand-logo">Q</div>
+            <div class="app-brand-text">Fábrica<small>Validación</small></div>
+          </div>
+          <div class="app-nav">
+            <div class="app-nav-item active">Bandeja <span class="count">247</span></div>
+            <div class="app-nav-item">Mías <span class="count">11</span></div>
+          </div>
+          <div class="app-user">
+            <div class="app-avatar">MR</div>
+            <div class="app-user-info"><strong>María Ruiz</strong><small>Turno AM</small></div>
+          </div>
+        </div>
+        <div class="app-kpis">
+          <span class="app-kpi app-kpi--ok">+ 1 caso resuelto · 38 hoy</span>
+          <span class="app-kpi app-kpi--neutral">Tiempo del caso: 4 min 32 seg</span>
+        </div>
+        <div class="app-body app-body--full">
+          <div class="app-content" style="text-align:center;padding:50px 40px;">
+            <div style="font-size:56px;margin-bottom:14px;">✅</div>
+            <div class="app-content-title" style="font-size:18px;color:var(--green);">Caso resuelto</div>
+            <div class="app-content-sub" style="font-size:11px;margin-bottom:18px;">El estudio #EST-2026-00873 vuelve al flujo automático.</div>
+
+            <div style="display:inline-block;background:var(--green-bg);border:1px solid var(--green);border-radius:10px;padding:14px 22px;margin-bottom:18px;text-align:left;font-size:11px;">
+              <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;"><span style="color:var(--green);font-weight:800;">✓</span><span>Estudio aprobado por María Ruiz</span></div>
+              <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;"><span style="color:var(--green);font-weight:800;">✓</span><span>Cliente notificado por SMS y portal</span></div>
+              <div style="display:flex;gap:8px;align-items:center;"><span style="color:var(--green);font-weight:800;">✓</span><span>Estudio vuelve al flujo (siguiente fase: UBICA)</span></div>
+            </div>
+
+            <div style="display:flex;gap:10px;justify-content:center;">
+              <button style="padding:10px 18px;background:var(--white);color:var(--text-secondary);border:1px solid var(--border);border-radius:8px;font-weight:700;font-size:11px;">Volver a la bandeja</button>
+              <button style="padding:10px 18px;background:var(--accent);color:var(--white);border:none;border-radius:8px;font-weight:800;font-size:11px;">Tomar siguiente caso →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">6</span>Caso resuelto · siguiente</div>
+    <div class="narrative-title">El caso se cierra y María sigue con el siguiente</div>
+    <div class="narrative-body">
+      <p>El sistema confirma a María que el caso fue resuelto exitosamente. Se le muestran 3 confirmaciones:</p>
+      <ol>
+        <li>✓ Estudio aprobado por María (queda registrado en auditoría)</li>
+        <li>✓ Cliente notificado por SMS y por el portal</li>
+        <li>✓ Estudio vuelve al flujo automático (siguiente fase: UBICA)</li>
+      </ol>
+      <p>El KPI superior se actualiza: <strong>"+ 1 caso resuelto · 38 hoy"</strong> y le muestra <strong>el tiempo que tomó este caso (4 min 32 seg)</strong>. Es importante mostrarle ese feedback porque ayuda a mantener el ritmo y el SLA.</p>
+      <p>María tiene dos opciones: volver a la bandeja para escoger un caso específico, o tomar el siguiente automáticamente. El botón principal es <strong>"Tomar siguiente caso →"</strong> porque el modo de trabajo es continuo: caso → caso → caso, sin pausas innecesarias.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<!-- ==================== 2. CONEXIÓN CLIENTE ==================== -->
+<h2 id="conexion"><span class="h2-num">Sección 2 · Conexión</span>El otro lado: ¿qué ve Laura mientras tanto?</h2>
+<p class="h2-sub">Esta es la mejora más importante respecto al prototipo actual: <strong>mostrar la conexión bidireccional</strong> entre el operador de fábrica y el cliente. Mientras María revisa el caso, Laura está esperando en el portal web. Cuando María toma una decisión, Laura recibe una notificación.</p>
+
+<div class="connection-card">
+  <div class="connection-label">↔ Vínculo cliente · operador</div>
+  <div class="connection-title">Cada acción del operador se refleja en el portal del cliente</div>
+  <div class="connection-flow">
+    <div class="connection-step"><strong>1.</strong> Cliente sube foto al portal</div>
+    <span class="connection-arrow">→</span>
+    <div class="connection-step"><strong>2.</strong> Sistema valida automáticamente</div>
+    <span class="connection-arrow">→</span>
+    <div class="connection-step"><strong>3.</strong> Si falla 2 veces, el caso entra a fábrica</div>
+  </div>
+  <div class="connection-flow" style="margin-top:14px;">
+    <div class="connection-step"><strong>4.</strong> María revisa en su bandeja</div>
+    <span class="connection-arrow">→</span>
+    <div class="connection-step"><strong>5.</strong> María decide</div>
+    <span class="connection-arrow">→</span>
+    <div class="connection-step"><strong>6.</strong> Cliente recibe notificación por SMS y portal</div>
+  </div>
+  <p style="margin-top:14px;font-size:13px;color:var(--text-secondary);"><strong>Esto es lo que falta en el prototipo actual:</strong> el operador no ve qué experiencia tiene el cliente cuando María decide algo. Si María solicita "foto nueva", debería poder ver exactamente qué mensaje le llegará a Laura, qué pantalla verá en el portal, y cuándo el caso volverá a su bandeja.</p>
+</div>
+
+<hr class="section-divider">
+
+<!-- ==================== 3. VARIANTES ==================== -->
+<h2 id="variantes"><span class="h2-num">Sección 3 · Variantes</span>Los otros casos que recibe María</h2>
+<p class="h2-sub">No todos los casos son como el de Laura. Estas son las 4 variantes más comunes que María maneja durante su turno.</p>
+
+<div class="alt-flow-grid">
+
+  <div class="alt-flow-card alt-flow-card--success">
+    <div class="alt-flow-card-label">Variante A · ~40% de los casos</div>
+    <div class="alt-flow-card-title">Aprobación rápida</div>
+    <div class="alt-flow-card-desc">El cliente subió una foto que técnicamente no pasó el OCR (umbral 75%) pero visualmente es perfecta. María la aprueba en 2 minutos sin necesidad de comparar con historial. Es el caso más común y el más rápido.</div>
+  </div>
+
+  <div class="alt-flow-card alt-flow-card--warn" id="variantes-2">
+    <div class="alt-flow-card-label">Variante B · ~35% de los casos</div>
+    <div class="alt-flow-card-title">Solicitar nueva foto al cliente</div>
+    <div class="alt-flow-card-desc">La foto está realmente borrosa o ilegible. María selecciona el motivo (borrosa, reflejo, ilegible, incompleta, parece copia) y envía la solicitud al cliente. El estudio queda <code>en fábrica · esperando cliente</code> hasta que suba una nueva. Cuando lo haga, vuelve automáticamente a la bandeja.</div>
+  </div>
+
+  <div class="alt-flow-card alt-flow-card--end" id="variantes-3">
+    <div class="alt-flow-card-label">Variante C · ~10% de los casos</div>
+    <div class="alt-flow-card-title">Sospecha de fraude o suplantación</div>
+    <div class="alt-flow-card-desc">El match facial es bajo o el rostro de la selfie no coincide con las selfies históricas del cliente. María abre el comparador lado a lado, marca el caso como sospechoso y escala a supervisor. El supervisor decide si rechazar definitivamente o pedir verificación adicional.</div>
+  </div>
+
+  <div class="alt-flow-card alt-flow-card--info" id="variantes-4">
+    <div class="alt-flow-card-label">Variante D · ~15% de los casos</div>
+    <div class="alt-flow-card-title">UBICA inconsistente (sin fotos)</div>
+    <div class="alt-flow-card-desc">Las fotos están perfectas pero UBICA no encontró información del cliente o el celular tiene antigüedad &lt; 4 meses. María verifica datos y decide si aprobar (con justificación) o pedir verificación adicional al cliente. <strong>Este caso no involucra fotos</strong> — el módulo debería tener una vista distinta para estos casos, no la misma de validación de fotos.</div>
+  </div>
+
+</div>
+
+<hr class="section-divider">
+
+<!-- ==================== 4. MEJORAS ==================== -->
+<h2 id="mejoras"><span class="h2-num">Sección 4 · Mejoras</span>Lo que propongo cambiar del prototipo actual</h2>
+<p class="h2-sub">Estas son las mejoras concretas que recomiendo aplicar al prototipo actual de fábrica. Cada una resuelve un hueco que detecté al revisar el flujo del operador.</p>
+
+<div class="improvement">
+  <div class="improvement-title"><span class="improvement-num">1</span>Mostrar el lado del cliente cuando se solicita nueva foto</div>
+  <div class="improvement-body">
+    Hoy, cuando María toca "Solicitar nueva foto", aparece un modal que dice "el cliente recibirá una notificación". Pero <strong>María no ve qué notificación, qué mensaje, ni cómo aparecerá la tarea en el portal del cliente</strong>. Propongo agregar una preview en el modal: "Así verá Laura tu solicitud en su celular" — con una mini pantalla del portal mostrando la tarea pendiente. Esto le da contexto a María sobre lo que está pidiendo y reduce errores.
+  </div>
+</div>
+
+<div class="improvement">
+  <div class="improvement-title"><span class="improvement-num">2</span>Vista distinta para casos sin fotos (UBICA)</div>
+  <div class="improvement-body">
+    El prototipo actual asume que <strong>todos los casos son de fotos</strong>. Pero el ~15% de los casos son de UBICA (cliente con celular nuevo, posible suplantación por llamada). Esos casos no necesitan la zona de fotos — necesitan ver el <strong>histórico de UBICA del cliente, los celulares anteriores, el detalle de la llamada de verificación IA</strong>. Propongo crear una vista de detalle distinta según el tipo de caso, no usar siempre la misma.
+  </div>
+</div>
+
+<div class="improvement">
+  <div class="improvement-title"><span class="improvement-num">3</span>Métricas individuales del operador</div>
+  <div class="improvement-body">
+    Hoy se ven los KPIs del módulo (38 min SLA, 14 urgentes, 37 resueltas hoy) pero no los del operador. María debería ver: <strong>"resolviste 12 casos hoy · tiempo promedio 4:32 · ranking #3 del turno"</strong>. Esto motiva al operador y le da feedback. También permite al supervisor identificar a quién entrenar.
+  </div>
+</div>
+
+<div class="improvement">
+  <div class="improvement-title"><span class="improvement-num">4</span>Asignación automática "tomar siguiente"</div>
+  <div class="improvement-body">
+    El prototipo actual permite que María entre a la bandeja y elija qué caso tomar. Esto suena bien pero <strong>los operadores tienden a tomar los casos fáciles primero</strong> y dejan los difíciles encima de la cola. Propongo que el botón principal sea <strong>"Tomar siguiente"</strong> con asignación automática por SLA, y que poder elegir un caso específico sea una opción secundaria (para casos donde el supervisor pidió revisar uno particular).
+  </div>
+</div>
+
+<div class="improvement">
+  <div class="improvement-title"><span class="improvement-num">5</span>Histórico de decisiones del operador en el caso</div>
+  <div class="improvement-body">
+    Cuando María decide algo (aprobar foto, rechazar, solicitar nueva), debería <strong>quedar registrado en una línea de tiempo visible en el caso</strong>: "10:14 — María aprobó la frontal v2", "10:16 — María solicitó nueva selfie", etc. Esto sirve para auditoría y para que si otro operador retoma el caso entienda qué se ha hecho. Hoy esta info está dispersa y no es visible.
+  </div>
+</div>
+
+<div class="improvement">
+  <div class="improvement-title"><span class="improvement-num">6</span>Atajos de teclado para operadores expertos</div>
+  <div class="improvement-body">
+    María revisa 30-50 casos al día. <strong>Los atajos de teclado son críticos para su productividad</strong>: <code>A</code> para aprobar foto, <code>R</code> para rechazar, <code>1-6</code> para los motivos de rechazo, <code>N</code> para "tomar siguiente", <code>Espacio</code> para abrir el comparador. Hoy todo se hace con clic. Esto solo agregaría pocas líneas de código pero ahorraría minutos al día por operador.
+  </div>
+</div>
+
+<div class="improvement">
+  <div class="improvement-title"><span class="improvement-num">7</span>Vista "lo que ya hicimos" en el inspector vacío</div>
+  <div class="improvement-body">
+    Cuando el inspector está vacío (ninguna foto seleccionada), hoy muestra los datos del cliente. Mejor sería mostrar un <strong>"resumen del caso"</strong>: por qué llegó a fábrica (ej: "OCR 41%, foto v1 rechazada"), qué intentos hizo el cliente, qué fotos están pendientes y cuáles ya están aprobadas. Es lo primero que María necesita saber al abrir un caso.
+  </div>
+</div>
+
+<div class="improvement">
+  <div class="improvement-title"><span class="improvement-num">8</span>"Tomar siguiente" después de cerrar un caso</div>
+  <div class="improvement-body">
+    Hoy cuando María cierra un caso, tiene que volver a la bandeja y tomar otro manualmente. Esto rompe el flow. Propongo que <strong>al cerrar el caso aparezca directamente una pantalla "Caso resuelto · ¿Tomar siguiente?"</strong> con un botón grande. Es un cambio mínimo pero mantiene el ritmo de trabajo.
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<p style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:48px;">
+  <strong>QUAC · Journey del operador en Fábrica de Créditos · Propuesta v2</strong><br>
+  Documento narrativo. Las pantallas son aproximaciones visuales — no son los mockups finales.
+</p>
+
+</div>
+
+<script>
+// IntersectionObserver para sidebar activo
+const sections = document.querySelectorAll('h2[id], div[id^="paso-"], div[id^="variantes"]');
+const navLinks = document.querySelectorAll('.sidebar nav a');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + id) {
+          link.classList.add('active');
+        }
+      });
+    }
+  });
+}, { rootMargin: '-100px 0px -60% 0px', threshold: 0 });
+
+sections.forEach(section => observer.observe(section));
+</script>
+
+</body>
+</html>

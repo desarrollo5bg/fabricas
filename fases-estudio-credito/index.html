@@ -1,0 +1,2057 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QUAC — Fases del Estudio de Crédito</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFBFC;
+  --white: #FFFFFF;
+  --text: #1a1a2e;
+  --text-secondary: #555770;
+  --border: #E2E5EA;
+  --border-light: #F0F1F4;
+  --accent: #7633FF;
+  --accent-bg: #F3EEFF;
+  --red: #DC2626;
+  --red-bg: #FEF2F2;
+  --green: #16A34A;
+  --green-bg: #F0FDF4;
+  --amber: #D97706;
+  --amber-bg: #FFFBEB;
+  --violet: #7C3AED;
+  --violet-bg: #F5F3FF;
+  --blue: #2563EB;
+  --blue-bg: #EFF6FF;
+  --code-bg: #F4F5F7;
+  --sidebar-w: 260px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: var(--sidebar-w);
+  height: 100vh;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 24px 0;
+  z-index: 50;
+}
+.sidebar-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  padding: 0 20px;
+  margin-bottom: 20px;
+  letter-spacing: -0.01em;
+}
+.sidebar nav a {
+  display: block;
+  padding: 6px 20px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: all 0.15s;
+}
+.sidebar nav a:hover {
+  color: var(--accent);
+  background: var(--accent-bg);
+  border-left-color: var(--accent);
+}
+.sidebar nav a.indent { padding-left: 36px; font-size: 12px; }
+.sidebar nav a.active {
+  color: var(--accent);
+  font-weight: 600;
+  border-left-color: var(--accent);
+  background: var(--accent-bg);
+}
+.sidebar-sep {
+  height: 1px;
+  background: var(--border-light);
+  margin: 10px 20px;
+}
+
+/* Main */
+.main {
+  margin-left: var(--sidebar-w);
+  max-width: 900px;
+  padding: 48px 56px 120px;
+}
+
+/* Typography */
+h1 {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+h2 {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-top: 56px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
+}
+h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 32px;
+  margin-bottom: 12px;
+}
+h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 8px;
+}
+p { margin-bottom: 12px; color: var(--text-secondary); font-size: 15px; }
+strong { color: var(--text); }
+
+/* Meta */
+.meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+.meta-item { font-size: 13px; color: var(--text-secondary); }
+.meta-item strong { font-weight: 600; color: var(--text); }
+
+/* Code */
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px 24px;
+  overflow-x: auto;
+  margin: 16px 0 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text);
+}
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  background: var(--code-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+pre code { background: none; padding: 0; }
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0 20px;
+  font-size: 13px;
+}
+th {
+  background: var(--code-bg);
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 2px solid var(--border);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text);
+  vertical-align: top;
+}
+tr:hover td { background: var(--accent-bg); }
+td:first-child { font-weight: 500; }
+
+/* Lists */
+ul, ol { margin: 8px 0 16px 24px; }
+li { font-size: 15px; color: var(--text-secondary); margin-bottom: 4px; }
+li strong { color: var(--text); }
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+.badge--accent { background: var(--accent-bg); color: var(--accent); }
+.badge--red { background: var(--red-bg); color: var(--red); }
+.badge--green { background: var(--green-bg); color: var(--green); }
+.badge--amber { background: var(--amber-bg); color: var(--amber); }
+.badge--violet { background: var(--violet-bg); color: var(--violet); }
+.badge--blue { background: var(--blue-bg); color: var(--blue); }
+
+/* Callouts */
+.callout {
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 16px 0;
+  font-size: 14px;
+}
+.callout p { margin-bottom: 4px; }
+.callout--info { background: var(--accent-bg); border-left: 4px solid var(--accent); }
+.callout--warn { background: var(--amber-bg); border-left: 4px solid var(--amber); }
+.callout--danger { background: var(--red-bg); border-left: 4px solid var(--red); }
+.callout--success { background: var(--green-bg); border-left: 4px solid var(--green); }
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 40px 0;
+}
+
+/* KPI Cards */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin: 28px 0 8px;
+}
+.kpi-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+.kpi-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+.kpi-value {
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.kpi-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+/* Channel Cards */
+.channels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 20px 0 24px;
+}
+.channel-card {
+  border-radius: 12px;
+  padding: 20px;
+  border-left: 4px solid;
+}
+.channel-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.channel-title {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.channel-desc { font-size: 13px; margin: 0; }
+.channel-tag {
+  margin-top: 10px;
+  font-size: 11px;
+  padding: 4px 10px;
+  background: var(--white);
+  border-radius: 100px;
+  display: inline-block;
+  font-weight: 600;
+}
+
+/* Phase Cards (details/summary) */
+.phase-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 12px 0;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.phase-card:hover { border-color: var(--accent); }
+.phase-card[open] { border-color: var(--accent); }
+.phase-card summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.phase-card summary::-webkit-details-marker { display: none; }
+.phase-card summary::after {
+  content: '';
+  margin-left: auto;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--text-secondary);
+  border-bottom: 2px solid var(--text-secondary);
+  transform: rotate(-45deg);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.phase-card[open] summary::after {
+  transform: rotate(45deg);
+}
+.phase-num {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  flex-shrink: 0;
+  color: var(--white);
+  background: var(--accent);
+}
+.phase-num--amber { background: var(--amber); }
+.phase-num--violet { background: var(--violet); }
+.phase-num--green { background: var(--green); }
+.phase-info { flex: 1; min-width: 0; }
+.phase-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+.phase-subtitle {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+.phase-body {
+  padding: 0 20px 20px;
+  border-top: 1px solid var(--border-light);
+}
+.phase-body table { margin-top: 12px; }
+.phase-body td:first-child {
+  width: 160px;
+  font-weight: 600;
+  color: var(--accent);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.phase-body td:last-child { color: var(--text-secondary); }
+
+/* Flow Diagram */
+.flow-diagram {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px 24px;
+  margin: 16px 0 20px;
+  overflow-x: auto;
+}
+.flow-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 16px;
+  flex-wrap: nowrap;
+}
+.flow-row:last-child { margin-bottom: 0; }
+.flow-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.flow-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 2px solid;
+  background: var(--white);
+  min-width: 130px;
+  transition: transform 0.15s, box-shadow 0.15s;
+  cursor: default;
+}
+.flow-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.flow-box-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--white);
+  flex-shrink: 0;
+}
+.flow-box-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+}
+.flow-type {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: 100px;
+}
+.flow-arrow {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0 2px;
+  margin-bottom: 22px;
+}
+.flow-arrow svg { display: block; }
+.flow-cont {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0 2px;
+  margin-bottom: 22px;
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+/* color sets */
+.flow--manual .flow-box { border-color: var(--amber); }
+.flow--manual .flow-box-num { background: var(--amber); }
+.flow--manual .flow-type { background: var(--amber-bg); color: var(--amber); }
+.flow--auto .flow-box { border-color: var(--accent); }
+.flow--auto .flow-box-num { background: var(--accent); }
+.flow--auto .flow-type { background: var(--accent-bg); color: var(--accent); }
+.flow--delegable .flow-box { border-color: var(--violet); }
+.flow--delegable .flow-box-num { background: var(--violet); }
+.flow--delegable .flow-type { background: var(--violet-bg); color: var(--violet); }
+.flow--cond .flow-box { border-color: var(--blue); }
+.flow--cond .flow-box-num { background: var(--blue); }
+.flow--cond .flow-type { background: var(--blue-bg); color: var(--blue); }
+.flow--cierre .flow-box { border-color: var(--green); }
+.flow--cierre .flow-box-num { background: var(--green); }
+.flow--cierre .flow-type { background: var(--green-bg); color: var(--green); }
+
+/* Option cards (Truora) */
+.option-card {
+  border-radius: 12px;
+  padding: 20px;
+  margin: 12px 0;
+  border-left: 4px solid;
+}
+.option-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+/* Sprint cards */
+.sprint-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin: 16px 0;
+}
+.sprint-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+.sprint-num {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.sprint-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+.sprint-weeks {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.sprint-obj {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: var(--code-bg);
+  border-radius: 6px;
+}
+
+/* Team lanes */
+.team-lanes {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin: 20px 0;
+}
+.team-lane {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.team-lane-header {
+  padding: 14px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 2px solid;
+}
+.team-lane-header .tl-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: var(--white);
+  flex-shrink: 0;
+}
+.team-lane-body {
+  padding: 12px 16px;
+}
+.team-lane-body ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.team-lane-body li {
+  font-size: 13px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.team-lane-body li:last-child { border-bottom: none; }
+.team-lane-body li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+.tl--front li::before { background: var(--accent); }
+.tl--back li::before { background: var(--green); }
+.tl--bd li::before { background: var(--amber); }
+
+/* Socializacion callout */
+.social-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: var(--violet-bg);
+  border: 1px solid #D6BCFA;
+  border-radius: 10px;
+  margin: 12px 0;
+  font-size: 13px;
+  color: var(--violet);
+  font-weight: 500;
+}
+.social-bar-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: var(--violet);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* Sprint phase header with 3 team badges */
+.sprint-teams {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.sprint-team-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 100px;
+  letter-spacing: 0.03em;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; padding: 24px 20px 80px; }
+  .channels-grid { grid-template-columns: 1fr; }
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  pre { font-size: 11px; padding: 14px 16px; }
+}
+
+@media print {
+  .sidebar { display: none; }
+  .main { margin-left: 0; max-width: 100%; }
+  .phase-card { break-inside: avoid; }
+  .phase-card[open] summary::after { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-title">QUAC — Fases del Estudio</div>
+  <nav>
+    <a href="#contexto">Contexto y objetivo</a>
+    <a href="#canales" class="indent">Los 3 canales</a>
+    <a href="#vista-general">Vista general del flujo</a>
+    <a href="#diagrama" class="indent">Diagrama de 13 fases</a>
+    <a href="#tipos" class="indent">Tipos de fase</a>
+    <div class="sidebar-sep"></div>
+    <a href="#matriz">Matriz de responsabilidades</a>
+    <a href="#fase-1" class="indent">F1 — Documento</a>
+    <a href="#fase-2" class="indent">F2 — Elegibilidad</a>
+    <a href="#fase-3" class="indent">F3 — Datos tercero / OCR</a>
+    <a href="#fase-4" class="indent">F4 — T&C + Token</a>
+    <a href="#fase-5" class="indent">F5 — Antecedentes</a>
+    <a href="#fase-6" class="indent">F6 — Preselecta</a>
+    <a href="#fase-7" class="indent">F7 — FOSYGA</a>
+    <a href="#fase-8" class="indent">F8 — Cupo preaprobado</a>
+    <a href="#fase-9" class="indent">F9 — Dirección</a>
+    <a href="#fase-10" class="indent">F10 — Prueba de vida</a>
+    <a href="#fase-11" class="indent">F11 — Fábrica</a>
+    <a href="#fase-12" class="indent">F12 — UBICA</a>
+    <a href="#fase-13" class="indent">F13 — Activación</a>
+    <div class="sidebar-sep"></div>
+    <a href="#fabrica">Módulo Fábrica</a>
+    <a href="#delegacion">Delegación al cliente</a>
+    <a href="#servicios">Mapa de servicios</a>
+    <a href="#truora">Alternativa: Truora</a>
+    <a href="#escenarios">Escenarios del prototipo</a>
+    <a href="#plan">Plan de trabajo</a>
+  </nav>
+</aside>
+
+<!-- Main Content -->
+<div class="main" id="top">
+
+<h1>Fases del Estudio de Crédito QUAC</h1>
+<div class="meta">
+  <span class="meta-item"><strong>Proyecto:</strong> Fábricas de Crédito</span>
+  <span class="meta-item"><strong>Fecha:</strong> 2026-03-19</span>
+  <span class="meta-item"><strong>Autor:</strong> Análisis arquitectónico</span>
+  <span class="meta-item"><strong>Enfoque:</strong> Working Backwards</span>
+</div>
+
+<!-- ==================== 1. CONTEXTO ==================== -->
+<h2 id="contexto">1. Contexto y objetivo</h2>
+
+<p>Este es el documento de análisis arquitectónico del flujo de estudio de crédito QUAC. Está dirigido a los <strong>desarrolladores</strong> que van a implementar el backend y frontend del nuevo flujo, y al <strong>coordinador del proyecto</strong> para validar que las decisiones están alineadas con la visión de negocio.</p>
+
+<div class="callout callout--info">
+  <p><strong>¿Por qué se necesita?</strong></p>
+  <p>El prototipo HTML del flujo de tienda física ya existe con 13 pasos y 11 escenarios, pero falta un documento que responda: <strong>¿quién hace qué en cada fase, con qué servicios, y cuáles hay que construir?</strong> Sin este mapa, no se puede planificar la implementación del backend.</p>
+</div>
+
+<h3 id="canales">Los 3 canales convergen</h3>
+
+<p>QUAC tiene 3 canales de solicitud de cupo. Los 3 pasan por las <strong>mismas 13 fases de validación</strong>. Lo que cambia es quién ejecuta cada acción manual.</p>
+
+<div class="channels-grid">
+  <div class="channel-card" style="background:var(--accent-bg);border-left-color:var(--accent);">
+    <div class="channel-label" style="color:var(--accent);">Canal 1</div>
+    <div class="channel-title">Web Online</div>
+    <p class="channel-desc">El cliente ingresa a <strong>preaprobado.quac.co</strong> y se autogestiona. Ingresa sus datos, toma fotos y completa el proceso sin asistencia.</p>
+    <span class="channel-tag" style="color:var(--accent);">Autoservicio</span>
+  </div>
+  <div class="channel-card" style="background:var(--violet-bg);border-left-color:var(--violet);">
+    <div class="channel-label" style="color:var(--violet);">Canal 2</div>
+    <div class="channel-title">Externos (Asesor de campo)</div>
+    <p class="channel-desc">Un asesor externo busca personas interesadas, se autentica con reconocimiento facial y va ingresando los datos del cliente.</p>
+    <span class="channel-tag" style="color:var(--violet);">Asesor guía el proceso</span>
+  </div>
+  <div class="channel-card" style="background:var(--amber-bg);border-left-color:var(--amber);">
+    <div class="channel-label" style="color:var(--amber);">Canal 3</div>
+    <div class="channel-title">Tienda física</div>
+    <p class="channel-desc">El cliente llega a comprar y solicita el cupo. El cajero actúa como asesor e ingresa la solicitud desde QuacOne (ERP).</p>
+    <span class="channel-tag" style="color:var(--amber);">En punto de venta</span>
+  </div>
+</div>
+
+<p>El flujo base se diseñó para el canal de tienda física. Ciertas fases contienen <strong>puntos de delegación</strong>: acciones que el asesor puede delegar al cliente enviándole un link por SMS.</p>
+
+<hr>
+
+<!-- ==================== 2. VISTA GENERAL ==================== -->
+<h2 id="vista-general">2. Vista general del flujo</h2>
+
+<h3 id="diagrama">Diagrama de las 13 fases</h3>
+
+<div class="flow-diagram">
+  <!-- Fila 1: Fases 1-4 -->
+  <div class="flow-row">
+    <div class="flow-node flow--manual">
+      <div class="flow-box"><span class="flow-box-num">1</span><span class="flow-box-label">Documento</span></div>
+      <span class="flow-type">MANUAL</span>
+    </div>
+    <div class="flow-arrow"><svg width="32" height="16" viewBox="0 0 32 16"><path d="M0 8h24" stroke="#E2E5EA" stroke-width="2" fill="none"/><path d="M22 4l6 4-6 4" stroke="#E2E5EA" stroke-width="2" fill="none" stroke-linejoin="round"/></svg></div>
+    <div class="flow-node flow--auto">
+      <div class="flow-box"><span class="flow-box-num">2</span><span class="flow-box-label">Elegibilidad</span></div>
+      <span class="flow-type">AUTOMÁTICA</span>
+    </div>
+    <div class="flow-arrow"><svg width="32" height="16" viewBox="0 0 32 16"><path d="M0 8h24" stroke="#E2E5EA" stroke-width="2" fill="none"/><path d="M22 4l6 4-6 4" stroke="#E2E5EA" stroke-width="2" fill="none" stroke-linejoin="round"/></svg></div>
+    <div class="flow-node flow--delegable">
+      <div class="flow-box"><span class="flow-box-num">3</span><span class="flow-box-label">Datos tercero</span></div>
+      <span class="flow-type">MANUAL / DELEGABLE</span>
+    </div>
+    <div class="flow-arrow"><svg width="32" height="16" viewBox="0 0 32 16"><path d="M0 8h24" stroke="#E2E5EA" stroke-width="2" fill="none"/><path d="M22 4l6 4-6 4" stroke="#E2E5EA" stroke-width="2" fill="none" stroke-linejoin="round"/></svg></div>
+    <div class="flow-node flow--manual">
+      <div class="flow-box"><span class="flow-box-num">4</span><span class="flow-box-label">T&C + Token</span></div>
+      <span class="flow-type">MANUAL</span>
+    </div>
+  </div>
+
+  <!-- Fila 2: Fases 5-8 -->
+  <div class="flow-row">
+    <div class="flow-cont">↳</div>
+    <div class="flow-node flow--auto">
+      <div class="flow-box"><span class="flow-box-num">5</span><span class="flow-box-label">Antecedentes</span></div>
+      <span class="flow-type">AUTOMÁTICA</span>
+    </div>
+    <div class="flow-arrow"><svg width="32" height="16" viewBox="0 0 32 16"><path d="M0 8h24" stroke="#E2E5EA" stroke-width="2" fill="none"/><path d="M22 4l6 4-6 4" stroke="#E2E5EA" stroke-width="2" fill="none" stroke-linejoin="round"/></svg></div>
+    <div class="flow-node flow--auto">
+      <div class="flow-box"><span class="flow-box-num">6</span><span class="flow-box-label">Preselecta</span></div>
+      <span class="flow-type">AUTOMÁTICA</span>
+    </div>
+    <div class="flow-arrow"><svg width="32" height="16" viewBox="0 0 32 16"><path d="M0 8h24" stroke="#E2E5EA" stroke-width="2" fill="none"/><path d="M22 4l6 4-6 4" stroke="#E2E5EA" stroke-width="2" fill="none" stroke-linejoin="round"/></svg></div>
+    <div class="flow-node flow--cond">
+      <div class="flow-box"><span class="flow-box-num">7</span><span class="flow-box-label">FOSYGA</span></div>
+      <span class="flow-type">AUTO / CONDICIONAL</span>
+    </div>
+    <div class="flow-arrow"><svg width="32" height="16" viewBox="0 0 32 16"><path d="M0 8h24" stroke="#E2E5EA" stroke-width="2" fill="none"/><path d="M22 4l6 4-6 4" stroke="#E2E5EA" stroke-width="2" fill="none" stroke-linejoin="round"/></svg></div>
+    <div class="flow-node flow--auto">
+      <div class="flow-box"><span class="flow-box-num">8</span><span class="flow-box-label">Cupo preaprobado</span></div>
+      <span class="flow-type">AUTOMÁTICA</span>
+    </div>
+  </div>
+
+  <!-- Fila 3: Fases 9-12 -->
+  <div class="flow-row">
+    <div class="flow-cont">↳</div>
+    <div class="flow-node flow--manual">
+      <div class="flow-box"><span class="flow-box-num">9</span><span class="flow-box-label">Dirección</span></div>
+      <span class="flow-type">MANUAL</span>
+    </div>
+    <div class="flow-arrow"><svg width="32" height="16" viewBox="0 0 32 16"><path d="M0 8h24" stroke="#E2E5EA" stroke-width="2" fill="none"/><path d="M22 4l6 4-6 4" stroke="#E2E5EA" stroke-width="2" fill="none" stroke-linejoin="round"/></svg></div>
+    <div class="flow-node flow--delegable">
+      <div class="flow-box"><span class="flow-box-num">10</span><span class="flow-box-label">Prueba de vida</span></div>
+      <span class="flow-type">DELEGABLE</span>
+    </div>
+    <div class="flow-arrow"><svg width="32" height="16" viewBox="0 0 32 16"><path d="M0 8h24" stroke="#E2E5EA" stroke-width="2" fill="none"/><path d="M22 4l6 4-6 4" stroke="#E2E5EA" stroke-width="2" fill="none" stroke-linejoin="round"/></svg></div>
+    <div class="flow-node flow--cond">
+      <div class="flow-box"><span class="flow-box-num">11</span><span class="flow-box-label">Fábrica</span></div>
+      <span class="flow-type">CONDICIONAL</span>
+    </div>
+    <div class="flow-arrow"><svg width="32" height="16" viewBox="0 0 32 16"><path d="M0 8h24" stroke="#E2E5EA" stroke-width="2" fill="none"/><path d="M22 4l6 4-6 4" stroke="#E2E5EA" stroke-width="2" fill="none" stroke-linejoin="round"/></svg></div>
+    <div class="flow-node flow--auto">
+      <div class="flow-box"><span class="flow-box-num">12</span><span class="flow-box-label">UBICA</span></div>
+      <span class="flow-type">AUTOMÁTICA</span>
+    </div>
+  </div>
+
+  <!-- Fila 4: Fase 13 -->
+  <div class="flow-row">
+    <div class="flow-cont">↳</div>
+    <div class="flow-node flow--cierre">
+      <div class="flow-box"><span class="flow-box-num">13</span><span class="flow-box-label">Token correo + Activación</span></div>
+      <span class="flow-type">MANUAL → CIERRE</span>
+    </div>
+  </div>
+</div>
+
+<h3 id="tipos">Tipos de fase</h3>
+
+<table>
+  <thead><tr><th>Tipo</th><th>Significado</th></tr></thead>
+  <tbody>
+    <tr><td><span class="badge badge--amber">MANUAL</span></td><td>Requiere acción del asesor (o del cliente en canales web/externos)</td></tr>
+    <tr><td><span class="badge badge--accent">AUTOMÁTICA</span></td><td>El sistema ejecuta sin intervención humana</td></tr>
+    <tr><td><span class="badge badge--violet">DELEGABLE</span></td><td>El asesor puede ejecutar o delegar al cliente vía link SMS</td></tr>
+    <tr><td><span class="badge badge--blue">CONDICIONAL</span></td><td>Se ejecuta solo si se cumple una condición (edad, score, fallo previo)</td></tr>
+  </tbody>
+</table>
+
+<h3>Salidas posibles en cada fase</h3>
+
+<table>
+  <thead><tr><th>Resultado</th><th>Significado</th></tr></thead>
+  <tbody>
+    <tr><td><span class="badge badge--green">CONTINÚA</span></td><td>La fase se completó exitosamente, avanza a la siguiente</td></tr>
+    <tr><td><span class="badge badge--red">FIN — Cierre no exitoso</span></td><td>El cliente no cumple requisitos, se termina el proceso</td></tr>
+    <tr><td><span class="badge badge--amber">DERIVACIÓN A FÁBRICA</span></td><td>Se requiere revisión humana, se crea caso en Fábrica de Créditos</td></tr>
+    <tr><td><span class="badge badge--accent">CIERRE EXITOSO RÁPIDO</span></td><td>Reactivación rápida o cupo activo, se cierra sin recorrer todas las fases</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<!-- ==================== 3. MATRIZ ==================== -->
+<h2 id="matriz">3. Matriz de responsabilidades por fase</h2>
+
+<p>Cada fase documenta los <strong>3 actores</strong> (asesor, sistema, cliente), los servicios involucrados y las reglas de negocio. Haz clic en cada fase para expandir los detalles.</p>
+
+<!-- FASE 1 -->
+<details class="phase-card" id="fase-1" open>
+  <summary>
+    <span class="phase-num phase-num--amber">1</span>
+    <div class="phase-info">
+      <div class="phase-title">Consulta de documento</div>
+      <div class="phase-subtitle">El asesor ingresa tipo y número de documento</div>
+    </div>
+    <span class="badge badge--amber">MANUAL</span>
+  </summary>
+  <div class="phase-body">
+    <table>
+      <tr><td>Condición de entrada</td><td>Inicio del proceso. El cliente se presenta en la tienda.</td></tr>
+      <tr><td>Asesor</td><td>Solicita al cliente su tipo y número de documento de identidad. Ingresa los datos en el sistema.</td></tr>
+      <tr><td>Sistema</td><td>Muestra formulario con campos: tipo de documento (CC, CE) y número de documento. Registra tienda y asesor/cajero logueado automáticamente.</td></tr>
+      <tr><td>Cliente</td><td>Proporciona su documento de identidad al asesor.</td></tr>
+      <tr><td>Servicios</td><td>Ninguno — solo captura de datos en frontend.</td></tr>
+      <tr><td>Reglas de negocio</td><td>El número de documento debe ser numérico (4-10 dígitos). El tipo predetermina CC (Cédula de Ciudadanía).</td></tr>
+      <tr><td>Resultados posibles</td><td><span class="badge badge--green">CONTINÚA → Fase 2</span></td></tr>
+    </table>
+  </div>
+</details>
+
+<!-- FASE 2 -->
+<details class="phase-card" id="fase-2">
+  <summary>
+    <span class="phase-num">2</span>
+    <div class="phase-info">
+      <div class="phase-title">Validación de documento / Elegibilidad</div>
+      <div class="phase-subtitle">El sistema consulta cartera y estado del cliente</div>
+    </div>
+    <span class="badge badge--accent">AUTOMÁTICA</span>
+  </summary>
+  <div class="phase-body">
+    <table>
+      <tr><td>Condición de entrada</td><td>Fase 1 completada (documento ingresado).</td></tr>
+      <tr><td>Asesor</td><td>Observa el resultado. No interviene.</td></tr>
+      <tr><td>Sistema</td><td>Consulta si el cliente existe en el sistema. Evalúa: (a) ¿Tiene cartera activa, morosa o cancelada? (b) ¿Ya existe un proceso de solicitud en curso? Determina si puede continuar, rechazarse o reactivarse rápidamente.</td></tr>
+      <tr><td>Cliente</td><td>Espera el resultado.</td></tr>
+      <tr><td>Servicios</td><td><code>GET Cartera/Resumen</code> (QuacOne API) <span class="badge badge--green">EXISTE</span><br><code>POST Credito/ConsultarProcesoSolicitud</code> (QuacOne API) <span class="badge badge--green">EXISTE</span></td></tr>
+      <tr><td>Reglas de negocio</td><td><strong>Cupo activo:</strong> FIN — no se permite nueva solicitud.<br><strong>Cartera morosa:</strong> FIN — debe normalizar cartera primero.<br><strong>Cupo cancelado con buen historial:</strong> Reactivación rápida (salta a cierre).<br><strong>Cancelado con historial negativo o inactivo &gt; 12 meses:</strong> Continúa verificación completa.<br><strong>Solicitud en curso:</strong> FIN — ya tiene proceso activo.<br><strong>Cliente nuevo:</strong> CONTINÚA con flujo completo.</td></tr>
+      <tr><td>Resultados posibles</td><td><span class="badge badge--green">CONTINÚA → Fase 3</span> / <span class="badge badge--red">FIN</span> (cupo activo, moroso, solicitud en curso) / <span class="badge badge--accent">CIERRE EXITOSO RÁPIDO</span> (reactivación)</td></tr>
+    </table>
+  </div>
+</details>
+
+<!-- FASE 3 -->
+<details class="phase-card" id="fase-3">
+  <summary>
+    <span class="phase-num phase-num--violet">3</span>
+    <div class="phase-info">
+      <div class="phase-title">Crear tercero / Datos del cliente con OCR</div>
+      <div class="phase-subtitle">OCR del documento o captura manual de datos</div>
+    </div>
+    <span class="badge badge--violet">MANUAL / DELEGABLE</span>
+  </summary>
+  <div class="phase-body">
+    <table>
+      <tr><td>Condición de entrada</td><td>Fase 2 completada con resultado "cliente nuevo" o "cupo cancelado requiere verificación".</td></tr>
+      <tr><td>Asesor</td><td>Elige método de captura: <strong>(a) OCR:</strong> Usa la cámara del PdV o envía link al cliente para que tome fotos → sistema extrae datos → asesor revisa y corrige. <strong>(b) Manual:</strong> Ingresa datos uno a uno. Luego completa campos que OCR no extrae: celular, correo, ciudad de expedición. Valida que celular y correo no estén asociados a otro documento.</td></tr>
+      <tr><td>Sistema</td><td>Si OCR: envía fotos a Rekognition/Gemini → extrae nombre, apellidos, número de documento, fecha expedición, fecha nacimiento, género. Presenta formulario pre-llenado. Valida contacto (celular y correo no duplicados con cupo activo). Crea o actualiza tercero en QuacOne.</td></tr>
+      <tr><td>Cliente</td><td>Si se delega: recibe link por SMS, toma fotos del documento desde su celular. Si no: proporciona el documento físico al asesor.</td></tr>
+      <tr><td>Servicios</td><td><code>POST photos/validate-front-document</code> (api-activacion-v2) <span class="badge badge--green">EXISTE</span><br><code>POST GeminiController/ExtraerDatosCedula</code> (QuacOne API) <span class="badge badge--green">EXISTE</span><br><code>POST Cliente/Basico</code> (QuacOne API) <span class="badge badge--green">EXISTE</span><br><code>POST Cliente/ValidarContacto</code> (QuacOne API) <span class="badge badge--green">EXISTE</span></td></tr>
+      <tr><td>Reglas de negocio</td><td>Si OCR falla 2 veces consecutivas → ofrecer captura manual. Celular no puede estar asociado a otro documento con cupo activo. Datos OCR deben ser confirmados por el asesor antes de continuar.</td></tr>
+      <tr><td>Resultados posibles</td><td><span class="badge badge--green">CONTINÚA → Fase 4</span></td></tr>
+    </table>
+  </div>
+</details>
+
+<!-- FASE 4 -->
+<details class="phase-card" id="fase-4">
+  <summary>
+    <span class="phase-num phase-num--amber">4</span>
+    <div class="phase-info">
+      <div class="phase-title">Iniciar estudio — T&C y token celular</div>
+      <div class="phase-subtitle">Aceptación de términos + verificación OTP</div>
+    </div>
+    <span class="badge badge--amber">MANUAL</span>
+  </summary>
+  <div class="phase-body">
+    <table>
+      <tr><td>Condición de entrada</td><td>Fase 3 completada (tercero creado/actualizado).</td></tr>
+      <tr><td>Asesor</td><td>Lee T&C al cliente o los muestra en pantalla. Opcionalmente ingresa código de asesor referido. Confirma aceptación. Solicita al cliente que dicte el código OTP recibido por SMS. Ingresa el código.</td></tr>
+      <tr><td>Sistema</td><td>Muestra T&C. Valida código de asesor. Registra aceptación con timestamp, IP, user-agent y versión T&C (firma electrónica). Envía OTP por SMS. Ofrece reenvío: SMS, llamada, WhatsApp. Valida token ingresado.</td></tr>
+      <tr><td>Cliente</td><td>Escucha/lee los T&C. Acepta verbalmente. Recibe SMS con código OTP. Dicta el código al asesor.</td></tr>
+      <tr><td>Servicios</td><td><code>GET Asesor/Buscar</code> (QuacOne API) <span class="badge badge--green">EXISTE</span><br><code>POST Cliente/Control</code> (QuacOne API) <span class="badge badge--green">EXISTE</span><br><code>POST SMS/EnviarToken</code> (Infobip SMS) <span class="badge badge--green">EXISTE</span><br><code>POST Cliente/Basico</code> (QuacOne API) <span class="badge badge--green">EXISTE</span></td></tr>
+      <tr><td>Reglas de negocio</td><td>Aceptación T&C es firma electrónica vinculante — guardar evidencia completa. OTP: 5 minutos de vigencia. Máximo 3 intentos. Si no se ingresa código de asesor → se asigna al cajero logueado.</td></tr>
+      <tr><td>Resultados posibles</td><td><span class="badge badge--green">CONTINÚA → Fase 5</span></td></tr>
+    </table>
+  </div>
+</details>
+
+<!-- FASE 5 -->
+<details class="phase-card" id="fase-5">
+  <summary>
+    <span class="phase-num">5</span>
+    <div class="phase-info">
+      <div class="phase-title">Consulta de antecedentes</div>
+      <div class="phase-subtitle">Antecedentes judiciales, disciplinarios y fiscales</div>
+    </div>
+    <span class="badge badge--accent">AUTOMÁTICA</span>
+  </summary>
+  <div class="phase-body">
+    <table>
+      <tr><td>Condición de entrada</td><td>Fase 4 completada (T&C aceptados y token verificado).</td></tr>
+      <tr><td>Asesor</td><td>Observa el loader. No interviene.</td></tr>
+      <tr><td>Sistema</td><td>Consulta antecedentes judiciales, disciplinarios y fiscales del cliente contra bases de datos externas. Evalúa resultado.</td></tr>
+      <tr><td>Cliente</td><td>Espera el resultado.</td></tr>
+      <tr><td>Servicios</td><td><code>POST Cliente/Antecedentes</code> (QuacOne API) <span class="badge badge--red">POR CONSTRUIR</span></td></tr>
+      <tr><td>Reglas de negocio</td><td>Antecedentes vigentes → FIN (rechazo automático, no hay derivación a fábrica). No se revela al cliente el motivo específico (compliance).</td></tr>
+      <tr><td>Resultados posibles</td><td><span class="badge badge--green">CONTINÚA → Fase 6</span> / <span class="badge badge--red">FIN</span> (antecedentes negativos vigentes)</td></tr>
+    </table>
+  </div>
+</details>
+
+<!-- FASE 6 -->
+<details class="phase-card" id="fase-6">
+  <summary>
+    <span class="phase-num">6</span>
+    <div class="phase-info">
+      <div class="phase-title">Consulta de viabilidad — Preselecta</div>
+      <div class="phase-subtitle">Motor de decisión crediticia DataCrédito</div>
+    </div>
+    <span class="badge badge--accent">AUTOMÁTICA</span>
+  </summary>
+  <div class="phase-body">
+    <table>
+      <tr><td>Condición de entrada</td><td>Fase 5 completada (sin antecedentes negativos).</td></tr>
+      <tr><td>Asesor</td><td>Observa el loader. No interviene.</td></tr>
+      <tr><td>Sistema</td><td>Envía datos del cliente al motor de decisión Preselecta (DataCrédito). Recibe score de viabilidad crediticia. Evalúa si el cliente es viable según score mínimo requerido.</td></tr>
+      <tr><td>Cliente</td><td>Espera el resultado.</td></tr>
+      <tr><td>Servicios</td><td><code>POST Preselecta/ConsultarPreselecta</code> (QuacOne API) <span class="badge badge--green">EXISTE</span></td></tr>
+      <tr><td>Reglas de negocio</td><td>Score &lt; umbral mínimo (ej: 400) → FIN (rechazo automático). Mensaje genérico: "Capacidad de endeudamiento insuficiente". Recomendación: reintentar en 6 meses. No se revela score al cliente (compliance).</td></tr>
+      <tr><td>Resultados posibles</td><td><span class="badge badge--green">CONTINÚA → Fase 7</span> / <span class="badge badge--red">FIN</span> (no viable por score)</td></tr>
+    </table>
+  </div>
+</details>
+
+<!-- FASE 7 -->
+<details class="phase-card" id="fase-7">
+  <summary>
+    <span class="phase-num">7</span>
+    <div class="phase-info">
+      <div class="phase-title">Validación FOSYGA</div>
+      <div class="phase-subtitle">Solo si cliente tiene >= 55 años</div>
+    </div>
+    <span class="badge badge--blue">AUTOMÁTICA / CONDICIONAL</span>
+  </summary>
+  <div class="phase-body">
+    <table>
+      <tr><td>Condición de entrada</td><td>Fase 6 completada (viable por Preselecta). <strong>Solo si el cliente tiene 55 años o más.</strong> Si es menor de 55, se salta directo a Fase 8.</td></tr>
+      <tr><td>Asesor</td><td>Observa el loader. No interviene.</td></tr>
+      <tr><td>Sistema</td><td>Consulta FOSYGA/ADRES para verificar: (a) ¿Registra información? (b) ¿Ha cotizado en los últimos 4 meses consecutivos? Si no cotiza → cierre no exitoso. Si no registra info → evaluar derivación a fábrica.</td></tr>
+      <tr><td>Cliente</td><td>Espera el resultado.</td></tr>
+      <tr><td>Servicios</td><td><code>POST FOSIGA/Consultar</code> (QuacOne API) <span class="badge badge--amber">PARCIAL</span> — existe en SigmaApiErpQuac pero falta confirmar integración completa con ADRES</td></tr>
+      <tr><td>Reglas de negocio</td><td>Edad mínima: configurable vía <code>var_env</code>, sugerido 55 años. Registra info + cotiza → CONTINÚA. No cotiza → FIN. No registra info → derivar a fábrica. Timeout: 30s → derivar a fábrica.</td></tr>
+      <tr><td>Resultados posibles</td><td><span class="badge badge--green">CONTINÚA → Fase 8</span> / <span class="badge badge--red">FIN</span> (no cotiza) / <span class="badge badge--amber">FÁBRICA</span> (no registra, timeout)</td></tr>
+    </table>
+  </div>
+</details>
+
+<!-- FASE 8 -->
+<details class="phase-card" id="fase-8">
+  <summary>
+    <span class="phase-num">8</span>
+    <div class="phase-info">
+      <div class="phase-title">Cupo preaprobado</div>
+      <div class="phase-subtitle">Cálculo de cupo según score y estrategia</div>
+    </div>
+    <span class="badge badge--accent">AUTOMÁTICA</span>
+  </summary>
+  <div class="phase-body">
+    <table>
+      <tr><td>Condición de entrada</td><td>Fase 6 completada (si &lt; 55 años) o Fase 7 completada (si >= 55 años, cotiza en FOSYGA).</td></tr>
+      <tr><td>Asesor</td><td>Observa resultado. Informa al cliente el cupo preaprobado.</td></tr>
+      <tr><td>Sistema</td><td>Calcula cupo preaprobado basándose en: score Preselecta, nivel de riesgo, variables de la estrategia de crédito vigente. Registra el cupo en la solicitud.</td></tr>
+      <tr><td>Cliente</td><td>Recibe la noticia del cupo preaprobado. Decide si desea continuar.</td></tr>
+      <tr><td>Servicios</td><td><code>POST Credito/AsignarCupo</code> (QuacOne API) <span class="badge badge--green">EXISTE</span></td></tr>
+      <tr><td>Reglas de negocio</td><td>Cupo según reglas del módulo de Estrategias (AdminSistemaQuacMFE). El cupo es preaprobado — puede cambiar en fases posteriores (UBICA, Fábrica).</td></tr>
+      <tr><td>Resultados posibles</td><td><span class="badge badge--green">CONTINÚA → Fase 9</span></td></tr>
+    </table>
+  </div>
+</details>
+
+<!-- FASE 9 -->
+<details class="phase-card" id="fase-9">
+  <summary>
+    <span class="phase-num phase-num--amber">9</span>
+    <div class="phase-info">
+      <div class="phase-title">Dirección del cliente</div>
+      <div class="phase-subtitle">Departamento, ciudad, barrio, dirección, estrato</div>
+    </div>
+    <span class="badge badge--amber">MANUAL</span>
+  </summary>
+  <div class="phase-body">
+    <table>
+      <tr><td>Condición de entrada</td><td>Fase 8 completada (cupo preaprobado asignado).</td></tr>
+      <tr><td>Asesor</td><td>Solicita dirección de residencia completa. Ingresa: departamento, ciudad, barrio, dirección, estrato, tipo de vivienda, tiempo en la dirección.</td></tr>
+      <tr><td>Sistema</td><td>Presenta formulario con listas desplegables para departamento y ciudad (parametrización DANE). Valida campos requeridos. Almacena la dirección.</td></tr>
+      <tr><td>Cliente</td><td>Proporciona su dirección de residencia al asesor.</td></tr>
+      <tr><td>Servicios</td><td><code>POST Cliente/ActualizarDireccion</code> (QuacOne API) <span class="badge badge--amber">PARCIAL</span> — existe pero necesita campos nuevos: departamento, ciudad, barrio, estrato, tipo vivienda, tiempo</td></tr>
+      <tr><td>Reglas de negocio</td><td>Todos los campos de dirección son obligatorios. Departamento y ciudad de listas oficiales (DANE).</td></tr>
+      <tr><td>Resultados posibles</td><td><span class="badge badge--green">CONTINÚA → Fase 10</span></td></tr>
+    </table>
+  </div>
+</details>
+
+<!-- FASE 10 -->
+<details class="phase-card" id="fase-10">
+  <summary>
+    <span class="phase-num phase-num--violet">10</span>
+    <div class="phase-info">
+      <div class="phase-title">Prueba de vida y validación de fotos</div>
+      <div class="phase-subtitle">Selfie + fotos documento + comparación facial</div>
+    </div>
+    <span class="badge badge--violet">DELEGABLE</span>
+  </summary>
+  <div class="phase-body">
+    <table>
+      <tr><td>Condición de entrada</td><td>Fase 9 completada (dirección registrada).</td></tr>
+      <tr><td>Asesor</td><td>Elige método de captura: <strong>(a) Link al cliente:</strong> SMS con link → cliente toma selfie + fotos desde su celular. <strong>(b) Cámara del PdV:</strong> Fotos presenciales. Si fotos ya se tomaron en Fase 3 por OCR, el sistema las reutiliza.</td></tr>
+      <tr><td>Sistema</td><td><strong>Sub-fase 10a — Fotos documento:</strong> Si no se tomaron en F3, solicitar frontal + posterior. Validar etiquetas, no es copia, texto legible.<br><strong>Sub-fase 10b — Verificación datos:</strong> Cruzar OCR vs datos ingresados.<br><strong>Sub-fase 10c — Datos adicionales:</strong> Lugar de nacimiento, estatura, grupo sanguíneo (informativos).<br><strong>Sub-fase 10d — Prueba de vida:</strong> Selfie frontal → Face Liveness → buscar en base suplantadores → CompareFaces vs documento.<br><strong>Resultado:</strong> Si match &lt; 85% → 2 intentos, luego derivar a fábrica.</td></tr>
+      <tr><td>Cliente</td><td>Si se delega: recibe link, abre cámara, toma fotos y selfie. Si no: se posiciona frente a la cámara del PdV.</td></tr>
+      <tr><td>Servicios</td><td><code>POST photos/validate-front-document</code> (api-activacion-v2) <span class="badge badge--green">EXISTE</span><br><code>POST photos/validate-reverse-document</code> (api-activacion-v2) <span class="badge badge--green">EXISTE</span><br><code>POST photos/validate-selfie</code> (api-activacion-v2) <span class="badge badge--green">EXISTE</span><br><code>POST Rekognition/CompareFaces</code> (AWS Rekognition) <span class="badge badge--green">EXISTE</span></td></tr>
+      <tr><td>Reglas de negocio</td><td>Orden estricto: Fotos doc → Verificación datos → Prueba de vida. Umbral coincidencia facial: configurable (default 85%). Máx 2 intentos fotos, 2 intentos selfie. Face Liveness obligatorio. Detección de suplantación obligatoria.</td></tr>
+      <tr><td>Resultados posibles</td><td><span class="badge badge--green">CONTINÚA → Fase 12</span> (salta F11) / <span class="badge badge--amber">FÁBRICA → Fase 11</span> (fotos inválidas, match bajo, suplantación)</td></tr>
+    </table>
+  </div>
+</details>
+
+<!-- FASE 11 -->
+<details class="phase-card" id="fase-11">
+  <summary>
+    <span class="phase-num" style="background:var(--blue);">11</span>
+    <div class="phase-info">
+      <div class="phase-title">Gestión Fábrica de Créditos</div>
+      <div class="phase-subtitle">Solo si una fase previa deriva aquí</div>
+    </div>
+    <span class="badge badge--blue">CONDICIONAL</span>
+  </summary>
+  <div class="phase-body">
+    <table>
+      <tr><td>Condición de entrada</td><td>Derivación desde Fase 7 (FOSYGA sin info), Fase 10 (fotos inválidas, match facial bajo), o Fase 12 (UBICA inconsistente).</td></tr>
+      <tr><td>Asesor</td><td>Ve que el estudio fue derivado a Fábrica. Informa al cliente que será revisado por un operador y recibirá notificación. Puede volver a la mesa de estudios.</td></tr>
+      <tr><td>Sistema</td><td>Crea caso de revisión manual en la bandeja de Fábrica. Registra motivo de derivación, fase de origen y toda la información recopilada.</td></tr>
+      <tr><td>Cliente</td><td>Recibe notificación (SMS/WhatsApp) de que su solicitud está en revisión. Puede consultar estado en el portal. Si operador solicita repetir foto, recibe link para subir nueva.</td></tr>
+      <tr><td>Servicios</td><td><code>POST Fabrica/CrearCaso</code> (QuacOne API) <span class="badge badge--red">REDISEÑO</span> — el endpoint existe pero el módulo necesita rediseño desde cero<br><code>Operador Manual</code> (Call Center) <span class="badge badge--green">EXISTE</span> (proceso humano actual)</td></tr>
+      <tr><td>Reglas de negocio</td><td>La derivación <strong>nunca rechaza</strong>; pausa el proceso para revisión humana. Tiempo estimado: 24-48 horas. El operador puede: aprobar, rechazar, o solicitar info adicional. Si solicita repetir foto → cliente recibe link → sube → vuelve a bandeja.</td></tr>
+      <tr><td>Resultados posibles</td><td><span class="badge badge--green">CONTINÚA → Fase 12</span> (operador aprueba) / <span class="badge badge--red">FIN</span> (operador rechaza)</td></tr>
+    </table>
+  </div>
+</details>
+
+<!-- FASE 12 -->
+<details class="phase-card" id="fase-12">
+  <summary>
+    <span class="phase-num">12</span>
+    <div class="phase-info">
+      <div class="phase-title">Definición UBICA</div>
+      <div class="phase-subtitle">Verificación de datos de contacto con TransUnion</div>
+    </div>
+    <span class="badge badge--accent">AUTOMÁTICA</span>
+  </summary>
+  <div class="phase-body">
+    <table>
+      <tr><td>Condición de entrada</td><td>Fase 10 completada (prueba de vida exitosa) o Fase 11 completada (fábrica aprobó).</td></tr>
+      <tr><td>Asesor</td><td>Observa resultado. Si exitoso, continúa. Si requiere gestión manual, informa al cliente.</td></tr>
+      <tr><td>Sistema</td><td>Consulta UBICA/TransUnion para obtener datos de contacto registrados (celular, correo, dirección). Compara datos UBICA vs solicitud. <strong>Si coinciden:</strong> CONTINÚA. <strong>Si no:</strong> Evalúa antigüedad celular: ≥ 4 meses → llamada IA verificación. &lt; 4 meses → derivar a fábrica. Si sospecha suplantación → derivar.</td></tr>
+      <tr><td>Cliente</td><td>Si UBICA requiere verificación por llamada: contesta la llamada.</td></tr>
+      <tr><td>Servicios</td><td><code>POST Ubica/Consultar</code> (QuacOne API) <span class="badge badge--red">POR CONSTRUIR</span><br><code>POST IA/LlamadaVerificacion</code> (Sistema IA) <span class="badge badge--red">POR CONSTRUIR</span></td></tr>
+      <tr><td>Reglas de negocio</td><td>Celular solicitud = celular UBICA → CONTINÚA. Celular diferente + antigüedad ≥ 4 meses → verificación IA. Celular diferente + &lt; 4 meses → fábrica. Correo UBICA se guarda separado (<code>ubica_email</code>). Suplantación por llamada → fábrica.</td></tr>
+      <tr><td>Resultados posibles</td><td><span class="badge badge--green">CONTINÚA → Fase 13</span> / <span class="badge badge--amber">FÁBRICA</span> (inconsistencia, suplantación)</td></tr>
+    </table>
+  </div>
+</details>
+
+<!-- FASE 13 -->
+<details class="phase-card" id="fase-13">
+  <summary>
+    <span class="phase-num phase-num--green">13</span>
+    <div class="phase-info">
+      <div class="phase-title">Tokenización correo y activación cupo express</div>
+      <div class="phase-subtitle">Verificación de correo + activación del cupo</div>
+    </div>
+    <span class="badge badge--amber">MANUAL → CIERRE</span>
+  </summary>
+  <div class="phase-body">
+    <table>
+      <tr><td>Condición de entrada</td><td>Fase 12 completada exitosamente (UBICA consistente o verificado).</td></tr>
+      <tr><td>Asesor</td><td>Solicita al cliente que dicte el código enviado a su correo. Ingresa el token. Confirma activación. Informa cupo aprobado y condiciones (cuotas quincenales).</td></tr>
+      <tr><td>Sistema</td><td>Envía token de verificación al correo. Valida token. Al verificar: activa cupo, genera tarjeta virtual QUAC, registra fecha de activación, notifica por SMS y correo.</td></tr>
+      <tr><td>Cliente</td><td>Revisa correo. Dicta código al asesor. Recibe confirmación del cupo y condiciones.</td></tr>
+      <tr><td>Servicios</td><td><code>POST Email/EnviarToken</code> (Infobip Email) <span class="badge badge--green">EXISTE</span><br><code>POST Credito/ActivarCupo</code> (QuacOne API) <span class="badge badge--green">EXISTE</span></td></tr>
+      <tr><td>Reglas de negocio</td><td>Token correo: 5 minutos de vigencia. Máximo 3 intentos. Activación es irreversible. Cupo activado = "cupo express" — disponible inmediatamente.</td></tr>
+      <tr><td>Resultados posibles</td><td><span class="badge badge--green">FIN — CIERRE EXITOSO</span> (cupo activado y disponible)</td></tr>
+    </table>
+  </div>
+</details>
+
+<hr>
+
+<!-- ==================== 4. FÁBRICA ==================== -->
+<h2 id="fabrica">4. Módulo Fábrica de Créditos</h2>
+
+<div class="callout callout--info">
+  <p><strong>¿Qué es?</strong> La Fábrica de Créditos es el módulo donde <strong>operadores de crédito humanos</strong> validan manualmente las solicitudes que el sistema no pudo aprobar automáticamente. Es la red de seguridad del flujo: cuando una validación falla o genera dudas, el caso se deriva aquí en lugar de rechazarse.</p>
+  <p style="margin-top:8px;"><strong>Nota:</strong> Este documento describe la visión general. El diseño detallado se desarrollará en <code>ANALISIS-MODULO-FABRICAS.md</code>.</p>
+</div>
+
+<h3>Motivos de derivación</h3>
+
+<table>
+  <thead><tr><th>Motivo</th><th>Fase</th><th>Descripción</th></tr></thead>
+  <tbody>
+    <tr><td>Fotos documento inválidas (2 intentos)</td><td><span class="badge badge--violet">F10</span></td><td>Nitidez insuficiente, bordes no detectados, código de barras ilegible</td></tr>
+    <tr><td>Match facial bajo (2 intentos)</td><td><span class="badge badge--violet">F10</span></td><td>Comparación facial selfie vs documento retorna &lt; 85%</td></tr>
+    <tr><td>Suplantación detectada</td><td><span class="badge badge--violet">F10</span></td><td>Rostro del selfie coincide con registro en base de suplantadores</td></tr>
+    <tr><td>Fotomontaje o documento falsificado</td><td><span class="badge badge--violet">F10</span></td><td>Etiquetas Rekognition detectan indicadores de copia o falsificación</td></tr>
+    <tr><td>FOSYGA sin información</td><td><span class="badge badge--blue">F7</span></td><td>Cliente ≥ 55 años no registra información en FOSYGA</td></tr>
+    <tr><td>FOSYGA timeout</td><td><span class="badge badge--blue">F7</span></td><td>El servicio no respondió en 30 segundos</td></tr>
+    <tr><td>UBICA inconsistente</td><td><span class="badge badge--accent">F12</span></td><td>Celular diferente al de UBICA con antigüedad &lt; 4 meses</td></tr>
+    <tr><td>UBICA — posible suplantación</td><td><span class="badge badge--accent">F12</span></td><td>Llamada de verificación contestada pero con posible suplantación</td></tr>
+  </tbody>
+</table>
+
+<h3>Acciones del operador</h3>
+
+<ul>
+  <li><strong>Ver información completa de la solicitud:</strong> datos recopilados, historial de intentos, resultados de validaciones</li>
+  <li><strong>Ver fotos cargadas con checklist:</strong> frontal, posterior, selfie, con indicadores de qué falló</li>
+  <li><strong>Marcar foto individual:</strong> ✓ Aprobada / ✗ Repetir / ✗ Rechazada</li>
+  <li><strong>Detectar fotomontajes o documentos falsificados</strong></li>
+  <li><strong>Dar visto bueno parcial o total</strong></li>
+  <li><strong>Solicitar información adicional al cliente</strong></li>
+</ul>
+
+<h3>Flujo de ida y vuelta</h3>
+
+<pre><code>Operador marca "repetir foto posterior"
+    ↓
+Sistema notifica al cliente (SMS/WhatsApp con link)
+    ↓
+Cliente abre el portal, ve qué foto debe repetir
+    ↓
+Cliente toma y sube nueva foto desde el portal
+    ↓
+Solicitud vuelve a la bandeja del operador
+    ↓
+Operador revisa nueva foto → aprueba o rechaza</code></pre>
+
+<div class="callout callout--danger">
+  <p><strong>Decisión:</strong> El módulo FabricasQuacMFE actual (Next.js 15, port 40002) <strong>no sirve como base</strong> para el nuevo flujo. Se hará <strong>rediseño desde cero</strong>.</p>
+</div>
+
+<hr>
+
+<!-- ==================== 5. DELEGACIÓN ==================== -->
+<h2 id="delegacion">5. Puntos de delegación al cliente</h2>
+
+<h3>Acciones delegables</h3>
+
+<table>
+  <thead><tr><th>Fase</th><th>Qué se delega</th><th>Mecanismo</th><th>Fallback</th></tr></thead>
+  <tbody>
+    <tr><td><span class="badge badge--violet">F3</span> Datos tercero / OCR</td><td>Fotos del documento para OCR</td><td>Link SMS → cliente toma fotos frontal y posterior</td><td>Asesor ingresa datos manualmente</td></tr>
+    <tr><td><span class="badge badge--violet">F10</span> Prueba de vida</td><td>Selfie + fotos documento</td><td>Link SMS → cliente abre cámara, toma selfie y fotos</td><td>Cámara del punto de venta (presencial)</td></tr>
+  </tbody>
+</table>
+
+<h3>Portal web del cliente</h3>
+
+<table>
+  <thead><tr><th>Funcionalidad</th><th>Descripción</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Consultar estado</strong></td><td>Ingresa con su número de documento y ve en qué fase está el estudio</td></tr>
+    <tr><td><strong>Ver fase actual</strong></td><td>Indicador visual de progreso: en qué paso está y qué falta</td></tr>
+    <tr><td><strong>Ejecutar acciones pendientes</strong></td><td>Si el operador de fábrica solicitó repetir una foto, el cliente la puede subir</td></tr>
+    <tr><td><strong>Recibir resultado final</strong></td><td>Ver si su cupo fue aprobado, rechazado, o requiere acción adicional</td></tr>
+  </tbody>
+</table>
+
+<h3>Mecanismo de notificación</h3>
+
+<p>La estrategia es <strong>activa + portal:</strong></p>
+<ol>
+  <li><strong>Notificación activa:</strong> SMS o WhatsApp con link directo al portal cuando hay acción pendiente.</li>
+  <li><strong>Portal pasivo:</strong> El cliente puede ingresar en cualquier momento a consultar su estado.</li>
+</ol>
+
+<hr>
+
+<!-- ==================== 6. SERVICIOS ==================== -->
+<h2 id="servicios">6. Mapa de servicios consolidado</h2>
+
+<div class="kpi-row">
+  <div class="kpi-card">
+    <div class="kpi-label">Existentes</div>
+    <div class="kpi-value" style="color:var(--green);">15</div>
+    <div class="kpi-sub">servicios listos</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Por construir</div>
+    <div class="kpi-value" style="color:var(--red);">4</div>
+    <div class="kpi-sub">endpoints nuevos</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Parciales</div>
+    <div class="kpi-value" style="color:var(--amber);">2</div>
+    <div class="kpi-sub">requieren cambios</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Campos nuevos</div>
+    <div class="kpi-value" style="color:var(--accent);">22</div>
+    <div class="kpi-sub">en credit_request</div>
+  </div>
+</div>
+
+<h3>Servicios existentes (15)</h3>
+
+<table>
+  <thead><tr><th>#</th><th>Endpoint</th><th>Sistema</th><th>Fase(s)</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td><code>GET Cartera/Resumen</code></td><td>QuacOne API</td><td>2</td></tr>
+    <tr><td>2</td><td><code>POST Credito/ConsultarProcesoSolicitud</code></td><td>QuacOne API</td><td>2</td></tr>
+    <tr><td>3</td><td><code>POST Cliente/Basico</code></td><td>QuacOne API</td><td>3, 4</td></tr>
+    <tr><td>4</td><td><code>POST Cliente/ValidarContacto</code></td><td>QuacOne API</td><td>3</td></tr>
+    <tr><td>5</td><td><code>GET Asesor/Buscar</code></td><td>QuacOne API</td><td>4</td></tr>
+    <tr><td>6</td><td><code>POST Cliente/Control</code></td><td>QuacOne API</td><td>4</td></tr>
+    <tr><td>7</td><td><code>POST SMS/EnviarToken</code></td><td>Infobip SMS</td><td>4</td></tr>
+    <tr><td>8</td><td><code>POST Preselecta/ConsultarPreselecta</code></td><td>QuacOne API</td><td>6</td></tr>
+    <tr><td>9</td><td><code>POST Credito/AsignarCupo</code></td><td>QuacOne API</td><td>8</td></tr>
+    <tr><td>10</td><td><code>POST photos/validate-front-document</code></td><td>api-activacion-v2</td><td>3, 10</td></tr>
+    <tr><td>11</td><td><code>POST photos/validate-reverse-document</code></td><td>api-activacion-v2</td><td>10</td></tr>
+    <tr><td>12</td><td><code>POST photos/validate-selfie</code></td><td>api-activacion-v2</td><td>10</td></tr>
+    <tr><td>13</td><td><code>POST GeminiController/ExtraerDatosCedula</code></td><td>QuacOne API</td><td>3</td></tr>
+    <tr><td>14</td><td><code>POST Email/EnviarToken</code></td><td>Infobip Email</td><td>13</td></tr>
+    <tr><td>15</td><td><code>POST Credito/ActivarCupo</code></td><td>QuacOne API</td><td>13</td></tr>
+  </tbody>
+</table>
+
+<h3>Servicios por construir (4)</h3>
+
+<table>
+  <thead><tr><th>#</th><th>Endpoint</th><th>Sistema</th><th>Fase</th><th>Descripción</th></tr></thead>
+  <tbody>
+    <tr><td>16</td><td><code>POST Cliente/Antecedentes</code></td><td>QuacOne API</td><td>5</td><td>Consulta antecedentes judiciales, disciplinarios y fiscales</td></tr>
+    <tr><td>17</td><td><code>POST Ubica/Consultar</code></td><td>QuacOne API</td><td>12</td><td>Consulta datos de contacto registrados (UBICA/TransUnion)</td></tr>
+    <tr><td>18</td><td><code>POST IA/LlamadaVerificacion</code></td><td>Sistema IA</td><td>12</td><td>Llamada de verificación automática con IA</td></tr>
+    <tr><td>19</td><td><code>POST Fabrica/CrearCaso</code> (rediseño)</td><td>QuacOne API</td><td>11</td><td>Crear caso con acciones granulares (módulo necesita rediseño)</td></tr>
+  </tbody>
+</table>
+
+<h3>Servicios parciales (2)</h3>
+
+<table>
+  <thead><tr><th>#</th><th>Endpoint</th><th>Estado</th><th>Qué falta</th></tr></thead>
+  <tbody>
+    <tr><td>20</td><td><code>POST FOSIGA/Consultar</code></td><td><span class="badge badge--amber">PARCIAL</span></td><td>Existe en SigmaApiErpQuac pero falta confirmar integración completa con ADRES</td></tr>
+    <tr><td>21</td><td><code>POST Cliente/ActualizarDireccion</code></td><td><span class="badge badge--amber">PARCIAL</span></td><td>Necesita campos nuevos: departamento, ciudad, barrio, estrato, tipo vivienda, tiempo</td></tr>
+  </tbody>
+</table>
+
+<h3>Campos nuevos en <code>credit_request</code> (~22)</h3>
+
+<table>
+  <thead><tr><th>Campo</th><th>Tipo</th><th>Propósito</th><th>Fase</th></tr></thead>
+  <tbody>
+    <tr><td><code>client_department</code></td><td>varchar(50)</td><td>Departamento residencia</td><td>9</td></tr>
+    <tr><td><code>client_city</code></td><td>varchar(50)</td><td>Ciudad residencia</td><td>9</td></tr>
+    <tr><td><code>client_address</code></td><td>varchar(200)</td><td>Dirección residencia</td><td>9</td></tr>
+    <tr><td><code>client_neighborhood</code></td><td>varchar(100)</td><td>Barrio</td><td>9</td></tr>
+    <tr><td><code>tyc_accepted_at</code></td><td>datetime</td><td>Timestamp firma T&C</td><td>4</td></tr>
+    <tr><td><code>tyc_accepted_ip</code></td><td>varchar(45)</td><td>IP firma T&C</td><td>4</td></tr>
+    <tr><td><code>tyc_accepted_user_agent</code></td><td>varchar(500)</td><td>User agent</td><td>4</td></tr>
+    <tr><td><code>tyc_version</code></td><td>varchar(20)</td><td>Versión T&C</td><td>4</td></tr>
+    <tr><td><code>response_antecedentes_status</code></td><td>tinyint</td><td>Resultado antecedentes</td><td>5</td></tr>
+    <tr><td><code>response_antecedentes_json</code></td><td>text</td><td>JSON respuesta completa</td><td>5</td></tr>
+    <tr><td><code>response_fosiga_status</code></td><td>tinyint</td><td>Resultado FOSYGA</td><td>7</td></tr>
+    <tr><td><code>response_fosiga_json</code></td><td>text</td><td>JSON respuesta completa</td><td>7</td></tr>
+    <tr><td><code>response_ubica_status</code></td><td>tinyint</td><td>Resultado UBICA</td><td>12</td></tr>
+    <tr><td><code>response_ubica_json</code></td><td>text</td><td>JSON respuesta completa</td><td>12</td></tr>
+    <tr><td><code>ubica_phone</code></td><td>varchar(10)</td><td>Celular de UBICA</td><td>12</td></tr>
+    <tr><td><code>ubica_email</code></td><td>varchar(100)</td><td>Email de UBICA</td><td>12</td></tr>
+    <tr><td><code>ubica_otp_phone_status</code></td><td>tinyint</td><td>Resultado OTP cel UBICA</td><td>12</td></tr>
+    <tr><td><code>ubica_otp_email_status</code></td><td>tinyint</td><td>Resultado OTP email UBICA</td><td>12</td></tr>
+    <tr><td><code>photo_validation_status</code></td><td>tinyint</td><td>Estado validación fotos</td><td>10</td></tr>
+    <tr><td><code>photo_validation_score</code></td><td>decimal(5,2)</td><td>Score IA fotos (0-100)</td><td>10</td></tr>
+    <tr><td><code>activation_reference</code></td><td>varchar(255)</td><td>Ref proceso activación</td><td>10</td></tr>
+    <tr><td><code>request_origin</code></td><td>enum</td><td>Canal de origen (web/externos/tienda)</td><td>1</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<!-- ==================== 7. TRUORA ==================== -->
+<h2 id="truora">7. Alternativa: Truora como proveedor de validación de identidad</h2>
+
+<div class="callout callout--info">
+  <p><strong>¿Qué es Truora?</strong> Empresa especializada en validación de identidad digital para LATAM. Ofrece una plataforma integral que cubre OCR de documentos, validación facial, prueba de vida, detección de fraude y validación de contacto — todo lo que hoy armamos manualmente con AWS Rekognition + lógica propia.</p>
+  <p style="margin-top:8px;">La propuesta es evaluar Truora como <strong>reemplazo o complemento</strong> de la implementación actual de las Fases 3, 10 y parcialmente 12.</p>
+</div>
+
+<h3>Comparación: Rekognition actual vs. Truora</h3>
+
+<table>
+  <thead><tr><th>Capacidad</th><th>Rekognition (actual)</th><th>Truora</th></tr></thead>
+  <tbody>
+    <tr><td><strong>OCR de documento</strong></td><td>Rekognition <code>detectText()</code> + Gemini Vision (2 servicios)</td><td>Incluido — OCR optimizado para cédula colombiana</td></tr>
+    <tr><td><strong>Autenticidad documento</strong></td><td>Labels + texto + heurísticas propias (~200 líneas)</td><td>Incluido — fotocopias, pantallas, docs alterados</td></tr>
+    <tr><td><strong>Prueba de vida</strong></td><td>Face Liveness (solo activa)</td><td>Liveness activa <strong>y pasiva</strong> (mejor UX)</td></tr>
+    <tr><td><strong>Comparación facial</strong></td><td><code>compareFaces()</code></td><td>Incluido con threshold configurable</td></tr>
+    <tr><td><strong>Detección suplantación</strong></td><td><code>searchFacesByImage()</code> contra colección propia</td><td><strong>TruFace</strong> — base de fraude más grande de LATAM</td></tr>
+    <tr><td><strong>Detección deepfakes</strong></td><td><span class="badge badge--red">No tiene</span></td><td><span class="badge badge--green">Sí</span> — videos IA, máscaras 3D, imágenes sintéticas</td></tr>
+    <tr><td><strong>Flujo web embebible</strong></td><td><span class="badge badge--red">No</span> — captura custom WebRTC</td><td><span class="badge badge--green">Sí</span> — iframe con branding customizable</td></tr>
+    <tr><td><strong>Soporte LATAM</strong></td><td>Genérico</td><td>Optimizado para cédula colombiana y docs LATAM</td></tr>
+    <tr><td><strong>Webhooks</strong></td><td>Limitado</td><td>Completo con múltiples eventos</td></tr>
+  </tbody>
+</table>
+
+<h3>Opciones de integración</h3>
+
+<div class="option-card" style="background:var(--accent-bg);border-left-color:var(--accent);">
+  <div class="option-title" style="color:var(--accent);">Opción A: Truora reemplaza Fases 3 y 10 completas</div>
+  <p><strong>Impacto:</strong> Se elimina <code>activacion-quac-client</code> (frontend Vue) y se simplifica drásticamente <code>api-activacion-v2</code>. El 80% de la lógica de validación de fotos la absorbe Truora.</p>
+  <pre><code>Fase 3 (OCR):
+  ANTES:  Cámara PdV → api-activacion-v2 → Rekognition + Gemini → lógica propia
+  AHORA:  iframe Truora → OCR + validación autenticidad → webhook
+
+Fase 10 (Prueba de vida):
+  ANTES:  Link SMS → activacion-quac-client (Vue) → Rekognition (5 llamadas)
+  AHORA:  Link SMS → iframe Truora → selfie + liveness + anti-fraude → webhook</code></pre>
+</div>
+
+<div class="option-card" style="background:var(--violet-bg);border-left-color:var(--violet);">
+  <div class="option-title" style="color:var(--violet);">Opción B: Truora como complemento (híbrido)</div>
+  <p>Usar Truora solo para <strong>prueba de vida y detección de fraude</strong> (Fase 10), manteniendo OCR con Gemini Vision (Fase 3).</p>
+  <p><strong>Impacto:</strong> Menor — solo se reemplaza la biometría. Se mantiene el OCR existente.</p>
+</div>
+
+<div class="option-card" style="background:var(--amber-bg);border-left-color:var(--amber);">
+  <div class="option-title" style="color:var(--amber);">Opción C: Truora solo para delegación al cliente</div>
+  <p>Usar Truora cuando el asesor delega (link SMS). Para captura presencial en PdV, mantener Rekognition.</p>
+  <p><strong>Impacto:</strong> Se cubre delegación sin reescribir el flujo presencial.</p>
+</div>
+
+<h3>Integración técnica</h3>
+
+<pre><code>// API REST
+Base URL: https://api.validations.truora.com
+Auth:     Header Truora-API-Key: {api_key}
+
+// Flujo embebido (iframe)
+&lt;iframe
+  src="https://identity.truora.com/?token={api_key}&amp;flow_id={flow_id}&amp;account_id={documento}"
+  allow="camera"
+  style="width: 450px; height: 700px; border: none;"&gt;
+&lt;/iframe&gt;</code></pre>
+
+<h3>Comparación de costos</h3>
+
+<table>
+  <thead><tr><th>Concepto</th><th>AWS Rekognition (actual)</th><th>Truora</th></tr></thead>
+  <tbody>
+    <tr><td>OCR (detectText)</td><td>~$0.001/imagen</td><td>Incluido en validación</td></tr>
+    <tr><td>Labels (detectLabels)</td><td>~$0.001/imagen</td><td>Incluido</td></tr>
+    <tr><td>CompareFaces</td><td>~$0.001/comparación</td><td>Incluido</td></tr>
+    <tr><td>Face Liveness</td><td>~$0.025/sesión</td><td>Incluido</td></tr>
+    <tr><td>Gemini Vision OCR</td><td>~$0.002/imagen</td><td>No necesario</td></tr>
+    <tr><td><strong>Total por solicitud</strong></td><td><strong>~$0.03-0.05</strong></td><td><strong>Por cotizar</strong></td></tr>
+    <tr><td><strong>Costo de desarrollo</strong></td><td><span class="badge badge--red">Alto</span> (~500 líneas de validación)</td><td><span class="badge badge--green">Bajo</span> (webhook + iframe)</td></tr>
+  </tbody>
+</table>
+
+<h3>Ventajas clave para QUAC</h3>
+
+<ol>
+  <li><strong>Liveness pasiva:</strong> El cliente solo mira a la cámara — mejor UX para personas mayores (segmento FOSYGA ≥ 55 años).</li>
+  <li><strong>Detección de deepfakes:</strong> Rekognition no tiene esta capacidad.</li>
+  <li><strong>TruFace (base de fraude LATAM):</strong> Más completa que nuestra colección propia.</li>
+  <li><strong>Eliminación de <code>activacion-quac-client</code>:</strong> El frontend Vue y toda su lógica desaparecen.</li>
+  <li><strong>Delegación nativa:</strong> iframe Truora funciona en mobile sin desarrollo adicional.</li>
+  <li><strong>Flujo por WhatsApp:</strong> Validación completa por WhatsApp — alternativa al link SMS.</li>
+</ol>
+
+<h3>Riesgos y consideraciones</h3>
+
+<table>
+  <thead><tr><th>Riesgo</th><th>Mitigación</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Dependencia de tercero</strong></td><td>Truora es proveedor LATAM establecido, partner de AWS. Se pueden pactar SLAs.</td></tr>
+    <tr><td><strong>Costo unitario mayor</strong></td><td>Compensado por ahorro en desarrollo y mantenimiento. Cotizar por volumen (5K-10K/mes).</td></tr>
+    <tr><td><strong>Personalización limitada</strong></td><td>Umbrales configurables. Opción B o C permite mantener control parcial.</td></tr>
+    <tr><td><strong>Latencia del iframe</strong></td><td>Probar en condiciones reales de tienda (red interna). Requiere acceso a internet.</td></tr>
+  </tbody>
+</table>
+
+<div class="callout callout--warn">
+  <p><strong>Decisión pendiente:</strong> Solicitar <strong>demo y cotización</strong> a Truora con: volumen 5K-10K validaciones/mes, cédula colombiana, validadores OCR + facial + liveness pasiva + anti-fraude, integración iframe + webhooks.</p>
+</div>
+
+<hr>
+
+<!-- ==================== 8. ESCENARIOS ==================== -->
+<h2 id="escenarios">8. Escenarios del prototipo</h2>
+
+<p>Los 11 escenarios del prototipo mapean las combinaciones más relevantes del flujo:</p>
+
+<table>
+  <thead><tr><th>#</th><th>Escenario</th><th>Se detiene en</th><th>Resultado</th><th>Tipo</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td><strong>Flujo feliz — Cliente nuevo</strong></td><td>F13 (completa todas)</td><td>Cupo express $1.200.000</td><td><span class="badge badge--green">Exitoso</span></td></tr>
+    <tr><td>2</td><td><strong>Ya tiene cupo activo</strong></td><td>F2 (Elegibilidad)</td><td>FIN — Ya tiene cupo</td><td><span class="badge badge--blue">Informativo</span></td></tr>
+    <tr><td>3</td><td><strong>Cupo bloqueado + moroso</strong></td><td>F2 (Elegibilidad)</td><td>FIN — Cartera morosa</td><td><span class="badge badge--red">Rechazo</span></td></tr>
+    <tr><td>4</td><td><strong>Reactivación rápida</strong></td><td>F2 (Elegibilidad)</td><td>Cierre exitoso rápido</td><td><span class="badge badge--green">Reactivación</span></td></tr>
+    <tr><td>5</td><td><strong>Cupo cancelado — mismos datos</strong></td><td>F4 (T&C + Token)</td><td>Re-asignar cupo</td><td><span class="badge badge--amber">Advertencia</span></td></tr>
+    <tr><td>6</td><td><strong>No viable Preselecta</strong></td><td>F6 (Viabilidad)</td><td>FIN — Score 285 &lt; 400</td><td><span class="badge badge--red">Rechazo</span></td></tr>
+    <tr><td>7</td><td><strong>Antecedentes negativos</strong></td><td>F5 (Antecedentes)</td><td>FIN — Antecedentes vigentes</td><td><span class="badge badge--red">Rechazo</span></td></tr>
+    <tr><td>8</td><td><strong>Mayor 75 — No cotiza FOSYGA</strong></td><td>F7 (FOSYGA)</td><td>FIN — No cotiza</td><td><span class="badge badge--red">Rechazo</span></td></tr>
+    <tr><td>9</td><td><strong>Selfie no coincide → Fábrica</strong></td><td>F11 (Fábrica)</td><td>Match facial 62% &lt; 85%</td><td><span class="badge badge--amber">Derivación</span></td></tr>
+    <tr><td>10</td><td><strong>UBICA inconsistente → Call</strong></td><td>F12 (UBICA)</td><td>Celular antigüedad 2 meses</td><td><span class="badge badge--amber">Derivación</span></td></tr>
+    <tr><td>11</td><td><strong>Fotos no pasan → Fábrica</strong></td><td>F11 (Fábrica)</td><td>2 intentos de fotos fallidos</td><td><span class="badge badge--amber">Derivación</span></td></tr>
+  </tbody>
+</table>
+
+<h3>Distribución por tipo de resultado</h3>
+
+<div class="kpi-row">
+  <div class="kpi-card">
+    <div class="kpi-label">Cierre exitoso</div>
+    <div class="kpi-value" style="color:var(--green);">2</div>
+    <div class="kpi-sub">escenarios 1, 4</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Rechazo automático</div>
+    <div class="kpi-value" style="color:var(--red);">4</div>
+    <div class="kpi-sub">escenarios 3, 6, 7, 8</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Derivación Fábrica</div>
+    <div class="kpi-value" style="color:var(--amber);">3</div>
+    <div class="kpi-sub">escenarios 9, 10, 11</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Otros cierres</div>
+    <div class="kpi-value" style="color:var(--blue);">2</div>
+    <div class="kpi-sub">escenarios 2, 5</div>
+  </div>
+</div>
+
+<h3>Cobertura de fases por escenarios</h3>
+
+<table>
+  <thead><tr><th>Fase</th><th>Escenarios que la recorren</th></tr></thead>
+  <tbody>
+    <tr><td>1 — Documento</td><td>Todos (1-11)</td></tr>
+    <tr><td>2 — Elegibilidad</td><td>Todos (1-11)</td></tr>
+    <tr><td>3 — Datos tercero</td><td>1, 5, 6, 7, 8, 9, 10, 11</td></tr>
+    <tr><td>4 — T&C + Token</td><td>1, 5, 6, 7, 8, 9, 10, 11</td></tr>
+    <tr><td>5 — Antecedentes</td><td>1, 6, 7, 8, 9, 10, 11</td></tr>
+    <tr><td>6 — Viabilidad</td><td>1, 7, 8, 9, 10, 11</td></tr>
+    <tr><td>7 — FOSYGA</td><td>8 (condicional: edad ≥ 55)</td></tr>
+    <tr><td>8 — Cupo preaprobado</td><td>1, 9, 10, 11</td></tr>
+    <tr><td>9 — Dirección</td><td>1, 9, 10, 11</td></tr>
+    <tr><td>10 — Prueba de vida</td><td>1, 9, 10, 11</td></tr>
+    <tr><td>11 — Fábrica</td><td>9, 11 (condicional)</td></tr>
+    <tr><td>12 — UBICA</td><td>1, 10</td></tr>
+    <tr><td>13 — Cupo express</td><td>1</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<!-- ==================== 9. PLAN ==================== -->
+<h2 id="plan">9. Plan de trabajo propuesto</h2>
+
+<p>El plan se organiza por <strong>producto</strong>, no por disciplina. Un mismo equipo trabaja APIs, modelo de datos y pantallas de su producto. Se incluyen puntos de <strong>socialización</strong> obligatorios antes de implementar módulos complejos, y algunos módulos se <strong>diseñan en detalle cuando llega su turno</strong>.</p>
+
+<!-- ======= PRODUCTOS ======= -->
+<h3>Los 3 productos</h3>
+
+<div class="team-lanes">
+  <div class="team-lane">
+    <div class="team-lane-header" style="border-bottom-color:var(--amber);color:var(--amber);">
+      <span class="tl-icon" style="background:var(--amber);">Q</span>
+      QuacOne (Tienda)
+    </div>
+    <div class="team-lane-body tl--bd">
+      <ul>
+        <li><strong>Front:</strong> MFE del flujo de estudio para el asesor (13 fases) + MFE Fábrica (rediseño)</li>
+        <li><strong>Back:</strong> API .NET — servicios del flujo de crédito, integraciones externas (Preselecta, FOSYGA, UBICA, Rekognition)</li>
+        <li><strong>BD:</strong> SQL Server — fuente de verdad del proceso de crédito. Tablas y SPs</li>
+        <li>Es el <strong>sistema central</strong>: aquí se construyen los servicios que todos consumen</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="team-lane">
+    <div class="team-lane-header" style="border-bottom-color:var(--accent);color:var(--accent);">
+      <span class="tl-icon" style="background:var(--accent);">P</span>
+      Preaprobado.quac.co (Web)
+    </div>
+    <div class="team-lane-body tl--front">
+      <ul>
+        <li><strong>Front:</strong> Flujo de autogestión del cliente + portal de estado de solicitud</li>
+        <li><strong>Back:</strong> API Laravel — orquesta qué se muestra al cliente, <strong>consume servicios de QuacOne</strong></li>
+        <li><strong>BD:</strong> MySQL — tablas operativas (logs, sesiones, estado de navegación). No es fuente de verdad del crédito</li>
+        <li>Incluye servicios utilitarios propios: integración Rekognition/Truora, logs de actividad</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="team-lane">
+    <div class="team-lane-header" style="border-bottom-color:var(--green);color:var(--green);">
+      <span class="tl-icon" style="background:var(--green);">D</span>
+      Modelo de datos (SQL Server)
+    </div>
+    <div class="team-lane-body tl--back">
+      <ul>
+        <li>Fuente de verdad de todo el proceso de crédito</li>
+        <li>Auditar tablas existentes del proceso de fábricas</li>
+        <li>Diseñar tablas nuevas según se necesiten por sprint</li>
+        <li>SPs que soportan los servicios de QuacOne</li>
+        <li>Transversal a ambos productos — pero pertenece al equipo QuacOne</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="callout callout--info">
+  <p><strong>Principio:</strong> QuacOne construye los servicios del flujo de crédito → Preaprobado.quac.co los consume para el canal web → SQL Server es la fuente de verdad que soporta ambos. Las tareas de APIs, BD y pantallas las hace el equipo del producto correspondiente.</p>
+</div>
+
+<!-- ======= SPRINTS ======= -->
+<h3>Sprints por fase</h3>
+
+<!-- Sprint 0 -->
+<div class="sprint-card">
+  <div class="sprint-header">
+    <span class="sprint-num" style="background:var(--text-secondary);">0</span>
+    <div>
+      <div class="sprint-title">Inventario y contratos</div>
+      <div class="sprint-weeks">Semanas 1-2</div>
+      <div class="sprint-teams">
+        <span class="sprint-team-badge" style="background:var(--amber-bg);color:var(--amber);">QUACONE</span>
+        <span class="sprint-team-badge" style="background:var(--green-bg);color:var(--green);">MODELO DATOS</span>
+      </div>
+    </div>
+  </div>
+  <div class="sprint-obj">Antes de escribir código: mapear todo lo que existe, documentar contratos de APIs nuevas, auditar el modelo de datos actual.</div>
+
+  <div class="team-lanes" style="grid-template-columns:1fr 1fr;">
+    <div class="team-lane">
+      <div class="team-lane-header" style="border-bottom-color:var(--amber);color:var(--amber);">
+        <span class="tl-icon" style="background:var(--amber);">Q</span> QuacOne — APIs
+      </div>
+      <div class="team-lane-body tl--bd">
+        <ul>
+          <li>Catálogo de los 15 servicios existentes que intervienen en el flujo: documentar contratos (qué entra, qué sale, códigos de error)</li>
+          <li>Mapear los SPs involucrados: qué parámetros reciben, qué retornan</li>
+          <li>Diseñar contratos de los 4 servicios nuevos (Antecedentes, UBICA, Llamada IA, Caso Fábrica)</li>
+          <li>Confirmar contratos de los 2 servicios parciales (FOSYGA, Dirección) — qué les falta</li>
+        </ul>
+      </div>
+    </div>
+    <div class="team-lane">
+      <div class="team-lane-header" style="border-bottom-color:var(--green);color:var(--green);">
+        <span class="tl-icon" style="background:var(--green);">D</span> Modelo de datos
+      </div>
+      <div class="team-lane-body tl--back">
+        <ul>
+          <li>Auditar tablas actuales del proceso de fábricas y crédito en SQL Server</li>
+          <li>Identificar qué campos necesita el nuevo flujo que no existen hoy</li>
+          <li>Proponer estructura para los datos nuevos (dirección, antecedentes, FOSYGA, UBICA, fotos, firma T&C)</li>
+          <li>Identificar si se necesitan tablas nuevas (casos de fábrica, historial de fotos, etc.)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="social-bar">
+    <span class="social-bar-icon">S</span>
+    <strong>Socialización S0:</strong>&nbsp; Presentar catálogo de contratos y modelo de datos propuesto al equipo completo. Validar antes de implementar.
+  </div>
+</div>
+
+<!-- Sprint 1 -->
+<div class="sprint-card">
+  <div class="sprint-header">
+    <span class="sprint-num">1</span>
+    <div>
+      <div class="sprint-title">Identificación, elegibilidad y captura de datos — Fases 1 a 4</div>
+      <div class="sprint-weeks">Semanas 3-5</div>
+      <div class="sprint-teams">
+        <span class="sprint-team-badge" style="background:var(--amber-bg);color:var(--amber);">QUACONE</span>
+        <span class="sprint-team-badge" style="background:var(--accent-bg);color:var(--accent);">PREAPROBADO</span>
+        <span class="sprint-team-badge" style="background:var(--green-bg);color:var(--green);">MODELO DATOS</span>
+      </div>
+    </div>
+  </div>
+  <div class="sprint-obj">Implementar las primeras 4 fases: documento, elegibilidad, datos del cliente (OCR) y T&C + token.</div>
+
+  <div class="team-lanes">
+    <div class="team-lane">
+      <div class="team-lane-header" style="border-bottom-color:var(--amber);color:var(--amber);">
+        <span class="tl-icon" style="background:var(--amber);">Q</span> QuacOne
+      </div>
+      <div class="team-lane-body tl--bd">
+        <ul>
+          <li>Pantallas del asesor: F1 (documento), F2 (elegibilidad), F3 (OCR/manual), F4 (T&C + OTP)</li>
+          <li>Validar y exponer servicios existentes: cartera, proceso solicitud, cliente, contacto</li>
+          <li>Servicio de dirección con campos nuevos</li>
+          <li>Registrar firma electrónica T&C</li>
+          <li>Integrar OCR de fotos al flujo</li>
+        </ul>
+      </div>
+    </div>
+    <div class="team-lane">
+      <div class="team-lane-header" style="border-bottom-color:var(--accent);color:var(--accent);">
+        <span class="tl-icon" style="background:var(--accent);">P</span> Preaprobado.quac.co
+      </div>
+      <div class="team-lane-body tl--front">
+        <ul>
+          <li>Adaptar flujo web de autogestión para las fases 1-4</li>
+          <li>Consumir los servicios de QuacOne desde el back Laravel</li>
+          <li>Pantallas del cliente: documento, datos personales, T&C, OTP</li>
+        </ul>
+      </div>
+    </div>
+    <div class="team-lane">
+      <div class="team-lane-header" style="border-bottom-color:var(--green);color:var(--green);">
+        <span class="tl-icon" style="background:var(--green);">D</span> Modelo de datos
+      </div>
+      <div class="team-lane-body tl--back">
+        <ul>
+          <li>Implementar estructura para datos nuevos del flujo (dirección, firma T&C, origen solicitud)</li>
+          <li>SPs de soporte para los servicios de las fases 1-4</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Sprint 2 -->
+<div class="sprint-card">
+  <div class="sprint-header">
+    <span class="sprint-num">2</span>
+    <div>
+      <div class="sprint-title">Validaciones automáticas — Fases 5 a 9</div>
+      <div class="sprint-weeks">Semanas 6-8</div>
+      <div class="sprint-teams">
+        <span class="sprint-team-badge" style="background:var(--amber-bg);color:var(--amber);">QUACONE</span>
+        <span class="sprint-team-badge" style="background:var(--accent-bg);color:var(--accent);">PREAPROBADO</span>
+        <span class="sprint-team-badge" style="background:var(--green-bg);color:var(--green);">MODELO DATOS</span>
+      </div>
+    </div>
+  </div>
+  <div class="sprint-obj">Implementar las fases automáticas: antecedentes, Preselecta, FOSYGA, cupo preaprobado y dirección.</div>
+
+  <div class="team-lanes">
+    <div class="team-lane">
+      <div class="team-lane-header" style="border-bottom-color:var(--amber);color:var(--amber);">
+        <span class="tl-icon" style="background:var(--amber);">Q</span> QuacOne
+      </div>
+      <div class="team-lane-body tl--bd">
+        <ul>
+          <li>Pantallas del asesor: F5 (antecedentes), F6 (Preselecta), F7 (FOSYGA), F8 (cupo), F9 (dirección)</li>
+          <li>Implementar servicio nuevo de antecedentes</li>
+          <li>Completar integración FOSYGA/ADRES</li>
+          <li>Validar lógica de Preselecta y asignación de cupo</li>
+          <li>Lógica condicional FOSYGA (edad ≥ 55, timeout → fábrica)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="team-lane">
+      <div class="team-lane-header" style="border-bottom-color:var(--accent);color:var(--accent);">
+        <span class="tl-icon" style="background:var(--accent);">P</span> Preaprobado.quac.co
+      </div>
+      <div class="team-lane-body tl--front">
+        <ul>
+          <li>Adaptar flujo web para fases 5-9 (loaders, resultados, dirección)</li>
+          <li>Consumir servicios de antecedentes, Preselecta, FOSYGA, cupo desde QuacOne</li>
+          <li>Pantalla de cupo preaprobado para el cliente</li>
+        </ul>
+      </div>
+    </div>
+    <div class="team-lane">
+      <div class="team-lane-header" style="border-bottom-color:var(--green);color:var(--green);">
+        <span class="tl-icon" style="background:var(--green);">D</span> Modelo de datos
+      </div>
+      <div class="team-lane-body tl--back">
+        <ul>
+          <li>Estructura para datos de antecedentes y FOSYGA</li>
+          <li>SPs para el servicio de antecedentes y FOSYGA</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="social-bar">
+    <span class="social-bar-icon">S</span>
+    <strong>Socialización S1:</strong>&nbsp; Demo de las fases 1-9 funcionando en tienda y en web. Feedback del equipo de crédito antes de avanzar a biometría.
+  </div>
+</div>
+
+<!-- Sprint 3 -->
+<div class="sprint-card">
+  <div class="sprint-header">
+    <span class="sprint-num">3</span>
+    <div>
+      <div class="sprint-title">Biometría y delegación — Fase 10</div>
+      <div class="sprint-weeks">Semanas 9-10</div>
+      <div class="sprint-teams">
+        <span class="sprint-team-badge" style="background:var(--amber-bg);color:var(--amber);">QUACONE</span>
+        <span class="sprint-team-badge" style="background:var(--accent-bg);color:var(--accent);">PREAPROBADO</span>
+      </div>
+    </div>
+  </div>
+  <div class="sprint-obj">Integrar prueba de vida, validación de fotos y delegación al cliente. Si se decide usar Truora, este sprint cambia significativamente (ver Sección 7).</div>
+
+  <div class="team-lanes" style="grid-template-columns:1fr 1fr;">
+    <div class="team-lane">
+      <div class="team-lane-header" style="border-bottom-color:var(--amber);color:var(--amber);">
+        <span class="tl-icon" style="background:var(--amber);">Q</span> QuacOne
+      </div>
+      <div class="team-lane-body tl--bd">
+        <ul>
+          <li>Pantalla F10 del asesor: selector método captura (link / cámara PdV)</li>
+          <li>Sub-fases: fotos documento, verificación datos OCR, selfie + match facial</li>
+          <li>Componente de delegación: enviar link SMS al cliente</li>
+          <li>Lógica de reintentos (2 fotos, 2 selfie) y derivación a fábrica</li>
+          <li><strong>Si Truora:</strong> Embeber iframe en lugar de componentes propios</li>
+        </ul>
+      </div>
+    </div>
+    <div class="team-lane">
+      <div class="team-lane-header" style="border-bottom-color:var(--accent);color:var(--accent);">
+        <span class="tl-icon" style="background:var(--accent);">P</span> Preaprobado.quac.co
+      </div>
+      <div class="team-lane-body tl--front">
+        <ul>
+          <li>Flujo de fotos + selfie para autogestión web</li>
+          <li>Integración con Rekognition / Truora desde el back Laravel (servicios utilitarios propios)</li>
+          <li>Recepción de fotos delegadas por link SMS</li>
+          <li><strong>Si Truora:</strong> Embeber iframe + recibir webhook de resultados</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Sprint 4: Fábrica -->
+<div class="sprint-card">
+  <div class="sprint-header">
+    <span class="sprint-num">4</span>
+    <div>
+      <div class="sprint-title">Módulo Fábrica de Créditos</div>
+      <div class="sprint-weeks">Semanas 11-14</div>
+      <div class="sprint-teams">
+        <span class="sprint-team-badge" style="background:var(--amber-bg);color:var(--amber);">QUACONE</span>
+        <span class="sprint-team-badge" style="background:var(--green-bg);color:var(--green);">MODELO DATOS</span>
+      </div>
+    </div>
+  </div>
+  <div class="sprint-obj">Rediseñar la Fábrica desde cero. Este módulo se <strong>diseña en detalle al llegar aquí</strong>, no antes — requiere socialización con los operadores que lo van a usar.</div>
+
+  <div class="social-bar">
+    <span class="social-bar-icon">S</span>
+    <strong>Socialización S2 (pre-diseño):</strong>&nbsp; Sesión con operadores de fábrica y equipo de crédito. Entender cómo trabajan hoy, qué les falta, qué les sobra. Recoger feedback antes de diseñar. Generar <code>ANALISIS-MODULO-FABRICAS.md</code> con visto bueno.
+  </div>
+
+  <div class="team-lanes" style="grid-template-columns:1fr 1fr;">
+    <div class="team-lane">
+      <div class="team-lane-header" style="border-bottom-color:var(--amber);color:var(--amber);">
+        <span class="tl-icon" style="background:var(--amber);">Q</span> QuacOne
+      </div>
+      <div class="team-lane-body tl--bd">
+        <ul>
+          <li>Nuevo MFE de Fábrica: bandeja del operador, detalle de caso, checklist de fotos</li>
+          <li>Acciones granulares: aprobar/repetir/rechazar foto individual</li>
+          <li>Servicios: crear caso, listar bandeja, marcar foto, aprobar/rechazar, solicitar info</li>
+          <li>Notificación al cliente (SMS/WhatsApp con link)</li>
+          <li>Flujo ida y vuelta: cliente sube foto → caso vuelve a bandeja</li>
+          <li><em>Contratos de cada servicio se definen al iniciar este sprint</em></li>
+        </ul>
+      </div>
+    </div>
+    <div class="team-lane">
+      <div class="team-lane-header" style="border-bottom-color:var(--green);color:var(--green);">
+        <span class="tl-icon" style="background:var(--green);">D</span> Modelo de datos
+      </div>
+      <div class="team-lane-body tl--back">
+        <ul>
+          <li>Estructura para casos de fábrica (solicitud, motivo, fase origen, estado, operador)</li>
+          <li>Historial de acciones del operador (log de auditoría)</li>
+          <li>Historial de fotos por caso</li>
+          <li>SPs de soporte para los servicios de fábrica</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="social-bar">
+    <span class="social-bar-icon">S</span>
+    <strong>Socialización S3 (post-implementación):</strong>&nbsp; Demo del módulo Fábrica con operadores reales. Iterar con feedback antes de pasar al siguiente sprint.
+  </div>
+</div>
+
+<!-- Sprint 5: Portal cliente -->
+<div class="sprint-card">
+  <div class="sprint-header">
+    <span class="sprint-num">5</span>
+    <div>
+      <div class="sprint-title">Portal del cliente + Notificaciones</div>
+      <div class="sprint-weeks">Semanas 15-16</div>
+      <div class="sprint-teams">
+        <span class="sprint-team-badge" style="background:var(--accent-bg);color:var(--accent);">PREAPROBADO</span>
+        <span class="sprint-team-badge" style="background:var(--amber-bg);color:var(--amber);">QUACONE</span>
+      </div>
+    </div>
+  </div>
+  <div class="sprint-obj">Portal web donde el cliente consulta estado de su solicitud y ejecuta acciones pendientes. Se <strong>diseña en detalle al llegar aquí</strong> — depende de cómo quede la Fábrica.</div>
+
+  <div class="social-bar">
+    <span class="social-bar-icon">S</span>
+    <strong>Socialización S4 (pre-diseño):</strong>&nbsp; Definir con el equipo qué ve el cliente, qué puede hacer, qué información se le muestra y cuál no. Alinear con servicio al cliente.
+  </div>
+
+  <div class="team-lanes" style="grid-template-columns:1fr 1fr;">
+    <div class="team-lane">
+      <div class="team-lane-header" style="border-bottom-color:var(--accent);color:var(--accent);">
+        <span class="tl-icon" style="background:var(--accent);">P</span> Preaprobado.quac.co
+      </div>
+      <div class="team-lane-body tl--front">
+        <ul>
+          <li>Pantalla de consulta de estado (ingreso por documento)</li>
+          <li>Indicador visual de progreso por fases</li>
+          <li>Acciones pendientes: subir foto, repetir foto marcada por operador</li>
+          <li>Resultado final: cupo aprobado o motivo genérico</li>
+          <li>Notificaciones SMS/WhatsApp con link al portal</li>
+        </ul>
+      </div>
+    </div>
+    <div class="team-lane">
+      <div class="team-lane-header" style="border-bottom-color:var(--amber);color:var(--amber);">
+        <span class="tl-icon" style="background:var(--amber);">Q</span> QuacOne
+      </div>
+      <div class="team-lane-body tl--bd">
+        <ul>
+          <li>Exponer servicios que el portal necesita consumir: estado de solicitud, acciones pendientes</li>
+          <li>Servicio para recibir fotos subidas por el cliente y reincorporarlas a la bandeja de fábrica</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Sprint 6: UBICA y cierre -->
+<div class="sprint-card">
+  <div class="sprint-header">
+    <span class="sprint-num">6</span>
+    <div>
+      <div class="sprint-title">UBICA y cierre del flujo — Fases 12 y 13</div>
+      <div class="sprint-weeks">Semanas 17-18</div>
+      <div class="sprint-teams">
+        <span class="sprint-team-badge" style="background:var(--amber-bg);color:var(--amber);">QUACONE</span>
+        <span class="sprint-team-badge" style="background:var(--accent-bg);color:var(--accent);">PREAPROBADO</span>
+        <span class="sprint-team-badge" style="background:var(--green-bg);color:var(--green);">MODELO DATOS</span>
+      </div>
+    </div>
+  </div>
+  <div class="sprint-obj">Implementar UBICA (integración TransUnion) y el cierre del flujo. La integración con UBICA se <strong>diseña en detalle al llegar aquí</strong> — depende de la documentación técnica de TransUnion.</div>
+
+  <div class="team-lanes">
+    <div class="team-lane">
+      <div class="team-lane-header" style="border-bottom-color:var(--amber);color:var(--amber);">
+        <span class="tl-icon" style="background:var(--amber);">Q</span> QuacOne
+      </div>
+      <div class="team-lane-body tl--bd">
+        <ul>
+          <li>Pantallas F12 (UBICA) y F13 (token correo + activación)</li>
+          <li>Servicio nuevo: consulta UBICA / TransUnion</li>
+          <li>Servicio nuevo: llamada de verificación automática IA</li>
+          <li>Lógica de comparación datos UBICA vs solicitud</li>
+          <li>Validar servicios existentes de token correo y activación de cupo</li>
+        </ul>
+      </div>
+    </div>
+    <div class="team-lane">
+      <div class="team-lane-header" style="border-bottom-color:var(--accent);color:var(--accent);">
+        <span class="tl-icon" style="background:var(--accent);">P</span> Preaprobado.quac.co
+      </div>
+      <div class="team-lane-body tl--front">
+        <ul>
+          <li>Adaptar flujo web para fases 12-13</li>
+          <li>Pantalla de cierre exitoso: cupo activado, monto, condiciones</li>
+          <li>Consumir servicios de UBICA y activación desde QuacOne</li>
+        </ul>
+      </div>
+    </div>
+    <div class="team-lane">
+      <div class="team-lane-header" style="border-bottom-color:var(--green);color:var(--green);">
+        <span class="tl-icon" style="background:var(--green);">D</span> Modelo de datos
+      </div>
+      <div class="team-lane-body tl--back">
+        <ul>
+          <li>Estructura para datos de UBICA (celular, email, antigüedad, OTP)</li>
+          <li>SPs de soporte para UBICA</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Sprint 7: QA -->
+<div class="sprint-card">
+  <div class="sprint-header">
+    <span class="sprint-num" style="background:var(--green);">7</span>
+    <div>
+      <div class="sprint-title">Integración, QA y pruebas por canal</div>
+      <div class="sprint-weeks">Semanas 19-20</div>
+      <div class="sprint-teams">
+        <span class="sprint-team-badge" style="background:var(--amber-bg);color:var(--amber);">QUACONE</span>
+        <span class="sprint-team-badge" style="background:var(--accent-bg);color:var(--accent);">PREAPROBADO</span>
+        <span class="sprint-team-badge" style="background:var(--green-bg);color:var(--green);">MODELO DATOS</span>
+      </div>
+    </div>
+  </div>
+  <div class="sprint-obj">Tests end-to-end de los 11 escenarios en los 3 canales.</div>
+
+  <table>
+    <thead><tr><th>Tarea</th><th>Producto</th><th>Descripción</th></tr></thead>
+    <tbody>
+      <tr><td>Tests e2e escenarios 1-4</td><td><span class="badge badge--amber">QUACONE</span> <span class="badge badge--accent">PREAPROBADO</span></td><td>Flujo feliz, cupo activo, moroso, reactivación</td></tr>
+      <tr><td>Tests e2e escenarios 5-8</td><td><span class="badge badge--amber">QUACONE</span> <span class="badge badge--accent">PREAPROBADO</span></td><td>Cancelado, no viable, antecedentes, FOSYGA</td></tr>
+      <tr><td>Tests e2e escenarios 9-11</td><td><span class="badge badge--amber">QUACONE</span> <span class="badge badge--accent">PREAPROBADO</span></td><td>Selfie fábrica, UBICA call, fotos fábrica</td></tr>
+      <tr><td>QA canal tienda física</td><td><span class="badge badge--amber">QUACONE</span></td><td>Flujo completo desde QuacOne (red interna)</td></tr>
+      <tr><td>QA canal web</td><td><span class="badge badge--accent">PREAPROBADO</span></td><td>Flujo completo autogestión desde preaprobado.quac.co</td></tr>
+      <tr><td>QA canal externos</td><td><span class="badge badge--accent">PREAPROBADO</span></td><td>Flujo completo desde app de asesores de campo</td></tr>
+      <tr><td>Performance servicios</td><td><span class="badge badge--amber">QUACONE</span></td><td>Tiempos de respuesta de servicios externos (Preselecta, FOSYGA, UBICA)</td></tr>
+      <tr><td>Integridad de datos</td><td><span class="badge badge--green">MODELO DATOS</span></td><td>Verificar que todos los datos se registran correctamente en los 11 escenarios</td></tr>
+    </tbody>
+  </table>
+
+  <div class="social-bar">
+    <span class="social-bar-icon">S</span>
+    <strong>Socialización final:</strong>&nbsp; Demo del flujo completo con los 3 canales al equipo de crédito, operadores de fábrica y coordinación. Go/No-go para salir a producción.
+  </div>
+</div>
+
+<!-- Resumen de socializaciones -->
+<h3>Puntos de socialización</h3>
+
+<table>
+  <thead><tr><th>Punto</th><th>Cuándo</th><th>Quiénes participan</th><th>Objetivo</th></tr></thead>
+  <tbody>
+    <tr><td><strong>S0</strong></td><td>Fin Sprint 0</td><td>Equipo QuacOne + Coordinación</td><td>Validar catálogo de contratos y modelo de datos antes de implementar</td></tr>
+    <tr><td><strong>S1</strong></td><td>Fin Sprint 2</td><td>Equipo completo + Crédito</td><td>Demo fases 1-9 funcionando en tienda y web. Feedback antes de biometría</td></tr>
+    <tr><td><strong>S2</strong></td><td>Inicio Sprint 4</td><td>Operadores de fábrica + Crédito</td><td>Entender cómo trabajan hoy, recoger requerimientos para el rediseño</td></tr>
+    <tr><td><strong>S3</strong></td><td>Fin Sprint 4</td><td>Operadores de fábrica</td><td>Demo del módulo Fábrica, iterar con feedback</td></tr>
+    <tr><td><strong>S4</strong></td><td>Inicio Sprint 5</td><td>Servicio al cliente + Coordinación</td><td>Definir qué ve el cliente en el portal, qué puede hacer</td></tr>
+    <tr><td><strong>Final</strong></td><td>Fin Sprint 7</td><td>Todos</td><td>Demo completa, go/no-go para producción</td></tr>
+  </tbody>
+</table>
+
+<div class="callout callout--warn">
+  <p><strong>Módulos que se diseñan al llegar a su sprint:</strong> La Fábrica (Sprint 4), el Portal cliente (Sprint 5) y UBICA (Sprint 6) <strong>no se diseñan en detalle ahora</strong>. Se genera un <code>ANALISIS-MODULO-*.md</code> al inicio de cada sprint, con socialización previa, para diseñar con la información más actualizada y con el visto bueno de los usuarios finales.</p>
+</div>
+
+<hr>
+
+<p style="text-align:center;font-size:13px;color:var(--text-secondary);margin-top:40px;">
+  <strong>Fuentes:</strong> <code>prototipo/prototipo-flujo-tienda.html</code> · <code>docs/arquitectura/BIG-PICTURE.md</code> · <code>docs/analisis/ANALISIS-VALIDACION-FOTOS-DOCUMENTO.md</code>
+</p>
+
+</div>
+
+<script>
+// IntersectionObserver for sidebar active state
+const sections = document.querySelectorAll('h2[id], h3[id], details[id]');
+const navLinks = document.querySelectorAll('.sidebar nav a');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + id) {
+          link.classList.add('active');
+        }
+      });
+    }
+  });
+}, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+
+sections.forEach(section => observer.observe(section));
+</script>
+
+</body>
+</html>
