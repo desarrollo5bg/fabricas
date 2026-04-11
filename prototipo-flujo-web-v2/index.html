@@ -1297,7 +1297,7 @@ hr.section-divider {
       <div class="journey-stage-body">
         <span class="journey-stage-label">Fase 1</span>
         <div class="journey-stage-title">Identificación</div>
-        <div class="journey-stage-desc">El cliente ingresa su número de documento y el sistema le indica si puede continuar con su estudio o si debe iniciar uno nuevo.</div>
+        <div class="journey-stage-desc">El cliente ingresa tipo y número de documento. El sistema decide: cliente nuevo, solicitante antigua, en periodo de espera, estudio activo, cupo vigente, cartera morosa, reactivación o reingreso reciente.</div>
       </div>
     </div>
 
@@ -1305,8 +1305,8 @@ hr.section-divider {
       <span class="journey-stage-num">2</span>
       <div class="journey-stage-body">
         <span class="journey-stage-label">Fase 2</span>
-        <div class="journey-stage-title">Registro de datos básicos</div>
-        <div class="journey-stage-desc">Capturamos lo mínimo para arrancar: nombres, apellidos y datos de contacto (correo y celular). Con esto creamos el tercero en el sistema.</div>
+        <div class="journey-stage-title">Datos básicos</div>
+        <div class="journey-stage-desc">Nombres, apellidos, correo y celular. El sistema valida que el celular y correo no estén asociados a otro documento con cupo activo o solicitud en curso.</div>
       </div>
     </div>
 
@@ -1314,8 +1314,8 @@ hr.section-divider {
       <span class="journey-stage-num">3</span>
       <div class="journey-stage-body">
         <span class="journey-stage-label">Fase 3</span>
-        <div class="journey-stage-title">Consentimiento</div>
-        <div class="journey-stage-desc">Necesitamos el visto bueno del cliente antes de consultar su información en centrales de riesgo. Enviamos un código SMS al celular registrado y al validarlo queda firmada la autorización: el código funciona como firma electrónica.</div>
+        <div class="journey-stage-title">Consentimiento + token celular</div>
+        <div class="journey-stage-desc">Aceptación de T&C con código SMS como firma electrónica. Si el token es válido, se crea el tercero en el sistema. Opciones de reenvío: SMS, llamada y WhatsApp (escalonado).</div>
       </div>
     </div>
 
@@ -1323,8 +1323,8 @@ hr.section-divider {
       <span class="journey-stage-num">4</span>
       <div class="journey-stage-body">
         <span class="journey-stage-label">Fase 4</span>
-        <div class="journey-stage-title">Confirmación de datos del documento de identidad</div>
-        <div class="journey-stage-desc">El cliente ingresa los datos exactamente como aparecen en su documento de identidad: fecha de expedición, género y fecha de nacimiento. Estos datos son los que el sistema usa para las consultas externas.</div>
+        <div class="journey-stage-title">Fecha de nacimiento y confirmación de correo</div>
+        <div class="journey-stage-desc">El cliente ingresa su fecha de nacimiento y confirma el correo electrónico escribiéndolo nuevamente. El correo se necesita bien capturado para la verificación UBICA más adelante.</div>
       </div>
     </div>
 
@@ -1333,7 +1333,7 @@ hr.section-divider {
       <div class="journey-stage-body">
         <span class="journey-stage-label">Fase 5</span>
         <div class="journey-stage-title">Inicio del estudio</div>
-        <div class="journey-stage-desc">El sistema consulta Antecedentes y Preselecta y obtiene una respuesta. Si la respuesta es <em>antecedentes negativos</em> o <em>no viable</em>, el estudio se cierra con estado <code>cerrado_no_viable</code>. Si la respuesta es <em>viable</em>, el sistema deja iniciado en paralelo el proceso de UBICA (que puede ser demorado) y el cliente continúa con los siguientes pasos.</div>
+        <div class="journey-stage-desc">Consulta Antecedentes → si negativos: fin. Consulta Preselecta → si no viable: fin. Si viable: nace el estudio y se lanzan en paralelo FOSYGA, preaprobado y UBICA. El cliente no espera, pasa directo a la siguiente fase.</div>
       </div>
     </div>
 
@@ -1341,8 +1341,8 @@ hr.section-divider {
       <span class="journey-stage-num">6</span>
       <div class="journey-stage-body">
         <span class="journey-stage-label">Fase 6</span>
-        <div class="journey-stage-title">Registro de dirección</div>
-        <div class="journey-stage-desc">Se captura la dirección y la ciudad de residencia del cliente. Es el último dato que falta del tercero antes de las verificaciones de identidad.</div>
+        <div class="journey-stage-title">Dirección</div>
+        <div class="journey-stage-desc">Departamento, ciudad y dirección de residencia. Dato que no se requiere para el estudio en sí — se usa como control para ventas futuras.</div>
       </div>
     </div>
 
@@ -1350,8 +1350,8 @@ hr.section-divider {
       <span class="journey-stage-num">7</span>
       <div class="journey-stage-body">
         <span class="journey-stage-label">Fase 7</span>
-        <div class="journey-stage-title">Verificación de identidad prueba de vida</div>
-        <div class="journey-stage-desc">El sistema solicita la <strong>foto frontal</strong> y la <strong>foto del reverso</strong> del documento, y realiza la <strong>prueba de vida</strong> para obtener la <strong>selfie</strong> del cliente. Luego valida automáticamente las fotos y los datos contra un checklist de verificación documental.</div>
+        <div class="journey-stage-title">Verificación de identidad</div>
+        <div class="journey-stage-desc"><strong>Foto frontal</strong> del documento, <strong>foto reverso</strong>, extracción de datos por OCR, <strong>prueba de vida</strong> (faceliveness) y checklist automático: documento válido, match facial ≥ 85%, selfie no en base de suplantadores. Antes de cada captura, el sistema verifica si FOSYGA ya respondió negativo para evitar gastar en Rekognition.</div>
       </div>
     </div>
 
@@ -1359,8 +1359,8 @@ hr.section-divider {
       <span class="journey-stage-num">8</span>
       <div class="journey-stage-body">
         <span class="journey-stage-label">Fase 8</span>
-        <div class="journey-stage-title">Verificación del resultado UBICA</div>
-        <div class="journey-stage-desc">El sistema verifica si la consulta UBICA iniciada en la Fase 5 ya finalizó. Si UBICA confirma que el celular y el correo son consistentes, envía un token al correo del cliente y se muestra la pantalla para ingresar el OTP del correo, cerrando la verificación de contacto.</div>
+        <div class="journey-stage-title">Verificación UBICA + token al correo</div>
+        <div class="journey-stage-desc">El sistema consulta el resultado de UBICA (lanzado en la Fase 5). Si celular y correo son consistentes, envía un token al correo registrado para verificar que el cliente tiene acceso real. Si UBICA no responde o es inconsistente, el cliente ve una pantalla de "en proceso de aprobación".</div>
       </div>
     </div>
 
@@ -1368,8 +1368,8 @@ hr.section-divider {
       <span class="journey-stage-num">9</span>
       <div class="journey-stage-body">
         <span class="journey-stage-label">Fase 9</span>
-        <div class="journey-stage-title">Activación y confirmación del cupo</div>
-        <div class="journey-stage-desc">Con todas las verificaciones en verde, el sistema desbloquea el cupo y le muestra al cliente el monto aprobado. Es el cierre exitoso del estudio.</div>
+        <div class="journey-stage-title">Activación del cupo</div>
+        <div class="journey-stage-desc">Con todas las verificaciones en verde, el sistema desbloquea el cupo y muestra el monto aprobado. El cliente puede descargar la app QUAC o conocer los comercios aliados en quac.co.</div>
       </div>
     </div>
 
@@ -2073,7 +2073,7 @@ hr.section-divider {
           <div class="phone-h1">Foto frontal documento</div>
           <div class="phone-subtitle">Toma una foto clara del frente. Asegúrate de que se vea todo el documento.</div>
           <div style="margin:12px 0; border-radius:12px; overflow:hidden; border:2px dashed var(--accent); padding:8px; background:var(--bg-alt);">
-            <img src="../../../imagenes/frontal.png" alt="Foto frontal del documento" style="width:100%; display:block; border-radius:8px;">
+            <img src="imagenes/frontal.png" alt="Foto frontal del documento" style="width:100%; display:block; border-radius:8px;">
           </div>
           <div class="phone-callout">💡 Buena luz · Sin reflejos · Documento completo</div>
           <button class="phone-btn">Tomar foto frontal</button>
@@ -2136,7 +2136,7 @@ hr.section-divider {
           <div class="phone-h1">Foto reverso documento</div>
           <div class="phone-subtitle">Por favor, carga la foto de la cara posterior de tu documento.</div>
           <div style="margin:12px 0; border-radius:12px; overflow:hidden; border:2px dashed var(--accent); padding:8px; background:var(--bg-alt);">
-            <img src="../../../imagenes/reverso.png" alt="Foto reverso del documento" style="width:100%; display:block; border-radius:8px;">
+            <img src="imagenes/reverso.png" alt="Foto reverso del documento" style="width:100%; display:block; border-radius:8px;">
           </div>
           <div class="phone-callout">💡 Asegúrate de que se vean los datos del reverso (lugar de expedición, etc).</div>
           <button class="phone-btn">Tomar foto reverso</button>
@@ -2191,7 +2191,7 @@ hr.section-divider {
           <div class="phone-h1">Verificación facial</div>
           <div class="phone-subtitle">Mantén tu rostro centrado. Sigue las indicaciones en pantalla para alinear tu rostro.</div>
           <div style="margin:12px 0; display:flex; justify-content:center;">
-            <img src="../../../imagenes/facial.png" alt="Verificación facial" style="width:160px; height:auto; display:block; border-radius:50%;">
+            <img src="imagenes/facial.png" alt="Verificación facial" style="width:160px; height:auto; display:block; border-radius:50%;">
           </div>
           <div style="background:var(--bg-alt);padding:8px 12px;border-radius:8px;font-size:10px;text-align:center;color:var(--text-secondary);font-weight:600;">👆 Buena luz · Sin gafas · Rostro centrado</div>
           <button class="phone-btn" style="margin-top:14px;">Iniciar verificación</button>
@@ -2304,7 +2304,7 @@ hr.section-divider {
           <div style="width:48px;height:48px;border-radius:50%;background:var(--green-bg);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--green);">✓</div>
           <div class="phone-h1" style="font-size:16px;">Tu crédito QUAC: En proceso de verificación</div>
           <div style="margin:16px auto; max-width:180px;">
-            <img src="../../../imagenes/quac_revisando.png" alt="QUAC revisando" style="width:100%; display:block;">
+            <img src="imagenes/quac_revisando.png" alt="QUAC revisando" style="width:100%; display:block;">
           </div>
           <div class="phone-subtitle" style="font-size:11px;">Un asesor está revisando la información proporcionada. Te notificaremos tan pronto como tu crédito esté activado y listo para usar.</div>
           <div style="background:var(--bg-alt); border-radius:10px; padding:12px 14px; margin:14px 0; text-align:left; font-size:11px;">
@@ -2378,7 +2378,7 @@ hr.section-divider {
         <div class="phone-body" style="text-align:center;">
           <div class="phone-h1" style="font-size:16px; margin-bottom:4px;">Tu crédito QUAC: En proceso de aprobación</div>
           <div style="margin:16px auto; max-width:180px;">
-            <img src="../../../imagenes/quac_revisando.png" alt="QUAC revisando" style="width:100%; display:block;">
+            <img src="imagenes/quac_revisando.png" alt="QUAC revisando" style="width:100%; display:block;">
           </div>
           <div class="phone-subtitle" style="font-size:11px; line-height:1.6;">Un asesor se pondrá en contacto contigo pronto para ayudarte a avanzar con tu solicitud de crédito. Gracias por tu paciencia y confianza en QUAC.</div>
           <button class="phone-btn" style="background:transparent;border:1.5px solid var(--accent);color:var(--accent);margin-top:16px;">Hablar con un asesor</button>
