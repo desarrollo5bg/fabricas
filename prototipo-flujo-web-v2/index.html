@@ -439,9 +439,7 @@ strong { color: var(--text); }
   border-radius: 100px;
 }
 .phone-stepbar {
-  display: flex;
-  gap: 4px;
-  padding: 0 22px 16px;
+  display: none;
 }
 .phone-stepdot {
   flex: 1;
@@ -1246,9 +1244,8 @@ hr.section-divider {
     <a href="#paso-3" class="indent">T&C + OTP</a>
     <a href="#paso-3b" class="indent">Confirma datos documento</a>
     <a href="#paso-4" class="indent">Estudio de crédito</a>
-    <a href="#paso-5" class="indent">Cupo preaprobado</a>
     <a href="#paso-6" class="indent">Dirección</a>
-    <a href="#paso-7" class="indent">Verificación identidad</a>
+    <a href="#paso-7b" class="indent">Verificación identidad</a>
     <a href="#paso-8" class="indent">Verificación UBICA</a>
     <a href="#paso-9" class="indent">Token correo</a>
     <a href="#paso-10" class="indent">Cupo activado</a>
@@ -1265,9 +1262,11 @@ hr.section-divider {
   <div class="sidebar-section">Variante B en detalle</div>
   <nav>
     <a href="#retomar-detalle"><span class="sidebar-num">R</span>Retomar estudio</a>
+    <a href="#retomar-0" class="indent">R0 · Identificación</a>
     <a href="#retomar-1" class="indent">R1 · Estudio detectado</a>
-    <a href="#retomar-2" class="indent">R2 · OTP de seguridad</a>
-    <a href="#retomar-3" class="indent">R3 · Dashboard "Mi estudio"</a>
+    <a href="#retomar-2" class="indent">R2 · OTP de verificación</a>
+    <a href="#retomar-3" class="indent">R3 · Datos registrados</a>
+    <a href="#retomar-4" class="indent">R4 · Continúa donde quedó</a>
   </nav>
 </aside>
 
@@ -1300,7 +1299,7 @@ hr.section-divider {
       <div class="journey-stage-body">
         <span class="journey-stage-label">Fase 1</span>
         <div class="journey-stage-title">Identificación</div>
-        <div class="journey-stage-desc">El cliente ingresa su número de documento y el sistema le indica si puede continuar con su estudio o si debe iniciar uno nuevo.</div>
+        <div class="journey-stage-desc">El cliente ingresa tipo y número de documento. El sistema decide: cliente nuevo, solicitante antigua, en periodo de espera, estudio activo, cupo vigente, cartera morosa, reactivación o reingreso reciente.</div>
       </div>
     </div>
 
@@ -1308,8 +1307,8 @@ hr.section-divider {
       <span class="journey-stage-num">2</span>
       <div class="journey-stage-body">
         <span class="journey-stage-label">Fase 2</span>
-        <div class="journey-stage-title">Registro de datos básicos</div>
-        <div class="journey-stage-desc">Capturamos lo mínimo para arrancar: nombres, apellidos y datos de contacto (correo y celular). Con esto creamos el tercero en el sistema.</div>
+        <div class="journey-stage-title">Datos básicos</div>
+        <div class="journey-stage-desc">Nombres, apellidos, correo y celular. El sistema valida que el celular y correo no estén asociados a otro documento con cupo activo o solicitud en curso.</div>
       </div>
     </div>
 
@@ -1317,8 +1316,8 @@ hr.section-divider {
       <span class="journey-stage-num">3</span>
       <div class="journey-stage-body">
         <span class="journey-stage-label">Fase 3</span>
-        <div class="journey-stage-title">Consentimiento</div>
-        <div class="journey-stage-desc">Necesitamos el visto bueno del cliente antes de consultar su información en centrales de riesgo. Enviamos un código SMS al celular registrado y al validarlo queda firmada la autorización: el código funciona como firma electrónica.</div>
+        <div class="journey-stage-title">Consentimiento + token celular</div>
+        <div class="journey-stage-desc">Aceptación de T&C con código SMS como firma electrónica. Si el token es válido, se crea el tercero en el sistema. Opciones de reenvío: SMS, llamada y WhatsApp (escalonado).</div>
       </div>
     </div>
 
@@ -1326,8 +1325,8 @@ hr.section-divider {
       <span class="journey-stage-num">4</span>
       <div class="journey-stage-body">
         <span class="journey-stage-label">Fase 4</span>
-        <div class="journey-stage-title">Confirmación de datos del documento de identidad</div>
-        <div class="journey-stage-desc">El cliente ingresa los datos exactamente como aparecen en su documento de identidad: fecha de expedición, género y fecha de nacimiento. Estos datos son los que el sistema usa para las consultas externas.</div>
+        <div class="journey-stage-title">Fecha de nacimiento y confirmación de correo</div>
+        <div class="journey-stage-desc">El cliente ingresa su fecha de nacimiento y confirma el correo electrónico escribiéndolo nuevamente. El correo se necesita bien capturado para la verificación UBICA más adelante.</div>
       </div>
     </div>
 
@@ -1336,7 +1335,7 @@ hr.section-divider {
       <div class="journey-stage-body">
         <span class="journey-stage-label">Fase 5</span>
         <div class="journey-stage-title">Inicio del estudio</div>
-        <div class="journey-stage-desc">El sistema consulta Antecedentes y Preselecta y obtiene una respuesta. Si la respuesta es <em>antecedentes negativos</em> o <em>no viable</em>, el estudio se cierra con estado <code>cerrado_no_viable</code>. Si la respuesta es <em>viable</em>, el sistema deja iniciado en paralelo el proceso de UBICA (que puede ser demorado) y el cliente continúa con los siguientes pasos.</div>
+        <div class="journey-stage-desc">Consulta Antecedentes → si negativos: fin. Consulta Preselecta → si no viable: fin. Si viable: nace el estudio y se lanzan en paralelo FOSYGA, preaprobado y UBICA. El cliente no espera, pasa directo a la siguiente fase.</div>
       </div>
     </div>
 
@@ -1344,8 +1343,8 @@ hr.section-divider {
       <span class="journey-stage-num">6</span>
       <div class="journey-stage-body">
         <span class="journey-stage-label">Fase 6</span>
-        <div class="journey-stage-title">Registro de dirección</div>
-        <div class="journey-stage-desc">Se captura la dirección y la ciudad de residencia del cliente. Es el último dato que falta del tercero antes de las verificaciones de identidad.</div>
+        <div class="journey-stage-title">Dirección</div>
+        <div class="journey-stage-desc">Departamento, ciudad y dirección de residencia. Dato que no se requiere para el estudio en sí — se usa como control para ventas futuras.</div>
       </div>
     </div>
 
@@ -1353,8 +1352,8 @@ hr.section-divider {
       <span class="journey-stage-num">7</span>
       <div class="journey-stage-body">
         <span class="journey-stage-label">Fase 7</span>
-        <div class="journey-stage-title">Verificación de identidad prueba de vida</div>
-        <div class="journey-stage-desc">El sistema solicita la <strong>foto frontal</strong> y la <strong>foto del reverso</strong> del documento, y realiza la <strong>prueba de vida</strong> para obtener la <strong>selfie</strong> del cliente. Luego valida automáticamente las fotos y los datos contra un checklist de verificación documental.</div>
+        <div class="journey-stage-title">Verificación de identidad</div>
+        <div class="journey-stage-desc"><strong>Foto frontal</strong> del documento, <strong>foto reverso</strong>, extracción de datos por OCR, <strong>prueba de vida</strong> (faceliveness) y checklist automático: documento válido, match facial ≥ 85%, selfie no en base de suplantadores. Antes de cada captura, el sistema verifica si FOSYGA ya respondió negativo para evitar gastar en Rekognition.</div>
       </div>
     </div>
 
@@ -1362,8 +1361,8 @@ hr.section-divider {
       <span class="journey-stage-num">8</span>
       <div class="journey-stage-body">
         <span class="journey-stage-label">Fase 8</span>
-        <div class="journey-stage-title">Verificación del resultado UBICA</div>
-        <div class="journey-stage-desc">El sistema verifica si la consulta UBICA iniciada en la Fase 5 ya finalizó. Si UBICA confirma que el celular y el correo son consistentes, envía un token al correo del cliente y se muestra la pantalla para ingresar el OTP del correo, cerrando la verificación de contacto.</div>
+        <div class="journey-stage-title">Verificación UBICA + token al correo</div>
+        <div class="journey-stage-desc">El sistema consulta el resultado de UBICA (lanzado en la Fase 5). Si celular y correo son consistentes, envía un token al correo registrado para verificar que el cliente tiene acceso real. Si UBICA no responde o es inconsistente, el cliente ve una pantalla de "en proceso de aprobación".</div>
       </div>
     </div>
 
@@ -1371,8 +1370,8 @@ hr.section-divider {
       <span class="journey-stage-num">9</span>
       <div class="journey-stage-body">
         <span class="journey-stage-label">Fase 9</span>
-        <div class="journey-stage-title">Activación y confirmación del cupo</div>
-        <div class="journey-stage-desc">Con todas las verificaciones en verde, el sistema desbloquea el cupo y le muestra al cliente el monto aprobado. Es el cierre exitoso del estudio.</div>
+        <div class="journey-stage-title">Activación del cupo</div>
+        <div class="journey-stage-desc">Con todas las verificaciones en verde, el sistema desbloquea el cupo y muestra el monto aprobado. El cliente puede descargar la app QUAC o conocer los comercios aliados en quac.co.</div>
       </div>
     </div>
 
@@ -1421,13 +1420,13 @@ hr.section-divider {
           <div></div>
         </div>
         <div class="phone-body">
-          <div class="phone-h1">Estrena tu cupo QUAC</div>
-          <div class="phone-subtitle">Solicítalo en pocos pasos. Empezamos con tu documento de identidad.</div>
-          <div class="phone-label">Tipo y número de documento</div>
-          <div class="phone-input-row">
-            <div class="phone-input phone-input--readonly" style="flex:0 0 70px;">CC</div>
-            <div class="phone-input">1.023.456.789</div>
-          </div>
+          <div class="phone-h1">Solicitud de crédito QUAC</div>
+          <div class="phone-subtitle">Para iniciar tu solicitud de crédito, necesitamos algunos datos básicos. Por favor, completa la siguiente información:</div>
+          <div class="phone-label">Tipo de documento</div>
+          <div class="phone-input">Cédula de ciudadanía ▾</div>
+          <div class="phone-label">Número de documento</div>
+          <div class="phone-input">1023456789</div>
+          <div style="font-size:11px; color:var(--text-secondary); line-height:1.5; margin-top:14px; padding:10px 14px; background:var(--bg-alt); border-radius:10px;">Una vez completada esta información, te guiaremos a través del proceso de solicitud de crédito.</div>
           <button class="phone-btn">Continuar</button>
         </div>
       </div>
@@ -1471,22 +1470,43 @@ hr.section-divider {
 <div class="bifurcation">
   <div class="bifurcation-label">⬢ Decisión del sistema #1</div>
   <div class="bifurcation-title">¿Quién es Laura?</div>
-  <p style="font-size:14px;color:var(--text-secondary);margin:0;">Según el resultado de la consulta, el sistema decide qué pantalla mostrarle a Laura a continuación.</p>
+  <p style="font-size:14px;color:var(--text-secondary);margin:0 0 18px;">El sistema consulta el documento contra la base de datos y evalúa: ¿existe como tercero? ¿tiene cupo? ¿está bloqueado? ¿tiene cartera morosa? ¿tiene estudio en curso o reciente? Según la combinación de respuestas, el flujo toma uno de estos caminos:</p>
   <div class="bifurcation-paths">
     <div class="bifurcation-path">
-      <span class="bifurcation-path-label bifurcation-path-label--happy">Camino feliz</span>
+      <span class="bifurcation-path-label bifurcation-path-label--happy">Flujo ideal</span>
       <div class="bifurcation-path-text"><strong>Cliente nueva.</strong> No existe en el sistema, no tiene cupo ni estudios. Sigue al paso 2 (datos básicos).</div>
       <a class="bifurcation-path-link" href="#paso-2">→ continuar al paso 2</a>
     </div>
     <div class="bifurcation-path">
-      <span class="bifurcation-path-label bifurcation-path-label--end">Cupo activo</span>
-      <div class="bifurcation-path-text"><strong>Ya tiene cupo.</strong> Cierre temprano, redirige a la app QUAC. No hay solicitud nueva.</div>
-      <a class="bifurcation-path-link" href="#variantes">→ ver variante A</a>
+      <span class="bifurcation-path-label bifurcation-path-label--alt">Solicitante antigua</span>
+      <div class="bifurcation-path-text"><strong>Ya la conocemos.</strong> Tiene solicitudes anteriores cerradas pero ninguna activa. Inicia la solicitud como si fuera la primera vez, pero en la fase de prueba de vida y validación documental vamos a validar si es la misma persona que hizo la solicitud meses anteriores, para evaluar si es un suplantador.</div>
+      <a class="bifurcation-path-link" href="#paso-2">→ continuar al paso 2</a>
+    </div>
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--alt">En periodo de espera</span>
+      <div class="bifurcation-path-text"><strong>Rechazo reciente.</strong> Su último estudio no fue viable y debe esperar un tiempo antes de volver a solicitar. Verificamos con OTP y le mostramos la fecha en la que podrá intentarlo de nuevo.</div>
     </div>
     <div class="bifurcation-path">
       <span class="bifurcation-path-label bifurcation-path-label--alt">Estudio en curso</span>
-      <div class="bifurcation-path-text"><strong>Tiene un estudio activo.</strong> Lo enviamos a retomar con OTP al celular.</div>
+      <div class="bifurcation-path-text"><strong>Tiene un estudio activo.</strong> Lo enviamos a retomar con OTP al celular registrado. El estudio sigue desde donde quedó.</div>
       <a class="bifurcation-path-link" href="#variantes-2">→ ver variante B</a>
+    </div>
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--end">Ya tiene cupo activo</span>
+      <div class="bifurcation-path-text"><strong>Cupo vigente no bloqueado.</strong> Cierre temprano. No necesita un estudio nuevo.</div>
+      <a class="bifurcation-path-link" href="#variantes">→ ver variante A</a>
+    </div>
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--end">Cartera morosa</span>
+      <div class="bifurcation-path-text"><strong>Cupo bloqueado con deuda.</strong> No aplica para cupo hasta que esté al día con la cartera.</div>
+    </div>
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--happy">Reactivación de cupo</span>
+      <div class="bifurcation-path-text"><strong>Cupo cancelado por solicitud del cliente.</strong> Si los datos actuales coinciden con los del momento de cancelar, se envía token para autorizar y se reasigna el mismo cupo. Cierre exitoso express.</div>
+    </div>
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--happy">Reingreso con estudio reciente</span>
+      <div class="bifurcation-path-text"><strong>Estudio tokenizado en los últimos 90 días.</strong> Se consulta Preselecta: si es viable, continúa en el punto donde quedó. Si no es viable, cierre.</div>
     </div>
   </div>
 </div>
@@ -1559,6 +1579,28 @@ hr.section-divider {
   </div>
 </div>
 
+<!-- ============ DECISIÓN: VALIDACIÓN DE CONTACTO ============ -->
+<div class="bifurcation">
+  <div class="bifurcation-label">⬢ Decisión del sistema #2</div>
+  <div class="bifurcation-title">¿El celular y correo están disponibles?</div>
+  <p style="font-size:15px; color:var(--text-secondary); line-height:1.6; margin-bottom:20px;">Al hacer clic en <strong>Continuar</strong>, el sistema valida que el <strong>celular</strong> y el <strong>correo electrónico</strong> ingresados no estén asociados a otro documento con cupo activo ni con una solicitud en curso. Esta validación previene duplicación de identidad y posibles suplantaciones.</p>
+  <div class="bifurcation-paths">
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--happy">Contacto disponible</span>
+      <div class="bifurcation-path-text"><strong>Celular y correo no están asociados a otro documento.</strong> Continúa al paso 3 (consentimiento legal + token).</div>
+      <a class="bifurcation-path-link" href="#paso-3">→ continuar al paso 3</a>
+    </div>
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--end">Celular asociado a otro documento</span>
+      <div class="bifurcation-path-text"><strong>El celular ya está registrado en otro tercero con cupo activo o solicitud en curso.</strong> El sistema muestra un mensaje indicando que ese número no se puede usar. Laura debe ingresar un celular diferente.</div>
+    </div>
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--end">Correo asociado a otro documento</span>
+      <div class="bifurcation-path-text"><strong>El correo ya está registrado en otro tercero con cupo activo o solicitud en curso.</strong> El sistema muestra un mensaje indicando que ese correo no se puede usar. Laura debe ingresar un correo diferente.</div>
+    </div>
+  </div>
+</div>
+
 <!-- ============ PASO 3 ============ -->
 <div class="story-row" id="paso-3">
   <div class="story-screen-col">
@@ -1580,7 +1622,7 @@ hr.section-divider {
         </div>
         <div class="phone-body">
           <div class="phone-h1">Autorizaciones</div>
-          <div class="phone-subtitle">Necesitamos tu visto bueno antes de consultar tu información. Tu código por SMS funciona como firma.</div>
+          <div class="phone-subtitle">Hemos enviado un código SMS al número <strong>310 784 12 98</strong>. Una vez lo recibas, ingrésalo.</div>
           <div class="phone-check">
             <div class="phone-check-box">✓</div>
             <div class="phone-check-text">Acepto los <a>Términos y condiciones</a> del crédito QUAC</div>
@@ -1593,17 +1635,16 @@ hr.section-divider {
             <div class="phone-check-box">✓</div>
             <div class="phone-check-text">Autorizo consulta a centrales de riesgo</div>
           </div>
-          <div class="phone-label" style="margin-top:18px;">Código recibido en *** *** 12 98</div>
-          <div class="phone-otp">
+          <div class="phone-otp" style="margin-top:18px; justify-content:center;">
             <div class="phone-otp-cell phone-otp-cell--filled">8</div>
             <div class="phone-otp-cell phone-otp-cell--filled">3</div>
-            <div class="phone-otp-cell phone-otp-cell--filled">5</div>
-            <div class="phone-otp-cell phone-otp-cell--current">1</div>
-            <div class="phone-otp-cell"></div>
+            <div class="phone-otp-cell phone-otp-cell--current">5</div>
             <div class="phone-otp-cell"></div>
           </div>
+          <div style="text-align:center; font-size:11px; color:var(--text-secondary); line-height:1.5; margin-top:12px; padding:10px 14px; background:var(--bg-alt); border-radius:10px;">Al ingresar el código, confirmas la aceptación de los términos y condiciones de QUAC.</div>
           <div class="phone-otp-help"><a>Reenviar código</a> · <strong>04:48</strong></div>
           <button class="phone-btn">Firmar y continuar</button>
+          <div style="text-align:center; margin-top:10px;"><a style="font-size:12px; color:var(--accent); font-weight:700; text-decoration:none;">Cambiar celular</a></div>
         </div>
       </div>
     </div>
@@ -1646,6 +1687,32 @@ hr.section-divider {
   </div>
 </div>
 
+<!-- ============ NOTA: REENVÍO DE TOKEN ============ -->
+<div class="bifurcation">
+  <div class="bifurcation-label">⬢ ¿El cliente no recibió el código?</div>
+  <div class="bifurcation-title">Opciones de reenvío del token</div>
+  <p style="font-size:14px;color:var(--text-secondary);margin:0 0 18px;">Si Laura no recibe el código, el sistema le ofrece canales alternativos. SMS y Llamada están disponibles siempre. WhatsApp solo se habilita como último recurso después de agotar los dos anteriores. Si el celular es incorrecto, puede volver al paso 2 para corregirlo.</p>
+  <div class="bifurcation-paths">
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--happy">Reenviar por SMS</span>
+      <div class="bifurcation-path-text"><strong>Siempre disponible.</strong> Se reenvía el código por SMS al mismo número registrado. Es el canal por defecto.</div>
+    </div>
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--happy">Reenviar por llamada</span>
+      <div class="bifurcation-path-text"><strong>Siempre disponible.</strong> El sistema lanza una llamada automática al celular y le dicta el código al cliente.</div>
+    </div>
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--alt">Reenviar por WhatsApp</span>
+      <div class="bifurcation-path-text"><strong>Solo si ya se usaron SMS y Llamada.</strong> Se habilita como último recurso. El código se envía por mensaje de WhatsApp al número registrado.</div>
+    </div>
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--end">Celular incorrecto</span>
+      <div class="bifurcation-path-text"><strong>Si el número está mal,</strong> Laura puede volver al paso 2 para verificar y corregir el celular antes de reintentar.</div>
+      <a class="bifurcation-path-link" href="#paso-2">→ volver al paso 2</a>
+    </div>
+  </div>
+</div>
+
 <!-- ============ PASO 3b · CONFIRMA DATOS DEL DOCUMENTO ============ -->
 <div class="story-row" id="paso-3b">
   <div class="story-screen-col">
@@ -1666,39 +1733,22 @@ hr.section-divider {
           <div class="phone-stepdot"></div>
         </div>
         <div class="phone-body">
-          <div class="phone-h1">Confirma los datos de tu documento</div>
-          <div class="phone-subtitle">Estos son los últimos datos básicos. En un momento vamos a comparar contra la foto que nos vas a tomar.</div>
-
-          <div class="phone-doc-fixed">
-            <div class="phone-doc-fixed-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><circle cx="9" cy="12" r="2.5"/><path d="M14 10h5M14 14h5"/></svg>
-            </div>
-            <div class="phone-doc-fixed-info">
-              <div class="phone-doc-fixed-label">Cédula de ciudadanía</div>
-              <div class="phone-doc-fixed-value">1023456789</div>
-            </div>
-            <div class="phone-doc-fixed-lock">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-            </div>
-          </div>
-
-          <div class="phone-label">Fecha de expedición</div>
-          <div class="phone-input">03 / 09 / 2012</div>
-
-          <div class="phone-label">Ciudad de expedición</div>
-          <div class="phone-input">Bogotá</div>
-
-          <div class="phone-label">Género</div>
-          <div class="phone-input">Femenino</div>
+          <div class="phone-h1">Ingresa tu fecha de nacimiento</div>
+          <div class="phone-subtitle">Con tu fecha de nacimiento podremos enviarte beneficios y descuentos exclusivos en nuestros comercios aliados.</div>
 
           <div class="phone-label">Fecha de nacimiento</div>
           <div class="phone-input">17 / 08 / 1994</div>
 
-          <div class="phone-label">Departamento</div>
-          <div class="phone-input">Cundinamarca</div>
+          <div style="border-top:1px solid var(--border); margin:20px 0 16px;"></div>
 
-          <div class="phone-label">Ciudad</div>
-          <div class="phone-input">Bogotá</div>
+          <div class="phone-h1" style="font-size:16px; margin-bottom:4px;">Confirma tu correo electrónico</div>
+          <div class="phone-subtitle" style="font-size:11px;">Usa un correo al que tengas acceso, porque ahí recibirás tu contrato de crédito y podrás recuperar tu cuenta si la pierdes.</div>
+
+          <div class="phone-label">Correo electrónico</div>
+          <div class="phone-input">laura.r@gmail.com</div>
+
+          <div class="phone-label">Confirmar correo electrónico</div>
+          <div class="phone-input" style="color:var(--text-muted);">Confirmar correo electrónico</div>
 
           <button class="phone-btn">Continuar</button>
         </div>
@@ -1707,13 +1757,13 @@ hr.section-divider {
   </div>
 
   <div class="story-narrative-col">
-    <div class="narrative-num"><span class="narrative-num-circle">3b</span>Confirma datos del documento</div>
-    <div class="narrative-title">Laura ingresa los datos que aparecen en su cédula</div>
+    <div class="narrative-num"><span class="narrative-num-circle">3b</span>Fecha de nacimiento + confirmación de correo</div>
+    <div class="narrative-title">Laura confirma su fecha de nacimiento y su correo</div>
     <div class="narrative-body">
-      <p>Ya firmamos los términos. Ahora le pedimos a Laura <strong>los datos que aparecen en su cédula</strong> tal cual: fecha y ciudad de expedición, género y fecha de nacimiento. Agregamos también <strong>departamento y ciudad</strong> porque son necesarios para armar el cruce contra centrales de riesgo.</p>
-      <p>El número de documento ya está arriba <strong>en modo solo lectura</strong>: el candado a la derecha es una señal visual de que ese dato quedó fijo desde la identificación (Paso 1). Laura no lo puede cambiar acá — si se equivocó al digitarlo, tendría que cancelar y empezar de nuevo.</p>
-      <p>¿Por qué pedimos estos datos ahora y no en el Paso 2? Porque al separarlos en dos pantallas cortas en vez de una larga, <strong>la fricción percibida es menor</strong>: el cliente ya firmó, ya está comprometido con el proceso, y completar unos pocos campos más se siente natural. Si los hubiéramos pedido todos de una en el Paso 2, muchos clientes habrían abandonado antes de firmar.</p>
-      <p>Con estos datos completos, el sistema tiene <strong>todo lo que necesita</strong> para disparar la consulta de Preselecta y antecedentes en el siguiente paso.</p>
+      <p>Le pedimos a Laura solo dos cosas más: su <strong>fecha de nacimiento</strong> y que <strong>confirme el correo electrónico</strong> que ingresó en el paso 2.</p>
+      <p>La fecha de nacimiento es un dato que el sistema necesita para las consultas a centrales de riesgo. Aprovechamos para darle un tono positivo: <em>"Con tu fecha de nacimiento podremos enviarte beneficios y descuentos exclusivos"</em>. Un campo con una razón clara se completa con menos resistencia.</p>
+      <p>El correo viene pre-llenado del paso 2, pero le pedimos que lo <strong>confirme escribiéndolo de nuevo</strong>. ¿Por qué? Porque más adelante el sistema enviará un token a ese correo (paso de verificación UBICA) y si está mal capturado, el proceso se tranca. Mejor confirmar ahora que perder al cliente después.</p>
+      <p>Con la fecha de nacimiento y el correo confirmados, el sistema tiene <strong>todo lo que necesita</strong> para disparar el inicio del estudio en el siguiente paso.</p>
     </div>
   </div>
 
@@ -1726,17 +1776,13 @@ hr.section-divider {
     <div class="meta-block">
       <div class="meta-block-label">Datos capturados</div>
       <div class="meta-fields">
-        <span class="meta-field-pill meta-field-pill--new">fecha_expedicion</span>
-        <span class="meta-field-pill meta-field-pill--new">ciudad_expedicion</span>
-        <span class="meta-field-pill meta-field-pill--new">genero</span>
         <span class="meta-field-pill meta-field-pill--new">fecha_nacimiento</span>
-        <span class="meta-field-pill meta-field-pill--new">departamento</span>
-        <span class="meta-field-pill meta-field-pill--new">ciudad</span>
+        <span class="meta-field-pill meta-field-pill--new">correo_confirmado</span>
       </div>
     </div>
     <div class="meta-block">
-      <div class="meta-block-label">Por qué esta pantalla existe</div>
-      <p class="meta-tip">En tienda estos datos se piden todos en el Paso 2. En web los difirimos a acá para bajar la fricción inicial. Misma data, distinto momento de captura.</p>
+      <div class="meta-block-label">Por qué confirmamos el correo aquí</div>
+      <p class="meta-tip">El correo se capturó en el Paso 2 pero aquí se pide que lo escriba de nuevo. Es el canal por donde se enviará el token de verificación UBICA más adelante. Si queda mal escrito, el proceso se tranca en un paso posterior. Mejor confirmar ahora.</p>
     </div>
   </div>
 </div>
@@ -1763,14 +1809,8 @@ hr.section-divider {
         <div class="phone-body">
           <div class="phone-loader">
             <div class="phone-spinner"></div>
-            <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;">Estamos analizando tu solicitud</div>
-            <div style="font-size:12px;color:var(--text-secondary);">Esto puede tardar unos segundos...</div>
-          </div>
-          <div class="phone-loader-list">
-            <div class="phone-loader-list-item done">✓ Antecedentes — limpio</div>
-            <div class="phone-loader-list-item active">⌛ Evaluando viabilidad crediticia</div>
-            <div class="phone-loader-list-item">○ FOSYGA (si aplica)</div>
-            <div class="phone-loader-list-item">○ Cálculo de cupo</div>
+            <div style="font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px;">Estudiando tu perfil...</div>
+            <div style="font-size:13px;color:var(--text-secondary);line-height:1.5;">Permanece en la página, esto tardará algunos segundos.</div>
           </div>
         </div>
       </div>
@@ -1781,14 +1821,10 @@ hr.section-divider {
     <div class="narrative-num"><span class="narrative-num-circle">4</span>Estudio de crédito</div>
     <div class="narrative-title">Aquí <em>nace</em> el estudio</div>
     <div class="narrative-body">
-      <p>Este es el <strong>momento clave del proceso</strong>. El sistema ya tiene todos los datos necesarios y arranca las consultas automáticas:</p>
-      <ol style="margin-left:20px;color:var(--text-secondary);font-size:14px;line-height:1.8;">
-        <li><strong>Antecedentes</strong> (judiciales, disciplinarios, fiscales)</li>
-        <li><strong>Preselecta</strong> — el motor de decisión crediticia. <strong>Aquí nace el estudio formal.</strong></li>
-        <li><strong>FOSYGA</strong> — solo si Laura tiene una edad que lo amerita</li>
-        <li><strong>Cálculo de cupo</strong> preaprobado</li>
-      </ol>
-      <p>Todo esto pasa en segundos sin intervención humana. Laura ve un loader amigable que le muestra el progreso para que sienta que algo está pasando. Si algo se demora más de lo normal, mostramos un mensaje tranquilizador.</p>
+      <p>Este es el <strong>momento clave del proceso</strong>. El sistema ya tiene todos los datos necesarios y arranca las consultas automáticas. Laura solo ve un loader con el mensaje <em>"Estudiando tu perfil..."</em></p>
+      <p>Internamente el sistema ejecuta dos validaciones que <strong>sí bloquean la pantalla</strong>: primero <strong>Antecedentes</strong> y luego <strong>Preselecta</strong>. Si cualquiera de las dos rechaza, Laura ve de inmediato la pantalla de <em>"Por ahora no podemos aprobarte"</em> y el estudio se cierra.</p>
+      <p>Si Preselecta responde <strong>viable</strong>, aquí nace el estudio formal con ID único. En ese momento el sistema lanza <strong>en paralelo y en segundo plano</strong> tres procesos que pueden tardar: FOSYGA (si aplica por edad), cálculo de cupo preaprobado y UBICA. <strong>Pero no espera a que terminen</strong> — Laura pasa directamente al paso 6 (dirección) mientras el sistema trabaja en background.</p>
+      <p>La lógica es: no hay razón para hacerla esperar en un loader cuando puede seguir llenando datos. Los resultados de FOSYGA, preaprobado y UBICA se validan más adelante, cuando realmente se necesitan.</p>
     </div>
   </div>
 
@@ -1799,34 +1835,59 @@ hr.section-divider {
       <p class="meta-tip" style="margin-top:8px;color:var(--accent-dark);"><strong>Aquí nace el estudio.</strong> Cuando Preselecta responde "viable", se crea el registro formal con ID único.</p>
     </div>
     <div class="meta-block">
-      <div class="meta-block-label">Decisión del sistema</div>
-      <div class="meta-decision">
-        <div class="meta-decision-path"><strong>Antecedentes</strong> <span class="meta-decision-path-arrow">→</span> <strong>Preselecta</strong> <span class="meta-decision-path-arrow">→</span> <strong>FOSYGA?</strong> <span class="meta-decision-path-arrow">→</span> <strong>Cupo</strong></div>
-        <p class="meta-tip" style="margin-top:8px;">Si cualquiera rechaza, el estudio se cierra inmediatamente con motivo.</p>
-      </div>
+      <div class="meta-block-label">Lo que Laura ve</div>
+      <p class="meta-tip">Un loader con el mensaje "Estudiando tu perfil…". Si antecedentes o Preselecta rechazan, ve "Por ahora no podemos aprobarte". Si es viable, pasa directo al paso 6.</p>
     </div>
   </div>
 </div>
 
 <!-- ============ BIFURCACIÓN 2 ============ -->
 <div class="bifurcation">
-  <div class="bifurcation-label">⬢ Decisión del sistema #2</div>
+  <div class="bifurcation-label">⬢ Decisión del sistema #3</div>
   <div class="bifurcation-title">¿Es viable Laura?</div>
+  <p style="font-size:14px;color:var(--text-secondary);margin:0 0 16px;">Secuencia de consultas que el sistema ejecuta internamente. Si antecedentes o Preselecta rechazan, Laura ve <em>"Por ahora no podemos aprobarte"</em>. Si es viable, se lanzan 3 procesos en paralelo sin que Laura espere.</p>
+
+  <div style="display:flex; align-items:center; gap:0; flex-wrap:wrap; margin-bottom:24px;">
+    <div style="background:var(--white); border:1.5px solid var(--accent); border-radius:10px; padding:10px 16px; text-align:center; min-width:120px;">
+      <div style="font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--accent); margin-bottom:3px;">Paso 1</div>
+      <div style="font-size:14px; font-weight:700; color:var(--text);">Antecedentes</div>
+      <div style="font-size:10px; color:var(--red); font-weight:600; margin-top:4px;">✗ negativos → FIN</div>
+    </div>
+    <div style="font-size:20px; color:var(--accent); padding:0 8px; font-weight:700;">→</div>
+    <div style="background:var(--white); border:1.5px solid var(--accent); border-radius:10px; padding:10px 16px; text-align:center; min-width:120px;">
+      <div style="font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--accent); margin-bottom:3px;">Paso 2</div>
+      <div style="font-size:14px; font-weight:700; color:var(--text);">Preselecta</div>
+      <div style="font-size:10px; color:var(--red); font-weight:600; margin-top:4px;">✗ no viable → FIN</div>
+    </div>
+    <div style="font-size:20px; color:var(--green); padding:0 8px; font-weight:700;">→</div>
+    <div style="background:var(--green-bg); border:1.5px solid var(--green); border-radius:10px; padding:10px 16px; text-align:center;">
+      <div style="font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--green); margin-bottom:3px;">En paralelo · background</div>
+      <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+        <span style="background:var(--white); padding:4px 10px; border-radius:6px; font-size:12px; font-weight:700; color:var(--text); border:1px solid var(--border);">FOSYGA</span>
+        <span style="background:var(--white); padding:4px 10px; border-radius:6px; font-size:12px; font-weight:700; color:var(--text); border:1px solid var(--border);">Preaprobado</span>
+        <span style="background:var(--white); padding:4px 10px; border-radius:6px; font-size:12px; font-weight:700; color:var(--text); border:1px solid var(--border);">UBICA</span>
+      </div>
+      <div style="font-size:10px; color:var(--green); font-weight:600; margin-top:6px;">Laura no espera → paso 6</div>
+    </div>
+  </div>
+
   <div class="bifurcation-paths">
     <div class="bifurcation-path">
       <span class="bifurcation-path-label bifurcation-path-label--happy">Viable</span>
-      <div class="bifurcation-path-text"><strong>Pasa todas las verificaciones.</strong> Sigue al paso 5 con su cupo preaprobado.</div>
-      <a class="bifurcation-path-link" href="#paso-5">→ continuar al paso 5</a>
+      <div class="bifurcation-path-text"><strong>Antecedentes limpios y Preselecta viable.</strong> El sistema lanza FOSYGA, preaprobado y UBICA en paralelo. Laura pasa directo al paso 6 (dirección) sin esperar.</div>
+      <a class="bifurcation-path-link" href="#paso-6">→ continuar al paso 6</a>
     </div>
     <div class="bifurcation-path">
       <span class="bifurcation-path-label bifurcation-path-label--end">No viable</span>
-      <div class="bifurcation-path-text"><strong>Antecedentes / Preselecta / FOSYGA rechaza.</strong> Cierre con mensaje genérico.</div>
+      <div class="bifurcation-path-text"><strong>Por ahora no podemos aprobarte.</strong> No cumples los criterios actuales de QUAC. Esto puede cambiar con el tiempo, vuelve a intentarlo más adelante.</div>
       <a class="bifurcation-path-link" href="#variantes-4">→ ver variante D</a>
     </div>
   </div>
 </div>
 
-<!-- ============ PASO 5 ============ -->
+<!-- ============ PASO 5 · ELIMINADO — el cupo preaprobado ya no se muestra como pantalla independiente ============ -->
+<!-- El preaprobado se calcula en background (paso 4) y no se le muestra al cliente hasta el cierre final -->
+<!--
 <div class="story-row" id="paso-5">
   <div class="story-screen-col">
     <div class="phone">
@@ -1884,6 +1945,7 @@ hr.section-divider {
     </div>
   </div>
 </div>
+-->
 
 <!-- ============ PASO 6 ============ -->
 <div class="story-row" id="paso-6">
@@ -1921,10 +1983,11 @@ hr.section-divider {
 
   <div class="story-narrative-col">
     <div class="narrative-num"><span class="narrative-num-circle">6</span>Dirección de residencia</div>
-    <div class="narrative-title">El último dato del tercero</div>
+    <div class="narrative-title">Dirección de residencia — ¿es realmente necesaria en este flujo?</div>
     <div class="narrative-body">
-      <p>Le pedimos solo <strong>departamento, ciudad y dirección</strong>. Nada más. Sin barrio, sin estrato, sin tipo de vivienda — esos campos generan fricción sin aportar valor al estudio crediticio.</p>
-      <p>Lo pedimos <strong>después</strong> del cupo preaprobado por una razón táctica: si lo pidiéramos antes, Laura podría abandonar pensando "ya me pidieron muchos datos, ¿esto vale la pena?". Después de ver el monto, está más comprometida con terminar.</p>
+      <p>Le pedimos a Laura su <strong>departamento, ciudad y dirección</strong>. Este dato <strong>no se requiere para ninguna parte del estudio de crédito</strong> en sí: ni antecedentes, ni Preselecta, ni UBICA, ni la prueba de vida lo necesitan para funcionar.</p>
+      <p>El único uso conocido de la dirección es como <strong>dato de control para ventas futuras</strong>: cuando el cliente compre por la web (venta asistida), el sistema compara si la dirección de envío coincide con la registrada. Si pone otra dirección, se puede levantar una alerta de comportamiento atípico.</p>
+      <p>Dicho esto, <strong>vale la pena evaluar si la dirección debe seguir siendo parte del flujo de solicitud de crédito</strong> o si conviene capturarla en otro momento (por ejemplo, al momento de la primera compra). Cada campo adicional en el flujo de solicitud es una oportunidad de abandono, y si el dato no es necesario para aprobar el cupo, su costo de fricción podría no justificarse.</p>
     </div>
   </div>
 
@@ -1944,68 +2007,52 @@ hr.section-divider {
   </div>
 </div>
 
-<!-- ============ PASO 7 · Verificación de identidad (3 pantallas) ============ -->
-<div class="story-row" id="paso-7">
-  <div class="story-screen-col">
-    <div class="phone">
-      <div class="phone-screen">
-        <div class="phone-notch"></div>
-        <div class="phone-status"><span>9:41</span><span>● ●●●</span></div>
-        <div class="phone-app-bar">
-          <div class="phone-back"></div>
-          <div class="phone-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99.949 42"><g transform="translate(16065.999 15535.625)"><g transform="translate(-16012.538 -15524.503)"><g transform="translate(0 0)"><path d="M14.425,87.15l-2.38,2.362L10.356,87.8a8.071,8.071,0,0,1-3.343.654,7.08,7.08,0,0,1-5.105-1.817,7.168,7.168,0,0,1,0-9.738,7.082,7.082,0,0,1,5.105-1.817A7.082,7.082,0,0,1,12.118,76.9a6.418,6.418,0,0,1,1.907,4.869,6.948,6.948,0,0,1-1.072,3.87ZM7.013,85.424a3.462,3.462,0,0,0,2.6-1,3.656,3.656,0,0,0,.963-2.652A3.732,3.732,0,0,0,9.611,79.1a3.524,3.524,0,0,0-2.6-.981,3.452,3.452,0,0,0-2.58.981,3.668,3.668,0,0,0-.982,2.671,3.594,3.594,0,0,0,.982,2.652,3.392,3.392,0,0,0,2.58,1" transform="translate(0 -75.086)" fill="#7633ff"/><path d="M30.35,79.328h3.307V88.3h-2.87L30.6,87.249a3.407,3.407,0,0,1-2.8,1.253c-2.18,0-3.506-1.49-3.506-4.033V79.328h3.307v4.96c0,.927.473,1.489,1.272,1.489.89,0,1.471-.69,1.471-1.726Z" transform="translate(-8.919 -76.795)" fill="#7633ff"/><path d="M48.2,79.206h2.87v8.975H48.2l-.182-1.054a3.781,3.781,0,0,1-2.87,1.235,3.894,3.894,0,0,1-3.034-1.308,5.373,5.373,0,0,1,0-6.722,3.894,3.894,0,0,1,3.034-1.308,3.764,3.764,0,0,1,2.87,1.217ZM46,85.637a1.728,1.728,0,0,0,1.308-.545,1.962,1.962,0,0,0,.49-1.4,2.038,2.038,0,0,0-.49-1.417A1.78,1.78,0,0,0,46,81.749a1.71,1.71,0,0,0-1.29.527,1.967,1.967,0,0,0-.509,1.417,1.9,1.9,0,0,0,.509,1.4,1.661,1.661,0,0,0,1.29.545" transform="translate(-14.753 -76.672)" fill="#7633ff"/><path d="M60.243,87.115a4.939,4.939,0,0,1,.018-6.831,5.061,5.061,0,0,1,3.616-1.29,4.9,4.9,0,0,1,3.56,1.417l-1.762,1.944a2.313,2.313,0,0,0-1.6-.636,1.963,1.963,0,0,0,0,3.925,2.379,2.379,0,0,0,1.708-.708L67.6,86.843a5.112,5.112,0,0,1-3.67,1.526,5.247,5.247,0,0,1-3.688-1.253" transform="translate(-21.112 -76.659)" fill="#7633ff"/></g></g><g transform="translate(-16065.999 -15535.625)"><g transform="translate(0 0)"><path d="M70.915,59a2.061,2.061,0,0,0-3.784-.431,13.6,13.6,0,0,1-8.168,6.5,2.061,2.061,0,0,0,1.062,3.982l.048-.013.024-.006.216-.062v0a17.713,17.713,0,0,0,10.422-8.4A2.048,2.048,0,0,0,70.915,59" transform="translate(-28.063 -27.613)" fill="#7633ff"/><path d="M19.537,35.247A17.616,17.616,0,0,1,8.607,27.4l-.025-.039A18.032,18.032,0,0,1,6.09,15.053c0-.028,0-.061,0-.086a.832.832,0,0,0-.826-.836H2.205A2.228,2.228,0,0,1,1.89,9.7,17.245,17.245,0,0,0,6.851,8.113l-2.292-.8A2.233,2.233,0,0,1,3.186,4.487a2.193,2.193,0,0,1,2.5-1.469,17.4,17.4,0,0,0,10.08-1.213q.37-.179.779-.354A17.111,17.111,0,0,1,23.491,0,17.582,17.582,0,0,1,39.174,9.726a.818.818,0,0,0,.726.458.556.556,0,0,0,.221-.046,12.957,12.957,0,0,0,3.019-1.97,2.272,2.272,0,0,1,2.005-.7,2.233,2.233,0,0,1,1.24,3.693l-4.392,4.462a3.258,3.258,0,0,0,0,4.47l4.392,4.463a2.232,2.232,0,0,1-1.24,3.691,2.27,2.27,0,0,1-2.007-.7,12.957,12.957,0,0,0-3.019-1.97.567.567,0,0,0-.221-.045.818.818,0,0,0-.726.458v-.008A17.907,17.907,0,0,1,35.715,30.7a.052.052,0,0,1-.008.021v-.008a17.421,17.421,0,0,1-16.169,4.538ZM23.491,29a10.876,10.876,0,0,0,3.2-.48l.017-.005.019-.006A11.222,11.222,0,0,0,29.929,8.8L29.9,8.781l-.01-.007A10.989,10.989,0,0,0,24.387,6.73q-.443-.037-.9-.036-.5,0-.984.044H22.5l-.029,0A11.087,11.087,0,0,0,12.632,16v.011A11.274,11.274,0,0,0,14,23.5l.007.011.007.012a11.1,11.1,0,0,0,5.007,4.521l.013.006.027.012q.414.184.848.335.358.125.722.225a10.881,10.881,0,0,0,2.86.38" fill="#7633ff"/><path d="M50.186,29.467a2.759,2.759,0,0,0,2.071-.8,2.917,2.917,0,0,0,.768-2.114,2.974,2.974,0,0,0-.768-2.129,2.81,2.81,0,0,0-2.071-.781,2.751,2.751,0,0,0-2.056.782,2.924,2.924,0,0,0-.782,2.129,2.866,2.866,0,0,0,.782,2.114,2.7,2.7,0,0,0,2.056.8" transform="translate(-23.119 -11.383)" fill="#7633ff"/></g></g></g></svg></div>
-          <span class="phone-progress">5 / 5</span>
-        </div>
-        <div class="phone-stepbar">
-          <div class="phone-stepdot done"></div>
-          <div class="phone-stepdot done"></div>
-          <div class="phone-stepdot done"></div>
-          <div class="phone-stepdot done"></div>
-          <div class="phone-stepdot current"></div>
-        </div>
-        <div class="phone-body">
-          <div class="phone-h1">Verifica que eres tú</div>
-          <div class="phone-subtitle">Mira directamente a la cámara y mantente quieta unos segundos.</div>
-          <div class="phone-camera" style="aspect-ratio:1;">
-            <div class="phone-camera-circle">😊</div>
-          </div>
-          <div class="phone-callout">💡 Buena luz · Sin gafas · Rostro centrado</div>
-          <button class="phone-btn">Empezar prueba de vida</button>
-        </div>
-      </div>
+<!-- ============ BLOQUE: INICIO DE VERIFICACIÓN DE IDENTIDAD ============ -->
+<div class="bifurcation">
+  <div class="bifurcation-label">⬢ Fase de verificación de identidad documental</div>
+  <div class="bifurcation-title">Si Laura llegó hasta aquí, solo la detiene un fraude</div>
+  <p style="font-size:14px;color:var(--text-secondary);margin:0 0 16px;">A este punto el cliente ya pasó antecedentes y Preselecta. Si los datos son reales y la persona es quien dice ser, <strong>el cupo va a quedar aprobado</strong>. Esta fase existe para detectar suplantación o inconsistencias antes de activar.</p>
+
+  <p style="font-size:13px; color:var(--text-secondary); line-height:1.7; margin-bottom:18px;"><strong style="color:var(--text);">¿Qué se hace en esta fase?</strong></p>
+
+  <div style="display:flex; align-items:center; gap:0; margin-bottom:20px;">
+    <div style="background:var(--white); border:1.5px solid var(--accent); border-radius:10px; padding:10px 14px; text-align:center; flex:1;">
+      <div style="font-size:11px; font-weight:700; color:var(--text);">Foto frontal</div>
+      <div style="font-size:9px; color:var(--text-secondary); margin-top:3px;">Extrae datos y compara</div>
+    </div>
+    <div style="font-size:18px; color:var(--accent); padding:0 6px; font-weight:700;">→</div>
+    <div style="background:var(--white); border:1.5px solid var(--accent); border-radius:10px; padding:10px 14px; text-align:center; flex:1;">
+      <div style="font-size:11px; font-weight:700; color:var(--text);">Foto reverso</div>
+      <div style="font-size:9px; color:var(--text-secondary); margin-top:3px;">Valida datos del documento</div>
+    </div>
+    <div style="font-size:18px; color:var(--accent); padding:0 6px; font-weight:700;">→</div>
+    <div style="background:var(--white); border:1.5px solid var(--accent); border-radius:10px; padding:10px 14px; text-align:center; flex:1;">
+      <div style="font-size:11px; font-weight:700; color:var(--text);">Prueba de vida</div>
+      <div style="font-size:9px; color:var(--text-secondary); margin-top:3px;">Faceliveness · persona real</div>
+    </div>
+    <div style="font-size:18px; color:var(--green); padding:0 6px; font-weight:700;">→</div>
+    <div style="background:var(--green-bg); border:1.5px solid var(--green); border-radius:10px; padding:10px 14px; text-align:center; flex:1;">
+      <div style="font-size:11px; font-weight:700; color:var(--green);">Match + Checklist ✓</div>
+      <div style="font-size:9px; color:var(--text-secondary); margin-top:3px;">Selfie vs. documento · OK → UBICA</div>
     </div>
   </div>
 
-  <div class="story-narrative-col">
-    <div class="narrative-num"><span class="narrative-num-circle">7a</span>Prueba de vida (selfie)</div>
-    <div class="narrative-title">Confirmamos que Laura es una persona real</div>
-    <div class="narrative-body">
-      <p>Empieza el bloque de <strong>verificación de identidad</strong>, el momento más sensible del flujo. Son tres acciones consecutivas: selfie, foto frontal del documento y foto del reverso. Las tres se hacen aquí porque solo tiene sentido invertir en biometría <strong>después</strong> de saber que el cliente es viable (Preselecta dijo OK).</p>
-      <p>Esta primera pantalla es la <strong>prueba de vida</strong>. La cámara se abre con un marco circular. El sistema ejecuta <em>face liveness</em> (Rekognition) para confirmar que Laura está realmente ahí — no es una foto de foto, no es un video pregrabado, no es una máscara.</p>
-    </div>
-  </div>
-
-  <div class="story-meta-col">
-    <div class="meta-block">
-      <div class="meta-block-label">Estado del estudio</div>
-      <span class="meta-state meta-state--activo">Activo</span>
-      <p class="meta-tip" style="margin-top:8px;">Sub-fase: <code>identidad · selfie</code></p>
-    </div>
-    <div class="meta-block">
-      <div class="meta-block-label">Datos capturados</div>
-      <div class="meta-fields">
-        <span class="meta-field-pill meta-field-pill--new">selfie</span>
-        <span class="meta-field-pill meta-field-pill--new">face_liveness_score</span>
+  <div style="display:flex; gap:24px; align-items:flex-start; margin-bottom:8px;">
+    <div style="flex:0 0 200px; background:linear-gradient(180deg, #1a1a2e 0%, #2a2a4e 100%); border-radius:24px; padding:10px; box-shadow:0 12px 30px rgba(20,10,60,.15);">
+      <div style="background:var(--white); border-radius:16px; padding:20px 16px; text-align:center;">
+        <div style="width:48px; height:48px; border-radius:14px; background:var(--red-bg); margin:0 auto 12px; display:flex; align-items:center; justify-content:center; font-size:22px;">✗</div>
+        <div style="font-size:14px; font-weight:800; color:var(--text); line-height:1.2; margin-bottom:6px;">Por ahora no podemos aprobarte</div>
+        <div style="font-size:10px; color:var(--text-secondary); line-height:1.5;">No cumples los criterios actuales de QUAC. Esto puede cambiar con el tiempo.</div>
       </div>
     </div>
-    <div class="meta-block">
-      <div class="meta-block-label">Validaciones</div>
-      <p class="meta-tip">Face liveness · Detección de suplantación contra base de fraudes · Calidad de imagen</p>
+    <div style="flex:1; padding-top:4px;">
+      <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--amber); margin-bottom:8px;">⚠️ Si FOSYGA responde negativo</div>
+      <p style="font-size:13px; color:var(--text-secondary); line-height:1.6; margin:0;">El sistema consulta FOSYGA (lanzado en paralelo en el paso 4) <strong style="color:var(--text);">antes de abrir la cámara</strong> y <strong style="color:var(--text);">antes de la prueba de vida</strong>. Si el resultado es negativo, muestra esta pantalla de inmediato y <strong style="color:var(--text);">no se inicia Rekognition</strong>, ahorrando el costo del servicio biométrico.</p>
     </div>
   </div>
 </div>
 
-<!-- ============ PASO 7b · Foto frontal documento ============ -->
+<!-- ============ PASO 7a · Foto frontal documento (ahora es el primero) ============ -->
 <div class="story-row" id="paso-7b">
   <div class="story-screen-col">
     <div class="phone">
@@ -2025,14 +2072,10 @@ hr.section-divider {
           <div class="phone-stepdot current"></div>
         </div>
         <div class="phone-body">
-          <div class="phone-h1">Foto del frente de tu cédula</div>
+          <div class="phone-h1">Foto frontal documento</div>
           <div class="phone-subtitle">Toma una foto clara del frente. Asegúrate de que se vea todo el documento.</div>
-          <div class="phone-camera">
-            <div class="phone-camera-corner tl"></div>
-            <div class="phone-camera-corner tr"></div>
-            <div class="phone-camera-corner bl"></div>
-            <div class="phone-camera-corner br"></div>
-            <div class="phone-camera-frame">🪪</div>
+          <div style="margin:12px 0; border-radius:12px; overflow:hidden; border:2px dashed var(--accent); padding:8px; background:var(--bg-alt);">
+            <img src="imagenes/frontal.png" alt="Foto frontal del documento" style="width:100%; display:block; border-radius:8px;">
           </div>
           <div class="phone-callout">💡 Buena luz · Sin reflejos · Documento completo</div>
           <button class="phone-btn">Tomar foto frontal</button>
@@ -2042,12 +2085,11 @@ hr.section-divider {
   </div>
 
   <div class="story-narrative-col">
-    <div class="narrative-num"><span class="narrative-num-circle">7b</span>Foto frontal del documento</div>
-    <div class="narrative-title">El documento físico, lado del rostro</div>
+    <div class="narrative-num"><span class="narrative-num-circle">7a</span>Foto frontal del documento</div>
+    <div class="narrative-title">Laura captura el frente de su cédula</div>
     <div class="narrative-body">
-      <p>Después de la selfie, Laura toma la foto del <strong>frente de su cédula</strong>. La cámara muestra un marco con guías visuales en las esquinas para que centre el documento.</p>
-      <p>El sistema valida que sea una cédula real (no fotocopia, no foto de pantalla), que el texto sea legible, y que el rostro del documento sea visible. Inmediatamente compara <strong>el rostro de la cédula contra la selfie</strong> que Laura acaba de tomar (umbral de coincidencia ≥ 85%).</p>
-      <p>Si esa comparación falla 2 veces consecutivas, el caso se deriva a la Fábrica.</p>
+      <p>Laura toma la foto del <strong>frente de su cédula</strong>. La cámara muestra un marco con guías visuales en las esquinas para que centre el documento.</p>
+      <p>En este punto el sistema solo <strong>captura la imagen</strong>. No se ejecutan validaciones de OCR ni extracción de datos todavía — eso se hace cuando también tengamos la foto del reverso, ya que el servicio de extracción recibe ambas imágenes al mismo tiempo.</p>
     </div>
   </div>
 
@@ -2093,14 +2135,10 @@ hr.section-divider {
           <div class="phone-stepdot current"></div>
         </div>
         <div class="phone-body">
-          <div class="phone-h1">Foto del reverso de tu cédula</div>
-          <div class="phone-subtitle">Ahora dale vuelta al documento y toma una foto del reverso.</div>
-          <div class="phone-camera">
-            <div class="phone-camera-corner tl"></div>
-            <div class="phone-camera-corner tr"></div>
-            <div class="phone-camera-corner bl"></div>
-            <div class="phone-camera-corner br"></div>
-            <div class="phone-camera-frame" style="font-size:30px;">🪪</div>
+          <div class="phone-h1">Foto reverso documento</div>
+          <div class="phone-subtitle">Por favor, carga la foto de la cara posterior de tu documento.</div>
+          <div style="margin:12px 0; border-radius:12px; overflow:hidden; border:2px dashed var(--accent); padding:8px; background:var(--bg-alt);">
+            <img src="imagenes/reverso.png" alt="Foto reverso del documento" style="width:100%; display:block; border-radius:8px;">
           </div>
           <div class="phone-callout">💡 Asegúrate de que se vean los datos del reverso (lugar de expedición, etc).</div>
           <button class="phone-btn">Tomar foto reverso</button>
@@ -2110,12 +2148,12 @@ hr.section-divider {
   </div>
 
   <div class="story-narrative-col">
-    <div class="narrative-num"><span class="narrative-num-circle">7c</span>Foto reverso del documento</div>
-    <div class="narrative-title">El reverso para completar la verificación documental</div>
+    <div class="narrative-num"><span class="narrative-num-circle">7b</span>Foto reverso del documento</div>
+    <div class="narrative-title">Laura captura el reverso de su cédula</div>
     <div class="narrative-body">
-      <p>La última pantalla del bloque de identidad. Laura le da vuelta a su cédula y toma la foto del reverso. El sistema valida que sea un reverso de cédula colombiana real y que los datos sean legibles.</p>
-      <p>Del reverso se extrae vía OCR la <strong>ciudad de expedición</strong> y se confirma que coincide con el número de documento. Esto cierra la verificación documental.</p>
-      <p>Si las tres fotos pasan (selfie + frontal + reverso) y no se detecta nada raro, Laura avanza al siguiente bloque: la verificación UBICA.</p>
+      <p>Laura voltea su cédula y carga la foto de la cara posterior. Con esta imagen, el sistema ya tiene <strong>las dos fotos del documento</strong> (frontal + reverso).</p>
+      <p>En este momento el sistema envía ambas imágenes al <strong>servicio de extracción de datos</strong>, que procesa las dos fotos juntas y obtiene vía OCR los datos que aún no se habían capturado: <strong>fecha de expedición, género y ciudad de expedición</strong>. Adicionalmente, valida contra los datos ya registrados: <strong>número de documento, nombres, apellidos y fecha de nacimiento</strong>. Si hay inconsistencias entre lo que el cliente ingresó y lo que dice la cédula, el sistema puede solicitar corrección o derivar a Fábrica.</p>
+      <p>Si la extracción de datos es exitosa y no hay inconsistencias, el flujo continúa a la <strong>prueba de vida</strong> (paso 7c) donde se captura la selfie y se compara con el rostro del documento.</p>
     </div>
   </div>
 
@@ -2139,6 +2177,61 @@ hr.section-divider {
   </div>
 </div>
 
+<!-- ============ PASO 7c · Prueba de vida / selfie (movido aquí, antes era paso-7) ============ -->
+<div class="story-row" id="paso-7-selfie">
+  <div class="story-screen-col">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>● ●●●</span></div>
+        <div class="phone-app-bar">
+          <div class="phone-back"></div>
+          <div class="phone-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99.949 42"><g transform="translate(16065.999 15535.625)"><g transform="translate(-16012.538 -15524.503)"><g transform="translate(0 0)"><path d="M14.425,87.15l-2.38,2.362L10.356,87.8a8.071,8.071,0,0,1-3.343.654,7.08,7.08,0,0,1-5.105-1.817,7.168,7.168,0,0,1,0-9.738,7.082,7.082,0,0,1,5.105-1.817A7.082,7.082,0,0,1,12.118,76.9a6.418,6.418,0,0,1,1.907,4.869,6.948,6.948,0,0,1-1.072,3.87ZM7.013,85.424a3.462,3.462,0,0,0,2.6-1,3.656,3.656,0,0,0,.963-2.652A3.732,3.732,0,0,0,9.611,79.1a3.524,3.524,0,0,0-2.6-.981,3.452,3.452,0,0,0-2.58.981,3.668,3.668,0,0,0-.982,2.671,3.594,3.594,0,0,0,.982,2.652,3.392,3.392,0,0,0,2.58,1" transform="translate(0 -75.086)" fill="#7633ff"/><path d="M30.35,79.328h3.307V88.3h-2.87L30.6,87.249a3.407,3.407,0,0,1-2.8,1.253c-2.18,0-3.506-1.49-3.506-4.033V79.328h3.307v4.96c0,.927.473,1.489,1.272,1.489.89,0,1.471-.69,1.471-1.726Z" transform="translate(-8.919 -76.795)" fill="#7633ff"/><path d="M48.2,79.206h2.87v8.975H48.2l-.182-1.054a3.781,3.781,0,0,1-2.87,1.235,3.894,3.894,0,0,1-3.034-1.308,5.373,5.373,0,0,1,0-6.722,3.894,3.894,0,0,1,3.034-1.308,3.764,3.764,0,0,1,2.87,1.217ZM46,85.637a1.728,1.728,0,0,0,1.308-.545,1.962,1.962,0,0,0,.49-1.4,2.038,2.038,0,0,0-.49-1.417A1.78,1.78,0,0,0,46,81.749a1.71,1.71,0,0,0-1.29.527,1.967,1.967,0,0,0-.509,1.417,1.9,1.9,0,0,0,.509,1.4,1.661,1.661,0,0,0,1.29.545" transform="translate(-14.753 -76.672)" fill="#7633ff"/><path d="M60.243,87.115a4.939,4.939,0,0,1,.018-6.831,5.061,5.061,0,0,1,3.616-1.29,4.9,4.9,0,0,1,3.56,1.417l-1.762,1.944a2.313,2.313,0,0,0-1.6-.636,1.963,1.963,0,0,0,0,3.925,2.379,2.379,0,0,0,1.708-.708L67.6,86.843a5.112,5.112,0,0,1-3.67,1.526,5.247,5.247,0,0,1-3.688-1.253" transform="translate(-21.112 -76.659)" fill="#7633ff"/></g></g><g transform="translate(-16065.999 -15535.625)"><g transform="translate(0 0)"><path d="M70.915,59a2.061,2.061,0,0,0-3.784-.431,13.6,13.6,0,0,1-8.168,6.5,2.061,2.061,0,0,0,1.062,3.982l.048-.013.024-.006.216-.062v0a17.713,17.713,0,0,0,10.422-8.4A2.048,2.048,0,0,0,70.915,59" transform="translate(-28.063 -27.613)" fill="#7633ff"/><path d="M19.537,35.247A17.616,17.616,0,0,1,8.607,27.4l-.025-.039A18.032,18.032,0,0,1,6.09,15.053c0-.028,0-.061,0-.086a.832.832,0,0,0-.826-.836H2.205A2.228,2.228,0,0,1,1.89,9.7,17.245,17.245,0,0,0,6.851,8.113l-2.292-.8A2.233,2.233,0,0,1,3.186,4.487a2.193,2.193,0,0,1,2.5-1.469,17.4,17.4,0,0,0,10.08-1.213q.37-.179.779-.354A17.111,17.111,0,0,1,23.491,0,17.582,17.582,0,0,1,39.174,9.726a.818.818,0,0,0,.726.458.556.556,0,0,0,.221-.046,12.957,12.957,0,0,0,3.019-1.97,2.272,2.272,0,0,1,2.005-.7,2.233,2.233,0,0,1,1.24,3.693l-4.392,4.462a3.258,3.258,0,0,0,0,4.47l4.392,4.463a2.232,2.232,0,0,1-1.24,3.691,2.27,2.27,0,0,1-2.007-.7,12.957,12.957,0,0,0-3.019-1.97.567.567,0,0,0-.221-.045.818.818,0,0,0-.726.458v-.008A17.907,17.907,0,0,1,35.715,30.7a.052.052,0,0,1-.008.021v-.008a17.421,17.421,0,0,1-16.169,4.538ZM23.491,29a10.876,10.876,0,0,0,3.2-.48l.017-.005.019-.006A11.222,11.222,0,0,0,29.929,8.8L29.9,8.781l-.01-.007A10.989,10.989,0,0,0,24.387,6.73q-.443-.037-.9-.036-.5,0-.984.044H22.5l-.029,0A11.087,11.087,0,0,0,12.632,16v.011A11.274,11.274,0,0,0,14,23.5l.007.011.007.012a11.1,11.1,0,0,0,5.007,4.521l.013.006.027.012q.414.184.848.335.358.125.722.225a10.881,10.881,0,0,0,2.86.38" fill="#7633ff"/><path d="M50.186,29.467a2.759,2.759,0,0,0,2.071-.8,2.917,2.917,0,0,0,.768-2.114,2.974,2.974,0,0,0-.768-2.129,2.81,2.81,0,0,0-2.071-.781,2.751,2.751,0,0,0-2.056.782,2.924,2.924,0,0,0-.782,2.129,2.866,2.866,0,0,0,.782,2.114,2.7,2.7,0,0,0,2.056.8" transform="translate(-23.119 -11.383)" fill="#7633ff"/></g></g></g></svg></div>
+          <span class="phone-progress">5 / 5</span>
+        </div>
+        <div class="phone-body">
+          <div class="phone-h1">Verificación facial</div>
+          <div class="phone-subtitle">Mantén tu rostro centrado. Sigue las indicaciones en pantalla para alinear tu rostro.</div>
+          <div style="margin:12px 0; display:flex; justify-content:center;">
+            <img src="imagenes/facial.png" alt="Verificación facial" style="width:160px; height:auto; display:block; border-radius:50%;">
+          </div>
+          <div style="background:var(--bg-alt);padding:8px 12px;border-radius:8px;font-size:10px;text-align:center;color:var(--text-secondary);font-weight:600;">👆 Buena luz · Sin gafas · Rostro centrado</div>
+          <button class="phone-btn" style="margin-top:14px;">Iniciar verificación</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">7c</span>Prueba de vida (selfie)</div>
+    <div class="narrative-title">Confirmamos que Laura es una persona real</div>
+    <div class="narrative-body">
+      <p>Después de capturar las fotos del documento, empieza la <strong>prueba de vida</strong>. La cámara se abre con un marco circular. El sistema ejecuta <em>face liveness</em> (Rekognition) para confirmar que Laura está realmente ahí — no es una foto de foto, no es un video pregrabado, no es una máscara.</p>
+      <p>Si la prueba es exitosa, el sistema compara la selfie obtenida con la foto del rostro en el documento frontal. Si el <strong>match supera el 85%</strong>, la verificación pasa.</p>
+    </div>
+  </div>
+
+  <div class="story-meta-col">
+    <div class="meta-block">
+      <div class="meta-block-label">Estado del estudio</div>
+      <span class="meta-state meta-state--activo">Activo</span>
+      <p class="meta-tip" style="margin-top:4px;">Sub-fase: <code>identidad · selfie</code></p>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Datos capturados</div>
+      <div class="meta-fields">
+        <span class="meta-field-pill meta-field-pill--new">selfie</span>
+        <span class="meta-field-pill meta-field-pill--new">face_liveness_score</span>
+        <span class="meta-field-pill meta-field-pill--new">match_documental</span>
+      </div>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Validaciones</div>
+      <p class="meta-tip">Face liveness · Match selfie vs. documento ≥ 85% · Detección de suplantación</p>
+    </div>
+  </div>
+</div>
+
 <!-- ============ PASO 8 · UBICA loader ============ -->
 <div class="story-row" id="paso-8">
   <div class="story-screen-col">
@@ -2154,13 +2247,8 @@ hr.section-divider {
         <div class="phone-body">
           <div class="phone-loader">
             <div class="phone-spinner"></div>
-            <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;">Verificando tus datos de contacto</div>
-            <div style="font-size:12px;color:var(--text-secondary);">Esto solo toma unos segundos...</div>
-          </div>
-          <div class="phone-loader-list">
-            <div class="phone-loader-list-item done">✓ Identidad verificada</div>
-            <div class="phone-loader-list-item active">⌛ Consultando UBICA / TransUnion</div>
-            <div class="phone-loader-list-item">○ Validando celular y correo</div>
+            <div style="font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px;">Verificando documentos...</div>
+            <div style="font-size:13px;color:var(--text-secondary);line-height:1.5;">Estamos procesando la información, por favor espera un poco...</div>
           </div>
         </div>
       </div>
@@ -2168,12 +2256,16 @@ hr.section-divider {
   </div>
 
   <div class="story-narrative-col">
-    <div class="narrative-num"><span class="narrative-num-circle">8</span>Verificación UBICA</div>
-    <div class="narrative-title">El sistema cruza datos contra TransUnion</div>
+    <div class="narrative-num"><span class="narrative-num-circle">8</span>Verificación de documentos y datos</div>
+    <div class="narrative-title">El sistema valida todo lo capturado</div>
     <div class="narrative-body">
-      <p>Con la identidad documental ya verificada, el sistema consulta automáticamente <strong>UBICA / TransUnion</strong> para validar que el celular y correo de Laura coinciden con su historial. Es una verificación contra fraude y suplantación de identidad.</p>
-      <p>Si los datos coinciden y el celular tiene antigüedad suficiente, el sistema avanza al cierre. Si hay inconsistencia (celular reciente, correo distinto al histórico, posible suplantación), el caso se deriva a la <strong>Fábrica de Créditos</strong> para revisión humana.</p>
-      <p>Esta pantalla es un loader rápido — Laura no tiene que hacer nada, solo esperar unos segundos.</p>
+      <p>Laura ve un loader con el mensaje <em>"Verificando documentos..."</em>. Internamente el sistema está ejecutando un <strong>checklist automático</strong>:</p>
+      <ol style="margin-left:20px;color:var(--text-secondary);font-size:14px;line-height:1.8;">
+        <li>Valida que las fotos cargadas (frontal y reverso) correspondan a <strong>documentos válidos</strong> (que no sea la foto de una pared, por ejemplo).</li>
+        <li>Compara la <strong>selfie</strong> obtenida en la prueba de vida con la <strong>foto del rostro</strong> en el documento frontal. Debe hacer match por encima del <strong>85%</strong>.</li>
+        <li>Verifica que la selfie <strong>no se encuentre en la base de datos de suplantadores</strong>.</li>
+      </ol>
+      <p>Al cliente <strong>no se le dice qué validaciones se están ejecutando ni cuál falló</strong>. Solo ve el loader. Si todo pasa, continúa al paso 9. Si alguna validación falla, Laura ve la pantalla de <em>"En proceso de verificación"</em> que se muestra abajo.</p>
     </div>
   </div>
 
@@ -2184,34 +2276,142 @@ hr.section-divider {
       <p class="meta-tip" style="margin-top:8px;">Situación: <code>esperando servicio</code></p>
     </div>
     <div class="meta-block">
-      <div class="meta-block-label">Datos capturados</div>
+      <div class="meta-block-label">Checklist interno (no visible al cliente)</div>
       <div class="meta-fields">
-        <span class="meta-field-pill meta-field-pill--new">ubica_status</span>
-        <span class="meta-field-pill meta-field-pill--new">ubica_celular</span>
-        <span class="meta-field-pill meta-field-pill--new">ubica_correo</span>
+        <span class="meta-field-pill meta-field-pill--new">doc_valido</span>
+        <span class="meta-field-pill meta-field-pill--new">match_facial ≥85%</span>
+        <span class="meta-field-pill meta-field-pill--new">no_suplantador</span>
       </div>
     </div>
     <div class="meta-block">
-      <div class="meta-block-label">Punto crítico</div>
-      <p class="meta-tip"><strong>Última puerta antes del cierre.</strong> Si UBICA falla, el estudio puede irse a fábrica aunque las fotos estén perfectas.</p>
+      <div class="meta-block-label">Si falla alguna validación</div>
+      <p class="meta-tip">El caso pasa a <strong>Fábrica de Créditos</strong> para revisión manual. Laura ve la pantalla de "en proceso de verificación" (abajo).</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Pantalla de fallo: En proceso de verificación ============ -->
+<div class="story-row" id="paso-8-fallo">
+  <div class="story-screen-col">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>● ●●●</span></div>
+        <div class="phone-app-bar">
+          <div class="phone-back"></div>
+          <div class="phone-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99.949 42"><g transform="translate(16065.999 15535.625)"><g transform="translate(-16012.538 -15524.503)"><g transform="translate(0 0)"><path d="M14.425,87.15l-2.38,2.362L10.356,87.8a8.071,8.071,0,0,1-3.343.654,7.08,7.08,0,0,1-5.105-1.817,7.168,7.168,0,0,1,0-9.738,7.082,7.082,0,0,1,5.105-1.817A7.082,7.082,0,0,1,12.118,76.9a6.418,6.418,0,0,1,1.907,4.869,6.948,6.948,0,0,1-1.072,3.87ZM7.013,85.424a3.462,3.462,0,0,0,2.6-1,3.656,3.656,0,0,0,.963-2.652A3.732,3.732,0,0,0,9.611,79.1a3.524,3.524,0,0,0-2.6-.981,3.452,3.452,0,0,0-2.58.981,3.668,3.668,0,0,0-.982,2.671,3.594,3.594,0,0,0,.982,2.652,3.392,3.392,0,0,0,2.58,1" transform="translate(0 -75.086)" fill="#7633ff"/><path d="M30.35,79.328h3.307V88.3h-2.87L30.6,87.249a3.407,3.407,0,0,1-2.8,1.253c-2.18,0-3.506-1.49-3.506-4.033V79.328h3.307v4.96c0,.927.473,1.489,1.272,1.489.89,0,1.471-.69,1.471-1.726Z" transform="translate(-8.919 -76.795)" fill="#7633ff"/><path d="M48.2,79.206h2.87v8.975H48.2l-.182-1.054a3.781,3.781,0,0,1-2.87,1.235,3.894,3.894,0,0,1-3.034-1.308,5.373,5.373,0,0,1,0-6.722,3.894,3.894,0,0,1,3.034-1.308,3.764,3.764,0,0,1,2.87,1.217ZM46,85.637a1.728,1.728,0,0,0,1.308-.545,1.962,1.962,0,0,0,.49-1.4,2.038,2.038,0,0,0-.49-1.417A1.78,1.78,0,0,0,46,81.749a1.71,1.71,0,0,0-1.29.527,1.967,1.967,0,0,0-.509,1.417,1.9,1.9,0,0,0,.509,1.4,1.661,1.661,0,0,0,1.29.545" transform="translate(-14.753 -76.672)" fill="#7633ff"/><path d="M60.243,87.115a4.939,4.939,0,0,1,.018-6.831,5.061,5.061,0,0,1,3.616-1.29,4.9,4.9,0,0,1,3.56,1.417l-1.762,1.944a2.313,2.313,0,0,0-1.6-.636,1.963,1.963,0,0,0,0,3.925,2.379,2.379,0,0,0,1.708-.708L67.6,86.843a5.112,5.112,0,0,1-3.67,1.526,5.247,5.247,0,0,1-3.688-1.253" transform="translate(-21.112 -76.659)" fill="#7633ff"/></g></g><g transform="translate(-16065.999 -15535.625)"><g transform="translate(0 0)"><path d="M70.915,59a2.061,2.061,0,0,0-3.784-.431,13.6,13.6,0,0,1-8.168,6.5,2.061,2.061,0,0,0,1.062,3.982l.048-.013.024-.006.216-.062v0a17.713,17.713,0,0,0,10.422-8.4A2.048,2.048,0,0,0,70.915,59" transform="translate(-28.063 -27.613)" fill="#7633ff"/><path d="M19.537,35.247A17.616,17.616,0,0,1,8.607,27.4l-.025-.039A18.032,18.032,0,0,1,6.09,15.053c0-.028,0-.061,0-.086a.832.832,0,0,0-.826-.836H2.205A2.228,2.228,0,0,1,1.89,9.7,17.245,17.245,0,0,0,6.851,8.113l-2.292-.8A2.233,2.233,0,0,1,3.186,4.487a2.193,2.193,0,0,1,2.5-1.469,17.4,17.4,0,0,0,10.08-1.213q.37-.179.779-.354A17.111,17.111,0,0,1,23.491,0,17.582,17.582,0,0,1,39.174,9.726a.818.818,0,0,0,.726.458.556.556,0,0,0,.221-.046,12.957,12.957,0,0,0,3.019-1.97,2.272,2.272,0,0,1,2.005-.7,2.233,2.233,0,0,1,1.24,3.693l-4.392,4.462a3.258,3.258,0,0,0,0,4.47l4.392,4.463a2.232,2.232,0,0,1-1.24,3.691,2.27,2.27,0,0,1-2.007-.7,12.957,12.957,0,0,0-3.019-1.97.567.567,0,0,0-.221-.045.818.818,0,0,0-.726.458v-.008A17.907,17.907,0,0,1,35.715,30.7a.052.052,0,0,1-.008.021v-.008a17.421,17.421,0,0,1-16.169,4.538ZM23.491,29a10.876,10.876,0,0,0,3.2-.48l.017-.005.019-.006A11.222,11.222,0,0,0,29.929,8.8L29.9,8.781l-.01-.007A10.989,10.989,0,0,0,24.387,6.73q-.443-.037-.9-.036-.5,0-.984.044H22.5l-.029,0A11.087,11.087,0,0,0,12.632,16v.011A11.274,11.274,0,0,0,14,23.5l.007.011.007.012a11.1,11.1,0,0,0,5.007,4.521l.013.006.027.012q.414.184.848.335.358.125.722.225a10.881,10.881,0,0,0,2.86.38" fill="#7633ff"/><path d="M50.186,29.467a2.759,2.759,0,0,0,2.071-.8,2.917,2.917,0,0,0,.768-2.114,2.974,2.974,0,0,0-.768-2.129,2.81,2.81,0,0,0-2.071-.781,2.751,2.751,0,0,0-2.056.782,2.924,2.924,0,0,0-.782,2.129,2.866,2.866,0,0,0,.782,2.114,2.7,2.7,0,0,0,2.056.8" transform="translate(-23.119 -11.383)" fill="#7633ff"/></g></g></g></svg></div>
+          <div></div>
+        </div>
+        <div class="phone-body" style="text-align:center;">
+          <div style="width:48px;height:48px;border-radius:50%;background:var(--green-bg);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--green);">✓</div>
+          <div class="phone-h1" style="font-size:16px;">Tu crédito QUAC: En proceso de verificación</div>
+          <div style="margin:16px auto; max-width:180px;">
+            <img src="imagenes/quac_revisando.png" alt="QUAC revisando" style="width:100%; display:block;">
+          </div>
+          <div class="phone-subtitle" style="font-size:11px;">Un asesor está revisando la información proporcionada. Te notificaremos tan pronto como tu crédito esté activado y listo para usar.</div>
+          <div style="background:var(--bg-alt); border-radius:10px; padding:12px 14px; margin:14px 0; text-align:left; font-size:11px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;"><span style="color:var(--green);">✓</span> Verificación facial</div>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;"><span style="color:var(--green);">✓</span> Foto frontal documento</div>
+            <div style="display:flex; align-items:center; gap:8px;"><span style="color:var(--green);">✓</span> Foto reverso documento</div>
+          </div>
+          <button class="phone-btn" style="background:transparent;border:1.5px solid var(--accent);color:var(--accent);">Contactar soporte</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle" style="background:var(--amber);">!</span>Si alguna validación falla</div>
+    <div class="narrative-title">Laura ve que su solicitud está en revisión</div>
+    <div class="narrative-body">
+      <p>Si alguna de las validaciones del checklist no pasa (documento inválido, match bajo, selfie en base de suplantadores), Laura <strong>no ve un mensaje de error ni sabe qué falló</strong>. Lo que ve es esta pantalla con el mensaje <em>"En proceso de verificación"</em> y la mascota de QUAC revisando.</p>
+      <p>Internamente, el caso se deriva a <strong>Fábrica de Créditos</strong> para revisión manual. Laura ve los checks verdes de lo que sí completó (verificación facial, fotos) y un botón para contactar soporte si tiene dudas.</p>
+    </div>
+  </div>
+
+  <div class="story-meta-col">
+    <div class="meta-block">
+      <div class="meta-block-label">Estado del estudio</div>
+      <span class="meta-state" style="background:var(--amber-bg);color:var(--amber);border-color:var(--amber);">En revisión · Fábrica</span>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Lo que Laura NO sabe</div>
+      <p class="meta-tip">No sabe cuál validación falló. No sabe que un operador la está revisando. Solo sabe que "están verificando" y que le avisarán.</p>
     </div>
   </div>
 </div>
 
 <!-- ============ BIFURCACIÓN 3 ============ -->
 <div class="bifurcation">
-  <div class="bifurcation-label">⬢ Decisión del sistema #3</div>
+  <div class="bifurcation-label">⬢ Decisión del sistema #4</div>
   <div class="bifurcation-title">¿Pasa la verificación de identidad y UBICA?</div>
+  <p style="font-size:14px;color:var(--text-secondary);margin:0 0 16px;">Si la verificación de identidad pasa, el sistema consulta el resultado de <strong>UBICA</strong> (que se lanzó en paralelo en el paso 4). Si UBICA confirma que el celular y el correo son consistentes, se envía un <strong>token al correo electrónico</strong> registrado por Laura en el paso 2, para verificar que tiene acceso real a ese correo.</p>
   <div class="bifurcation-paths">
     <div class="bifurcation-path">
       <span class="bifurcation-path-label bifurcation-path-label--happy">Identidad OK + UBICA OK</span>
-      <div class="bifurcation-path-text"><strong>Todo coincide.</strong> Sigue al paso 9 (token correo) para activar el cupo.</div>
+      <div class="bifurcation-path-text"><strong>Todo coincide.</strong> Se envía token al correo para verificar acceso. Sigue al paso 9.</div>
       <a class="bifurcation-path-link" href="#paso-9">→ continuar al paso 9</a>
     </div>
     <div class="bifurcation-path">
-      <span class="bifurcation-path-label bifurcation-path-label--alt">Match bajo o UBICA dudoso</span>
-      <div class="bifurcation-path-text"><strong>Caso a Fábrica.</strong> Operador revisa manualmente. Laura ve un dashboard con su tarea pendiente.</div>
+      <span class="bifurcation-path-label bifurcation-path-label--alt">UBICA inconsistente o dudoso</span>
+      <div class="bifurcation-path-text"><strong>Caso a Fábrica.</strong> El celular o correo no coinciden con el historial de UBICA. Operador revisa manualmente.</div>
       <a class="bifurcation-path-link" href="#variantes-3">→ ver variante C</a>
+    </div>
+    <div class="bifurcation-path">
+      <span class="bifurcation-path-label bifurcation-path-label--end">Verificación de identidad falló</span>
+      <div class="bifurcation-path-text"><strong>Documento inválido, match bajo o suplantador detectado.</strong> El caso pasa a Fábrica sin consultar UBICA.</div>
+      <a class="bifurcation-path-link" href="#paso-8-fallo">→ ver pantalla de revisión</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Pantalla: UBICA no OK → En proceso de aprobación ============ -->
+<div class="story-row" id="paso-8-ubica-nook">
+  <div class="story-screen-col">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>● ●●●</span></div>
+        <div class="phone-app-bar">
+          <div class="phone-back"></div>
+          <div class="phone-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99.949 42"><g transform="translate(16065.999 15535.625)"><g transform="translate(-16012.538 -15524.503)"><g transform="translate(0 0)"><path d="M14.425,87.15l-2.38,2.362L10.356,87.8a8.071,8.071,0,0,1-3.343.654,7.08,7.08,0,0,1-5.105-1.817,7.168,7.168,0,0,1,0-9.738,7.082,7.082,0,0,1,5.105-1.817A7.082,7.082,0,0,1,12.118,76.9a6.418,6.418,0,0,1,1.907,4.869,6.948,6.948,0,0,1-1.072,3.87ZM7.013,85.424a3.462,3.462,0,0,0,2.6-1,3.656,3.656,0,0,0,.963-2.652A3.732,3.732,0,0,0,9.611,79.1a3.524,3.524,0,0,0-2.6-.981,3.452,3.452,0,0,0-2.58.981,3.668,3.668,0,0,0-.982,2.671,3.594,3.594,0,0,0,.982,2.652,3.392,3.392,0,0,0,2.58,1" transform="translate(0 -75.086)" fill="#7633ff"/><path d="M30.35,79.328h3.307V88.3h-2.87L30.6,87.249a3.407,3.407,0,0,1-2.8,1.253c-2.18,0-3.506-1.49-3.506-4.033V79.328h3.307v4.96c0,.927.473,1.489,1.272,1.489.89,0,1.471-.69,1.471-1.726Z" transform="translate(-8.919 -76.795)" fill="#7633ff"/><path d="M48.2,79.206h2.87v8.975H48.2l-.182-1.054a3.781,3.781,0,0,1-2.87,1.235,3.894,3.894,0,0,1-3.034-1.308,5.373,5.373,0,0,1,0-6.722,3.894,3.894,0,0,1,3.034-1.308,3.764,3.764,0,0,1,2.87,1.217ZM46,85.637a1.728,1.728,0,0,0,1.308-.545,1.962,1.962,0,0,0,.49-1.4,2.038,2.038,0,0,0-.49-1.417A1.78,1.78,0,0,0,46,81.749a1.71,1.71,0,0,0-1.29.527,1.967,1.967,0,0,0-.509,1.417,1.9,1.9,0,0,0,.509,1.4,1.661,1.661,0,0,0,1.29.545" transform="translate(-14.753 -76.672)" fill="#7633ff"/><path d="M60.243,87.115a4.939,4.939,0,0,1,.018-6.831,5.061,5.061,0,0,1,3.616-1.29,4.9,4.9,0,0,1,3.56,1.417l-1.762,1.944a2.313,2.313,0,0,0-1.6-.636,1.963,1.963,0,0,0,0,3.925,2.379,2.379,0,0,0,1.708-.708L67.6,86.843a5.112,5.112,0,0,1-3.67,1.526,5.247,5.247,0,0,1-3.688-1.253" transform="translate(-21.112 -76.659)" fill="#7633ff"/></g></g><g transform="translate(-16065.999 -15535.625)"><g transform="translate(0 0)"><path d="M70.915,59a2.061,2.061,0,0,0-3.784-.431,13.6,13.6,0,0,1-8.168,6.5,2.061,2.061,0,0,0,1.062,3.982l.048-.013.024-.006.216-.062v0a17.713,17.713,0,0,0,10.422-8.4A2.048,2.048,0,0,0,70.915,59" transform="translate(-28.063 -27.613)" fill="#7633ff"/><path d="M19.537,35.247A17.616,17.616,0,0,1,8.607,27.4l-.025-.039A18.032,18.032,0,0,1,6.09,15.053c0-.028,0-.061,0-.086a.832.832,0,0,0-.826-.836H2.205A2.228,2.228,0,0,1,1.89,9.7,17.245,17.245,0,0,0,6.851,8.113l-2.292-.8A2.233,2.233,0,0,1,3.186,4.487a2.193,2.193,0,0,1,2.5-1.469,17.4,17.4,0,0,0,10.08-1.213q.37-.179.779-.354A17.111,17.111,0,0,1,23.491,0,17.582,17.582,0,0,1,39.174,9.726a.818.818,0,0,0,.726.458.556.556,0,0,0,.221-.046,12.957,12.957,0,0,0,3.019-1.97,2.272,2.272,0,0,1,2.005-.7,2.233,2.233,0,0,1,1.24,3.693l-4.392,4.462a3.258,3.258,0,0,0,0,4.47l4.392,4.463a2.232,2.232,0,0,1-1.24,3.691,2.27,2.27,0,0,1-2.007-.7,12.957,12.957,0,0,0-3.019-1.97.567.567,0,0,0-.221-.045.818.818,0,0,0-.726.458v-.008A17.907,17.907,0,0,1,35.715,30.7a.052.052,0,0,1-.008.021v-.008a17.421,17.421,0,0,1-16.169,4.538ZM23.491,29a10.876,10.876,0,0,0,3.2-.48l.017-.005.019-.006A11.222,11.222,0,0,0,29.929,8.8L29.9,8.781l-.01-.007A10.989,10.989,0,0,0,24.387,6.73q-.443-.037-.9-.036-.5,0-.984.044H22.5l-.029,0A11.087,11.087,0,0,0,12.632,16v.011A11.274,11.274,0,0,0,14,23.5l.007.011.007.012a11.1,11.1,0,0,0,5.007,4.521l.013.006.027.012q.414.184.848.335.358.125.722.225a10.881,10.881,0,0,0,2.86.38" fill="#7633ff"/><path d="M50.186,29.467a2.759,2.759,0,0,0,2.071-.8,2.917,2.917,0,0,0,.768-2.114,2.974,2.974,0,0,0-.768-2.129,2.81,2.81,0,0,0-2.071-.781,2.751,2.751,0,0,0-2.056.782,2.924,2.924,0,0,0-.782,2.129,2.866,2.866,0,0,0,.782,2.114,2.7,2.7,0,0,0,2.056.8" transform="translate(-23.119 -11.383)" fill="#7633ff"/></g></g></g></svg></div>
+          <div></div>
+        </div>
+        <div class="phone-body" style="text-align:center;">
+          <div class="phone-h1" style="font-size:16px; margin-bottom:4px;">Tu crédito QUAC: En proceso de aprobación</div>
+          <div style="margin:16px auto; max-width:180px;">
+            <img src="imagenes/quac_revisando.png" alt="QUAC revisando" style="width:100%; display:block;">
+          </div>
+          <div class="phone-subtitle" style="font-size:11px; line-height:1.6;">Un asesor se pondrá en contacto contigo pronto para ayudarte a avanzar con tu solicitud de crédito. Gracias por tu paciencia y confianza en QUAC.</div>
+          <button class="phone-btn" style="background:transparent;border:1.5px solid var(--accent);color:var(--accent);margin-top:16px;">Hablar con un asesor</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle" style="background:var(--amber);">!</span>UBICA no OK</div>
+    <div class="narrative-title">Laura queda en espera de contacto por un asesor</div>
+    <div class="narrative-body">
+      <p>Laura ve esta pantalla en <strong>dos situaciones</strong>: cuando UBICA responde con un resultado negativo o inconsistente, <strong>o cuando UBICA aún no ha respondido</strong> (el proceso se lanzó en paralelo en el paso 4 y puede tardar). En ambos casos, no le decimos qué está pasando internamente — solo que su solicitud está en proceso de aprobación y que un asesor se pondrá en contacto.</p>
+      <p>Internamente, el caso queda en espera hasta que UBICA responda. Si la respuesta es positiva (cel + correo OK), Laura retoma automáticamente en el paso 9. Si es negativa o no concluyente, pasa a <strong>Fábrica de Créditos</strong> para confirmación manual.</p>
+    </div>
+  </div>
+
+  <div class="story-meta-col">
+    <div class="meta-block">
+      <div class="meta-block-label">Estado del estudio</div>
+      <span class="meta-state" style="background:var(--amber-bg);color:var(--amber);border-color:var(--amber);">En revisión · Fábrica (UBICA)</span>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Resultado UBICA</div>
+      <div class="meta-fields">
+        <span class="meta-field-pill" style="background:var(--amber-bg);color:var(--amber);">sin_respuesta_aun</span>
+        <span class="meta-field-pill" style="background:var(--red-bg);color:var(--red);">sin_info</span>
+        <span class="meta-field-pill" style="background:var(--red-bg);color:var(--red);">no_ok</span>
+        <span class="meta-field-pill" style="background:var(--red-bg);color:var(--red);">posible_suplantacion</span>
+      </div>
+      <p class="meta-tip" style="margin-top:8px;">Se muestra esta pantalla si UBICA aún no responde O si responde con cualquiera de los 3 resultados negativos.</p>
     </div>
   </div>
 </div>
@@ -2229,31 +2429,30 @@ hr.section-divider {
           <div></div>
         </div>
         <div class="phone-body">
-          <div class="phone-h1">Último paso</div>
-          <div class="phone-subtitle">Te enviamos un código a <strong>laura.r@***.com</strong> para activar tu cupo.</div>
-          <div class="phone-otp" style="margin-top:18px;">
+          <div class="phone-h1">Verificación de correo</div>
+          <div class="phone-subtitle">Hemos enviado un código de verificación al correo <strong>laura.r@gmail.com</strong> registrado en tu solicitud.</div>
+          <div class="phone-otp" style="margin-top:18px; justify-content:center;">
             <div class="phone-otp-cell phone-otp-cell--filled">2</div>
             <div class="phone-otp-cell phone-otp-cell--filled">8</div>
-            <div class="phone-otp-cell phone-otp-cell--filled">4</div>
-            <div class="phone-otp-cell phone-otp-cell--filled">6</div>
-            <div class="phone-otp-cell phone-otp-cell--current"></div>
+            <div class="phone-otp-cell phone-otp-cell--current">4</div>
             <div class="phone-otp-cell"></div>
           </div>
+          <div style="text-align:center; font-size:11px; color:var(--text-secondary); line-height:1.5; margin-top:12px; padding:10px 14px; background:var(--bg-alt); border-radius:10px;">Al ingresar el código, confirmas que tienes acceso al correo electrónico registrado.</div>
           <div class="phone-otp-help"><a>Reenviar código</a> · <strong>04:32</strong></div>
-          <div class="phone-callout phone-callout--info">📧 Si no lo ves en tu bandeja de entrada, revisa spam.</div>
           <button class="phone-btn">Activar mi cupo</button>
+          <div style="text-align:center; margin-top:10px;"><a style="font-size:12px; color:var(--accent); font-weight:700; text-decoration:none;">Hablar con un asesor</a></div>
         </div>
       </div>
     </div>
   </div>
 
   <div class="story-narrative-col">
-    <div class="narrative-num"><span class="narrative-num-circle">9</span>Token al correo</div>
-    <div class="narrative-title">Última verificación: el correo electrónico</div>
+    <div class="narrative-num"><span class="narrative-num-circle">9</span>Verificación de correo electrónico</div>
+    <div class="narrative-title">Laura demuestra que tiene acceso al correo</div>
     <div class="narrative-body">
-      <p>Laura recibe un código de 6 dígitos en su correo y lo digita en el portal. Es la <strong>segunda firma electrónica</strong> del proceso (la primera fue el SMS al celular en el paso 3).</p>
-      <p>¿Por qué dos tokens? Porque queremos verificar <strong>dos canales independientes</strong> antes de activar dinero. El celular puede estar comprometido. El correo también. La probabilidad de que ambos lo estén es muy baja.</p>
-      <p>Cuando Laura ingresa el código correcto, el sistema activa el cupo en cuestión de segundos.</p>
+      <p>Si UBICA confirma que el celular y el correo son consistentes, el sistema envía un <strong>código de verificación al correo electrónico</strong> que Laura registró en el paso 2. El objetivo es confirmar que Laura <strong>realmente tiene acceso</strong> a ese correo — no basta con que UBICA lo reconozca, debe demostrarlo.</p>
+      <p>¿Por qué verificar el correo? Porque es el segundo canal independiente de autenticación. El celular ya se verificó con OTP en el paso 3. Si verificamos ambos canales, la probabilidad de suplantación baja significativamente.</p>
+      <p>Si Laura dice que el código no le llega, tiene la opción de <strong>"Hablar con un asesor"</strong> para resolver el tema manualmente. Esto también sirve como señal de alerta: un suplantador que no tiene acceso al correo podría intentar esta ruta, y el asesor puede confirmar la identidad por otros medios.</p>
     </div>
   </div>
 
@@ -2291,10 +2490,10 @@ hr.section-divider {
           <div class="phone-card" style="text-align:left;margin-top:24px;">
             <div class="phone-card-row"><span class="phone-card-key">Estudio</span><span class="phone-card-val">#EST-2026-00873</span></div>
             <div class="phone-card-row"><span class="phone-card-key">Activado</span><span class="phone-card-val">9 abr · 9:46 am</span></div>
-            <div class="phone-card-row"><span class="phone-card-key">Modalidad</span><span class="phone-card-val">Cuotas quincenales</span></div>
           </div>
-          <button class="phone-btn phone-btn--success">Empezar a usarlo</button>
-          <button class="phone-btn phone-btn--text">Descargar mi tarjeta virtual</button>
+          <div style="font-size:10px; color:var(--text-secondary); line-height:1.5; margin:12px 0; padding:10px 14px; background:var(--bg-alt); border-radius:10px;">¡Descárgala ya y revisa tu crédito disponible, realiza tus pagos, compra seguro con tu clave dinámica y captura cada descuento increíble que te ofrecemos!</div>
+          <button class="phone-btn phone-btn--success">Descargar la app QUAC</button>
+          <div style="text-align:center; margin-top:10px;"><a style="font-size:12px; color:var(--accent); font-weight:700; text-decoration:none;">Conocer comercios aliados en quac.co</a></div>
         </div>
       </div>
     </div>
@@ -2304,7 +2503,7 @@ hr.section-divider {
     <div class="narrative-num"><span class="narrative-num-circle">10</span>Cupo activado · Final feliz</div>
     <div class="narrative-title">¡Listo! Laura ya puede usar su cupo</div>
     <div class="narrative-body">
-      <p>Pantalla de celebración. Laura ve el monto activado en grande, recibe confirmación por SMS y correo, y tiene dos opciones inmediatas: <strong>empezar a usar el cupo</strong> en la app QUAC, o <strong>descargar su tarjeta virtual</strong>.</p>
+      <p>Pantalla de celebración. Laura ve el monto activado en grande y recibe confirmación por SMS y correo. Tiene dos opciones inmediatas: <strong>descargar la app QUAC</strong> para gestionar su crédito, o <strong>conocer los comercios aliados</strong> en quac.co donde puede usar su cupo.</p>
       <p>Desde aquí Laura sale del portal de solicitud y entra al ecosistema regular de QUAC. Su estudio queda <strong>cerrado exitoso</strong> en el sistema.</p>
       <p>Tiempo total estimado del flujo: <strong>5-7 minutos</strong> en condiciones normales. Si hubo algún hipo en alguna fase (mala foto, OTP que no llegó), puede haber tomado 10-15 min.</p>
     </div>
@@ -2317,7 +2516,7 @@ hr.section-divider {
     </div>
     <div class="meta-block">
       <div class="meta-block-label">Resultado</div>
-      <p class="meta-tip"><strong>Cupo activo:</strong> $1.200.000<br><strong>Modalidad:</strong> cuotas quincenales<br><strong>Tiempo total:</strong> ~6 minutos</p>
+      <p class="meta-tip"><strong>Cupo activo:</strong> $1.200.000<br><strong>Tiempo total:</strong> ~6 minutos</p>
     </div>
     <div class="meta-block">
       <div class="meta-block-label">Siguiente paso del cliente</div>
@@ -2404,9 +2603,52 @@ hr.section-divider {
 
 <!-- ==================== 3. RETOMAR ESTUDIO (DETALLE) ==================== -->
 <h2 id="retomar-detalle"><span class="h2-num">Sección 3 · Variante B en detalle</span>Retomar un estudio en curso</h2>
-<p class="h2-sub">Esta es la historia paralela de Laura, pero <strong>una semana después</strong>: ya había empezado su estudio antes (en una tienda o en otra sesión web) y ahora vuelve al portal a continuarlo. El sistema la reconoce, le pide OTP por seguridad, y le muestra un dashboard con el estado de su estudio y las acciones pendientes.</p>
+<p class="h2-sub">Laura ya había empezado su estudio antes (en una tienda o en otra sesión web) y ahora vuelve al portal a continuarlo. El flujo es: identifica con documento → detecta estudio activo → tokeniza para verificar identidad → muestra datos registrados → continúa exactamente donde quedó, con las mismas pantallas del flujo normal.</p>
 
-<!-- ============ R1 · Identificación + estudio detectado ============ -->
+<!-- ============ R0 · Identificación (misma pantalla del paso 1) ============ -->
+<div class="story-row" id="retomar-0">
+  <div class="story-screen-col">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>● ●●●</span></div>
+        <div class="phone-app-bar">
+          <div class="phone-back"></div>
+          <div class="phone-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99.949 42"><g transform="translate(16065.999 15535.625)"><g transform="translate(-16012.538 -15524.503)"><g transform="translate(0 0)"><path d="M14.425,87.15l-2.38,2.362L10.356,87.8a8.071,8.071,0,0,1-3.343.654,7.08,7.08,0,0,1-5.105-1.817,7.168,7.168,0,0,1,0-9.738,7.082,7.082,0,0,1,5.105-1.817A7.082,7.082,0,0,1,12.118,76.9a6.418,6.418,0,0,1,1.907,4.869,6.948,6.948,0,0,1-1.072,3.87ZM7.013,85.424a3.462,3.462,0,0,0,2.6-1,3.656,3.656,0,0,0,.963-2.652A3.732,3.732,0,0,0,9.611,79.1a3.524,3.524,0,0,0-2.6-.981,3.452,3.452,0,0,0-2.58.981,3.668,3.668,0,0,0-.982,2.671,3.594,3.594,0,0,0,.982,2.652,3.392,3.392,0,0,0,2.58,1" transform="translate(0 -75.086)" fill="#7633ff"/><path d="M30.35,79.328h3.307V88.3h-2.87L30.6,87.249a3.407,3.407,0,0,1-2.8,1.253c-2.18,0-3.506-1.49-3.506-4.033V79.328h3.307v4.96c0,.927.473,1.489,1.272,1.489.89,0,1.471-.69,1.471-1.726Z" transform="translate(-8.919 -76.795)" fill="#7633ff"/><path d="M48.2,79.206h2.87v8.975H48.2l-.182-1.054a3.781,3.781,0,0,1-2.87,1.235,3.894,3.894,0,0,1-3.034-1.308,5.373,5.373,0,0,1,0-6.722,3.894,3.894,0,0,1,3.034-1.308,3.764,3.764,0,0,1,2.87,1.217ZM46,85.637a1.728,1.728,0,0,0,1.308-.545,1.962,1.962,0,0,0,.49-1.4,2.038,2.038,0,0,0-.49-1.417A1.78,1.78,0,0,0,46,81.749a1.71,1.71,0,0,0-1.29.527,1.967,1.967,0,0,0-.509,1.417,1.9,1.97,0,0,0,.509,1.4,1.661,1.661,0,0,0,1.29.545" transform="translate(-14.753 -76.672)" fill="#7633ff"/><path d="M60.243,87.115a4.939,4.939,0,0,1,.018-6.831,5.061,5.061,0,0,1,3.616-1.29,4.9,4.9,0,0,1,3.56,1.417l-1.762,1.944a2.313,2.313,0,0,0-1.6-.636,1.963,1.963,0,0,0,0,3.925,2.379,2.379,0,0,0,1.708-.708L67.6,86.843a5.112,5.112,0,0,1-3.67,1.526,5.247,5.247,0,0,1-3.688-1.253" transform="translate(-21.112 -76.659)" fill="#7633ff"/></g></g><g transform="translate(-16065.999 -15535.625)"><g transform="translate(0 0)"><path fill="#7633ff" d="M70.915,59a2.061,2.061,0,0,0-3.784-.431,13.6,13.6,0,0,1-8.168,6.5,2.061,2.061,0,0,0,1.062,3.982l.048-.013.024-.006.216-.062v0a17.713,17.713,0,0,0,10.422-8.4A2.048,2.048,0,0,0,70.915,59" transform="translate(-28.063 -27.613)"/><path fill="#7633ff" d="M19.537,35.247A17.616,17.616,0,0,1,8.607,27.4l-.025-.039A18.032,18.032,0,0,1,6.09,15.053c0-.028,0-.061,0-.086a.832.832,0,0,0-.826-.836H2.205A2.228,2.228,0,0,1,1.89,9.7,17.245,17.245,0,0,0,6.851,8.113l-2.292-.8A2.233,2.233,0,0,1,3.186,4.487a2.193,2.193,0,0,1,2.5-1.469,17.4,17.4,0,0,0,10.08-1.213q.37-.179.779-.354A17.111,17.111,0,0,1,23.491,0,17.582,17.582,0,0,1,39.174,9.726M23.491,29a10.876,10.876,0,0,0,3.2-.48A11.222,11.222,0,0,0,29.929,8.8,10.989,10.989,0,0,0,24.387,6.73A11.087,11.087,0,0,0,12.632,16,11.274,11.274,0,0,0,14,23.5a11.1,11.1,0,0,0,5.007,4.521,10.881,10.881,0,0,0,2.86.38"/><path fill="#7633ff" d="M50.186,29.467a2.759,2.759,0,0,0,2.071-.8,2.917,2.917,0,0,0,.768-2.114,2.974,2.974,0,0,0-.768-2.129,2.81,2.81,0,0,0-2.071-.781,2.751,2.751,0,0,0-2.056.782,2.924,2.924,0,0,0-.782,2.129,2.866,2.866,0,0,0,.782,2.114,2.7,2.7,0,0,0,2.056.8" transform="translate(-23.119 -11.383)"/></g></g></g></svg></div>
+          <div></div>
+        </div>
+        <div class="phone-body">
+          <div class="phone-h1">Solicitud de crédito QUAC</div>
+          <div class="phone-subtitle">Para iniciar tu solicitud de crédito, necesitamos algunos datos básicos.</div>
+          <div class="phone-label">Tipo de documento</div>
+          <div class="phone-input">Cédula de ciudadanía ▾</div>
+          <div class="phone-label">Número de documento</div>
+          <div class="phone-input">1023456789</div>
+          <button class="phone-btn">Continuar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">R0</span>Identificación</div>
+    <div class="narrative-title">Laura vuelve al portal y digita su documento</div>
+    <div class="narrative-body">
+      <p>Es la <strong>misma pantalla del paso 1</strong> del flujo ideal. Laura entra a <code>preaprobado.quac.co</code>, digita su tipo y número de documento, y toca Continuar.</p>
+      <p>El sistema consulta la base de datos y detecta que este documento tiene un <strong>estudio activo</strong>. En vez de llevarlo al flujo de cliente nuevo, muestra la pantalla R1.</p>
+    </div>
+  </div>
+
+  <div class="story-meta-col">
+    <div class="meta-block">
+      <div class="meta-block-label">Estado del estudio</div>
+      <span class="meta-state meta-state--activo">Activo (en pausa)</span>
+      <p class="meta-tip" style="margin-top:8px;">Laura no sabe que tiene estudio activo todavía — el sistema lo detecta al consultar.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ R1 · Estudio detectado ============ -->
 <div class="story-row" id="retomar-1">
   <div class="story-screen-col">
     <div class="phone">
@@ -2419,18 +2661,11 @@ hr.section-divider {
           <div></div>
         </div>
         <div class="phone-body">
-          <div class="phone-illus phone-illus--info">⏱️</div>
-          <div class="phone-h1">Tienes un estudio en curso</div>
-          <div class="phone-subtitle">Detectamos que ya empezaste tu solicitud. Puedes continuar donde quedaste.</div>
-          <div class="phone-card">
-            <div class="phone-card-row"><span class="phone-card-key">Estudio</span><span class="phone-card-val">#EST-2026-00873</span></div>
-            <div class="phone-card-row"><span class="phone-card-key">Inició</span><span class="phone-card-val">5 abr · 14:22</span></div>
-            <div class="phone-card-row"><span class="phone-card-key">Canal</span><span class="phone-card-val">Tienda Derek 93</span></div>
-            <div class="phone-card-row"><span class="phone-card-key">Fase actual</span><span class="phone-card-val" style="color:var(--accent);">Verificación identidad</span></div>
-          </div>
-          <div class="phone-callout">📱 Para continuar te enviaremos un código al celular con que iniciaste el estudio: <strong>*** *** 12 98</strong></div>
-          <button class="phone-btn">Continuar mi estudio</button>
-          <button class="phone-btn phone-btn--text">Cancelar y empezar uno nuevo</button>
+          <div style="width:56px;height:56px;border-radius:16px;background:var(--blue-bg, #DBEAFE);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:24px;">🕐</div>
+          <div class="phone-h1">Tienes un estudio activo</div>
+          <div class="phone-subtitle">Para continuar necesitamos verificar que eres tú. Te enviaremos un código al celular que registraste.</div>
+          <button class="phone-btn" style="margin-top:24px;">Enviar código</button>
+          <div style="text-align:center; margin-top:10px;"><a style="font-size:12px; color:var(--accent); font-weight:700; text-decoration:none;">No soy yo · Contactar soporte</a></div>
         </div>
       </div>
     </div>
@@ -2530,67 +2765,74 @@ hr.section-divider {
         <div class="phone-notch"></div>
         <div class="phone-status"><span>9:41</span><span>● ●●●</span></div>
         <div class="phone-app-bar">
-          <div class="phone-back">←</div>
+          <div class="phone-back"></div>
           <div class="phone-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99.949 42"><g transform="translate(16065.999 15535.625)"><g transform="translate(-16012.538 -15524.503)"><g transform="translate(0 0)"><path d="M14.425,87.15l-2.38,2.362L10.356,87.8a8.071,8.071,0,0,1-3.343.654,7.08,7.08,0,0,1-5.105-1.817,7.168,7.168,0,0,1,0-9.738,7.082,7.082,0,0,1,5.105-1.817A7.082,7.082,0,0,1,12.118,76.9a6.418,6.418,0,0,1,1.907,4.869,6.948,6.948,0,0,1-1.072,3.87ZM7.013,85.424a3.462,3.462,0,0,0,2.6-1,3.656,3.656,0,0,0,.963-2.652A3.732,3.732,0,0,0,9.611,79.1a3.524,3.524,0,0,0-2.6-.981,3.452,3.452,0,0,0-2.58.981,3.668,3.668,0,0,0-.982,2.671,3.594,3.594,0,0,0,.982,2.652,3.392,3.392,0,0,0,2.58,1" transform="translate(0 -75.086)" fill="#7633ff"/><path d="M30.35,79.328h3.307V88.3h-2.87L30.6,87.249a3.407,3.407,0,0,1-2.8,1.253c-2.18,0-3.506-1.49-3.506-4.033V79.328h3.307v4.96c0,.927.473,1.489,1.272,1.489.89,0,1.471-.69,1.471-1.726Z" transform="translate(-8.919 -76.795)" fill="#7633ff"/><path d="M48.2,79.206h2.87v8.975H48.2l-.182-1.054a3.781,3.781,0,0,1-2.87,1.235,3.894,3.894,0,0,1-3.034-1.308,5.373,5.373,0,0,1,0-6.722,3.894,3.894,0,0,1,3.034-1.308,3.764,3.764,0,0,1,2.87,1.217ZM46,85.637a1.728,1.728,0,0,0,1.308-.545,1.962,1.962,0,0,0,.49-1.4,2.038,2.038,0,0,0-.49-1.417A1.78,1.78,0,0,0,46,81.749a1.71,1.71,0,0,0-1.29.527,1.967,1.967,0,0,0-.509,1.417,1.9,1.9,0,0,0,.509,1.4,1.661,1.661,0,0,0,1.29.545" transform="translate(-14.753 -76.672)" fill="#7633ff"/><path d="M60.243,87.115a4.939,4.939,0,0,1,.018-6.831,5.061,5.061,0,0,1,3.616-1.29,4.9,4.9,0,0,1,3.56,1.417l-1.762,1.944a2.313,2.313,0,0,0-1.6-.636,1.963,1.963,0,0,0,0,3.925,2.379,2.379,0,0,0,1.708-.708L67.6,86.843a5.112,5.112,0,0,1-3.67,1.526,5.247,5.247,0,0,1-3.688-1.253" transform="translate(-21.112 -76.659)" fill="#7633ff"/></g></g><g transform="translate(-16065.999 -15535.625)"><g transform="translate(0 0)"><path d="M70.915,59a2.061,2.061,0,0,0-3.784-.431,13.6,13.6,0,0,1-8.168,6.5,2.061,2.061,0,0,0,1.062,3.982l.048-.013.024-.006.216-.062v0a17.713,17.713,0,0,0,10.422-8.4A2.048,2.048,0,0,0,70.915,59" transform="translate(-28.063 -27.613)" fill="#7633ff"/><path d="M19.537,35.247A17.616,17.616,0,0,1,8.607,27.4l-.025-.039A18.032,18.032,0,0,1,6.09,15.053c0-.028,0-.061,0-.086a.832.832,0,0,0-.826-.836H2.205A2.228,2.228,0,0,1,1.89,9.7,17.245,17.245,0,0,0,6.851,8.113l-2.292-.8A2.233,2.233,0,0,1,3.186,4.487a2.193,2.193,0,0,1,2.5-1.469,17.4,17.4,0,0,0,10.08-1.213q.37-.179.779-.354A17.111,17.111,0,0,1,23.491,0,17.582,17.582,0,0,1,39.174,9.726a.818.818,0,0,0,.726.458.556.556,0,0,0,.221-.046,12.957,12.957,0,0,0,3.019-1.97,2.272,2.272,0,0,1,2.005-.7,2.233,2.233,0,0,1,1.24,3.693l-4.392,4.462a3.258,3.258,0,0,0,0,4.47l4.392,4.463a2.232,2.232,0,0,1-1.24,3.691,2.27,2.27,0,0,1-2.007-.7,12.957,12.957,0,0,0-3.019-1.97.567.567,0,0,0-.221-.045.818.818,0,0,0-.726.458v-.008A17.907,17.907,0,0,1,35.715,30.7a.052.052,0,0,1-.008.021v-.008a17.421,17.421,0,0,1-16.169,4.538ZM23.491,29a10.876,10.876,0,0,0,3.2-.48l.017-.005.019-.006A11.222,11.222,0,0,0,29.929,8.8L29.9,8.781l-.01-.007A10.989,10.989,0,0,0,24.387,6.73q-.443-.037-.9-.036-.5,0-.984.044H22.5l-.029,0A11.087,11.087,0,0,0,12.632,16v.011A11.274,11.274,0,0,0,14,23.5l.007.011.007.012a11.1,11.1,0,0,0,5.007,4.521l.013.006.027.012q.414.184.848.335.358.125.722.225a10.881,10.881,0,0,0,2.86.38" fill="#7633ff"/><path d="M50.186,29.467a2.759,2.759,0,0,0,2.071-.8,2.917,2.917,0,0,0,.768-2.114,2.974,2.974,0,0,0-.768-2.129,2.81,2.81,0,0,0-2.071-.781,2.751,2.751,0,0,0-2.056.782,2.924,2.924,0,0,0-.782,2.129,2.866,2.866,0,0,0,.782,2.114,2.7,2.7,0,0,0,2.056.8" transform="translate(-23.119 -11.383)" fill="#7633ff"/></g></g></g></svg></div>
-          <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;">LR</div>
+          <div></div>
         </div>
-        <div class="phone-body">
-          <div class="phone-h1">Hola, Laura 👋</div>
-          <div class="phone-subtitle">Estás a mitad de camino. Retomamos donde quedaste.</div>
+        <div class="phone-body" style="text-align:center;">
+          <div style="width:56px;height:56px;border-radius:50%;background:var(--accent-bg);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--accent);">👤</div>
+          <div class="phone-h1" style="font-size:18px;">¡Hola Laura!</div>
+          <div class="phone-subtitle" style="font-size:12px; margin-bottom:16px;">Bienvenida de vuelta a QUAC.</div>
 
-          <div class="phone-status-card">
-            <div class="phone-status-card-label">Estudio en curso</div>
-            <div class="phone-status-card-big">F5 · Verificación de identidad</div>
-            <div class="phone-status-card-meta">#EST-2026-00873 · Inició 5 abr</div>
-          </div>
-
-          <div class="phone-phase-line">
-            <div class="phone-phase-dot done"></div>
-            <div class="phone-phase-dot done"></div>
-            <div class="phone-phase-dot done"></div>
-            <div class="phone-phase-dot done"></div>
-            <div class="phone-phase-dot current"></div>
-            <div class="phone-phase-dot"></div>
-            <div class="phone-phase-dot"></div>
-          </div>
-          <div style="font-size:9px;color:var(--text-muted);text-align:center;margin-top:4px;letter-spacing:0.04em;">F1 · F2 · F3 · F4 · <strong style="color:var(--accent);">F5</strong> · F6 · F7</div>
-
-          <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:18px 0 6px;">Pendiente por ti</div>
-
-          <div class="phone-task">
-            <div class="phone-task-icon">📷</div>
-            <div class="phone-task-text">
-              <div class="phone-task-title">Toma de nuevo la foto frontal de tu cédula</div>
-              <div class="phone-task-sub">Nuestro equipo revisó la foto y no se ve bien</div>
+          <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);margin-bottom:6px;text-align:left;">Estudio en curso</div>
+          <div style="background:var(--accent-bg); border:1.5px solid var(--accent); border-radius:12px; padding:12px 16px; text-align:left; margin-bottom:12px;">
+            <div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid rgba(118,51,255,.15); font-size:11px;">
+              <span style="color:var(--accent); font-weight:600;">ID</span>
+              <span style="color:var(--text); font-weight:700;">#EST-2026-00873</span>
             </div>
-            <div class="phone-task-chev">›</div>
+            <div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid rgba(118,51,255,.15); font-size:11px;">
+              <span style="color:var(--accent); font-weight:600;">Inicio</span>
+              <span style="color:var(--text); font-weight:700;">5 abr · 14:22</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid rgba(118,51,255,.15); font-size:11px;">
+              <span style="color:var(--accent); font-weight:600;">Canal</span>
+              <span style="color:var(--text); font-weight:700;">Derek Cacique</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding:5px 0; font-size:11px;">
+              <span style="color:var(--accent); font-weight:600;">Fase actual</span>
+              <span style="color:var(--text); font-weight:700;">Verificación identidad</span>
+            </div>
           </div>
 
-          <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:14px 0 6px;">Ya completado</div>
-
-          <div class="phone-card">
-            <div class="phone-card-row"><span class="phone-card-key">✓ Firmaste los términos</span><span class="phone-card-val" style="font-size:10px;color:var(--text-muted);">5 abr</span></div>
-            <div class="phone-card-row"><span class="phone-card-key">✓ Cupo preaprobado</span><span class="phone-card-val" style="font-size:10px;color:var(--text-muted);">5 abr</span></div>
+          <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:6px;text-align:left;">Datos registrados</div>
+          <div style="background:var(--bg-alt); border-radius:12px; padding:12px 16px; text-align:left; margin-bottom:12px;">
+            <div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--border); font-size:11px;">
+              <span style="color:var(--text-secondary); font-weight:600;">Documento</span>
+              <span style="color:var(--text); font-weight:700;">CC 1023456789</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--border); font-size:11px;">
+              <span style="color:var(--text-secondary); font-weight:600;">Nombres</span>
+              <span style="color:var(--text); font-weight:700;">Laura</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--border); font-size:11px;">
+              <span style="color:var(--text-secondary); font-weight:600;">Apellidos</span>
+              <span style="color:var(--text); font-weight:700;">Rodríguez Mejía</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding:5px 0; font-size:11px;">
+              <span style="color:var(--text-secondary); font-weight:600;">Celular verificado</span>
+              <span style="color:var(--text); font-weight:700;">310 784 12 98 <span style="color:var(--accent);">✓</span></span>
+            </div>
           </div>
+
+          <div style="font-size:11px; color:var(--text-secondary); line-height:1.5; margin-bottom:14px;">A continuación vamos a continuar con tu solicitud de crédito.</div>
+          <button class="phone-btn">Continuar</button>
         </div>
       </div>
     </div>
   </div>
 
   <div class="story-narrative-col">
-    <div class="narrative-num"><span class="narrative-num-circle">R3</span>Dashboard "Mi estudio"</div>
-    <div class="narrative-title">Lo que ve Laura cuando entra a su estudio</div>
+    <div class="narrative-num"><span class="narrative-num-circle">R3</span>Resumen de datos y continuación</div>
+    <div class="narrative-title">Laura ve sus datos registrados y continúa donde quedó</div>
     <div class="narrative-body">
-      <p>Laura ingresa el OTP correcto y entra al <strong>dashboard de su estudio</strong>. Es la única vista del portal donde puede ver detalles, y solo aparece después de la autenticación.</p>
-      <p>Lo que ve:</p>
-      <ul style="margin-left:18px;color:var(--text-secondary);font-size:14px;line-height:1.7;">
-        <li>Su <strong>fase actual</strong> destacada (F5 · Verificación de identidad)</li>
-        <li>Una <strong>línea de progreso</strong> con las 7 fases del estudio (4 completadas, 1 actual, 2 pendientes)</li>
-        <li>Las <strong>tareas pendientes por ella</strong> (en este caso, repetir una foto que la fábrica le pidió volver a subir)</li>
-        <li>Lo que <strong>ya completó</strong>, en gris, como recordatorio de progreso</li>
+      <p>Después de validar el OTP, Laura ve una <strong>pantalla de bienvenida</strong> con sus datos registrados en solo lectura: número de documento, nombres, apellidos y celular verificado. Estos datos <strong>no son editables</strong> — solo confirman que el sistema la reconoce.</p>
+      <p>Al tocar <strong>Continuar</strong>, el sistema la lleva directamente a la pantalla del paso donde quedó pendiente, usando las <strong>mismas interfaces del flujo normal</strong>:</p>
+      <ul style="margin-left:18px;color:var(--text-secondary);font-size:14px;line-height:1.8;">
+        <li><strong>Si no había iniciado el estudio</strong> → va al paso 3b (fecha de nacimiento + correo)</li>
+        <li><strong>Si el estudio inició pero la verificación documental quedó a medias</strong> → va al paso 7a (foto frontal) para hacerla completa desde el inicio</li>
+        <li><strong>Si ya completó todo pero FOSYGA o UBICA están pendientes</strong> → ve la pantalla de "En proceso de aprobación" (QUAC revisando)</li>
       </ul>
-      <p>Lo que <strong>no ve</strong>: el monto del cupo preaprobado, los datos de las verificaciones (Preselecta, antecedentes, FOSYGA), ni el motivo específico por el que la fábrica rechazó la foto. Esos detalles son sensibles o de compliance.</p>
-      <p>Cuando Laura toca la tarea pendiente, la lleva directamente a la pantalla de captura de foto frontal — el mismo flujo del paso 7b del happy path.</p>
+      <p>La clave es que Laura <strong>no ve un dashboard especial</strong>. Ve la misma interfaz del proceso normal, continuando exactamente donde quedó. Lo único diferente es esta pantalla de bienvenida como puerta de entrada.</p>
     </div>
   </div>
 
@@ -2598,21 +2840,78 @@ hr.section-divider {
     <div class="meta-block">
       <div class="meta-block-label">Estado del estudio</div>
       <span class="meta-state meta-state--activo">Activo</span>
-      <p class="meta-tip" style="margin-top:8px;">Situación: <code>en interacción</code> (Laura volvió y está trabajándolo)</p>
+      <p class="meta-tip" style="margin-top:8px;">Situación: <code>en interacción</code> (Laura volvió y está retomando)</p>
     </div>
     <div class="meta-block">
-      <div class="meta-block-label">Acciones disponibles</div>
-      <p class="meta-tip">Solo las que el sistema considere necesarias en el paso actual. En este caso: <strong>repetir foto frontal</strong>. Sin atajos, sin saltos.</p>
+      <div class="meta-block-label">Datos mostrados (solo lectura)</div>
+      <div class="meta-fields">
+        <span class="meta-field-pill">numero_doc</span>
+        <span class="meta-field-pill">nombres</span>
+        <span class="meta-field-pill">apellidos</span>
+        <span class="meta-field-pill">celular ✓</span>
+      </div>
     </div>
     <div class="meta-block">
-      <div class="meta-block-label">Lo que NO ve</div>
-      <p class="meta-tip">• Monto del cupo<br>• Score crediticio<br>• Resultados específicos de verificaciones<br>• Motivo exacto del rechazo de fábrica<br>• Estudios anteriores cerrados</p>
+      <div class="meta-block-label">A dónde va "Continuar"</div>
+      <p class="meta-tip">El sistema evalúa el paso actual del estudio y la redirige:<br>• Sin estudio → paso 3b<br>• Verificación incompleta → paso 7a<br>• Todo hecho, esperando servicios → pantalla "en proceso"</p>
     </div>
   </div>
 </div>
 
-<div class="callout callout--info" style="background:var(--accent-bg);border-left:4px solid var(--accent);padding:18px 22px;border-radius:10px;margin:24px 0;">
-  <p style="margin:0;font-size:14px;color:var(--accent-dark);"><strong>Después de R3:</strong> cuando Laura toca la tarea pendiente, el portal la lleva directamente a la pantalla del paso del happy path donde quedó (en este caso, <strong>paso 7b — foto frontal del documento</strong>). Desde ahí continúa el flujo normal hasta la activación del cupo en el paso 10.</p>
+<!-- ============ R4 · Ejemplo: Laura cae en la pantalla de foto frontal ============ -->
+<div class="story-row" id="retomar-4">
+  <div class="story-screen-col">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>● ●●●</span></div>
+        <div class="phone-app-bar">
+          <div class="phone-back"></div>
+          <div class="phone-logo" style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:16px;color:var(--accent);">QUAC</div>
+          <div></div>
+        </div>
+        <div class="phone-body">
+          <div style="background:var(--amber-bg); border:1.5px solid var(--amber); border-radius:10px; padding:10px 12px; margin-bottom:12px; font-size:11px; color:var(--text); line-height:1.5;">
+            <strong style="color:var(--amber);">⚠️ Atención</strong><br>
+            Necesitamos que vuelvas a cargar la <strong>foto frontal</strong> de tu documento. Asegúrate de que se vea completo, sin reflejos y con buena luz.
+          </div>
+          <div class="phone-h1" style="font-size:16px;">Foto frontal documento</div>
+          <div class="phone-subtitle" style="font-size:11px;">Toma una foto clara del frente.</div>
+          <div style="margin:12px 0; border-radius:12px; overflow:hidden; border:2px dashed var(--accent); padding:8px; background:var(--bg-alt);">
+            <img src="imagenes/frontal.png" alt="Foto frontal del documento" style="width:100%; display:block; border-radius:8px;">
+          </div>
+          <button class="phone-btn">Tomar foto frontal</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-narrative-col">
+    <div class="narrative-num"><span class="narrative-num-circle">R4</span>Laura continúa donde quedó</div>
+    <div class="narrative-title">La misma pantalla del flujo normal, con un aviso si Fábrica pidió repetir</div>
+    <div class="narrative-body">
+      <p>Al tocar <strong>Continuar</strong> en R3, el sistema identifica que Laura había quedado en la fase de <strong>verificación de identidad</strong> (paso 7a). Como la validación de fotos debe hacerse completa, la lleva directo a la pantalla de <strong>foto frontal del documento</strong>.</p>
+      <p><strong>¿Y si Fábrica pidió repetir la foto?</strong> En este caso Laura ya había subido todas las fotos, pero alguna no pasó la validación manual. Si el asesor de Fábrica aún no la ha contactado y Laura entra por su cuenta al portal, el sistema le muestra un <strong>aviso en la parte superior</strong> de la pantalla: <em>"Necesitamos que vuelvas a cargar la foto frontal de tu documento"</em> con las instrucciones de buena luz y sin reflejos. Así Laura entiende por qué ve esta pantalla de nuevo sin que nadie le haya explicado. El sistema no le dice el motivo técnico del rechazo — solo que necesita repetirla.</p>
+      <p>Desde aquí Laura sigue el flujo normal: foto frontal → foto reverso → prueba de vida → checklist → UBICA → token correo → cupo activado. <strong>No hay pantallas especiales para quien retoma.</strong></p>
+      <p>Si en cambio Laura hubiera quedado en otro punto (ej. antes del estudio → iría al paso 3b; todo completado pero esperando FOSYGA/UBICA → vería la pantalla de "en proceso de aprobación"), el principio es el mismo: la pantalla de R3 como puerta de entrada, y luego el flujo normal desde donde corresponda.</p>
+    </div>
+  </div>
+
+  <div class="story-meta-col">
+    <div class="meta-block">
+      <div class="meta-block-label">Estado del estudio</div>
+      <span class="meta-state meta-state--activo">Activo</span>
+      <p class="meta-tip" style="margin-top:8px;">Situación: <code>en interacción</code> · Paso: <code>7a foto frontal</code></p>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Principio de diseño</div>
+      <p class="meta-tip">El cliente que retoma <strong>no ve pantallas especiales</strong>. Ve la misma interfaz del flujo normal desde el punto donde quedó. Menos pantallas especiales = menos código, menos mantenimiento.</p>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Otros destinos posibles de R3</div>
+      <p class="meta-tip">• Sin estudio iniciado → paso 3b<br>• Verificación incompleta → paso 7a<br>• Todo hecho, esperando servicios → "en proceso de aprobación"</p>
+    </div>
+  </div>
 </div>
 
 <hr class="section-divider">
