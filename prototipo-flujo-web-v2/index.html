@@ -1024,6 +1024,45 @@ strong { color: var(--text); }
   line-height: 1.5;
 }
 
+/* Bloque de servicios requeridos */
+.meta-services {
+  margin-top: 4px;
+}
+.meta-service-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 5px 0;
+  border-bottom: 1px dashed var(--border);
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+.meta-service-item:last-child { border-bottom: none; }
+.meta-service-num {
+  flex-shrink: 0;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.meta-service-method {
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 9px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+.meta-service-route {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--text);
+  word-break: break-all;
+}
+
 /* ============================
    BIFURCACIÓN - decision diamond
    ============================ */
@@ -1463,6 +1502,13 @@ hr.section-divider {
         <div class="meta-decision-path"><strong>cartera</strong> <span class="meta-decision-path-arrow">→</span> <strong>estudios activos</strong> <span class="meta-decision-path-arrow">→</span> <strong>terceros</strong></div>
       </div>
     </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Servicios requeridos</div>
+      <div class="meta-services">
+        <div class="meta-service-item"><span class="meta-service-num">#1</span><span class="meta-service-method">GET</span><span class="meta-service-route">/api/catalogos/tipos-documento</span></div>
+        <div class="meta-service-item"><span class="meta-service-num">#4</span><span class="meta-service-method">POST</span><span class="meta-service-route">/api/solicitud/identificar</span></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1576,6 +1622,13 @@ hr.section-divider {
       <div class="meta-block-label">Por qué esto y no más</div>
       <p class="meta-tip">En tienda se piden 9 campos en una sola pantalla. En web pedimos solo 4 en este paso: los datos de contacto mínimos. La fecha de expedición, el género y la fecha de nacimiento se piden más adelante, antes de consultar Preselecta.</p>
     </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Servicios requeridos</div>
+      <div class="meta-services">
+        <div class="meta-service-item"><span class="meta-service-num">#5</span><span class="meta-service-method">POST</span><span class="meta-service-route">/api/solicitud/validar-contacto</span></div>
+        <div class="meta-service-item"><span class="meta-service-num">#6</span><span class="meta-service-method">POST</span><span class="meta-service-route">/api/solicitud/registrar-datos-basicos</span></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1684,6 +1737,15 @@ hr.section-divider {
       <div class="meta-block-label">Acción del sistema al continuar</div>
       <p class="meta-tip">Si la validación del token es <strong>exitosa</strong>, el sistema <strong>crea el tercero</strong> en la base de datos con los datos básicos capturados. Si el token es inválido, el cliente se queda en esta pantalla y puede reintentarlo o reenviar el código.</p>
     </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Servicios requeridos</div>
+      <div class="meta-services">
+        <div class="meta-service-item"><span class="meta-service-num">#7</span><span class="meta-service-method">POST</span><span class="meta-service-route">/api/solicitud/enviar-token-celular</span></div>
+        <div class="meta-service-item"><span class="meta-service-num">#8</span><span class="meta-service-method">POST</span><span class="meta-service-route">/api/solicitud/reenviar-token-celular</span></div>
+        <div class="meta-service-item"><span class="meta-service-num">#9</span><span class="meta-service-method">POST</span><span class="meta-service-route">/api/solicitud/validar-token-celular</span></div>
+        <div class="meta-service-item"><span class="meta-service-num">#10</span><span class="meta-service-method">POST</span><span class="meta-service-route">/api/solicitud/cambiar-celular</span></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1784,6 +1846,12 @@ hr.section-divider {
       <div class="meta-block-label">Por qué confirmamos el correo aquí</div>
       <p class="meta-tip">El correo se capturó en el Paso 2 pero aquí se pide que lo escriba de nuevo. Es el canal por donde se enviará el token de verificación UBICA más adelante. Si queda mal escrito, el proceso se tranca en un paso posterior. Mejor confirmar ahora.</p>
     </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Servicios requeridos</div>
+      <div class="meta-services">
+        <div class="meta-service-item"><span class="meta-service-num">#11</span><span class="meta-service-method">POST</span><span class="meta-service-route">/api/solicitud/registrar-fecha-nacimiento</span></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1837,6 +1905,12 @@ hr.section-divider {
     <div class="meta-block">
       <div class="meta-block-label">Lo que Laura ve</div>
       <p class="meta-tip">Un loader con el mensaje "Estudiando tu perfil…". Si antecedentes o Preselecta rechazan, ve "Por ahora no podemos aprobarte". Si es viable, pasa directo al paso 6.</p>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Servicios requeridos</div>
+      <div class="meta-services">
+        <div class="meta-service-item"><span class="meta-service-num">#12</span><span class="meta-service-method">POST</span><span class="meta-service-route">/api/solicitud/iniciar-estudio</span></div>
+      </div>
     </div>
   </div>
 </div>
@@ -2004,6 +2078,14 @@ hr.section-divider {
         <span class="meta-field-pill meta-field-pill--new">direccion</span>
       </div>
     </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Servicios requeridos</div>
+      <div class="meta-services">
+        <div class="meta-service-item"><span class="meta-service-num">#2</span><span class="meta-service-method">GET</span><span class="meta-service-route">/api/catalogos/departamentos</span></div>
+        <div class="meta-service-item"><span class="meta-service-num">#3</span><span class="meta-service-method">GET</span><span class="meta-service-route">/api/catalogos/ciudades/{dep}</span></div>
+        <div class="meta-service-item"><span class="meta-service-num">#13</span><span class="meta-service-method">POST</span><span class="meta-service-route">/api/solicitud/{id}/registrar-direccion</span></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2112,6 +2194,13 @@ hr.section-divider {
       <div class="meta-block-label">Validaciones</div>
       <p class="meta-tip">Etiquetas de documento real · No es copia · Texto legible · <strong>Match facial vs selfie ≥ 85%</strong></p>
     </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Servicios requeridos</div>
+      <div class="meta-services">
+        <div class="meta-service-item"><span class="meta-service-num">#14</span><span class="meta-service-method">GET</span><span class="meta-service-route">/api/solicitud/{id}/verificar-fosyga</span></div>
+        <div class="meta-service-item"><span class="meta-service-num">#15</span><span class="meta-service-method">POST</span><span class="meta-service-route">/api/solicitud/{id}/foto-frontal</span></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2174,6 +2263,12 @@ hr.section-divider {
       <div class="meta-block-label">Validaciones</div>
       <p class="meta-tip">Etiquetas de reverso real · No es copia · Texto legible · Sin indicios de fraude</p>
     </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Servicios requeridos</div>
+      <div class="meta-services">
+        <div class="meta-service-item"><span class="meta-service-num">#16</span><span class="meta-service-method">POST</span><span class="meta-service-route">/api/solicitud/{id}/foto-reverso</span></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2228,6 +2323,14 @@ hr.section-divider {
     <div class="meta-block">
       <div class="meta-block-label">Validaciones</div>
       <p class="meta-tip">Face liveness · Match selfie vs. documento ≥ 85% · Detección de suplantación</p>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Servicios requeridos</div>
+      <div class="meta-services">
+        <div class="meta-service-item"><span class="meta-service-num">#14</span><span class="meta-service-method">GET</span><span class="meta-service-route">/api/solicitud/{id}/verificar-fosyga</span></div>
+        <div class="meta-service-item"><span class="meta-service-num">#17</span><span class="meta-service-method">POST</span><span class="meta-service-route">/api/solicitud/{id}/iniciar-faceliveness</span></div>
+        <div class="meta-service-item"><span class="meta-service-num">#18</span><span class="meta-service-method">POST</span><span class="meta-service-route">/api/solicitud/{id}/completar-faceliveness</span></div>
+      </div>
     </div>
   </div>
 </div>
@@ -2286,6 +2389,13 @@ hr.section-divider {
     <div class="meta-block">
       <div class="meta-block-label">Si falla alguna validación</div>
       <p class="meta-tip">El caso pasa a <strong>Fábrica de Créditos</strong> para revisión manual. Laura ve la pantalla de "en proceso de verificación" (abajo).</p>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Servicios requeridos</div>
+      <div class="meta-services">
+        <div class="meta-service-item"><span class="meta-service-num">#19</span><span class="meta-service-method">POST</span><span class="meta-service-route">/api/solicitud/{id}/verificar-documentos</span></div>
+        <div class="meta-service-item"><span class="meta-service-num">#20</span><span class="meta-service-method">GET</span><span class="meta-service-route">/api/solicitud/{id}/verificar-ubica</span></div>
+      </div>
     </div>
   </div>
 </div>
@@ -2467,6 +2577,14 @@ hr.section-divider {
         <span class="meta-field-pill meta-field-pill--new">otp_correo_validado</span>
       </div>
     </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Servicios requeridos</div>
+      <div class="meta-services">
+        <div class="meta-service-item"><span class="meta-service-num">#21</span><span class="meta-service-method">POST</span><span class="meta-service-route">/api/solicitud/{id}/enviar-token-correo</span></div>
+        <div class="meta-service-item"><span class="meta-service-num">#22</span><span class="meta-service-method">POST</span><span class="meta-service-route">/api/solicitud/{id}/validar-token-correo</span></div>
+        <div class="meta-service-item"><span class="meta-service-num">#31</span><span class="meta-service-method">POST</span><span class="meta-service-route">/api/solicitud/{id}/contactar-soporte</span></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2521,6 +2639,13 @@ hr.section-divider {
     <div class="meta-block">
       <div class="meta-block-label">Siguiente paso del cliente</div>
       <p class="meta-tip">Laura sale del portal de solicitud y entra a la app QUAC para empezar a usar su cupo. El portal preaprobado.quac.co ya cumplió su misión.</p>
+    </div>
+    <div class="meta-block">
+      <div class="meta-block-label">Servicios requeridos</div>
+      <div class="meta-services">
+        <div class="meta-service-item"><span class="meta-service-num">#23</span><span class="meta-service-method">POST</span><span class="meta-service-route">/api/solicitud/{id}/activar-cupo</span></div>
+        <div class="meta-service-item"><span class="meta-service-num">#24</span><span class="meta-service-method">GET</span><span class="meta-service-route">/api/solicitud/{id}/preaprobado</span></div>
+      </div>
     </div>
   </div>
 </div>
