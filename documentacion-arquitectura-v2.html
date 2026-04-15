@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Arquitectura de Datos v2.1 — Fábricas de Crédito QUAC</title>
+    <title>Arquitectura de Datos v2.3 — Fábricas de Crédito QUAC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -491,7 +491,7 @@
   <body>
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
-      <div class="sidebar-title">FABRICAS DE CRÉDITO v2.1</div>
+      <div class="sidebar-title">FABRICAS DE CRÉDITO v2.3</div>
       <nav>
         <a href="#overview" class="active">Visión General</a>
         <a href="#resumen-ejecutivo" class="indent">Resumen Ejecutivo</a>
@@ -502,6 +502,8 @@
         <div class="sidebar-section">Análisis</div>
         <a href="#gap-analysis">Análisis de Brechas</a>
         <a href="#gaps-resueltos" class="indent">Gaps Resueltos v2.1</a>
+        <a href="#gaps-v22" class="indent">Gaps Resueltos v2.2</a>
+        <a href="#gaps-v23" class="indent">Gaps Resueltos v2.3</a>
         <a href="#mapeo-tablas" class="indent">Mapeo de Tablas</a>
         <a href="#estrategia-integracion" class="indent"
           >Estrategia de Integración</a
@@ -511,6 +513,22 @@
         <a href="#diagrama-er" class="indent">Diagrama ER</a>
         <a href="#maquina-estados">Máquina de Estados</a>
         <a href="#flujo-proceso" class="indent">Flujo del Proceso</a>
+        <div class="sidebar-section">Seguridad v2.2</div>
+        <a href="#flujo-fraude">Flujo Detección de Fraude</a>
+        <a href="#flujo-fraude-walkthrough" class="indent">Caso de Uso Completo</a>
+        <a href="#flujo-fraude-diagrama" class="indent">Diagrama de Flujo de Datos</a>
+        <a href="#flujo-fraude-escenarios" class="indent">Otros Escenarios</a>
+        <a href="#flujo-fraude-asesor" class="indent">Vista del Asesor</a>
+        <div class="sidebar-section">Fotografías v2.3</div>
+        <a href="#modulo-fotografias">Módulo de Fotografías</a>
+        <a href="#foto-regla-negocio" class="indent">Regla 3 Fotos Obligatorias</a>
+        <a href="#foto-ciclo-vida" class="indent">Ciclo de Vida de una Foto</a>
+        <a href="#foto-revision-asesor" class="indent">Revisión por el Asesor</a>
+        <a href="#foto-recarga" class="indent">Sistema de Re-carga</a>
+        <a href="#foto-escenarios" class="indent">Escenarios de Ejemplo</a>
+        <a href="#foto-biometria" class="indent">Conexión con Biometría</a>
+        <a href="#foto-fraude" class="indent">Reglas de Fraude</a>
+        <a href="#foto-consulta-asesor" class="indent">Consulta del Asesor</a>
         <div class="sidebar-section">Operación</div>
         <a href="#trazabilidad">Estrategia de Trazabilidad</a>
         <a href="#reglas-negocio" class="indent">Reglas de Negocio</a>
@@ -522,26 +540,31 @@
     <main class="main">
       <!-- Header -->
       <section id="overview">
-        <h1>Arquitectura de Datos v2.1 — Fábricas de Crédito QUAC</h1>
+        <h1>Arquitectura de Datos v2.3 — Fábricas de Crédito QUAC</h1>
         <p class="meta">
           <span class="meta-item"
             ><strong>Motor:</strong> SQL Server 2019+</span
           >
-          <span class="meta-item"><strong>Versión:</strong> 2.1</span>
+          <span class="meta-item"><strong>Versión:</strong> 2.3</span>
           <span class="meta-item"
-            ><strong>Fecha:</strong> 6 de abril de 2026</span
+            ><strong>Fecha:</strong> 13 de abril de 2026</span
           >
-          <span class="meta-item"><strong>Tablas Nuevas:</strong> 16</span>
-          <span class="meta-item"><strong>Tablas Modificadas:</strong> 3</span>
+          <span class="meta-item"><strong>Tablas Nuevas:</strong> 27</span>
+          <span class="meta-item"><strong>Tablas Modificadas:</strong> 7</span>
         </p>
 
         <p>
-          Este documento describe el modelo de datos empresarial versión 2.0
+          Este documento describe el modelo de datos empresarial versión 2.3
           para el Sistema de Otorgamiento de Crédito (Loan Origination System -
           LOS) de QUAC. Esta versión implementa la
           <strong>"Fusión Inteligente"</strong>: reutiliza las tablas existentes
           en producción del ERP QUAC y les añade capacidades de trazabilidad,
-          auditoría y automatización sin romper la operación actual.
+          auditoría y automatización sin romper la operación actual. La versión
+          2.2 añadió el <strong>sistema de detección de fraude y escalamiento</strong>
+          con 6 nuevas tablas especializadas. La versión 2.3 añade el
+          <strong>módulo de gestión de fotografías</strong> con 5 nuevas tablas
+          para el ciclo de vida completo de fotos obligatorias, revisión humana
+          y re-subida via link.
         </p>
 
         <div class="callout callout--info">
@@ -594,6 +617,18 @@
             <h4>1 Tabla Propia (terceros)</h4>
             <p>
               TercerosFabricas como fuente de verdad. Lee de terceros sin modificarlo.
+            </p>
+          </div>
+          <div class="card" style="border-left-color: var(--red);">
+            <h4 style="color: var(--red);">6 Tablas Antifraude <span class="badge badge--red">Nuevo v2.2</span></h4>
+            <p>
+              Detección de fraude, escalamiento a fábrica, log OTP granular e historial de datos sensibles.
+            </p>
+          </div>
+          <div class="card" style="border-left-color: #10b981;">
+            <h4 style="color: #10b981;">5 Tablas Fotografías <span class="badge" style="background:#10b981;color:#fff;">Nuevo v2.3</span></h4>
+            <p>
+              Ciclo de vida de fotos obligatorias, revisión por asesor, re-subida via link y auditoría inmutable.
             </p>
           </div>
         </div>
@@ -895,6 +930,188 @@
         </table>
       </section>
 
+      <!-- Gaps v2.2 -->
+      <section id="gaps-v22">
+        <h2>Gaps Identificados y Resueltos (v2.2) <span class="badge badge--red">Nuevo v2.2</span></h2>
+        <p>
+          Durante la revisión de arquitectura senior (2026-04-10) se identificaron brechas adicionales relacionadas
+          con la detección de fraude, escalamiento y trazabilidad de seguridad. A continuación se documentan
+          los gaps de seguridad y arquitectura (SA) resueltos en esta versión.
+        </p>
+
+        <div class="callout callout--success">
+          <p><strong>Estado:</strong> Todos los gaps SA-01 a SA-11 han sido resueltos en v2.2. El DDL fue actualizado con 6 nuevas tablas y 5 columnas adicionales en tablas existentes.</p>
+        </div>
+
+        <h3>Gaps de Seguridad y Arquitectura (SA)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Gap Identificado</th>
+              <th>Tabla Afectada</th>
+              <th>Resolución</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge--green">SA-01 ✓</span></td>
+              <td>Sin catálogo tipificado de motivos de escalamiento manual</td>
+              <td>—</td>
+              <td>Creada tabla <code>CatalogoMotivosEscalamiento</code> con 8 motivos semilla (SISTEMA/ASESOR/FRAUDE)</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">SA-02 ✓</span></td>
+              <td>Sin trazabilidad completa del caso para el asesor de fábrica</td>
+              <td>—</td>
+              <td>Creada tabla <code>EscalamientosFabrica</code> con motivo, estado, asesor asignado, resultado y snapshot JSON del cliente</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">SA-03 ✓</span></td>
+              <td><code>RetosSeguridad.NumeroIntentos</code> es contador, no log — no permite reconstruir el patrón granular de intentos</td>
+              <td><code>RetosSeguridad</code></td>
+              <td>Creada tabla INSERT-ONLY <code>LogValidacionesOTP</code>: registra cada intento individual con resultado, dirección de envío e IP</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">SA-04 ✓</span></td>
+              <td>Sin trazabilidad de mutaciones de campos de contacto (email/celular) durante el flujo</td>
+              <td>—</td>
+              <td>Creada tabla INSERT-ONLY <code>HistorialDatosSensibles</code> con correlación al reto OTP activo y flag <code>EsPostFalloOTP</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">SA-05 ✓</span></td>
+              <td>Sin registro inmutable de alertas de fraude disparadas por reglas de negocio</td>
+              <td>—</td>
+              <td>Creada tabla INSERT-ONLY <code>AlertasFraude</code> con contexto, valores anterior/nuevo y acción tomada</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">SA-06 ✓</span></td>
+              <td>Sin catálogo tipificado de reglas de detección de fraude</td>
+              <td>—</td>
+              <td>Creada tabla <code>CatalogoReglasFraude</code> con 8 reglas semilla, nivel de riesgo y acción automática configurable</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">SA-07 ✓</span></td>
+              <td>Sin control de idempotencia, versionado optimista ni soft delete en estudios</td>
+              <td><code>EstudiosCredito</code></td>
+              <td>Añadidas columnas: <code>ClaveIdempotencia</code>, <code>VersionFila</code>, <code>EliminadoLogico</code>, <code>IdCorrelacion</code>, <code>IdEscalamientoActivo</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">SA-08 ✓</span></td>
+              <td>Sin correlación de transacciones distribuidas en historial de estados</td>
+              <td><code>HistorialEstados</code></td>
+              <td>Añadida columna <code>IdCorrelacion</code> para correlación con servicios externos</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">SA-09 ✓</span></td>
+              <td>Sin registro de dirección de envío del OTP en el reto</td>
+              <td><code>RetosSeguridad</code></td>
+              <td>Añadida columna <code>DireccionEnvio</code> para registrar email/cel al que se envió el reto</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">SA-10 ✓</span></td>
+              <td>Sin FK a alerta de fraude en validaciones de contactabilidad</td>
+              <td><code>ValidacionesContactabilidad</code></td>
+              <td>Añadida columna <code>IdAlertaFraude</code> con FK a <code>AlertasFraude</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">SA-11 ✓</span></td>
+              <td>Sin estados específicos para flujos de revisión de fábrica y bloqueo por fraude</td>
+              <td><code>CatalogoEstados</code></td>
+              <td>Añadidos estados <code>REVISION_FABRICA</code> y <code>BLOQUEADO_FRAUDE</code> + 6 nuevas transiciones válidas</td>
+            </tr>
+          </tbody>
+        </table>
+        </section>
+
+      <!-- Gaps v2.3 -->
+      <section id="gaps-v23">
+        <h2>Gaps Identificados y Resueltos (v2.3) <span class="badge badge--accent">Nuevo v2.3</span></h2>
+        <p>
+          Durante la revisión de arquitectura (2026-04-13) se identificaron brechas relacionadas con la
+          captura y verificación de documentos fotográficos del cliente. A continuación se documentan
+          los gaps de fotografías (PH) resueltos en esta versión.
+        </p>
+
+        <div class="callout callout--success">
+          <p><strong>Estado:</strong> Todos los gaps PH-01 a PH-10 han sido resueltos en v2.3. El DDL fue actualizado con 5 nuevas tablas y 5 columnas adicionales en tablas existentes.</p>
+        </div>
+
+        <h3>Gaps de Fotografías y Verificación Documental (PH)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Gap Identificado</th>
+              <th>Tabla Afectada</th>
+              <th>Resolución</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge--green">PH-01 ✓</span></td>
+              <td>Sin catálogo tipificado de tipos de fotografía requeridos por el flujo</td>
+              <td>—</td>
+              <td>Creada tabla <code>CatalogoTiposFotografia</code> con 3 tipos semilla: <code>FOTO_FRONTAL_DOC</code>, <code>FOTO_TRASERA_DOC</code>, <code>SELFIE</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">PH-02 ✓</span></td>
+              <td>Sin registro de las fotografías capturadas por el cliente durante el estudio</td>
+              <td>—</td>
+              <td>Creada tabla <code>FotografiasEstudio</code> con URL de almacenamiento, tipo, versión y ciclo de vida completo (<code>PENDIENTE_CARGA → APROBADA / RECHAZADA / REEMPLAZADA / EXPIRADA</code>)</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">PH-03 ✓</span></td>
+              <td>Sin trazabilidad de las decisiones del asesor sobre cada fotografía individual</td>
+              <td>—</td>
+              <td>Creada tabla INSERT-ONLY <code>RevisionesFotografia</code>: registra cada decisión del asesor con resultado, motivo y notas</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">PH-04 ✓</span></td>
+              <td>Sin mecanismo controlado para solicitar al cliente que recargue una foto rechazada</td>
+              <td>—</td>
+              <td>Creada tabla <code>SolicitudesRecarga</code> con URL de carga firmada, expiración y estado (<code>GENERADO → USADO / EXPIRADO / CANCELADO</code>)</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">PH-05 ✓</span></td>
+              <td>Sin historial inmutable de cada versión de fotografía subida (auditoría completa)</td>
+              <td>—</td>
+              <td>Creada tabla INSERT-ONLY <code>HistorialFotografias</code>: preserva la URL original de cada versión de cada foto para auditoría</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">PH-06 ✓</span></td>
+              <td>Sin indicador de progreso de revisión de fotos a nivel del estudio</td>
+              <td><code>EstudiosCredito</code></td>
+              <td>Añadida columna <code>EstadoRevisionFotos</code> (<code>PENDIENTE / EN_REVISION / APROBADO / CON_RECHAZOS</code>) para estado agregado del conjunto</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">PH-07 ✓</span></td>
+              <td>Sin conteo de fotografías aprobadas en el estudio para gate de avance</td>
+              <td><code>EstudiosCredito</code></td>
+              <td>Añadida columna <code>FotografiasAprobadas</code> (TINYINT) para validar que las 3 fotos obligatorias hayan sido aprobadas</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">PH-08 ✓</span></td>
+              <td>Sin FK a las fotografías aprobadas desde el registro biométrico para auditoría cruzada</td>
+              <td><code>RegistrosBiometria</code></td>
+              <td>Añadidas columnas <code>IdFotografiaFrontal</code>, <code>IdFotografiaReverso</code> e <code>IdFotografiaSelfie</code> con FK a <code>FotografiasEstudio</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">PH-09 ✓</span></td>
+              <td>Sin dos nuevos estados de la máquina de estados para el flujo fotográfico</td>
+              <td><code>CatalogoEstados</code></td>
+              <td>Añadidos estados <code>PENDIENTE_FOTOS</code> y <code>FOTOS_EN_REVISION</code> + transiciones válidas desde/hacia ellos</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">PH-10 ✓</span></td>
+              <td>Sin reglas de fraude específicas para detectar anomalías en fotografías (fotos duplicadas, rechazo múltiple, selfie no coincidente)</td>
+              <td><code>CatalogoReglasFraude</code></td>
+              <td>Añadidas 4 reglas semilla fotográficas: <code>FOTO_RECHAZADA_MULTIPLE_VECES</code>, <code>MAX_VERSIONES_FOTO_SUPERADO</code>, <code>FOTO_DUPLICADA_OTRO_ESTUDIO</code>, <code>SELFIE_NO_COINCIDE_DOCUMENTO</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
       <!-- Mapeo de Tablas -->
       <section id="mapeo-tablas">
         <h2>Mapeo de Tablas (Homologación)</h2>
@@ -1035,6 +1252,61 @@
               <td><span class="badge badge--green">Auditoría</span></td>
               <td><code>RegistroServiciosExternos</code></td>
               <td>Payloads de servicios externos - solo INSERT</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--red">Antifraude <span class="badge badge--red" style="font-size:9px;">v2.2</span></span></td>
+              <td><code>CatalogoReglasFraude</code></td>
+              <td>8 reglas de detección con nivel de riesgo y acción automática</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--red">Antifraude <span class="badge badge--red" style="font-size:9px;">v2.2</span></span></td>
+              <td><code>CatalogoMotivosEscalamiento</code></td>
+              <td>8 motivos tipificados para escalamiento (SISTEMA/ASESOR/FRAUDE)</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--red">Antifraude <span class="badge badge--red" style="font-size:9px;">v2.2</span></span></td>
+              <td><code>AlertasFraude</code></td>
+              <td>Registro inmutable de alertas disparadas — solo INSERT</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--red">Antifraude <span class="badge badge--red" style="font-size:9px;">v2.2</span></span></td>
+              <td><code>EscalamientosFabrica</code></td>
+              <td>Trazabilidad completa de cada escalamiento a revisión manual</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--red">Antifraude <span class="badge badge--red" style="font-size:9px;">v2.2</span></span></td>
+              <td><code>LogValidacionesOTP</code></td>
+              <td>Log granular de cada intento OTP individual — solo INSERT</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--red">Antifraude <span class="badge badge--red" style="font-size:9px;">v2.2</span></span></td>
+              <td><code>HistorialDatosSensibles</code></td>
+              <td>Mutaciones de email/celular con correlación al reto OTP activo — solo INSERT</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">Fotografías <span class="badge badge--green" style="font-size:9px;">v2.3</span></span></td>
+              <td><code>CatalogoTiposFotografia</code></td>
+              <td>Catálogo de los 3 tipos de foto obligatorias (FOTO_FRONTAL_DOC, FOTO_TRASERA_DOC, SELFIE) con servicio AWS asociado</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">Fotografías <span class="badge badge--green" style="font-size:9px;">v2.3</span></span></td>
+              <td><code>FotografiasEstudio</code></td>
+              <td>Ciclo de vida individual de cada foto (BIGINT PK). Una fila por instancia; versiones sucesivas por re-carga</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">Fotografías <span class="badge badge--green" style="font-size:9px;">v2.3</span></span></td>
+              <td><code>RevisionesFotografia</code></td>
+              <td>Decisiones de revisión del asesor por fotografía — solo INSERT (APROBADA / RECHAZADA con código de motivo)</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">Fotografías <span class="badge badge--green" style="font-size:9px;">v2.3</span></span></td>
+              <td><code>SolicitudesRecarga</code></td>
+              <td>Links únicos enviados al cliente (EMAIL/SMS/WHATSAPP) para re-subir fotos rechazadas o faltantes</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">Fotografías <span class="badge badge--green" style="font-size:9px;">v2.3</span></span></td>
+              <td><code>HistorialFotografias</code></td>
+              <td>Auditoría inmutable de cada transición de estado de una foto — solo INSERT</td>
             </tr>
           </tbody>
         </table>
@@ -1391,6 +1663,32 @@ CREATE TABLE dbo.TercerosFabricas (
               <td><code>BarrioCapturado</code></td>
               <td>NVARCHAR(100) NULL</td>
               <td><span class="badge badge--accent">v2.1</span> Barrio de residencia capturado en staging durante el flujo</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Columnas añadidas en v2.3 <span class="badge" style="background:#10b981;color:#fff;">v2.3</span></h4>
+        <div class="callout callout--success" style="border-left-color:#10b981;background:#ecfdf5;">
+          <p><strong>Módulo de fotografías:</strong> Se añaden 2 columnas al orquestador central para controlar el estado del proceso de revisión fotográfica.</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>FotografiasAprobadas</code></td>
+              <td>INT DEFAULT 0</td>
+              <td><span class="badge" style="background:#10b981;color:#fff;">v2.3</span> Contador de fotos aprobadas. <strong>Gate:</strong> debe ser = 3 para avanzar a APROBADO.</td>
+            </tr>
+            <tr>
+              <td><code>EstadoRevisionFotos</code></td>
+              <td>VARCHAR(15) DEFAULT 'PENDIENTE'</td>
+              <td><span class="badge" style="background:#10b981;color:#fff;">v2.3</span> Estado del proceso fotográfico: <code>PENDIENTE</code> / <code>EN_REVISION</code> / <code>APROBADO</code> / <code>CON_RECHAZOS</code></td>
             </tr>
           </tbody>
         </table>
@@ -1949,6 +2247,37 @@ CREATE TABLE dbo.TercerosFabricas (
           </tbody>
         </table>
 
+        <h4>Columnas añadidas en v2.3 <span class="badge" style="background:#10b981;color:#fff;">v2.3</span></h4>
+        <div class="callout callout--success" style="border-left-color:#10b981;background:#ecfdf5;">
+          <p><strong>Conexión con fotografías:</strong> Se añaden 3 FKs para enlazar el resultado biométrico con los archivos fotográficos almacenados en <code>FotografiasEstudio</code>. El resultado vive aquí; el archivo vive allá.</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdFotografiaFrontal</code></td>
+              <td>BIGINT NULL FK</td>
+              <td><span class="badge" style="background:#10b981;color:#fff;">v2.3</span> FK a <code>FotografiasEstudio</code> — foto frontal del documento usada en este registro biométrico</td>
+            </tr>
+            <tr>
+              <td><code>IdFotografiaReverso</code></td>
+              <td>BIGINT NULL FK</td>
+              <td><span class="badge" style="background:#10b981;color:#fff;">v2.3</span> FK a <code>FotografiasEstudio</code> — foto trasera del documento usada en este registro biométrico</td>
+            </tr>
+            <tr>
+              <td><code>IdFotografiaSelfie</code></td>
+              <td>BIGINT NULL FK</td>
+              <td><span class="badge" style="background:#10b981;color:#fff;">v2.3</span> FK a <code>FotografiasEstudio</code> — selfie usada en este registro biométrico (REKOGNITION_DETECT_FACES)</td>
+            </tr>
+          </tbody>
+        </table>
+
         <h3>ValidacionesContactabilidad</h3>
         <p>Registra el resultado de la verificación de contactabilidad del cliente vía UBICA y gestión manual de call center.</p>
         <table>
@@ -2194,9 +2523,471 @@ CREATE TABLE dbo.TercerosFabricas (
             </tr>
           </tbody>
         </table>
-      </section>
 
-      <!-- Diagrama ER -->
+        <h3>CatalogoReglasFraude <span class="badge badge--red">Nuevo v2.2</span></h3>
+        <p>Catálogo de reglas de detección de fraude. Define qué patrones se consideran sospechosos y qué acción automática desencadenar. Preconfigurado con 8 reglas semilla.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdReglaFraude</code></td>
+              <td>INT IDENTITY PK</td>
+              <td>Identificador único</td>
+            </tr>
+            <tr>
+              <td><code>Codigo</code></td>
+              <td>VARCHAR(50) UNIQUE</td>
+              <td>Clave única usable desde código (ej. EMAIL_CHANGE_POST_OTP_FAIL)</td>
+            </tr>
+            <tr>
+              <td><code>Nombre</code></td>
+              <td>NVARCHAR(150)</td>
+              <td>Nombre legible para el asesor</td>
+            </tr>
+            <tr>
+              <td><code>Descripcion</code></td>
+              <td>NVARCHAR(500) NULL</td>
+              <td>Qué detecta esta regla y por qué es sospechoso</td>
+            </tr>
+            <tr>
+              <td><code>NivelRiesgo</code></td>
+              <td>VARCHAR(10)</td>
+              <td>Nivel: BAJO / MEDIO / ALTO / CRITICO</td>
+            </tr>
+            <tr>
+              <td><code>AccionAutomatica</code></td>
+              <td>VARCHAR(30)</td>
+              <td>Acción: ESCALAR / BLOQUEAR / NOTIFICAR / SOLO_REGISTRO</td>
+            </tr>
+            <tr>
+              <td><code>Activa</code></td>
+              <td>BIT DEFAULT 1</td>
+              <td>¿Regla habilitada?</td>
+            </tr>
+            <tr>
+              <td><code>FechaCreacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Auditoría: fecha de creación</td>
+            </tr>
+            <tr>
+              <td><code>FechaActualizacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Auditoría: fecha de última actualización</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>CatalogoMotivosEscalamiento <span class="badge badge--red">Nuevo v2.2</span></h3>
+        <p>Catálogo tipificado de razones de escalamiento a revisión manual. Permite dashboards de volumen por motivo y SLA diferenciados por tipo. Preconfigurado con 8 motivos semilla.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdMotivo</code></td>
+              <td>INT IDENTITY PK</td>
+              <td>Identificador único</td>
+            </tr>
+            <tr>
+              <td><code>Codigo</code></td>
+              <td>VARCHAR(50) UNIQUE</td>
+              <td>Clave única (ej. OTP_FAIL_EMAIL_CHANGE, BIOMETRIA_MAX_REINTENTOS)</td>
+            </tr>
+            <tr>
+              <td><code>Nombre</code></td>
+              <td>NVARCHAR(150)</td>
+              <td>Nombre legible para el asesor</td>
+            </tr>
+            <tr>
+              <td><code>Descripcion</code></td>
+              <td>NVARCHAR(500) NULL</td>
+              <td>Descripción detallada del motivo</td>
+            </tr>
+            <tr>
+              <td><code>Origen</code></td>
+              <td>VARCHAR(20)</td>
+              <td>Origen del escalamiento: SISTEMA / ASESOR / FRAUDE</td>
+            </tr>
+            <tr>
+              <td><code>Activo</code></td>
+              <td>BIT DEFAULT 1</td>
+              <td>¿Motivo habilitado?</td>
+            </tr>
+            <tr>
+              <td><code>FechaCreacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Auditoría: fecha de creación</td>
+            </tr>
+            <tr>
+              <td><code>FechaActualizacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Auditoría: fecha de última actualización</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>AlertasFraude <span class="badge badge--red">Nuevo v2.2</span></h3>
+        <p>
+          <strong>Tabla de registro inmutable (INSERT-ONLY).</strong> Cada alerta disparada por una regla de fraude genera un registro en esta tabla. Una alerta no se cierra ni modifica; si el asesor la descarta, se crea una nueva con <code>AccionTomada = 'DESCARTADO'</code>.
+        </p>
+        <div class="callout callout--danger">
+          <p><strong>Regla crítica:</strong> Esta tabla es de SOLO INSERCIÓN. Prohibido UPDATE o DELETE.</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdAlerta</code></td>
+              <td>BIGINT IDENTITY PK</td>
+              <td>Identificador único</td>
+            </tr>
+            <tr>
+              <td><code>IdEstudio</code></td>
+              <td>BIGINT FK</td>
+              <td>FK a EstudiosCredito</td>
+            </tr>
+            <tr>
+              <td><code>IdReglaFraude</code></td>
+              <td>INT FK</td>
+              <td>FK a CatalogoReglasFraude — regla que disparó la alerta</td>
+            </tr>
+            <tr>
+              <td><code>NitTercero</code></td>
+              <td>VARCHAR(20)</td>
+              <td>Redundancia controlada para consultas por cliente sin JOIN</td>
+            </tr>
+            <tr>
+              <td><code>PasoEnQueOcurrio</code></td>
+              <td>VARCHAR(40) NULL</td>
+              <td>Código del paso donde se detectó la anomalía (FK lógica a PasosEstudio.Codigo)</td>
+            </tr>
+            <tr>
+              <td><code>ValorAnterior</code></td>
+              <td>NVARCHAR(300) NULL</td>
+              <td>Valor del campo ANTES del cambio anómalo</td>
+            </tr>
+            <tr>
+              <td><code>ValorNuevo</code></td>
+              <td>NVARCHAR(300) NULL</td>
+              <td>Valor del campo DESPUÉS del cambio anómalo</td>
+            </tr>
+            <tr>
+              <td><code>CampoAfectado</code></td>
+              <td>VARCHAR(50) NULL</td>
+              <td>Campo que cambió: ej. 'EmailCliente', 'CelularCliente'</td>
+            </tr>
+            <tr>
+              <td><code>ContextoJSON</code></td>
+              <td>NVARCHAR(MAX) NULL</td>
+              <td>Payload completo de contexto (IP, UserAgent, sesión, etc.)</td>
+            </tr>
+            <tr>
+              <td><code>AccionTomada</code></td>
+              <td>VARCHAR(20)</td>
+              <td>Estado de la alerta: PENDIENTE / ESCALADO / BLOQUEADO / DESCARTADO</td>
+            </tr>
+            <tr>
+              <td><code>IdUsuarioResolucion</code></td>
+              <td>INT NULL</td>
+              <td>FK lógica al asesor que resolvió la alerta</td>
+            </tr>
+            <tr>
+              <td><code>NotasResolucion</code></td>
+              <td>NVARCHAR(500) NULL</td>
+              <td>Notas del asesor al resolver o descartar la alerta</td>
+            </tr>
+            <tr>
+              <td><code>FechaResolucion</code></td>
+              <td>DATETIME2(3) NULL</td>
+              <td>Timestamp de resolución</td>
+            </tr>
+            <tr>
+              <td><code>FechaAlerta</code></td>
+              <td>DATETIME2(3) DEFAULT GETDATE()</td>
+              <td>Timestamp exacto en que se disparó la alerta</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>EscalamientosFabrica <span class="badge badge--red">Nuevo v2.2</span></h3>
+        <p>Registro transaccional de cada escalamiento a revisión manual. Una fila por cada vez que un estudio es enviado a la fábrica de crédito. Contiene contexto completo para que el asesor entienda el caso sin necesidad de consultar otras tablas.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdEscalamiento</code></td>
+              <td>BIGINT IDENTITY PK</td>
+              <td>Identificador único</td>
+            </tr>
+            <tr>
+              <td><code>IdEstudio</code></td>
+              <td>BIGINT FK</td>
+              <td>FK a EstudiosCredito</td>
+            </tr>
+            <tr>
+              <td><code>IdMotivoEscalamiento</code></td>
+              <td>INT FK</td>
+              <td>FK a CatalogoMotivosEscalamiento</td>
+            </tr>
+            <tr>
+              <td><code>IdAlertaOrigen</code></td>
+              <td>BIGINT FK NULL</td>
+              <td>FK a AlertasFraude — alerta que originó el escalamiento (nullable si fue manual)</td>
+            </tr>
+            <tr>
+              <td><code>DescripcionContexto</code></td>
+              <td>NVARCHAR(1000) NULL</td>
+              <td>Resumen en texto del porqué llegó a revisión manual</td>
+            </tr>
+            <tr>
+              <td><code>PasoEnQueEscalo</code></td>
+              <td>VARCHAR(40) NULL</td>
+              <td>Código del paso en que se produjo el escalamiento</td>
+            </tr>
+            <tr>
+              <td><code>IdEstadoAlEscalar</code></td>
+              <td>INT FK</td>
+              <td>FK a CatalogoEstados — estado del estudio en el momento de escalar</td>
+            </tr>
+            <tr>
+              <td><code>SnapshotDatosCliente</code></td>
+              <td>NVARCHAR(MAX) NULL</td>
+              <td>JSON con snapshot de datos clave del cliente en el momento de escalar</td>
+            </tr>
+            <tr>
+              <td><code>EscaladoPorSistema</code></td>
+              <td>BIT DEFAULT 1</td>
+              <td>1 = escalamiento automático, 0 = escalamiento manual por asesor</td>
+            </tr>
+            <tr>
+              <td><code>IdUsuarioEscala</code></td>
+              <td>INT NULL</td>
+              <td>FK lógica al asesor que escaló manualmente (NULL si fue automático)</td>
+            </tr>
+            <tr>
+              <td><code>IdAsesorAsignado</code></td>
+              <td>INT NULL</td>
+              <td>FK lógica al asesor asignado para resolver el caso</td>
+            </tr>
+            <tr>
+              <td><code>FechaAsignacion</code></td>
+              <td>DATETIME2(3) NULL</td>
+              <td>Timestamp de asignación al asesor</td>
+            </tr>
+            <tr>
+              <td><code>EstadoEscalamiento</code></td>
+              <td>VARCHAR(20)</td>
+              <td>Estado: ABIERTO / EN_GESTION / RESUELTO / CERRADO_SIN_RESOLUCION</td>
+            </tr>
+            <tr>
+              <td><code>ResultadoGestion</code></td>
+              <td>VARCHAR(20) NULL</td>
+              <td>Resultado: APROBADO / RECHAZADO / DEVUELTO_FLUJO</td>
+            </tr>
+            <tr>
+              <td><code>NotasAsesor</code></td>
+              <td>NVARCHAR(1000) NULL</td>
+              <td>Notas del asesor sobre la gestión del caso</td>
+            </tr>
+            <tr>
+              <td><code>FechaResolucion</code></td>
+              <td>DATETIME2(3) NULL</td>
+              <td>Timestamp de resolución</td>
+            </tr>
+            <tr>
+              <td><code>FechaCreacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Auditoría: fecha de creación</td>
+            </tr>
+            <tr>
+              <td><code>FechaActualizacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Auditoría: fecha de última actualización</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>LogValidacionesOTP <span class="badge badge--red">Nuevo v2.2</span></h3>
+        <p>
+          <strong>Tabla de log granular (INSERT-ONLY).</strong> Mientras <code>RetosSeguridad</code> registra el reto (un token), esta tabla registra cada intento individual de validación: correcto, fallido, expirado. Permite reconstruir el patrón "intento 1 falló a las 10:01, intento 2 expiró a las 10:06".
+        </p>
+        <div class="callout callout--danger">
+          <p><strong>Regla crítica:</strong> Esta tabla es de SOLO INSERCIÓN. Prohibido UPDATE o DELETE.</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdLogOTP</code></td>
+              <td>BIGINT IDENTITY PK</td>
+              <td>Identificador único</td>
+            </tr>
+            <tr>
+              <td><code>IdReto</code></td>
+              <td>BIGINT FK</td>
+              <td>FK a RetosSeguridad — reto al que pertenece este intento</td>
+            </tr>
+            <tr>
+              <td><code>IdEstudio</code></td>
+              <td>BIGINT FK</td>
+              <td>Redundancia para consultas directas por estudio sin JOIN</td>
+            </tr>
+            <tr>
+              <td><code>NitTercero</code></td>
+              <td>VARCHAR(20)</td>
+              <td>Redundancia para consultas por cliente sin JOIN</td>
+            </tr>
+            <tr>
+              <td><code>NumeroIntento</code></td>
+              <td>INT</td>
+              <td>Número secuencial del intento: 1, 2, 3...</td>
+            </tr>
+            <tr>
+              <td><code>DireccionEnvio</code></td>
+              <td>NVARCHAR(200) NULL</td>
+              <td>Email/cel al que se envió este intento específico (puede diferir si hubo cambio)</td>
+            </tr>
+            <tr>
+              <td><code>ResultadoIntento</code></td>
+              <td>VARCHAR(20)</td>
+              <td>Resultado: EXITOSO / FALLIDO_HASH / EXPIRADO / CANCELADO</td>
+            </tr>
+            <tr>
+              <td><code>CodigoEntradoHash</code></td>
+              <td>VARCHAR(256) NULL</td>
+              <td>Hash del código ingresado (nunca en texto claro)</td>
+            </tr>
+            <tr>
+              <td><code>DireccionIP</code></td>
+              <td>VARCHAR(45) NULL</td>
+              <td>IP del cliente en el momento del intento</td>
+            </tr>
+            <tr>
+              <td><code>UserAgent</code></td>
+              <td>NVARCHAR(500) NULL</td>
+              <td>Navegador/dispositivo del cliente</td>
+            </tr>
+            <tr>
+              <td><code>FechaIntento</code></td>
+              <td>DATETIME2(3) DEFAULT GETDATE()</td>
+              <td>Timestamp exacto del intento</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>HistorialDatosSensibles <span class="badge badge--red">Nuevo v2.2</span></h3>
+        <p>
+          <strong>Tabla de trazabilidad (INSERT-ONLY).</strong> Mientras <code>AuditoriaCambiosDatos</code> es genérica, esta tabla es específica para campos de contacto (email, celular, dirección). Es la <strong>única fuente de verdad</strong> para el patrón de fraude: <em>"email original → email cambiado después de OTP fallido"</em>. El índice filtrado en <code>EsPostFalloOTP = 1</code> permite detección instantánea de este patrón.
+        </p>
+        <div class="callout callout--danger">
+          <p><strong>Regla crítica:</strong> Esta tabla es de SOLO INSERCIÓN. Prohibido UPDATE o DELETE.</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdHistorialDato</code></td>
+              <td>BIGINT IDENTITY PK</td>
+              <td>Identificador único</td>
+            </tr>
+            <tr>
+              <td><code>IdEstudio</code></td>
+              <td>BIGINT FK</td>
+              <td>FK a EstudiosCredito</td>
+            </tr>
+            <tr>
+              <td><code>NitTercero</code></td>
+              <td>VARCHAR(20)</td>
+              <td>Redundancia para consultas por cliente sin JOIN</td>
+            </tr>
+            <tr>
+              <td><code>CampoCambiado</code></td>
+              <td>VARCHAR(50)</td>
+              <td>Campo que cambió: 'EmailCliente', 'CelularCliente', 'DireccionCapturada'</td>
+            </tr>
+            <tr>
+              <td><code>ValorOriginal</code></td>
+              <td>NVARCHAR(300) NULL</td>
+              <td>Valor ANTES del cambio</td>
+            </tr>
+            <tr>
+              <td><code>ValorNuevo</code></td>
+              <td>NVARCHAR(300) NULL</td>
+              <td>Valor DESPUÉS del cambio</td>
+            </tr>
+            <tr>
+              <td><code>IdRetoActivoAlCambio</code></td>
+              <td>BIGINT FK NULL</td>
+              <td>FK a RetosSeguridad — reto OTP que estaba activo o pendiente al momento del cambio</td>
+            </tr>
+            <tr>
+              <td><code>EsPostFalloOTP</code></td>
+              <td>BIT DEFAULT 0</td>
+              <td>🚨 1 si había un reto OTP fallido reciente al momento del cambio — patrón clave de fraude</td>
+            </tr>
+            <tr>
+              <td><code>TipoActor</code></td>
+              <td>VARCHAR(20)</td>
+              <td>Quién realizó el cambio: CLIENTE / ASESOR / SISTEMA</td>
+            </tr>
+            <tr>
+              <td><code>DireccionIP</code></td>
+              <td>VARCHAR(45) NULL</td>
+              <td>IP del cliente o asesor al realizar el cambio</td>
+            </tr>
+            <tr>
+              <td><code>UserAgent</code></td>
+              <td>NVARCHAR(500) NULL</td>
+              <td>Navegador/dispositivo al momento del cambio</td>
+            </tr>
+            <tr>
+              <td><code>MotivoDeclarado</code></td>
+              <td>NVARCHAR(300) NULL</td>
+              <td>Razón declarada por el cliente/asesor para el cambio</td>
+            </tr>
+            <tr>
+              <td><code>FechaCambio</code></td>
+              <td>DATETIME2(3) DEFAULT GETDATE()</td>
+              <td>Timestamp exacto del cambio</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
       <section id="diagrama-er">
         <h2>Diagrama ER Simplificado</h2>
         <p>Relaciones principales entre las tablas del modelo de datos v2.1. Las tablas marcadas con <span class="badge badge--accent">v2.1</span> son nuevas en esta versión.</p>
@@ -2406,6 +3197,130 @@ CREATE TABLE dbo.TercerosFabricas (
             <div class="er-table-col">TablaAfectada</div>
             <div class="er-table-col">CampoModificado</div>
           </div>
+
+          <!-- Tablas Antifraude v2.2 -->
+          <div class="er-table">
+            <div class="er-table-title" style="background: var(--red-bg); color: var(--red);">
+              CatalogoReglasFraude <span style="font-size:10px;opacity:0.8">v2.2</span>
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdReglaFraude</div>
+            <div class="er-table-col">Codigo UNIQUE</div>
+            <div class="er-table-col">NivelRiesgo</div>
+            <div class="er-table-col">AccionAutomatica</div>
+          </div>
+
+          <div class="er-table">
+            <div class="er-table-title" style="background: var(--red-bg); color: var(--red);">
+              CatalogoMotivosEscalamiento <span style="font-size:10px;opacity:0.8">v2.2</span>
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdMotivo</div>
+            <div class="er-table-col">Codigo UNIQUE</div>
+            <div class="er-table-col">Origen (SISTEMA/ASESOR/FRAUDE)</div>
+          </div>
+
+          <div class="er-table">
+            <div class="er-table-title" style="background: var(--red-bg); color: var(--red);">
+              AlertasFraude <span style="font-size:10px;opacity:0.8">v2.2 INSERT-ONLY</span>
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdAlerta</div>
+            <div class="er-table-col er-table-col--fk">FK IdEstudio → EstudiosCredito</div>
+            <div class="er-table-col er-table-col--fk">FK IdReglaFraude → CatalogoReglasFraude</div>
+            <div class="er-table-col">CampoAfectado</div>
+            <div class="er-table-col">AccionTomada</div>
+          </div>
+
+          <div class="er-table">
+            <div class="er-table-title" style="background: var(--red-bg); color: var(--red);">
+              EscalamientosFabrica <span style="font-size:10px;opacity:0.8">v2.2</span>
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdEscalamiento</div>
+            <div class="er-table-col er-table-col--fk">FK IdEstudio → EstudiosCredito</div>
+            <div class="er-table-col er-table-col--fk">FK IdMotivoEscalamiento → CatalogoMotivosEscalamiento</div>
+            <div class="er-table-col er-table-col--fk">FK IdAlertaOrigen → AlertasFraude (null)</div>
+            <div class="er-table-col">EstadoEscalamiento</div>
+            <div class="er-table-col">ResultadoGestion</div>
+          </div>
+
+          <div class="er-table">
+            <div class="er-table-title" style="background: var(--red-bg); color: var(--red);">
+              LogValidacionesOTP <span style="font-size:10px;opacity:0.8">v2.2 INSERT-ONLY</span>
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdLogOTP</div>
+            <div class="er-table-col er-table-col--fk">FK IdReto → RetosSeguridad</div>
+            <div class="er-table-col er-table-col--fk">FK IdEstudio → EstudiosCredito</div>
+            <div class="er-table-col">NumeroIntento</div>
+            <div class="er-table-col">ResultadoIntento</div>
+          </div>
+
+          <div class="er-table">
+            <div class="er-table-title" style="background: var(--red-bg); color: var(--red);">
+              HistorialDatosSensibles <span style="font-size:10px;opacity:0.8">v2.2 INSERT-ONLY</span>
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdHistorialDato</div>
+            <div class="er-table-col er-table-col--fk">FK IdEstudio → EstudiosCredito</div>
+            <div class="er-table-col er-table-col--fk">FK IdRetoActivoAlCambio → RetosSeguridad (null)</div>
+            <div class="er-table-col">CampoCambiado</div>
+            <div class="er-table-col">EsPostFalloOTP</div>
+          </div>
+
+          <!-- Tablas Fotografías v2.3 -->
+          <div class="er-table">
+            <div class="er-table-title" style="background: #d1fae5; color: #065f46;">
+              CatalogoTiposFotografia <span style="font-size:10px;opacity:0.8">v2.3</span>
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdTipoFoto</div>
+            <div class="er-table-col">Codigo UNIQUE</div>
+            <div class="er-table-col">EsObligatoria BIT</div>
+            <div class="er-table-col">OrdenRevision UNIQUE</div>
+            <div class="er-table-col">ServicioAWS</div>
+          </div>
+
+          <div class="er-table">
+            <div class="er-table-title" style="background: #d1fae5; color: #065f46;">
+              FotografiasEstudio <span style="font-size:10px;opacity:0.8">v2.3</span>
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdFotografia</div>
+            <div class="er-table-col er-table-col--fk">FK IdEstudio → EstudiosCredito</div>
+            <div class="er-table-col er-table-col--fk">FK IdTipoFoto → CatalogoTiposFotografia</div>
+            <div class="er-table-col">NumeroVersion</div>
+            <div class="er-table-col">EstadoFoto</div>
+            <div class="er-table-col">HashArchivo (SHA-256)</div>
+          </div>
+
+          <div class="er-table">
+            <div class="er-table-title" style="background: #d1fae5; color: #065f46;">
+              RevisionesFotografia <span style="font-size:10px;opacity:0.8">v2.3 INSERT-ONLY</span>
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdRevision</div>
+            <div class="er-table-col er-table-col--fk">FK IdFotografia → FotografiasEstudio</div>
+            <div class="er-table-col">DecisionRevision</div>
+            <div class="er-table-col">CodigoMotivoRechazo</div>
+            <div class="er-table-col">NombreRevisor (snapshot)</div>
+          </div>
+
+          <div class="er-table">
+            <div class="er-table-title" style="background: #d1fae5; color: #065f46;">
+              SolicitudesRecarga <span style="font-size:10px;opacity:0.8">v2.3</span>
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdSolicitudRecarga</div>
+            <div class="er-table-col er-table-col--fk">FK IdFotografiaAnterior → FotografiasEstudio</div>
+            <div class="er-table-col">TokenRecarga UNIQUEIDENTIFIER UNIQUE</div>
+            <div class="er-table-col">CanalEnvio (EMAIL/SMS/WHATSAPP)</div>
+            <div class="er-table-col">EstadoSolicitud</div>
+            <div class="er-table-col">FechaExpiracion</div>
+          </div>
+
+          <div class="er-table">
+            <div class="er-table-title" style="background: #d1fae5; color: #065f46;">
+              HistorialFotografias <span style="font-size:10px;opacity:0.8">v2.3 INSERT-ONLY</span>
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdHistorialFoto</div>
+            <div class="er-table-col er-table-col--fk">FK IdFotografia → FotografiasEstudio</div>
+            <div class="er-table-col er-table-col--fk">FK IdRevisionRelacionada (null)</div>
+            <div class="er-table-col er-table-col--fk">FK IdSolicitudRelacionada (null)</div>
+            <div class="er-table-col">TipoActor (SISTEMA/CLIENTE/ASESOR)</div>
+            <div class="er-table-col">EventoDescripcion</div>
+          </div>
         </div>
 
         <h3>Leyenda de Colores</h3>
@@ -2426,6 +3341,14 @@ CREATE TABLE dbo.TercerosFabricas (
             <h4 style="color: var(--green);">Verde — Auditoría</h4>
             <p>Solo INSERT. Trazabilidad inmutable de estados, datos y servicios.</p>
           </div>
+          <div class="card" style="border-left-color: var(--red);">
+            <h4 style="color: var(--red);">Rojo — Antifraude v2.2</h4>
+            <p>Sistema de detección de fraude y escalamiento. Nuevas en v2.2.</p>
+          </div>
+          <div class="card" style="border-left-color: #10b981;">
+            <h4 style="color: #10b981;">Verde Esmeralda — Fotografías v2.3</h4>
+            <p>Módulo de gestión de fotografías obligatorias. Nuevas en v2.3.</p>
+          </div>
         </div>
       </section>
 
@@ -2437,7 +3360,7 @@ CREATE TABLE dbo.TercerosFabricas (
           tablas <code>CatalogoEstados</code> y <code>TransicionesEstado</code>.
         </p>
 
-        <h3>Los 11 Estados</h3>
+        <h3>Los 15 Estados <span class="badge badge--red">+2 nuevos en v2.2</span> <span class="badge" style="background:#10b981;color:#fff;">+2 nuevos en v2.3</span></h3>
         <table>
           <thead>
             <tr>
@@ -2538,6 +3461,38 @@ CREATE TABLE dbo.TercerosFabricas (
               <td>Sí</td>
               <td>—</td>
             </tr>
+            <tr>
+              <td>12</td>
+              <td><code>REVISION_FABRICA</code></td>
+              <td>En Revisión Fábrica</td>
+              <td>PROCESO</td>
+              <td>No</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>13</td>
+              <td><code>BLOQUEADO_FRAUDE</code></td>
+              <td>Bloqueado por Fraude</td>
+              <td>TERMINAL</td>
+              <td>Sí</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>14</td>
+              <td><code>PENDIENTE_FOTOS</code> <span class="badge" style="background:#10b981;color:#fff;">v2.3</span></td>
+              <td>Pendiente de Fotografías</td>
+              <td>PROCESO</td>
+              <td>No</td>
+              <td>Sí</td>
+            </tr>
+            <tr>
+              <td>15</td>
+              <td><code>FOTOS_EN_REVISION</code> <span class="badge" style="background:#10b981;color:#fff;">v2.3</span></td>
+              <td>Fotos en Revisión</td>
+              <td>PROCESO</td>
+              <td>No</td>
+              <td>No</td>
+            </tr>
           </tbody>
         </table>
 
@@ -2580,7 +3535,38 @@ DESDE PENDIENTE_CALL:
 DESDE CUPO_PREAPROBADO:
   CUPO_PREAPROBADO → EN_PROGRESO        (Continuar flujo)
   CUPO_PREAPROBADO → PAUSADO            (Cliente se retira)
-  CUPO_PREAPROBADO → CANCELADO_CLIENTE   (Cancelación voluntaria)</code></pre>
+  CUPO_PREAPROBADO → CANCELADO_CLIENTE   (Cancelación voluntaria)
+
+-- Nuevas transiciones v2.2 (SA-11) --
+DESDE EN_PROGRESO:
+  EN_PROGRESO → REVISION_FABRICA   (Escalamiento automático por fraude o manual por asesor)
+  EN_PROGRESO → BLOQUEADO_FRAUDE   (Bloqueo automático por regla CRITICA)
+
+DESDE PENDIENTE_OTP:
+  PENDIENTE_OTP → REVISION_FABRICA (OTP fallido repetido + cambio de email — patrón fraude)
+
+DESDE PENDIENTE_BIOMETRIA:
+  PENDIENTE_BIOMETRIA → REVISION_FABRICA (Discrepancia OCR crítica)
+
+DESDE REVISION_FABRICA:
+  REVISION_FABRICA → EN_PROGRESO       (Asesor libera — continúa el flujo)
+  REVISION_FABRICA → BLOQUEADO_FRAUDE  (Asesor confirma fraude)
+
+-- Nuevas transiciones v2.3 (módulo fotografías) --
+DESDE EN_PROGRESO:
+  EN_PROGRESO → PENDIENTE_FOTOS      (Foto rechazada o faltante)
+
+DESDE PENDIENTE_FOTOS:
+  PENDIENTE_FOTOS → EN_PROGRESO      (Foto reemplazada y aprobada)
+  PENDIENTE_FOTOS → FOTOS_EN_REVISION (Las 3 fotos fueron subidas — pasa a revisión)
+
+DESDE PENDIENTE_BIOMETRIA:
+  PENDIENTE_BIOMETRIA → PENDIENTE_FOTOS (Resultado biométrico detecta problema en foto)
+
+DESDE FOTOS_EN_REVISION:
+  FOTOS_EN_REVISION → EN_PROGRESO     (Todas las fotos aprobadas por asesor)
+  FOTOS_EN_REVISION → PENDIENTE_FOTOS (Al menos una foto rechazada)
+  FOTOS_EN_REVISION → RECHAZADO       (Fraude detectado o máx. reintentos superados)</code></pre>
       </section>
 
       <!-- Flujo del Proceso -->
@@ -2868,6 +3854,660 @@ VALUES (12345, 9, 'PRESELECTA', 'https://api.preselecta.co/consultar',
         </table>
       </section>
 
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════════════════════
+           FLUJO DE DETECCIÓN DE FRAUDE Y ESCALAMIENTO — NUEVO v2.2
+      ═══════════════════════════════════════════════════════════════════ -->
+      <section id="flujo-fraude">
+        <h2>Flujo de Detección de Fraude y Escalamiento <span class="badge badge--red">Nuevo v2.2</span></h2>
+        <p>
+          Este módulo describe cómo las 6 nuevas tablas de v2.2 se articulan para detectar, registrar y escalar
+          comportamientos sospechosos durante el flujo de otorgamiento. El diseño sigue el principio de
+          <strong>inmutabilidad total</strong>: cada evento de seguridad genera un registro que nunca puede ser
+          modificado ni eliminado.
+        </p>
+
+        <div class="callout callout--info">
+          <p>
+            <strong>Principio rector:</strong> El sistema detecta fraude correlacionando eventos en el tiempo —
+            no evalúa cada acción de forma aislada. La combinación "OTP fallido → cambio de email → nuevo OTP"
+            es el patrón crítico que este módulo está diseñado para capturar.
+          </p>
+        </div>
+
+        <!-- ─────────────────────────────────────── -->
+        <h3 id="flujo-fraude-walkthrough">6.1 Caso de Uso Completo: Cambio de Email Post-OTP Fallido</h3>
+        <p>
+          Este es el escenario de mayor riesgo: un actor malicioso que tiene acceso al email original del cliente
+          falla el OTP, luego modifica el email a uno bajo su control, y solicita un nuevo OTP al email que controla.
+        </p>
+
+        <h4>Timeline del Evento</h4>
+        <pre><code>T+00:00  Cliente inicia estudio (EstudiosCredito creado, estado = EN_PROGRESO)
+         └─► INSERT RetosSeguridad: Reto OTP enviado a email@cliente.com
+
+T+00:30  Cliente ingresa código incorrecto
+         └─► INSERT LogValidacionesOTP: { NumeroIntento: 1, ResultadoIntento: 'FALLIDO_HASH',
+               DireccionEnvio: 'email@cliente.com', IP: '190.x.x.x' }
+
+T+01:00  Cliente vuelve a fallar el código
+         └─► INSERT LogValidacionesOTP: { NumeroIntento: 2, ResultadoIntento: 'FALLIDO_HASH',
+               DireccionEnvio: 'email@cliente.com', IP: '190.x.x.x' }
+
+T+01:15  ⚠ EVENTO SOSPECHOSO: Cliente cambia email durante reto OTP activo
+         └─► INSERT HistorialDatosSensibles: {
+               CampoCambiado: 'EmailCliente',
+               ValorOriginal: 'email@cliente.com',
+               ValorNuevo: 'atacante@otro.com',
+               IdRetoActivoAlCambio: [IdReto activo],
+               EsPostFalloOTP: 1,      -- ← FLAG CRÍTICO: había OTP fallido reciente
+               TipoActor: 'CLIENTE',
+               IP: '190.x.x.x'
+             }
+
+T+01:16  🚨 REGLA DE FRAUDE DISPARADA: EMAIL_CHANGE_POST_OTP_FAIL (NivelRiesgo: ALTO, Acción: ESCALAR)
+         └─► INSERT AlertasFraude: {
+               IdEstudio: [...], IdReglaFraude: 1,
+               CampoAfectado: 'EmailCliente',
+               ValorAnterior: 'email@cliente.com',
+               ValorNuevo: 'atacante@otro.com',
+               AccionTomada: 'PENDIENTE'
+             }
+
+T+01:17  Sistema ejecuta AccionAutomatica = ESCALAR
+         ├─► UPDATE EstudiosCredito: IdEstadoActual = REVISION_FABRICA
+         ├─► UPDATE EstudiosCredito: IdEscalamientoActivo = [nuevo IdEscalamiento]
+         └─► INSERT EscalamientosFabrica: {
+               IdEstudio: [...], IdMotivoEscalamiento: [OTP_FAIL_EMAIL_CHANGE],
+               IdAlertaOrigen: [IdAlerta recién creada],
+               PasoEnQueEscalo: 'VALIDAR_OTP',
+               IdEstadoAlEscalar: EN_PROGRESO,
+               EscaladoPorSistema: 1,
+               SnapshotDatosCliente: '{nit, emailOriginal, emailNuevo, intentosOTP: 2}',
+               EstadoEscalamiento: 'ABIERTO'
+             }
+         └─► INSERT HistorialEstados: {
+               IdEstadoAnterior: EN_PROGRESO, IdEstadoNuevo: REVISION_FABRICA,
+               MotivoTransicion: 'EMAIL_CHANGE_POST_OTP_FAIL — escalamiento automático'
+             }</code></pre>
+
+        <h4>Resolución por el Asesor de Fábrica</h4>
+        <pre><code>Asesor abre EscalamientosFabrica y ve:
+  - Motivo: "OTP fallido + cambio de email"
+  - Email original: email@cliente.com
+  - Email nuevo: atacante@otro.com
+  - 2 intentos fallidos antes del cambio
+  - IP: 190.x.x.x (misma en todos los eventos)
+  - SnapshotDatosCliente: contexto completo
+
+ESCENARIO A — Asesor confirma fraude:
+  └─► UPDATE EscalamientosFabrica: { EstadoEscalamiento: 'RESUELTO',
+        ResultadoGestion: 'RECHAZADO',
+        NotasAsesor: 'Cambio de email sospechoso post-fallo OTP. IP coincide.'
+      }
+  └─► UPDATE AlertasFraude: { AccionTomada: 'BLOQUEADO', FechaResolucion: NOW() }
+  └─► UPDATE EstudiosCredito: IdEstadoActual = BLOQUEADO_FRAUDE
+
+ESCENARIO B — Asesor llama al cliente y verifica legitimidad:
+  └─► UPDATE EscalamientosFabrica: { EstadoEscalamiento: 'RESUELTO',
+        ResultadoGestion: 'DEVUELTO_FLUJO',
+        NotasAsesor: 'Verificado con cliente. Cambio de email legítimo.'
+      }
+  └─► UPDATE AlertasFraude: { AccionTomada: 'DESCARTADO' }
+  └─► UPDATE EstudiosCredito: IdEstadoActual = EN_PROGRESO</code></pre>
+
+        <!-- ─────────────────────────────────────── -->
+        <h3 id="flujo-fraude-diagrama">6.2 Diagrama de Flujo de Datos</h3>
+        <p>Cómo interactúan las 6 nuevas tablas entre sí y con las tablas existentes:</p>
+        <pre><code>                    FLUJO NORMAL DE OTP
+                           │
+               ┌───────────┴──────────────┐
+               │   RetosSeguridad         │  ← Reto maestro (un token por sesión)
+               │   IdReto PK              │
+               └───────────┬──────────────┘
+                           │ FK IdReto
+                           ▼
+               ┌───────────────────────────┐
+               │   LogValidacionesOTP      │  ← Log granular, INSERT-ONLY
+               │   (v2.2) SA-03            │  ← Un registro por cada intento
+               │   EsPostFalloOTP=0/1 ─────┼──► correlación temporal
+               └───────────────────────────┘
+
+                    ⚠ EVENTO SOSPECHOSO
+                           │
+                           ▼
+               ┌───────────────────────────┐
+               │  HistorialDatosSensibles  │  ← INSERT-ONLY, SA-04
+               │  EsPostFalloOTP = 1       │  ← FLAG que activa regla
+               │  IdRetoActivoAlCambio FK ─┼──► RetosSeguridad
+               └───────────┬───────────────┘
+                           │ dispara regla
+                           ▼
+               ┌───────────────────────────┐     ┌──────────────────────────┐
+               │   CatalogoReglasFraude    │─FK──►│   AlertasFraude          │
+               │   (v2.2) SA-06            │     │   (v2.2) SA-05           │
+               │   AccionAutomatica=ESCALAR│     │   INSERT-ONLY            │
+               └───────────────────────────┘     └──────────┬───────────────┘
+                                                             │ FK IdAlertaOrigen
+                                                             ▼
+┌─────────────────────────────┐     ┌──────────────────────────────────────┐
+│  CatalogoMotivosEscalamiento│─FK──►│   EscalamientosFabrica               │
+│  (v2.2) SA-01               │     │   (v2.2) SA-02                       │
+│  Origen: SISTEMA/ASESOR/    │     │   EstadoEscalamiento: ABIERTO         │
+│          FRAUDE             │     │   → EN_GESTION → RESUELTO            │
+└─────────────────────────────┘     └──────────────────────────────────────┘
+                                                             │
+                                              ┌──────────────┴──────────────┐
+                                              │ RESULTADO                   │
+                                              ├─ APROBADO → EN_PROGRESO    │
+                                              ├─ RECHAZADO → BLOQUEADO_    │
+                                              │             FRAUDE         │
+                                              └─ DEVUELTO_FLUJO → EN_PROG. ┘</code></pre>
+
+        <!-- ─────────────────────────────────────── -->
+        <h3 id="flujo-fraude-escenarios">6.3 Otros Escenarios de Fraude Cubiertos</h3>
+        <p>Las 8 reglas semilla en <code>CatalogoReglasFraude</code> cubren los siguientes patrones:</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Código de Regla</th>
+              <th>Nivel</th>
+              <th>Patrón Detectado</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>EMAIL_CHANGE_POST_OTP_FAIL</code></td>
+              <td><span class="badge badge--red">ALTO</span></td>
+              <td>Email cambiado mientras había OTP activo/fallido</td>
+              <td>ESCALAR</td>
+            </tr>
+            <tr>
+              <td><code>CEL_CHANGE_POST_OTP_FAIL</code></td>
+              <td><span class="badge badge--red">ALTO</span></td>
+              <td>Celular cambiado mientras había OTP activo/fallido</td>
+              <td>ESCALAR</td>
+            </tr>
+            <tr>
+              <td><code>CONTACTO_CHANGE_DURANTE_RETO_ACTIVO</code></td>
+              <td><span class="badge badge--amber">MEDIO</span></td>
+              <td>Cualquier dato de contacto modificado con reto abierto</td>
+              <td>NOTIFICAR</td>
+            </tr>
+            <tr>
+              <td><code>MULTIPLES_FALLOS_OTP_MISMA_SESION</code></td>
+              <td><span class="badge badge--red">ALTO</span></td>
+              <td>3+ intentos OTP fallidos en la misma sesión</td>
+              <td>ESCALAR</td>
+            </tr>
+            <tr>
+              <td><code>UBICA_EMAIL_DISCREPANCIA</code></td>
+              <td><span class="badge badge--amber">MEDIO</span></td>
+              <td>Email del cliente difiere del email que reporta UBICA</td>
+              <td>NOTIFICAR</td>
+            </tr>
+            <tr>
+              <td><code>REINTENTO_RAPIDO_OTRO_EMAIL</code></td>
+              <td><span class="badge badge--red">ALTO</span></td>
+              <td>Reintento OTP con email diferente en &lt;5 minutos</td>
+              <td>ESCALAR</td>
+            </tr>
+            <tr>
+              <td><code>IP_MULTIPLES_ESTUDIOS</code></td>
+              <td><span class="badge badge--amber">MEDIO</span></td>
+              <td>Misma IP intentando múltiples estudios distintos</td>
+              <td>NOTIFICAR</td>
+            </tr>
+            <tr>
+              <td><code>DOCUMENTO_OCR_DISCREPANCIA</code></td>
+              <td><span class="badge badge--red">CRITICO</span></td>
+              <td>NIT del documento OCR no coincide con NIT del estudio</td>
+              <td>BLOQUEAR</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ─────────────────────────────────────── -->
+        <h3 id="flujo-fraude-asesor">6.4 Vista del Asesor de Fábrica</h3>
+        <p>
+          El diseño permite que un asesor reconstruya el caso completo con una sola consulta SQL.
+          No necesita navegar múltiples pantallas ni cruzar tablas manualmente.
+        </p>
+        <pre><code>-- Consulta completa del caso para el asesor:
+SELECT
+    e.IdEscalamiento,
+    cm.Nombre                     AS MotivoEscalamiento,
+    cm.Origen                     AS TipoOrigen,
+    ec.ClaveIdempotencia          AS RefEstudio,
+    e.DescripcionContexto,
+    e.PasoEnQueEscalo,
+    e.SnapshotDatosCliente,
+    e.EscaladoPorSistema,
+    e.EstadoEscalamiento,
+    e.FechaCreacion               AS FechaEscalamiento,
+
+    -- Alerta de fraude que lo originó
+    af.IdAlerta,
+    rf.Nombre                     AS ReglaFraude,
+    rf.NivelRiesgo,
+    af.CampoAfectado,
+    af.ValorAnterior,
+    af.ValorNuevo,
+    af.ContextoJSON,
+
+    -- Log de intentos OTP relacionados
+    (SELECT COUNT(*) FROM LogValidacionesOTP lv
+     WHERE lv.IdEstudio = e.IdEstudio
+       AND lv.ResultadoIntento IN ('FALLIDO_HASH','EXPIRADO')
+       AND lv.FechaIntento >= DATEADD(HOUR, -1, e.FechaCreacion)
+    )                             AS FallosOTPUltimaHora,
+
+    -- Cambios de datos sensibles relacionados
+    (SELECT COUNT(*) FROM HistorialDatosSensibles hds
+     WHERE hds.IdEstudio = e.IdEstudio
+       AND hds.EsPostFalloOTP = 1
+       AND hds.FechaCambio >= DATEADD(HOUR, -1, e.FechaCreacion)
+    )                             AS CambiosDatosSensiblesPostOTP
+
+FROM EscalamientosFabrica e
+JOIN CatalogoMotivosEscalamiento cm ON e.IdMotivoEscalamiento = cm.IdMotivo
+JOIN EstudiosCredito ec ON e.IdEstudio = ec.IdEstudio
+LEFT JOIN AlertasFraude af ON e.IdAlertaOrigen = af.IdAlerta
+LEFT JOIN CatalogoReglasFraude rf ON af.IdReglaFraude = rf.IdReglaFraude
+WHERE e.IdEscalamiento = @IdEscalamiento;</code></pre>
+
+        <div class="callout callout--warn">
+          <p>
+            <strong>Para el asesor:</strong> Los campos <code>SnapshotDatosCliente</code> y <code>ContextoJSON</code>
+            contienen el estado completo del cliente en el momento exacto del evento — no el estado actual.
+            Esto es crítico para el análisis forense: los datos actuales pueden haber cambiado.
+          </p>
+        </div>
+
+        <!-- ─────────────────────────────────────── -->
+        <h3>6.5 Preparación para API</h3>
+        <p>
+          Las tablas de v2.2 están diseñadas para ser consumidas por la API del sistema de otorgamiento.
+          Los endpoints esperados siguen el patrón REST estándar del proyecto:
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Endpoint</th>
+              <th>Método</th>
+              <th>Descripción</th>
+              <th>Tabla Principal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>/estudios/{id}/alertas-fraude</code></td>
+              <td>GET</td>
+              <td>Lista de alertas activas del estudio</td>
+              <td><code>AlertasFraude</code></td>
+            </tr>
+            <tr>
+              <td><code>/estudios/{id}/escalamiento</code></td>
+              <td>GET/POST</td>
+              <td>Consultar o crear escalamiento manual</td>
+              <td><code>EscalamientosFabrica</code></td>
+            </tr>
+            <tr>
+              <td><code>/escalamientos/{id}/resolver</code></td>
+              <td>PATCH</td>
+              <td>Asesor resuelve el escalamiento</td>
+              <td><code>EscalamientosFabrica</code></td>
+            </tr>
+            <tr>
+              <td><code>/estudios/{id}/log-otp</code></td>
+              <td>GET</td>
+              <td>Timeline de intentos OTP del estudio</td>
+              <td><code>LogValidacionesOTP</code></td>
+            </tr>
+            <tr>
+              <td><code>/estudios/{id}/datos-sensibles</code></td>
+              <td>GET</td>
+              <td>Historial de cambios de email/celular</td>
+              <td><code>HistorialDatosSensibles</code></td>
+            </tr>
+            <tr>
+              <td><code>/catalogo/reglas-fraude</code></td>
+              <td>GET</td>
+              <td>Lista de reglas activas</td>
+              <td><code>CatalogoReglasFraude</code></td>
+            </tr>
+            <tr>
+              <td><code>/catalogo/motivos-escalamiento</code></td>
+              <td>GET</td>
+              <td>Lista de motivos tipificados</td>
+              <td><code>CatalogoMotivosEscalamiento</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════════════════════
+           MÓDULO DE FOTOGRAFÍAS — NUEVO v2.3
+      ═══════════════════════════════════════════════════════════════════ -->
+      <section id="modulo-fotografias">
+        <h2>Módulo de Gestión de Fotografías <span class="badge badge--accent">Nuevo v2.3</span></h2>
+        <p>
+          Este módulo describe cómo las 5 nuevas tablas de v2.3 se articulan para capturar, revisar y
+          aprobar los documentos fotográficos del cliente durante el flujo de otorgamiento. El diseño sigue
+          el principio de <strong>trazabilidad completa</strong>: cada versión de cada fotografía y cada
+          decisión del asesor quedan registradas de forma inmutable.
+        </p>
+
+        <div class="callout callout--info">
+          <p>
+            <strong>Principio rector:</strong> Las 3 fotografías obligatorias son un <em>gate de avance</em>
+            en el flujo — el estudio no puede avanzar al paso biométrico hasta que
+            <code>EstudiosCredito.FotografiasAprobadas = 3</code>. Si el asesor rechaza una foto,
+            el sistema genera automáticamente un enlace de recarga controlado para el cliente.
+          </p>
+        </div>
+
+        <!-- ─────────────────────────────────────── -->
+        <h3 id="foto-regla-negocio">7.1 Regla de las 3 Fotos Obligatorias</h3>
+        <p>
+          El catálogo <code>CatalogoTiposFotografia</code> define exactamente qué documentos son requeridos.
+          Los 3 tipos con <code>EsObligatorio = 1</code> deben estar en estado <code>APROBADA</code> para desbloquear la biometría.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Obligatorio</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>FOTO_FRONTAL_DOC</code></td>
+              <td>Frente del Documento de Identidad</td>
+              <td><span class="badge badge--red">Sí</span></td>
+              <td>Cara frontal de la cédula/documento del cliente</td>
+            </tr>
+            <tr>
+              <td><code>FOTO_TRASERA_DOC</code></td>
+              <td>Reverso del Documento de Identidad</td>
+              <td><span class="badge badge--red">Sí</span></td>
+              <td>Cara trasera de la cédula/documento del cliente</td>
+            </tr>
+            <tr>
+              <td><code>SELFIE</code></td>
+              <td>Selfie del Cliente</td>
+              <td><span class="badge badge--red">Sí</span></td>
+              <td>Fotografía del rostro del cliente para comparación biométrica</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ─────────────────────────────────────── -->
+        <h3 id="foto-ciclo-vida">7.2 Ciclo de Vida de una Fotografía</h3>
+        <p>
+          Cada entrada en <code>FotografiasEstudio</code> transita por los siguientes estados.
+          El campo <code>NumeroVersion</code> permite rastrear cuántas veces se ha reemplazado una foto.
+        </p>
+        <pre><code>                      Cliente sube archivo
+                              │
+                              ▼
+                   ┌─────────────────────┐
+                   │   PENDIENTE_CARGA   │  ← Registro creado antes de la URL
+                   └──────────┬──────────┘
+                              │ URL almacenada
+                              ▼
+                   ┌─────────────────────┐
+                   │       CARGADA       │  ← Archivo disponible en storage
+                   └──────────┬──────────┘
+                              │ Asesor abre revisión
+                              ▼
+                   ┌─────────────────────┐
+                   │     EN_REVISION     │  ← Asesor revisando
+                   └──────┬──────┬───────┘
+                          │      │
+              APROBADA ◄──┘      └──► RECHAZADA
+                   │                      │
+                   ▼                      ▼
+          FotografiasAprobadas++   SolicitudesRecarga
+          (gate biometría)         (link al cliente)
+                                          │
+                                          │ Cliente sube nueva versión
+                                          ▼
+                                     REEMPLAZADA   ← versión anterior
+                                     (nueva entra como CARGADA)
+                                          │
+                                          │ Tiempo expirado sin acción
+                                          ▼
+                                       EXPIRADA</code></pre>
+
+        <!-- ─────────────────────────────────────── -->
+        <h3 id="foto-revision-asesor">7.3 Proceso de Revisión por el Asesor</h3>
+        <p>
+          Cuando el estudio llega al estado <code>FOTOS_EN_REVISION</code>, el asesor de fábrica
+          revisa las 3 fotografías y registra su decisión en <code>RevisionesFotografia</code>.
+        </p>
+        <pre><code>T+00:00  Cliente completa carga de las 3 fotos
+         └─► UPDATE EstudiosCredito: IdEstadoActual = FOTOS_EN_REVISION
+         └─► FotografiasEstudio (x3): EstadoFoto = EN_REVISION
+
+T+00:05  Asesor abre el panel de fotografías del estudio
+         ├─► Visualiza FOTO_FRONTAL_DOC → calidad OK
+         │   └─► INSERT RevisionesFotografia: { ResultadoRevision: 'APROBADA', IdAsesor: [...] }
+         │   └─► UPDATE FotografiasEstudio: EstadoFoto = 'APROBADA'
+         │   └─► UPDATE EstudiosCredito: FotografiasAprobadas = 1
+         │
+         ├─► Visualiza FOTO_TRASERA_DOC → calidad OK
+         │   └─► INSERT RevisionesFotografia: { ResultadoRevision: 'APROBADA' }
+         │   └─► UPDATE FotografiasEstudio: EstadoFoto = 'APROBADA'
+         │   └─► UPDATE EstudiosCredito: FotografiasAprobadas = 2
+         │
+         └─► Visualiza SELFIE → rostro no visible claramente
+             └─► INSERT RevisionesFotografia: {
+                   ResultadoRevision: 'RECHAZADA',
+                   MotivoRechazo: 'Imagen borrosa — rostro no distinguible',
+                   IdAsesor: [...]
+                 }
+             └─► UPDATE FotografiasEstudio: EstadoFoto = 'RECHAZADA'
+             └─► INSERT SolicitudesRecarga: {
+                   IdFotografia: [...], UrlCargaFirmada: 'https://storage/...',
+                   FechaExpiracion: NOW() + 48h, EstadoSolicitud: 'GENERADO'
+                 }
+             └─► UPDATE EstudiosCredito: EstadoRevisionFotos = 'CON_RECHAZOS'</code></pre>
+
+        <!-- ─────────────────────────────────────── -->
+        <h3 id="foto-recarga">7.4 Sistema de Re-carga de Fotografías</h3>
+        <p>
+          Cuando una foto es rechazada, <code>SolicitudesRecarga</code> gestiona el enlace de
+          carga seguro que se envía al cliente. El enlace expira y tiene estado propio.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Estado Solicitud</th>
+              <th>Significado</th>
+              <th>Transición Siguiente</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge--amber">GENERADO</span></td>
+              <td>Enlace creado, aún no enviado o no usado</td>
+              <td>ENVIADO → USADO / EXPIRADO / CANCELADO</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--accent">ENVIADO</span></td>
+              <td>Enlace notificado al cliente (email/SMS)</td>
+              <td>USADO / EXPIRADO / CANCELADO</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">USADO</span></td>
+              <td>Cliente subió nueva foto usando el enlace</td>
+              <td>Estado terminal</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--red">EXPIRADO</span></td>
+              <td>Enlace vencido sin ser usado (FechaExpiracion &lt; NOW())</td>
+              <td>Estado terminal — se puede generar uno nuevo</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--red">CANCELADO</span></td>
+              <td>Enlace invalidado manualmente por el asesor</td>
+              <td>Estado terminal</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ─────────────────────────────────────── -->
+        <h3 id="foto-escenarios">7.5 Escenarios de Ejemplo</h3>
+
+        <h4>Escenario A — Flujo Feliz (las 3 fotos aprobadas en primera revisión)</h4>
+        <pre><code>Cliente sube 3 fotos → EstadosCredito pasa a FOTOS_EN_REVISION
+Asesor aprueba las 3 → FotografiasAprobadas = 3
+                     → EstadoRevisionFotos = 'APROBADO'
+                     → EstudiosCredito pasa a estado biometría
+                     → RegistrosBiometria se crea con FK a las 3 fotos aprobadas</code></pre>
+
+        <h4>Escenario B — Selfie Rechazada y Recargada</h4>
+        <pre><code>Asesor rechaza SELFIE (borrosa) → SolicitudesRecarga generada
+                                 → EstadoRevisionFotos = 'CON_RECHAZOS'
+
+Cliente recibe enlace → sube nueva selfie
+                      → FotografiasEstudio (selfie v1) → REEMPLAZADA
+                      → FotografiasEstudio (selfie v2) → CARGADA
+                      → INSERT HistorialFotografias (preserva URL v1)
+                      → SolicitudesRecarga → USADO
+
+Asesor revisa selfie v2 → APROBADA
+                        → FotografiasAprobadas = 3
+                        → EstadoRevisionFotos = 'APROBADO'</code></pre>
+
+        <h4>Escenario C — Foto Faltante y Enlace Expirado</h4>
+        <pre><code>Asesor rechaza FOTO_FRONTAL_DOC → SolicitudesRecarga generada (expira en 48h)
+                                 → Notificación enviada: EstadoSolicitud = ENVIADO
+
+48 horas después → Cliente no subió la foto
+                 → Job nocturno detecta FechaExpiracion &lt; NOW()
+                 → SolicitudesRecarga → EXPIRADO
+
+Asesor genera nuevo enlace → Nueva SolicitudesRecarga (EstadoSolicitud: GENERADO)
+                           → Enlace anterior queda EXPIRADO (trazabilidad)</code></pre>
+
+        <!-- ─────────────────────────────────────── -->
+        <h3 id="foto-biometria">7.6 Conexión con el Módulo Biométrico</h3>
+        <p>
+          Una vez que <code>FotografiasAprobadas = 3</code>, el paso biométrico puede iniciarse.
+          <code>RegistrosBiometria</code> almacena FK directas a las fotos aprobadas que se usaron
+          en la comparación, garantizando auditoría cruzada completa.
+        </p>
+        <pre><code>EstudiosCredito
+  │  FotografiasAprobadas = 3
+  │  EstadoRevisionFotos = APROBADO
+  │
+  ▼ (desbloquea biometría)
+RegistrosBiometria
+  ├── IdFotografiaFrontal ──FK──► FotografiasEstudio (FOTO_FRONTAL_DOC, APROBADA)
+  ├── IdFotografiaReverso ──FK──► FotografiasEstudio (FOTO_TRASERA_DOC, APROBADA)
+  └── IdFotografiaSelfie  ──FK──► FotografiasEstudio (SELFIE, APROBADA)
+          │
+          │  Coincidencia facial (UmbralMatchFacial)
+          ▼
+      ResultadoBiometria = EXITOSO / FALLIDO / DERIVADO_FABRICA</code></pre>
+
+        <div class="callout callout--warn">
+          <p>
+            <strong>Auditoría:</strong> Si la biometría es impugnada, <code>RegistrosBiometria</code>
+            permite recuperar las URLs exactas de las imágenes que se usaron en la comparación —
+            no las versiones actuales (que pueden haber sido reemplazadas), sino las versiones aprobadas
+            en el momento del registro.
+          </p>
+        </div>
+
+        <!-- ─────────────────────────────────────── -->
+        <h3 id="foto-fraude">7.7 Reglas de Fraude Fotográfico</h3>
+        <p>Las 4 reglas semilla fotográficas en <code>CatalogoReglasFraude</code> detectan los patrones de mayor riesgo:</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Código de Regla</th>
+              <th>Nivel</th>
+              <th>Patrón Detectado</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>FOTO_RECHAZADA_MULTIPLE_VECES</code></td>
+              <td><span class="badge badge--amber">MEDIO</span></td>
+              <td>Misma foto rechazada más de N veces (posible intento de evadir validación)</td>
+              <td>ESCALAR</td>
+            </tr>
+            <tr>
+              <td><code>MAX_VERSIONES_FOTO_SUPERADO</code></td>
+              <td><span class="badge badge--red">ALTO</span></td>
+              <td>NumeroVersion supera el límite configurado (abuso del sistema de recarga)</td>
+              <td>ESCALAR</td>
+            </tr>
+            <tr>
+              <td><code>FOTO_DUPLICADA_OTRO_ESTUDIO</code></td>
+              <td><span class="badge badge--red">CRITICO</span></td>
+              <td>URL o hash de imagen coincide con una foto en otro estudio (fraude de identidad)</td>
+              <td>BLOQUEAR</td>
+            </tr>
+            <tr>
+              <td><code>SELFIE_NO_COINCIDE_DOCUMENTO</code></td>
+              <td><span class="badge badge--red">ALTO</span></td>
+              <td>Algoritmo detecta que el rostro de la selfie no coincide con la foto del documento</td>
+              <td>ESCALAR</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ─────────────────────────────────────── -->
+        <h3 id="foto-consulta-asesor">7.8 Consulta Completa del Asesor de Fotografías</h3>
+        <p>
+          El asesor puede reconstruir el estado fotográfico completo de un estudio con una sola consulta SQL,
+          incluyendo cada versión de cada foto y cada decisión de revisión tomada.
+        </p>
+        <pre><code>-- Consulta completa de fotografías para el asesor:
+SELECT
+    ct.Nombre                     AS TipoFotografia,
+    ct.EsObligatorio,
+    fe.NumeroVersion,
+    fe.EstadoFoto,
+    fe.UrlAlmacenamiento,
+    fe.FechaCreacion              AS FechaCarga,
+
+    -- Última revisión del asesor sobre esta foto
+    rv.ResultadoRevision,
+    rv.MotivoRechazo,
+    rv.NotasAsesor,
+    rv.FechaRevision,
+
+    -- Solicitud de recarga activa (si existe)
+    sr.EstadoSolicitud            AS EstadoRecarga,
+    sr.FechaExpiracion            AS ExpiraRecarga
+
+FROM FotografiasEstudio fe
+JOIN CatalogoTiposFotografia ct ON fe.IdTipoFotografia = ct.IdTipoFotografia
+LEFT JOIN RevisionesFotografia rv ON rv.IdFotografia = fe.IdFotografia
+    AND rv.IdRevision = (
+        SELECT TOP 1 IdRevision
+        FROM RevisionesFotografia
+        WHERE IdFotografia = fe.IdFotografia
+        ORDER BY FechaRevision DESC
+    )
+LEFT JOIN SolicitudesRecarga sr ON sr.IdFotografia = fe.IdFotografia
+    AND sr.EstadoSolicitud IN ('GENERADO', 'ENVIADO')
+
+WHERE fe.IdEstudio = @IdEstudio
+ORDER BY ct.Nombre, fe.NumeroVersion DESC;</code></pre>
+
+      </section>
+
       <!-- Consideraciones FinTech -->
       <section id="consideraciones">
         <h2>Consideraciones FinTech y Cumplimiento</h2>
@@ -2948,8 +4588,8 @@ VALUES (12345, 9, 'PRESELECTA', 'https://api.preselecta.co/consultar',
       <hr />
       <p style="font-size: 13px; color: var(--text-secondary)">
         <strong>Documento:</strong> Arquitectura de Datos — Fábricas de Crédito
-        QUAC v2.1<br />
-        <strong>Fecha:</strong> 6 de abril de 2026<br />
+        QUAC v2.3<br />
+        <strong>Fecha:</strong> 13 de abril de 2026<br />
         <strong>Archivos relacionados:</strong>
         <code>DB/DDL/FABRICASv2.sql</code>
       </p>
