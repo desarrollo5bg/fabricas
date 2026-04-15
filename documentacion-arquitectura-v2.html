@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Arquitectura de Datos v2.3 — Fábricas de Crédito QUAC</title>
+    <title>Arquitectura de Datos v2.4 — Fábricas de Crédito QUAC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -491,7 +491,7 @@
   <body>
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
-      <div class="sidebar-title">FABRICAS DE CRÉDITO v2.3</div>
+      <div class="sidebar-title">FABRICAS DE CRÉDITO v2.4</div>
       <nav>
         <a href="#overview" class="active">Visión General</a>
         <a href="#resumen-ejecutivo" class="indent">Resumen Ejecutivo</a>
@@ -533,6 +533,17 @@
         <a href="#trazabilidad">Estrategia de Trazabilidad</a>
         <a href="#reglas-negocio" class="indent">Reglas de Negocio</a>
         <a href="#consideraciones">Consideraciones FinTech</a>
+        <div class="sidebar-section">Servicios Backend v2.4</div>
+        <a href="#taxonomia-servicios">Taxonomía de Servicios</a>
+        <a href="#flujos-canales" class="indent">Flujos Web vs Tienda</a>
+        <a href="#session-handoff" class="indent">Session Handoff</a>
+        <a href="#servicios-core" class="indent">A) Core / Globales</a>
+        <a href="#servicios-bff" class="indent">B) BFF por Canal</a>
+        <a href="#servicios-utilitarios" class="indent">C) Utilitarios</a>
+        <a href="#servicios-externos" class="indent">D) Integraciones Externas</a>
+        <a href="#backend-driven-state" class="indent">Backend-Driven State</a>
+        <a href="#next-action-enum" class="indent">Enum NextAction</a>
+        <a href="#payload-escenarios" class="indent">Payloads por Escenario</a>
       </nav>
     </aside>
 
@@ -540,12 +551,12 @@
     <main class="main">
       <!-- Header -->
       <section id="overview">
-        <h1>Arquitectura de Datos v2.3 — Fábricas de Crédito QUAC</h1>
+        <h1>Arquitectura de Datos v2.4 — Fábricas de Crédito QUAC</h1>
         <p class="meta">
           <span class="meta-item"
             ><strong>Motor:</strong> SQL Server 2019+</span
           >
-          <span class="meta-item"><strong>Versión:</strong> 2.3</span>
+          <span class="meta-item"><strong>Versión:</strong> 2.4</span>
           <span class="meta-item"
             ><strong>Fecha:</strong> 13 de abril de 2026</span
           >
@@ -562,9 +573,9 @@
           auditoría y automatización sin romper la operación actual. La versión
           2.2 añadió el <strong>sistema de detección de fraude y escalamiento</strong>
           con 6 nuevas tablas especializadas. La versión 2.3 añade el
-          <strong>módulo de gestión de fotografías</strong> con 5 nuevas tablas
-          para el ciclo de vida completo de fotos obligatorias, revisión humana
-          y re-subida via link.
+           <strong>módulo de gestión de fotografías</strong> con 5 nuevas tablas
+           para el ciclo de vida completo de fotos obligatorias, revisión humana
+           y re-subida via link. La versión 2.4 documenta la <strong>Taxonomía de Servicios Backend</strong> con el diseño completo de APIs omnicanal (Web, Tienda, Handoff) y la estrategia Backend-Driven State.
         </p>
 
         <div class="callout callout--info">
@@ -4584,12 +4595,544 @@ ORDER BY ct.Nombre, fe.NumeroVersion DESC;</code></pre>
         </ul>
       </section>
 
+      <!-- ===================== TAXONOMÍA DE SERVICIOS ===================== -->
+      <section id="taxonomia-servicios">
+        <h2>Taxonomía de Servicios Backend <span class="badge badge--accent">Nuevo v2.4</span></h2>
+        <p>
+          Diseño completo de la arquitectura de servicios backend para el LOS QUAC. Soporta dos canales:
+          <strong>Flujo Web (autogestión)</strong> desde smartphone e <strong>Flujo Tienda (asistido/híbrido)</strong>
+          desde el PC del asesor, con soporte para <strong>Session Handoffs</strong> entre dispositivos.
+          La <strong>Regla de Oro</strong>: el Backend dicta la máquina de estados — los Frontends son
+          Thin Clients que solo renderizan y envían payloads.
+        </p>
+
+        <div class="card-grid">
+          <div class="card card--violet">
+            <h4>21 Servicios Core</h4>
+            <p>Lógica inmutable. Sin conocimiento de canal. Solo llamados internos vía mTLS.</p>
+          </div>
+          <div class="card card--cyan">
+            <h4>38 Servicios BFF</h4>
+            <p>17 Web + 17 Tienda + 4 Handoff. Orquestan el Core según el canal.</p>
+          </div>
+          <div class="card card--green">
+            <h4>13 Servicios Utilitarios</h4>
+            <p>OTP, SMS, Email, WhatsApp, Storage, Catálogos, Idempotencia.</p>
+          </div>
+          <div class="card card--amber">
+            <h4>12 Adaptadores Externos</h4>
+            <p>Buró, OCR, Biometría, FOSYGA, UBICA, Antecedentes, Infobip, Call Center.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Flujos por canal -->
+      <section id="flujos-canales">
+        <h2>Flujos Web vs Tienda — Comportamiento de la Máquina de Estados</h2>
+        <p>
+          La tabla <code>EstudiosCredito</code> es el <strong>único cursor de verdad</strong>.
+          Los campos clave que gobiernan el routing son:
+        </p>
+        <table>
+          <thead>
+            <tr><th>Campo</th><th>Rol en el Routing</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>IdEstadoActual</code></td><td>Estado global (FK → <code>CatalogoEstados</code>)</td></tr>
+            <tr><td><code>IdPasoActual</code></td><td>Cursor de reanudación (FK → <code>PasosEstudio</code>)</td></tr>
+            <tr><td><code>SlugPasoWeb</code></td><td>Retomar sesión web abandonada</td></tr>
+            <tr><td><code>IdCanal</code></td><td>WEB vs TIENDA vs HANDOFF</td></tr>
+            <tr><td><code>ClaveIdempotencia</code></td><td>Protege contra doble-submit</td></tr>
+            <tr><td><code>VersionFila</code></td><td>Optimistic locking para concurrencia</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Canal WEB — Secuencia de Pasos</h3>
+        <p>Todos los pasos son determinados por el Backend. El Frontend ejecuta el <code>next_action</code> recibido.</p>
+        <pre>POST /web/solicitud/iniciar          → evalúa elegibilidad, crea o retoma estudio
+POST /web/solicitud/{id}/datos-basicos
+POST /web/solicitud/{id}/consentimiento
+POST /util/otp/enviar  ←→  POST /util/otp/validar   (SMS → WA → Llamada escalonado)
+POST /web/solicitud/{id}/confirmar-datos-doc
+POST /web/solicitud/{id}/iniciar-estudio   ← async: Antecedentes → Preselecta → FOSYGA → UBICA
+GET  /web/solicitud/{id}/resultado-estudio ← polling hasta resolución
+POST /web/solicitud/{id}/datos-direccion
+POST /web/solicitud/{id}/biometria/foto-frontal
+POST /web/solicitud/{id}/biometria/foto-reverso
+POST /web/solicitud/{id}/biometria/selfie    ← OCR + faceliveness + face-match ≥85%
+POST /web/solicitud/{id}/activar-cupo        ← valida token correo + activa cupo</pre>
+
+        <h3>Canal TIENDA — Diferencias Operativas</h3>
+        <p>Idéntico al WEB en lógica de negocio. Las diferencias son exclusivamente operativas:</p>
+        <ul>
+          <li><code>IdAsesor</code> e <code>IdTienda</code> se adjuntan automáticamente al estudio.</li>
+          <li>El asesor accede a la <strong>Mesa de Estudios</strong> vía <code>GET /tienda/mesa-estudios</code>.</li>
+          <li>OCR disponible con cámara corporativa <strong>o</strong> link al celular del cliente (Session Handoff).</li>
+          <li>El asesor puede escalar manualmente a Fábrica con motivo tipificado.</li>
+          <li>El asesor revisa y aprueba/rechaza cada foto individualmente.</li>
+        </ul>
+      </section>
+
+      <!-- Session Handoff -->
+      <section id="session-handoff">
+        <h2>Session Handoff — Diseño Técnico</h2>
+        <p>
+          <strong>Problema:</strong> La selfie debe tomarse en el celular del cliente (mayor calidad, mayor naturalidad).
+          El PC del asesor debe detectar automáticamente cuándo el cliente terminó, sin intervención manual.
+        </p>
+
+        <div class="callout callout--info">
+          <p><strong>Solución elegida: Polling HTTP cada 3 segundos + Token UUID</strong><br/>
+          Estado almacenado en <code>SolicitudesRecarga</code> con <code>TipoSolicitud = 'HANDOFF_BIOMETRIA'</code>.
+          Upgrade path: <strong>SSE (Server-Sent Events)</strong> si se supera 500 asesores concurrentes.</p>
+        </div>
+
+        <h3>Secuencia Completa del Handoff</h3>
+        <pre>PC ASESOR                      BACKEND                       CELULAR CLIENTE
+──────────────────────────────────────────────────────────────────────────────
+POST /tienda/handoff/
+  generar-link
+{idEstudio, paso: SELFIE}
+                   →  INSERT SolicitudesRecarga
+                      { Token: UUID, FechaExpiracion: +15min,
+                        Tipo: HANDOFF_BIOMETRIA,
+                        Estado: PENDIENTE }
+                      POST /ext/infobip/sms → link al cliente
+← { token, expiresAt }
+                                              ← Recibe SMS con link
+
+Polling cada 3s:                              GET /handoff/{token}/validar
+GET /tienda/handoff/                          → { idEstudio, paso: SELFIE }
+  estado/{token}
+                   → Estado = PENDIENTE       POST /handoff/{token}/biometria/selfie
+← nextAction:                                 → SolicitudesRecarga.Estado = COMPLETADO
+  WAIT_HANDOFF                                   INSERT FotografiasEstudio (SELFIE)
+                                                 POST /ext/biometria/faceliveness
+                                                 POST /ext/biometria/face-match
+
+GET /tienda/handoff/estado/{token}
+                   → Estado = COMPLETADO
+← nextAction: HANDOFF_COMPLETE
+PC del asesor continúa el flujo ✓</pre>
+
+        <h3>Comparativa: Polling vs WebSocket</h3>
+        <table>
+          <thead>
+            <tr><th>Criterio</th><th>Polling 3s ✅</th><th>WebSocket</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Infraestructura</td><td>Solo HTTP REST stateless</td><td>WS server persistente + sticky sessions</td></tr>
+            <tr><td>Escalabilidad</td><td>Load balancer nativo</td><td>Redis pub/sub requerido</td></tr>
+            <tr><td>TTL / Expiración</td><td>Trivial — responde <code>HANDOFF_EXPIRED</code></td><td>Heartbeat complejo</td></tr>
+            <tr><td>Complejidad</td><td>Días de implementación</td><td>Semanas/meses</td></tr>
+            <tr><td>Volumen actual</td><td>5K–10K sol/mes → suficiente</td><td>Overkill para este volumen</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Servicios Core -->
+      <section id="servicios-core">
+        <h2>A) Servicios Core / Globales — 21 endpoints</h2>
+        <p>
+          Lógica de negocio inmutable. Sin conocimiento de canal. Accesibles únicamente desde los BFFs
+          mediante mTLS o API Key interna — <strong>nunca expuestos al exterior</strong>.
+        </p>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th><th>Tablas Afectadas</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>C-01</td><td><span class="badge badge--green">POST</span></td><td><code>/core/estudios</code></td><td>Crear estudio de crédito</td><td><code>EstudiosCredito</code> ← INSERT</td></tr>
+            <tr><td>C-02</td><td><span class="badge badge--cyan">GET</span></td><td><code>/core/estudios/{id}</code></td><td>Estado completo del estudio</td><td><code>EstudiosCredito</code> → SELECT</td></tr>
+            <tr><td>C-03</td><td><span class="badge badge--green">POST</span></td><td><code>/core/estudios/{id}/estado</code></td><td>Transicionar estado (valida <code>TransicionesEstado</code>)</td><td><code>EstudiosCredito</code>, <code>HistorialEstados</code></td></tr>
+            <tr><td>C-04</td><td><span class="badge badge--cyan">GET</span></td><td><code>/core/estudios/{id}/next-step</code></td><td>Calcular siguiente paso del flujo</td><td><code>PasosEstudio</code>, <code>FasesEstudio</code></td></tr>
+            <tr><td>C-05</td><td><span class="badge badge--green">POST</span></td><td><code>/core/estudios/{id}/paso-completado</code></td><td>Avanzar cursor <code>IdPasoActual</code></td><td><code>EstudiosCredito</code> ← UPDATE</td></tr>
+            <tr><td>C-06</td><td><span class="badge badge--cyan">GET</span></td><td><code>/core/terceros/{nit}/elegibilidad</code></td><td>Bloqueo, cupo activo, cooling-off</td><td><code>TercerosFabricas</code>, <code>KCRM_CadenaCreditos</code></td></tr>
+            <tr><td>C-07</td><td><span class="badge badge--green">POST</span></td><td><code>/core/terceros/{nit}/upsert</code></td><td>Crear o actualizar tercero</td><td><code>TercerosFabricas</code></td></tr>
+            <tr><td>C-08</td><td><span class="badge badge--green">POST</span></td><td><code>/core/evaluaciones-riesgo</code></td><td>Registrar resultado de evaluación externa</td><td><code>EvaluacionesRiesgo</code> ← INSERT</td></tr>
+            <tr><td>C-09</td><td><span class="badge badge--green">POST</span></td><td><code>/core/biometria</code></td><td>Registrar resultado biométrico</td><td><code>RegistrosBiometria</code>, <code>FotografiasEstudio</code></td></tr>
+            <tr><td>C-10</td><td><span class="badge badge--green">POST</span></td><td><code>/core/consentimientos</code></td><td>Registrar consentimiento legal</td><td><code>ConsentimientosLegales</code> ← INSERT</td></tr>
+            <tr><td>C-11</td><td><span class="badge badge--green">POST</span></td><td><code>/core/fraude/evaluar</code></td><td>Ejecutar reglas de fraude contra el estudio</td><td><code>AlertasFraude</code>, <code>CatalogoReglasFraude</code></td></tr>
+            <tr><td>C-12</td><td><span class="badge badge--green">POST</span></td><td><code>/core/escalamientos</code></td><td>Crear escalamiento a Fábrica</td><td><code>EscalamientosFabrica</code>, <code>CatalogoMotivosEscalamiento</code></td></tr>
+            <tr><td>C-13</td><td><span class="badge badge--green">POST</span></td><td><code>/core/fotos/{id}/revision</code></td><td>Registrar decisión de revisión de foto (INSERT-ONLY)</td><td><code>RevisionesFotografia</code></td></tr>
+            <tr><td>C-14</td><td><span class="badge badge--green">POST</span></td><td><code>/core/estudios/{id}/activar-cupo</code></td><td>Activación final del cupo</td><td><code>EstudiosCredito</code>, <code>TercerosFabricas</code>, <code>KCRM_CadenaCreditos</code></td></tr>
+            <tr><td>C-15</td><td><span class="badge badge--green">POST</span></td><td><code>/core/auditoria/cambio-datos</code></td><td>Registrar mutación de datos sensibles</td><td><code>HistorialDatosSensibles</code> ← INSERT</td></tr>
+            <tr><td>C-16</td><td><span class="badge badge--green">POST</span></td><td><code>/core/auditoria/servicio-externo</code></td><td>Registrar llamada a servicio externo</td><td><code>RegistroServiciosExternos</code> ← INSERT</td></tr>
+            <tr><td>C-17</td><td><span class="badge badge--cyan">GET</span></td><td><code>/core/catalogos/estados</code></td><td>Estados de la máquina</td><td><code>CatalogoEstados</code></td></tr>
+            <tr><td>C-18</td><td><span class="badge badge--cyan">GET</span></td><td><code>/core/catalogos/pasos</code></td><td>Pasos y fases del flujo</td><td><code>PasosEstudio</code>, <code>FasesEstudio</code></td></tr>
+            <tr><td>C-19</td><td><span class="badge badge--cyan">GET</span></td><td><code>/core/catalogos/canales</code></td><td>Canales de origen disponibles</td><td><code>CatalogoCanalesOrigen</code></td></tr>
+            <tr><td>C-20</td><td><span class="badge badge--cyan">GET</span></td><td><code>/core/catalogos/tipos-documento</code></td><td>Tipos de documento de identidad</td><td>Tabla dominio QUAC</td></tr>
+            <tr><td>C-21</td><td><span class="badge badge--cyan">GET</span></td><td><code>/core/reglas-negocio</code></td><td>Parámetros configurables (días cooling, intentos OTP, etc.)</td><td><code>ConfiguracionReglasNegocio</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Servicios BFF -->
+      <section id="servicios-bff">
+        <h2>B) Servicios BFF por Canal — 38 endpoints</h2>
+        <p>
+          Servicios específicos para cada interfaz de usuario. Orquestan llamados al Core y manejan el contexto
+          del canal. Los BFFs conocen el canal pero <strong>no contienen lógica de negocio</strong> — la delegan al Core.
+        </p>
+
+        <h3>BFF Canal WEB — 17 endpoints (<code>/web/</code>)</h3>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>W-01</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/iniciar</code></td><td>Punto de entrada único. Evalúa elegibilidad y crea/retoma estudio.</td></tr>
+            <tr><td>W-02</td><td><span class="badge badge--cyan">GET</span></td><td><code>/web/solicitud/{id}/estado</code></td><td>Estado + <code>next_action</code> para renderizado. Idempotente.</td></tr>
+            <tr><td>W-03</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/datos-basicos</code></td><td>Guardar nombre, correo, celular. Dispara auditoría de datos sensibles.</td></tr>
+            <tr><td>W-04</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/consentimiento</code></td><td>Aceptar T&amp;C, disparar OTP por SMS.</td></tr>
+            <tr><td>W-05</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/validar-otp</code></td><td>Validar código OTP. Registra intento en <code>LogValidacionesOTP</code>.</td></tr>
+            <tr><td>W-06</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/confirmar-datos-doc</code></td><td>Confirmar fecha de nacimiento y correo electrónico.</td></tr>
+            <tr><td>W-07</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/iniciar-estudio</code></td><td>Lanzar pipeline async: Antecedentes → Preselecta → FOSYGA → UBICA.</td></tr>
+            <tr><td>W-08</td><td><span class="badge badge--cyan">GET</span></td><td><code>/web/solicitud/{id}/resultado-estudio</code></td><td>Polling del pipeline async de evaluación de riesgo.</td></tr>
+            <tr><td>W-09</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/datos-direccion</code></td><td>Guardar departamento, ciudad, dirección y barrio (staging).</td></tr>
+            <tr><td>W-10</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/biometria/iniciar</code></td><td>Inicializar sesión biométrica.</td></tr>
+            <tr><td>W-11</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/biometria/foto-frontal</code></td><td>Subir foto frontal del documento. Dispara OCR.</td></tr>
+            <tr><td>W-12</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/biometria/foto-reverso</code></td><td>Subir foto reverso del documento.</td></tr>
+            <tr><td>W-13</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/biometria/selfie</code></td><td>Subir selfie + faceliveness + face-match (≥85%).</td></tr>
+            <tr><td>W-14</td><td><span class="badge badge--cyan">GET</span></td><td><code>/web/solicitud/{id}/biometria/estado</code></td><td>Estado del proceso biométrico completo.</td></tr>
+            <tr><td>W-15</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/reenviar-otp</code></td><td>Reenviar OTP por canal alternativo (SMS → WA → Llamada).</td></tr>
+            <tr><td>W-16</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/activar-cupo</code></td><td>Validar token correo + activación final del cupo.</td></tr>
+            <tr><td>W-17</td><td><span class="badge badge--cyan">GET</span></td><td><code>/web/solicitud/retomar</code></td><td>Retomar sesión abandonada por NIT + <code>SlugPasoWeb</code>.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>BFF Canal TIENDA — 17 endpoints (<code>/tienda/</code>)</h3>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>T-01</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/solicitud/iniciar-asistida</code></td><td>Punto de entrada del asesor. Adjunta <code>IdAsesor</code> + <code>IdTienda</code> al estudio.</td></tr>
+            <tr><td>T-02</td><td><span class="badge badge--cyan">GET</span></td><td><code>/tienda/solicitud/{id}/estado</code></td><td>Estado + <code>next_action</code> para el PC del asesor.</td></tr>
+            <tr><td>T-03</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/solicitud/{id}/datos-tercero</code></td><td>Crear tercero por OCR o ingreso manual.</td></tr>
+            <tr><td>T-04</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/solicitud/{id}/token-tyc</code></td><td>Enviar token T&amp;C por SMS/WhatsApp al cliente.</td></tr>
+            <tr><td>T-05</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/solicitud/{id}/validar-token</code></td><td>Validar token T&amp;C.</td></tr>
+            <tr><td>T-06</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/solicitud/{id}/evaluar-viabilidad</code></td><td>Antecedentes + Preselecta + FOSYGA + UBICA.</td></tr>
+            <tr><td>T-07</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/solicitud/{id}/direccion</code></td><td>Guardar dirección de residencia del cliente.</td></tr>
+            <tr><td>T-08</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/solicitud/{id}/biometria/asesor</code></td><td>Captura biométrica desde cámara del asesor (sin handoff).</td></tr>
+            <tr><td>T-09</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/handoff/generar-link</code></td><td><strong>Generar link SMS</strong> para handoff biométrico al celular del cliente.</td></tr>
+            <tr><td>T-10</td><td><span class="badge badge--cyan">GET</span></td><td><code>/tienda/handoff/estado/{token}</code></td><td><strong>Polling</strong> — ¿completó el cliente el handoff? Retorna <code>WAIT_HANDOFF</code> o <code>HANDOFF_COMPLETE</code>.</td></tr>
+            <tr><td>T-11</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/solicitud/{id}/escalar-fabrica</code></td><td>Escalar manualmente a Fábrica con motivo tipificado.</td></tr>
+            <tr><td>T-12</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/solicitud/{id}/solicitar-recarga-foto</code></td><td>Generar link de re-carga para foto rechazada.</td></tr>
+            <tr><td>T-13</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/solicitud/{id}/activar-cupo</code></td><td>Activación final del cupo (express o normal).</td></tr>
+            <tr><td>T-14</td><td><span class="badge badge--cyan">GET</span></td><td><code>/tienda/mesa-estudios</code></td><td>Listado de estudios del asesor/tienda con filtros y estados.</td></tr>
+            <tr><td>T-15</td><td><span class="badge badge--cyan">GET</span></td><td><code>/tienda/mesa-estudios/{id}/detalle</code></td><td>Detalle completo de un estudio para el asesor.</td></tr>
+            <tr><td>T-16</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/fotos/{idFoto}/revisar</code></td><td>Asesor aprueba o rechaza una foto individual.</td></tr>
+            <tr><td>T-17</td><td><span class="badge badge--cyan">GET</span></td><td><code>/tienda/estadisticas/diarias</code></td><td>KPIs del día para el asesor o la tienda.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>BFF Canal HANDOFF — 4 endpoints (<code>/handoff/</code>)</h3>
+        <p>
+          Endpoints accesibles mediante link temporal sin JWT estándar. Autenticados por <strong>token UUID en el path</strong>,
+          con TTL de 15 minutos y alcance limitado a un único estudio.
+        </p>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>H-01</td><td><span class="badge badge--cyan">GET</span></td><td><code>/handoff/{token}/validar</code></td><td>Validar token y retornar contexto del estudio al celular del cliente.</td></tr>
+            <tr><td>H-02</td><td><span class="badge badge--green">POST</span></td><td><code>/handoff/{token}/biometria/selfie</code></td><td>Cliente sube selfie desde su celular. Dispara faceliveness + face-match.</td></tr>
+            <tr><td>H-03</td><td><span class="badge badge--cyan">GET</span></td><td><code>/handoff/{token}/estado</code></td><td>Estado del handoff para la UX del cliente (progreso, expiración).</td></tr>
+            <tr><td>H-04</td><td><span class="badge badge--green">POST</span></td><td><code>/handoff/{token}/fotos/recarga</code></td><td>Cliente sube foto de re-carga solicitada por el asesor.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Servicios Utilitarios -->
+      <section id="servicios-utilitarios">
+        <h2>C) Servicios Utilitarios — 13 endpoints</h2>
+        <p>Herramientas transversales disponibles para todos los canales.</p>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th><th>Tablas</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>U-01</td><td><span class="badge badge--green">POST</span></td><td><code>/util/otp/enviar</code></td><td>Enviar OTP por canal. Gestiona escalonamiento SMS→WA→EMAIL.</td><td><code>RetosSeguridad</code></td></tr>
+            <tr><td>U-02</td><td><span class="badge badge--green">POST</span></td><td><code>/util/otp/validar</code></td><td>Validar código contra hash almacenado.</td><td><code>RetosSeguridad</code>, <code>LogValidacionesOTP</code></td></tr>
+            <tr><td>U-03</td><td><span class="badge badge--cyan">GET</span></td><td><code>/util/otp/estado/{idReto}</code></td><td>Estado del reto (activo, expirado, agotado intentos).</td><td><code>RetosSeguridad</code></td></tr>
+            <tr><td>U-04</td><td><span class="badge badge--green">POST</span></td><td><code>/util/otp/reenviar</code></td><td>Reenviar por mismo o distinto canal. Incrementa <code>NumeroReenvios</code>.</td><td><code>RetosSeguridad</code></td></tr>
+            <tr><td>U-05</td><td><span class="badge badge--green">POST</span></td><td><code>/util/sms/enviar</code></td><td>SMS genérico (links, notificaciones).</td><td><code>RegistroServiciosExternos</code></td></tr>
+            <tr><td>U-06</td><td><span class="badge badge--green">POST</span></td><td><code>/util/email/enviar</code></td><td>Email genérico (activación, notificaciones).</td><td><code>RegistroServiciosExternos</code></td></tr>
+            <tr><td>U-07</td><td><span class="badge badge--green">POST</span></td><td><code>/util/whatsapp/enviar</code></td><td>Mensaje WhatsApp.</td><td><code>RegistroServiciosExternos</code></td></tr>
+            <tr><td>U-08</td><td><span class="badge badge--cyan">GET</span></td><td><code>/util/catalogos/departamentos</code></td><td>Listado de departamentos de Colombia.</td><td>Tabla dominio QUAC</td></tr>
+            <tr><td>U-09</td><td><span class="badge badge--cyan">GET</span></td><td><code>/util/catalogos/ciudades/{idDepto}</code></td><td>Ciudades por departamento.</td><td>Tabla dominio QUAC</td></tr>
+            <tr><td>U-10</td><td><span class="badge badge--cyan">GET</span></td><td><code>/util/catalogos/tipos-documento</code></td><td>Tipos de documento de identidad.</td><td>Tabla dominio QUAC</td></tr>
+            <tr><td>U-11</td><td><span class="badge badge--green">POST</span></td><td><code>/util/storage/presigned-url</code></td><td>URL pre-firmada para subida de foto (S3/Blob). TTL 15 min.</td><td>N/A</td></tr>
+            <tr><td>U-12</td><td><span class="badge badge--green">POST</span></td><td><code>/util/idempotencia/verificar</code></td><td>Verificar si <code>ClaveIdempotencia</code> fue procesada. HTTP 409 si duplicado.</td><td><code>EstudiosCredito</code></td></tr>
+            <tr><td>U-13</td><td><span class="badge badge--cyan">GET</span></td><td><code>/util/health</code></td><td>Health check del sistema.</td><td>N/A</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Servicios Externos -->
+      <section id="servicios-externos">
+        <h2>D) Servicios de Integración Externa — 12 adaptadores</h2>
+        <p>
+          Adaptadores que encapsulan la comunicación con proveedores externos. Cada llamada queda registrada
+          automáticamente en <code>RegistroServiciosExternos</code> con el payload completo (request + response + latencia).
+        </p>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th><th>Escribe en</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>E-01</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/antecedentes/consultar</code></td><td>Antecedentes judiciales y listas restrictivas.</td><td><code>EvaluacionesRiesgo</code> (ANTECEDENTES)</td></tr>
+            <tr><td>E-02</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/buro/consultar</code></td><td>Consulta buró de crédito.</td><td><code>EvaluacionesRiesgo</code> (BURO)</td></tr>
+            <tr><td>E-03</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/preselecta/consultar</code></td><td>Viabilidad crediticia Preselecta.</td><td><code>EvaluacionesRiesgo</code> (PRESELECTA)</td></tr>
+            <tr><td>E-04</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/fosyga/consultar</code></td><td>Seguridad social FOSYGA.</td><td><code>EvaluacionesRiesgo</code> (FOSYGA)</td></tr>
+            <tr><td>E-05</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/ubica/consultar</code></td><td>Contactabilidad UBICA.</td><td><code>ValidacionesContactabilidad</code>, <code>EvaluacionesRiesgo</code> (UBICA)</td></tr>
+            <tr><td>E-06</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/ocr/procesar-documento</code></td><td>OCR de documento: extrae nombre, número, fecha expedición.</td><td><code>RegistrosBiometria</code> (campos OCR)</td></tr>
+            <tr><td>E-07</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/biometria/faceliveness</code></td><td>Prueba de vida (vivacidad facial).</td><td><code>RegistrosBiometria</code></td></tr>
+            <tr><td>E-08</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/biometria/face-match</code></td><td>Comparación facial selfie vs documento (umbral ≥85%).</td><td><code>RegistrosBiometria</code> (<code>PorcentajeCoincidencia</code>)</td></tr>
+            <tr><td>E-09</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/biometria/enroll</code></td><td>Enrollar biometría para re-autenticación futura.</td><td><code>RegistrosBiometria</code>, <code>TercerosFabricas</code></td></tr>
+            <tr><td>E-10</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/infobip/sms</code></td><td>Adaptador Infobip — envío de SMS.</td><td><code>RegistroServiciosExternos</code></td></tr>
+            <tr><td>E-11</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/infobip/whatsapp</code></td><td>Adaptador Infobip — envío de WhatsApp.</td><td><code>RegistroServiciosExternos</code></td></tr>
+            <tr><td>E-12</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/call-center/escalar</code></td><td>Notificar caso al Call Center.</td><td><code>EscalamientosFabrica</code>, <code>ValidacionesContactabilidad</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Backend-Driven State -->
+      <section id="backend-driven-state">
+        <h2>Estrategia Backend-Driven State</h2>
+        <p>
+          El Backend devuelve siempre el mismo envelope estándar. El Frontend <strong>nunca</strong> tiene
+          <code>if/else</code> de reglas de negocio — solo interpreta el <code>next_action</code> recibido
+          y renderiza la pantalla indicada en <code>screen</code>.
+        </p>
+
+        <h3>Estructura del Payload Estándar</h3>
+        <pre>{
+  "status":        "success" | "error",
+  "request_id":   "uuid-de-trazabilidad",
+  "timestamp":    "2026-04-15T10:30:00Z",
+
+  "study_id":      "EST-2026-00123",
+  "nit":           "1023456789",
+
+  "current_state": "EN_PROGRESO",
+  "next_action":   "RENDER_SCREEN",   // ← Frontend obedece esto, sin lógica propia
+
+  "screen":        "BIOMETRIA_FOTO_FRONTAL",  // ← Qué componente renderizar
+  "screen_data":   { ... },                   // ← Datos específicos de esa pantalla
+
+  "alerts":        [],
+  "errors":        [],
+
+  "meta": {
+    "channel":         "WEB" | "TIENDA" | "HANDOFF",
+    "step":            7,
+    "step_slug":       "biometria-foto-frontal",
+    "progress_pct":    65,
+    "phase":           "VERIFICACION_IDENTIDAD",
+    "is_resuming":     false,
+    "is_handoff":      false,
+    "idempotency_key": "idem-abc-123",
+    "row_version":     3
+  }
+}</pre>
+
+        <div class="callout callout--info">
+          <p><strong>Principio de seguridad:</strong> Los campos <code>idempotency_key</code> y <code>row_version</code>
+          deben enviarse de vuelta en la siguiente request para garantizar idempotencia y optimistic locking.
+          Si <code>row_version</code> no coincide → HTTP 409 + <code>next_action: ERROR_CONCURRENCY</code>.</p>
+        </div>
+      </section>
+
+      <!-- NextAction Enum -->
+      <section id="next-action-enum">
+        <h2>Enum <code>NextAction</code> — 28 valores</h2>
+        <p>Lista exhaustiva de todas las acciones que el Backend puede ordenar al Frontend. El Frontend implementa
+        un <code>switch(next_action)</code> sin lógica de negocio interna.</p>
+        <table>
+          <thead>
+            <tr><th>Valor</th><th>Categoría</th><th>Descripción</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>RENDER_SCREEN</code></td><td><span class="badge badge--cyan">Navegación</span></td><td>Renderizar la pantalla indicada en <code>screen</code></td></tr>
+            <tr><td><code>RESUME_STEP</code></td><td><span class="badge badge--cyan">Navegación</span></td><td>Retomar desde el <code>step_slug</code> abandonado</td></tr>
+            <tr><td><code>ADVANCE_STEP</code></td><td><span class="badge badge--cyan">Navegación</span></td><td>Avanzar al siguiente paso del flujo</td></tr>
+            <tr><td><code>RELOAD_STATE</code></td><td><span class="badge badge--cyan">Navegación</span></td><td>Refrescar estado (post-handoff, post-review)</td></tr>
+            <tr><td><code>FINAL_SUCCESS</code></td><td><span class="badge badge--green">Éxito</span></td><td>Cupo activado exitosamente</td></tr>
+            <tr><td><code>EARLY_EXIT</code></td><td><span class="badge badge--green">Éxito</span></td><td>Cupo ya activo — cierre temprano sin acción requerida</td></tr>
+            <tr><td><code>EXPRESS_ACTIVATION</code></td><td><span class="badge badge--green">Éxito</span></td><td>Reactivación express de cupo cancelado (solo token correo)</td></tr>
+            <tr><td><code>WAIT_PROCESSING</code></td><td><span class="badge badge--amber">Espera</span></td><td>Pipeline Preselecta/FOSYGA en proceso async</td></tr>
+            <tr><td><code>WAIT_HANDOFF</code></td><td><span class="badge badge--amber">Espera</span></td><td>Asesor en PC esperando al cliente en celular</td></tr>
+            <tr><td><code>WAIT_FACTORY_REVIEW</code></td><td><span class="badge badge--amber">Espera</span></td><td>Estudio escalado, esperando revisión manual de Fábrica</td></tr>
+            <tr><td><code>WAIT_CALL_CENTER</code></td><td><span class="badge badge--amber">Espera</span></td><td>Resolución de Call Center (UBICA inconsistente)</td></tr>
+            <tr><td><code>WAIT_PHOTO_REVIEW</code></td><td><span class="badge badge--amber">Espera</span></td><td>Fotos subidas, esperando revisión del asesor</td></tr>
+            <tr><td><code>HANDOFF_SEND_SMS</code></td><td><span class="badge badge--violet">Handoff</span></td><td>Tienda: generar y enviar SMS de handoff al cliente</td></tr>
+            <tr><td><code>HANDOFF_EXPIRED</code></td><td><span class="badge badge--violet">Handoff</span></td><td>Link de handoff expiró — debe regenerarse</td></tr>
+            <tr><td><code>HANDOFF_COMPLETE</code></td><td><span class="badge badge--violet">Handoff</span></td><td>Cliente completó el handoff — PC del asesor continúa</td></tr>
+            <tr><td><code>RETRY_OTP</code></td><td><span class="badge badge--amber">Recuperable</span></td><td>OTP incorrecto, puede reintentar</td></tr>
+            <tr><td><code>RETRY_PHOTO</code></td><td><span class="badge badge--amber">Recuperable</span></td><td>Foto rechazada por el asesor — subir de nuevo</td></tr>
+            <tr><td><code>RETRY_BIOMETRIA</code></td><td><span class="badge badge--amber">Recuperable</span></td><td>Faceliveness o face-match fallido</td></tr>
+            <tr><td><code>CHANGE_OTP_CHANNEL</code></td><td><span class="badge badge--amber">Recuperable</span></td><td>Cambiar canal de entrega del OTP (SMS → WA → Llamada)</td></tr>
+            <tr><td><code>BLOCK_FRAUD</code></td><td><span class="badge badge--red">Bloqueante</span></td><td>Alerta de fraude detectada → estado BLOQUEADO_FRAUDE</td></tr>
+            <tr><td><code>BLOCK_DEBT</code></td><td><span class="badge badge--red">Bloqueante</span></td><td>Cartera morosa activa</td></tr>
+            <tr><td><code>BLOCK_COOLING_OFF</code></td><td><span class="badge badge--red">Bloqueante</span></td><td>Periodo de enfriamiento activo post-rechazo</td></tr>
+            <tr><td><code>BLOCK_MAX_ATTEMPTS</code></td><td><span class="badge badge--red">Bloqueante</span></td><td>Máximo de intentos OTP o biometría agotados</td></tr>
+            <tr><td><code>ERROR_TECHNICAL</code></td><td><span class="badge badge--red">Error</span></td><td>Error técnico inesperado del servidor</td></tr>
+            <tr><td><code>ERROR_EXTERNAL_SERVICE</code></td><td><span class="badge badge--red">Error</span></td><td>Proveedor externo no disponible (buró, OCR, etc.)</td></tr>
+            <tr><td><code>ERROR_IDEMPOTENCY</code></td><td><span class="badge badge--red">Error</span></td><td>Clave de idempotencia duplicada — HTTP 409</td></tr>
+            <tr><td><code>ERROR_CONCURRENCY</code></td><td><span class="badge badge--red">Error</span></td><td>Conflicto de versión de fila (optimistic lock) — HTTP 409</td></tr>
+            <tr><td><code>ERROR_VALIDATION</code></td><td><span class="badge badge--red">Error</span></td><td>Payload inválido o datos de entrada incorrectos</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Payloads por Escenario -->
+      <section id="payload-escenarios">
+        <h2>Payloads por Escenario — Ejemplos Reales</h2>
+
+        <h3>1. Happy Path — Biometría lista para capturar</h3>
+        <pre>{
+  "status": "success",
+  "study_id": "EST-2026-00123",
+  "current_state": "EN_PROGRESO",
+  "next_action": "RENDER_SCREEN",
+  "screen": "BIOMETRIA_FOTO_FRONTAL",
+  "screen_data": {
+    "instrucciones": "Ubica el frente de tu cédula dentro del recuadro",
+    "intentos_restantes": 3,
+    "upload_url": "https://storage.quac.co/presigned/abc123?ttl=900"
+  },
+  "alerts": [],
+  "errors": [],
+  "meta": { "channel": "WEB", "step": 7, "progress_pct": 65, "row_version": 3 }
+}</pre>
+
+        <h3>2. Bifurcación — Cupo ya activo (Early Exit)</h3>
+        <pre>{
+  "status": "success",
+  "study_id": null,
+  "current_state": null,
+  "next_action": "EARLY_EXIT",
+  "screen": "CUPO_YA_ACTIVO",
+  "screen_data": {
+    "cupo_disponible": 3500000,
+    "enlace_portal": "https://app.quac.co/mi-cupo"
+  },
+  "meta": { "channel": "WEB", "progress_pct": 100 }
+}</pre>
+
+        <h3>3. Error Recuperable — OTP incorrecto</h3>
+        <pre>{
+  "status": "error",
+  "study_id": "EST-2026-00123",
+  "current_state": "EN_PROGRESO",
+  "next_action": "RETRY_OTP",
+  "screen": "CONSENTIMIENTO_OTP",
+  "screen_data": {
+    "canal_actual": "SMS",
+    "intentos_restantes": 2,
+    "segundos_para_reenvio": 30,
+    "permite_cambiar_canal": true,
+    "canales_disponibles": ["WHATSAPP", "LLAMADA"]
+  },
+  "errors": [{
+    "code": "OTP_INVALID",
+    "recoverable": true,
+    "message": "Código incorrecto. Te quedan 2 intentos."
+  }],
+  "meta": { "channel": "WEB", "step": 3, "progress_pct": 25 }
+}</pre>
+
+        <h3>4. Error Bloqueante — Fraude detectado</h3>
+        <pre>{
+  "status": "error",
+  "study_id": "EST-2026-00456",
+  "current_state": "BLOQUEADO_FRAUDE",
+  "next_action": "BLOCK_FRAUD",
+  "screen": "CLIENTE_BLOQUEADO",
+  "screen_data": {
+    "mensaje_cliente": "Por seguridad, tu solicitud ha sido suspendida.",
+    "telefono_soporte": "018000123456",
+    "referencia_caso": "CASO-FRD-2026-789"
+  },
+  "errors": [{ "code": "FRAUD_DETECTED", "recoverable": false }],
+  "meta": { "channel": "WEB", "step": 3 }
+}</pre>
+
+        <h3>5. Handoff Pendiente — Asesor esperando en PC</h3>
+        <pre>{
+  "status": "success",
+  "study_id": "EST-2026-00789",
+  "current_state": "EN_PROGRESO",
+  "next_action": "WAIT_HANDOFF",
+  "screen": "HANDOFF_ENVIADO",
+  "screen_data": {
+    "celular_destino": "***8901",
+    "paso_handoff": "BIOMETRIA_SELFIE",
+    "token_handoff": "hnd-abc-xyz-789",
+    "expira_en_segundos": 840,
+    "polling_interval_ms": 3000
+  },
+  "meta": { "channel": "TIENDA", "step": 10, "is_handoff": true, "progress_pct": 72 }
+}</pre>
+
+        <h3>6. Cooling Off — Periodo de espera activo</h3>
+        <pre>{
+  "status": "error",
+  "study_id": null,
+  "current_state": null,
+  "next_action": "BLOCK_COOLING_OFF",
+  "screen": "COOLING_OFF",
+  "screen_data": {
+    "fecha_desbloqueo": "2026-06-15",
+    "dias_restantes": 61,
+    "motivo_rechazo": "No cumple criterios de Preselecta"
+  },
+  "errors": [{ "code": "COOLING_OFF_ACTIVE", "recoverable": false }],
+  "meta": { "channel": "WEB" }
+}</pre>
+
+        <h3>7. Revisión de Fábrica</h3>
+        <pre>{
+  "status": "success",
+  "study_id": "EST-2026-01011",
+  "current_state": "REVISION_FABRICA",
+  "next_action": "WAIT_FACTORY_REVIEW",
+  "screen": "ESPERANDO_REVISION_FABRICA",
+  "screen_data": {
+    "tiempo_estimado": "24-48 horas hábiles",
+    "motivo_escalamiento": "Selfie no supera umbral de coincidencia facial",
+    "notificacion_por": ["EMAIL", "SMS"]
+  },
+  "meta": { "channel": "WEB", "step": 7, "progress_pct": 70 }
+}</pre>
+
+        <h3>Seguridad por Capa</h3>
+        <table>
+          <thead>
+            <tr><th>Aspecto</th><th>Implementación</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Auth WEB</strong></td><td>JWT anónimo temporal (P1) → JWT firmado con NIT tras OTP exitoso</td></tr>
+            <tr><td><strong>Auth TIENDA</strong></td><td>JWT del asesor (rol <code>ASESOR_FABRICAS</code>, fuente: <code>BERP_FABRICASOperadores</code>)</td></tr>
+            <tr><td><strong>Auth HANDOFF</strong></td><td>Token UUID en path, TTL 15 min, scoped a 1 estudio</td></tr>
+            <tr><td><strong>Auth CORE/EXT</strong></td><td>mTLS o API Key interna — jamás expuesto al exterior</td></tr>
+            <tr><td><strong>Idempotencia</strong></td><td>Header <code>X-Idempotency-Key</code> → HTTP 409 + <code>ERROR_IDEMPOTENCY</code> si duplicado</td></tr>
+            <tr><td><strong>Optimistic Lock</strong></td><td><code>row_version</code> en body → HTTP 409 + <code>ERROR_CONCURRENCY</code> si mismatch</td></tr>
+            <tr><td><strong>OTP</strong></td><td>Solo <code>HashToken</code> (SHA-256 + salt). Nunca el código plano.</td></tr>
+            <tr><td><strong>Fotos</strong></td><td>URLs pre-firmadas TTL 15 min. Nunca en JSON de respuesta.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
       <!-- Footer -->
       <hr />
       <p style="font-size: 13px; color: var(--text-secondary)">
         <strong>Documento:</strong> Arquitectura de Datos — Fábricas de Crédito
-        QUAC v2.3<br />
-        <strong>Fecha:</strong> 13 de abril de 2026<br />
+        QUAC v2.4<br />
+        <strong>Fecha:</strong> 15 de abril de 2026<br />
         <strong>Archivos relacionados:</strong>
         <code>DB/DDL/FABRICASv2.sql</code>
       </p>
