@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Arquitectura de Datos v2.3 — Fábricas de Crédito QUAC</title>
+    <title>Arquitectura de Datos v2.6 — Fábricas de Crédito QUAC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -491,7 +491,7 @@
   <body>
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
-      <div class="sidebar-title">FABRICAS DE CRÉDITO v2.3</div>
+      <div class="sidebar-title">FABRICAS DE CRÉDITO v2.6</div>
       <nav>
         <a href="#overview" class="active">Visión General</a>
         <a href="#resumen-ejecutivo" class="indent">Resumen Ejecutivo</a>
@@ -504,6 +504,7 @@
         <a href="#gaps-resueltos" class="indent">Gaps Resueltos v2.1</a>
         <a href="#gaps-v22" class="indent">Gaps Resueltos v2.2</a>
         <a href="#gaps-v23" class="indent">Gaps Resueltos v2.3</a>
+        <a href="#gaps-v26" class="indent">Gaps Resueltos v2.6</a>
         <a href="#mapeo-tablas" class="indent">Mapeo de Tablas</a>
         <a href="#estrategia-integracion" class="indent"
           >Estrategia de Integración</a
@@ -533,6 +534,26 @@
         <a href="#trazabilidad">Estrategia de Trazabilidad</a>
         <a href="#reglas-negocio" class="indent">Reglas de Negocio</a>
         <a href="#consideraciones">Consideraciones FinTech</a>
+        <div class="sidebar-section">Servicios Backend v2.4</div>
+        <a href="#taxonomia-servicios">Taxonomía de Servicios</a>
+        <a href="#flujos-canales" class="indent">Flujos Web vs Tienda</a>
+        <a href="#session-handoff" class="indent">Session Handoff</a>
+        <a href="#servicios-core" class="indent">A) Core / Globales</a>
+        <a href="#servicios-bff" class="indent">B) BFF por Canal</a>
+        <a href="#servicios-utilitarios" class="indent">C) Utilitarios</a>
+        <a href="#servicios-externos" class="indent">D) Integraciones Externas</a>
+        <a href="#backend-driven-state" class="indent">Estado Dirigido por el Sistema</a>
+        <a href="#next-action-enum" class="indent">Enum NextAction</a>
+        <a href="#payload-escenarios" class="indent">Payloads por Escenario</a>
+        <div class="sidebar-section">Correcciones v2.5</div>
+        <a href="#division-responsabilidades">División Backend vs Frontend</a>
+        <a href="#autenticacion-asesores">Autenticación de Asesores</a>
+        <a href="#concurrencia-idempotencia">Concurrencia e Idempotencia</a>
+        <div class="sidebar-section">Auditoría DDL v2.6</div>
+        <a href="#dict-fotografias-estudio">FotografiasEstudio Unificada</a>
+        <a href="#dict-auditoria-logins">AuditoriaLogins</a>
+        <div class="sidebar-section">Referencia</div>
+        <a href="#historial-versiones">Historial de Versiones</a>
       </nav>
     </aside>
 
@@ -540,17 +561,17 @@
     <main class="main">
       <!-- Header -->
       <section id="overview">
-        <h1>Arquitectura de Datos v2.3 — Fábricas de Crédito QUAC</h1>
+        <h1>Arquitectura de Datos v2.6 — Fábricas de Crédito QUAC</h1>
         <p class="meta">
           <span class="meta-item"
             ><strong>Motor:</strong> SQL Server 2019+</span
           >
-          <span class="meta-item"><strong>Versión:</strong> 2.3</span>
+          <span class="meta-item"><strong>Versión:</strong> 2.6</span>
           <span class="meta-item"
-            ><strong>Fecha:</strong> 13 de abril de 2026</span
+            ><strong>Fecha:</strong> 15 de abril de 2026</span
           >
-          <span class="meta-item"><strong>Tablas Nuevas:</strong> 27</span>
-          <span class="meta-item"><strong>Tablas Modificadas:</strong> 7</span>
+          <span class="meta-item"><strong>Tablas Nuevas:</strong> 28</span>
+          <span class="meta-item"><strong>Tablas Modificadas:</strong> 8</span>
         </p>
 
         <p>
@@ -562,9 +583,9 @@
           auditoría y automatización sin romper la operación actual. La versión
           2.2 añadió el <strong>sistema de detección de fraude y escalamiento</strong>
           con 6 nuevas tablas especializadas. La versión 2.3 añade el
-          <strong>módulo de gestión de fotografías</strong> con 5 nuevas tablas
-          para el ciclo de vida completo de fotos obligatorias, revisión humana
-          y re-subida via link.
+           <strong>módulo de gestión de fotografías</strong> con 5 nuevas tablas
+           para el ciclo de vida completo de fotos obligatorias, revisión humana
+          y re-subida via link. La versión 2.4 documenta la <strong>Taxonomía de Servicios Backend</strong> con el diseño completo de APIs omnicanal (Web, Tienda, Handoff) y la estrategia Estado Dirigido por el Sistema.           La versión 2.5 añade la <strong>División de Responsabilidades Backend vs Frontend</strong>, la <strong>Autenticación Biométrica de Asesores</strong> y la guía de <strong>Concurrencia Optimista e Idempotencia</strong>. La versión 2.6 refleja la <strong>Auditoría DDL — 18 gaps cerrados</strong>: tabla <code>FotografiasEstudio</code> unificada para proceso biométrico, nueva tabla <code>AuditoriaLogins</code> y columnas adicionales en <code>EstudiosCredito</code> (<code>NitComercio</code>, <code>CelularCliente</code>).
         </p>
 
         <div class="callout callout--info">
@@ -1112,6 +1133,68 @@
         </table>
       </section>
 
+      <!-- Gaps Resueltos v2.6 -->
+      <section id="gaps-v26">
+        <h2>Gaps Identificados y Resueltos (v2.6) <span class="badge badge--amber">Nuevo v2.6</span></h2>
+        <p>
+          Durante la auditoría DDL de la Iteración 1 se identificaron <strong>18 gaps</strong> en la definición de
+          tablas y columnas. A continuación se documentan los cambios aplicados al esquema.
+        </p>
+
+        <div class="callout callout--success">
+          <p><strong>Estado:</strong> Los 18 gaps han sido cerrados en v2.6. El diccionario de datos fue actualizado para reflejar la nueva tabla unificada <code>FotografiasEstudio</code>, la nueva tabla <code>AuditoriaLogins</code> y las columnas adicionales en <code>EstudiosCredito</code>.</p>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Gap Identificado</th>
+              <th>Tabla Afectada</th>
+              <th>Resolución</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge--green">A-01 ✓</span></td>
+              <td>Sin celular del cliente para envío de OTP</td>
+              <td><code>EstudiosCredito</code></td>
+              <td>Añadida columna <code>CelularCliente VARCHAR(20) NULL</code> para envío de OTP vía SMS/WhatsApp</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">A-02 ✓</span></td>
+              <td>Sin identificación del comercio de origen del cupo</td>
+              <td><code>EstudiosCredito</code></td>
+              <td>Añadida columna <code>NitComercio VARCHAR(20) NOT NULL</code> — NIT del comercio donde se origina el cupo</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">A-03 ✓</span></td>
+              <td>Columna <code>IdTienda</code> usaba nomenclatura inconsistente con el ERP</td>
+              <td><code>EstudiosCredito</code></td>
+              <td>Renombrada a <code>IdBodega INT NOT NULL</code> — FK a <code>QUAC.dbo.bodegas.id</code> alineado con nomenclatura del ERP</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">A-04 ✓</span></td>
+              <td>FK a validación biométrica del asesor existía como ALTER pero no en definición principal</td>
+              <td><code>EstudiosCredito</code></td>
+              <td>Columna <code>IdValidacionAsesor BIGINT NULL</code> confirmada en CREATE TABLE — FK a <code>ValidacionesAsesor</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">A-05 ✓</span></td>
+              <td>Diseño dual de fotografías (EvidenciasFabrica + tablas auxiliares) generaba inconsistencia</td>
+              <td><code>FotografiasEstudio</code></td>
+              <td>Tabla rediseñada como solución unificada: 15 columnas con ciclo de vida completo, prueba de vida y metadatos de revisión en un solo registro</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">A-06 ✓</span></td>
+              <td>Sin registro de autenticaciones por canal para trazabilidad de acceso</td>
+              <td>—</td>
+              <td>Creada nueva tabla INSERT-ONLY <code>AuditoriaLogins</code>: registra logins web (autogestión) y de tienda (asistido) con IP, UserAgent y resultado</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
       <!-- Mapeo de Tablas -->
       <section id="mapeo-tablas">
         <h2>Mapeo de Tablas (Homologación)</h2>
@@ -1565,9 +1648,9 @@ CREATE TABLE dbo.TercerosFabricas (
               <td>Referencia al cliente (FK lógica)</td>
             </tr>
             <tr>
-              <td><code>IdTienda</code></td>
+              <td><code>IdBodega</code></td>
               <td>INT FK</td>
-              <td>FK a QUAC.dbo.bodegas</td>
+              <td>FK a QUAC.dbo.bodegas — bodega donde se origina el estudio (renombrado desde <code>IdTienda</code> en v2.6 para alinearse con nomenclatura del ERP)</td>
             </tr>
             <tr>
               <td><code>IdAsesor</code></td>
@@ -1689,6 +1772,53 @@ CREATE TABLE dbo.TercerosFabricas (
               <td><code>EstadoRevisionFotos</code></td>
               <td>VARCHAR(15) DEFAULT 'PENDIENTE'</td>
               <td><span class="badge" style="background:#10b981;color:#fff;">v2.3</span> Estado del proceso fotográfico: <code>PENDIENTE</code> / <code>EN_REVISION</code> / <code>APROBADO</code> / <code>CON_RECHAZOS</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Columnas añadidas en v2.5 <span class="badge badge--accent">v2.5</span></h4>
+        <div class="callout callout--info">
+          <p><strong>Autenticación biométrica de asesores:</strong> Se añade una columna al orquestador central para vincular el estudio a la validación biométrica del asesor que lo autorizó.</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdValidacionAsesor</code></td>
+              <td>BIGINT NULL FK</td>
+              <td><span class="badge badge--accent">v2.5</span> FK → <code>ValidacionesAsesor</code>. Vincula el estudio a la validación biométrica de prueba de vida que autorizó al asesor. NULL si el estudio es de canal WEB.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Columnas añadidas en v2.6 <span class="badge badge--amber">v2.6</span></h4>
+        <div class="callout callout--warn">
+          <p><strong>Auditoría DDL v2.5 — 18 gaps cerrados:</strong> Se añaden columnas de comercio, canal de contacto y se confirman campos de biometría que existían como ALTER pero ahora forman parte del CREATE TABLE. <code>IdBodega</code> fue renombrado desde <code>IdTienda</code> para alinearse con la nomenclatura del ERP.</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>NitComercio</code></td>
+              <td>VARCHAR(20) NOT NULL</td>
+              <td><span class="badge badge--amber">v2.6</span> NIT del comercio donde se origina el cupo. Permite multicomercio en el mismo LOS.</td>
+            </tr>
+            <tr>
+              <td><code>CelularCliente</code></td>
+              <td>VARCHAR(20) NULL</td>
+              <td><span class="badge badge--amber">v2.6</span> Celular del cliente para envío de OTP vía SMS/WhatsApp. NULL cuando no fue capturado en el flujo.</td>
             </tr>
           </tbody>
         </table>
@@ -2461,7 +2591,7 @@ CREATE TABLE dbo.TercerosFabricas (
         </table>
 
         <h3>EvidenciasFabrica <span class="badge badge--accent">Nuevo v2.1</span></h3>
-        <p>Almacena los archivos adjuntos al estudio: fotos de documento, selfies, comprobantes y notas del asesor.</p>
+        <p>Almacena archivos adjuntos no fotográficos del estudio: comprobantes, notas del asesor, documentos de soporte y firmas. <strong>Nota v2.6:</strong> Los tipos fotográficos (<code>FOTO_DOCUMENTO</code>, <code>SELFIE</code>) fueron migrados a la tabla unificada <code>FotografiasEstudio</code>. Esta tabla conserva evidencias no-foto.</p>
         <table>
           <thead>
             <tr>
@@ -2523,6 +2653,122 @@ CREATE TABLE dbo.TercerosFabricas (
             </tr>
           </tbody>
         </table>
+
+        <h3 id="dict-fotografias-estudio">FotografiasEstudio <span class="badge badge--amber">Rediseño v2.6</span></h3>
+        <p><strong>Gestión unificada de fotografías del proceso biométrico del cliente.</strong> En v2.6 esta tabla reemplaza el diseño dual anterior (EvidenciasFabrica + tablas auxiliares) y consolida en un único registro por captura toda la información de ciclo de vida, revisión y prueba de vida.</p>
+
+        <div class="callout callout--info">
+          <p><strong>Regla de negocio:</strong> Un cliente SIEMPRE debe tener exactamente 3 fotos vigentes (<code>EsVigente=1</code>): una <code>SELFIE</code>, una <code>DOCUMENTO_FRONTAL</code> y una <code>DOCUMENTO_TRASERO</code>. Puede tener más registros históricos (rechazadas, reemplazadas) pero solo una vigente por tipo.</p>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdFotografia</code></td>
+              <td>BIGINT PK</td>
+              <td>Identificador único</td>
+            </tr>
+            <tr>
+              <td><code>IdEstudio</code></td>
+              <td>BIGINT FK</td>
+              <td>Estudio al que pertenece (FK a EstudiosCredito)</td>
+            </tr>
+            <tr>
+              <td><code>TipoFotografia</code></td>
+              <td>VARCHAR(30)</td>
+              <td><code>SELFIE</code> / <code>DOCUMENTO_FRONTAL</code> / <code>DOCUMENTO_TRASERO</code></td>
+            </tr>
+            <tr>
+              <td><code>UrlArchivo</code></td>
+              <td>NVARCHAR(500)</td>
+              <td>URL/ruta del archivo almacenado</td>
+            </tr>
+            <tr>
+              <td><code>FechaCaptura</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Fecha y hora de la captura</td>
+            </tr>
+            <tr>
+              <td><code>EstadoRevision</code></td>
+              <td>VARCHAR(20)</td>
+              <td><code>PENDIENTE</code> / <code>APROBADA_AUTO</code> / <code>APROBADA_ASESOR</code> / <code>RECHAZADA</code> / <code>REEMPLAZADA</code></td>
+            </tr>
+            <tr>
+              <td><code>EsVigente</code></td>
+              <td>BIT</td>
+              <td>1 = foto activa/vigente para este tipo; 0 = fue reemplazada o rechazada</td>
+            </tr>
+            <tr>
+              <td><code>MetodoRevision</code></td>
+              <td>VARCHAR(20)</td>
+              <td><code>AUTOMATICO</code> / <code>MANUAL_ASESOR</code></td>
+            </tr>
+            <tr>
+              <td><code>IdAsesorRevisor</code></td>
+              <td>INT FK</td>
+              <td>Asesor que revisó (NULL si automático)</td>
+            </tr>
+            <tr>
+              <td><code>FechaRevision</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Cuándo se revisó</td>
+            </tr>
+            <tr>
+              <td><code>MotivoRechazo</code></td>
+              <td>NVARCHAR(500)</td>
+              <td>Razón del rechazo (si aplica)</td>
+            </tr>
+            <tr>
+              <td><code>PorcentajeCoincidencia</code></td>
+              <td>DECIMAL(5,2)</td>
+              <td>% de coincidencia facial (selfie vs doc frontal)</td>
+            </tr>
+            <tr>
+              <td><code>PruebaVidaExitosa</code></td>
+              <td>BIT</td>
+              <td>Resultado de prueba de vida (solo selfie)</td>
+            </tr>
+            <tr>
+              <td><code>CreadoPor</code></td>
+              <td>VARCHAR(50)</td>
+              <td><code>SISTEMA</code> / <code>ASESOR</code> / <code>CLIENTE</code></td>
+            </tr>
+            <tr>
+              <td><code>FechaCreacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Fecha de creación del registro</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <pre><code>Prueba de Vida del Cliente — Flujo de 3 Fotos:
+
+[1] SELFIE
+    → Captura
+    → Prueba de vida (PruebaVidaExitosa)
+    → Revisión AUTO (PorcentajeCoincidencia vs base)
+    → EstadoRevision: APROBADA_AUTO | RECHAZADA
+
+[2] DOCUMENTO_FRONTAL
+    → Captura cara frontal del documento de identidad
+    → Comparación facial con SELFIE (PorcentajeCoincidencia)
+    → Revisión AUTO o MANUAL_ASESOR
+    → EstadoRevision: APROBADA_AUTO | APROBADA_ASESOR | RECHAZADA
+
+[3] DOCUMENTO_TRASERO
+    → Captura cara trasera del documento
+    → Validación OCR (lectura de datos)
+    → EstadoRevision: APROBADA_AUTO | RECHAZADA
+
+Si RECHAZADA  → EsVigente = 0 en foto anterior → nueva captura
+Si REEMPLAZADA → foto anterior EsVigente = 0   → nueva foto EsVigente = 1</code></pre>
 
         <h3>CatalogoReglasFraude <span class="badge badge--red">Nuevo v2.2</span></h3>
         <p>Catálogo de reglas de detección de fraude. Define qué patrones se consideran sospechosos y qué acción automática desencadenar. Preconfigurado con 8 reglas semilla.</p>
@@ -2987,6 +3233,80 @@ CREATE TABLE dbo.TercerosFabricas (
             </tr>
           </tbody>
         </table>
+
+        <h3 id="dict-auditoria-logins">AuditoriaLogins <span class="badge badge--amber">Nueva v2.6</span></h3>
+        <p><strong>Registro de autenticaciones por canal.</strong> Tabla de solo inserción (INSERT-ONLY) que traza cada intento de login, tanto en el flujo web de autogestión como en el flujo asistido en bodega.</p>
+
+        <div class="callout callout--danger">
+          <p><strong>Regla crítica:</strong> Esta tabla es de SOLO INSERCIÓN. Prohibido UPDATE o DELETE. <code>LoginWeb</code> corresponde a autogestión web (cliente sin asistencia). <code>LoginTienda</code> corresponde al flujo asistido en bodega (asesor + cliente presencial).</p>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdLogin</code></td>
+              <td>BIGINT PK</td>
+              <td>Identificador único</td>
+            </tr>
+            <tr>
+              <td><code>OrigenLogin</code></td>
+              <td>VARCHAR(20)</td>
+              <td><code>LoginWeb</code> (autogestión) / <code>LoginTienda</code> (asistido)</td>
+            </tr>
+            <tr>
+              <td><code>IdUsuario</code></td>
+              <td>VARCHAR(50)</td>
+              <td>NIT del cliente o CodigoAsesor del asesor</td>
+            </tr>
+            <tr>
+              <td><code>TipoUsuario</code></td>
+              <td>VARCHAR(20)</td>
+              <td><code>CLIENTE</code> / <code>ASESOR</code></td>
+            </tr>
+            <tr>
+              <td><code>FechaLogin</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Fecha y hora del intento</td>
+            </tr>
+            <tr>
+              <td><code>ResultadoLogin</code></td>
+              <td>VARCHAR(20)</td>
+              <td><code>EXITOSO</code> / <code>FALLIDO</code> / <code>BLOQUEADO</code></td>
+            </tr>
+            <tr>
+              <td><code>DireccionIP</code></td>
+              <td>VARCHAR(45)</td>
+              <td>IP del dispositivo</td>
+            </tr>
+            <tr>
+              <td><code>UserAgent</code></td>
+              <td>NVARCHAR(500)</td>
+              <td>Información del navegador/app</td>
+            </tr>
+            <tr>
+              <td><code>IdBodega</code></td>
+              <td>INT FK</td>
+              <td>Bodega de origen (solo LoginTienda; NULL en LoginWeb)</td>
+            </tr>
+            <tr>
+              <td><code>MensajeError</code></td>
+              <td>NVARCHAR(500)</td>
+              <td>Mensaje de error si falló</td>
+            </tr>
+            <tr>
+              <td><code>FechaCreacion</code></td>
+              <td>DATETIME2(3)</td>
+              <td>Timestamp de creación</td>
+            </tr>
+          </tbody>
+        </table>
       </section>
       <section id="diagrama-er">
         <h2>Diagrama ER Simplificado</h2>
@@ -3001,6 +3321,17 @@ CREATE TABLE dbo.TercerosFabricas (
             <div class="er-table-col er-table-col--pk">PK nit</div>
             <div class="er-table-col er-table-col--pk">PK id</div>
             <div class="er-table-col">razon_social</div>
+          </div>
+
+          <!-- Tabla de bodegas -->
+          <div class="er-table">
+            <div class="er-table-title er-table-title--exist">
+              QUAC.dbo.Bodegas
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdBodega</div>
+            <div class="er-table-col">Nombre</div>
+            <div class="er-table-col">Ciudad</div>
+            <div class="er-table-col">Direccion</div>
           </div>
 
           <!-- Tabla Propia - Fuente de Verdad -->
@@ -3277,14 +3608,16 @@ CREATE TABLE dbo.TercerosFabricas (
 
           <div class="er-table">
             <div class="er-table-title" style="background: #d1fae5; color: #065f46;">
-              FotografiasEstudio <span style="font-size:10px;opacity:0.8">v2.3</span>
+              FotografiasEstudio <span style="font-size:10px;opacity:0.8">v2.6 GAP-07</span>
             </div>
             <div class="er-table-col er-table-col--pk">PK IdFotografia</div>
             <div class="er-table-col er-table-col--fk">FK IdEstudio → EstudiosCredito</div>
-            <div class="er-table-col er-table-col--fk">FK IdTipoFoto → CatalogoTiposFotografia</div>
-            <div class="er-table-col">NumeroVersion</div>
-            <div class="er-table-col">EstadoFoto</div>
-            <div class="er-table-col">HashArchivo (SHA-256)</div>
+            <div class="er-table-col">TipoFotografia (SELFIE/DOC_FRONTAL/DOC_TRASERO)</div>
+            <div class="er-table-col">EstadoRevision (PENDIENTE/APROBADA_*/RECHAZADA/REEMPLAZADA)</div>
+            <div class="er-table-col">EsVigente BIT (1=activa por tipo)</div>
+            <div class="er-table-col">MetodoRevision / IdAsesorRevisor (inline)</div>
+            <div class="er-table-col">MotivoRechazo (inline)</div>
+            <div class="er-table-col">PorcentajeCoincidencia / PruebaVidaExitosa</div>
           </div>
 
           <div class="er-table">
@@ -3321,6 +3654,18 @@ CREATE TABLE dbo.TercerosFabricas (
             <div class="er-table-col">TipoActor (SISTEMA/CLIENTE/ASESOR)</div>
             <div class="er-table-col">EventoDescripcion</div>
           </div>
+
+          <!-- Tablas Auditoría Logins v2.6 -->
+          <div class="er-table">
+            <div class="er-table-title" style="background: var(--amber-bg); color: var(--amber);">
+              AuditoriaLogins <span style="font-size:10px;opacity:0.8">v2.6 INSERT-ONLY</span>
+            </div>
+            <div class="er-table-col er-table-col--pk">PK IdLogin</div>
+            <div class="er-table-col">OrigenLogin (LoginWeb/LoginTienda)</div>
+            <div class="er-table-col">TipoUsuario (CLIENTE/ASESOR)</div>
+            <div class="er-table-col">ResultadoLogin</div>
+            <div class="er-table-col er-table-col--fk">FK IdBodega → bodegas (null)</div>
+          </div>
         </div>
 
         <h3>Leyenda de Colores</h3>
@@ -3348,6 +3693,10 @@ CREATE TABLE dbo.TercerosFabricas (
           <div class="card" style="border-left-color: #10b981;">
             <h4 style="color: #10b981;">Verde Esmeralda — Fotografías v2.3</h4>
             <p>Módulo de gestión de fotografías obligatorias. Nuevas en v2.3.</p>
+          </div>
+          <div class="card" style="border-left-color: var(--amber);">
+            <h4 style="color: var(--amber);">Ámbar — Auditoría Logins v2.6</h4>
+            <p>Tabla INSERT-ONLY para trazabilidad de autenticaciones web y de tienda. Nueva en v2.6.</p>
           </div>
         </div>
       </section>
@@ -4080,7 +4429,7 @@ SELECT
     e.IdEscalamiento,
     cm.Nombre                     AS MotivoEscalamiento,
     cm.Origen                     AS TipoOrigen,
-    ec.ClaveIdempotencia          AS RefEstudio,
+    ec.IdCorrelacion              AS RefEstudio,
     e.DescripcionContexto,
     e.PasoEnQueEscalo,
     e.SnapshotDatosCliente,
@@ -4192,13 +4541,22 @@ WHERE e.IdEscalamiento = @IdEscalamiento;</code></pre>
            MÓDULO DE FOTOGRAFÍAS — NUEVO v2.3
       ═══════════════════════════════════════════════════════════════════ -->
       <section id="modulo-fotografias">
-        <h2>Módulo de Gestión de Fotografías <span class="badge badge--accent">Nuevo v2.3</span></h2>
+        <h2>Módulo de Gestión de Fotografías <span class="badge badge--accent">Actualizado v2.6</span></h2>
         <p>
-          Este módulo describe cómo las 5 nuevas tablas de v2.3 se articulan para capturar, revisar y
+          Este módulo describe cómo las tablas del módulo fotográfico se articulan para capturar, revisar y
           aprobar los documentos fotográficos del cliente durante el flujo de otorgamiento. El diseño sigue
           el principio de <strong>trazabilidad completa</strong>: cada versión de cada fotografía y cada
           decisión del asesor quedan registradas de forma inmutable.
         </p>
+        <div class="callout callout--warn">
+          <p>
+            <strong>GAP-07 — Rediseño en v2.6:</strong> <code>FotografiasEstudio</code> fue rediseñada como
+            tabla <strong>unificada</strong> que incorpora el ciclo de vida, la revisión y los datos biométricos
+            en un solo registro. Los campos de revisión (<code>EstadoRevision</code>, <code>MetodoRevision</code>,
+            <code>IdAsesorRevisor</code>, <code>MotivoRechazo</code>) son ahora columnas inline.
+            <code>RevisionesFotografia</code> sigue existiendo como registro de auditoría independiente (INSERT-ONLY).
+          </p>
+        </div>
 
         <div class="callout callout--info">
           <p>
@@ -4213,13 +4571,23 @@ WHERE e.IdEscalamiento = @IdEscalamiento;</code></pre>
         <h3 id="foto-regla-negocio">7.1 Regla de las 3 Fotos Obligatorias</h3>
         <p>
           El catálogo <code>CatalogoTiposFotografia</code> define exactamente qué documentos son requeridos.
-          Los 3 tipos con <code>EsObligatorio = 1</code> deben estar en estado <code>APROBADA</code> para desbloquear la biometría.
+          Los 3 tipos con <code>EsObligatoria = 1</code> deben tener su registro en <code>FotografiasEstudio</code>
+          con <code>EstadoRevision IN ('APROBADA_AUTO','APROBADA_ASESOR')</code> y <code>EsVigente = 1</code>
+          para desbloquear la biometría.
         </p>
+        <div class="callout callout--info">
+          <p>
+            <strong>Dos sistemas de códigos:</strong> <code>CatalogoTiposFotografia.Codigo</code> usa
+            <code>FOTO_FRONTAL_DOC</code> / <code>FOTO_TRASERA_DOC</code> / <code>SELFIE</code>.
+            <code>FotografiasEstudio.TipoFotografia</code> (CHECK constraint) usa
+            <code>DOCUMENTO_FRONTAL</code> / <code>DOCUMENTO_TRASERO</code> / <code>SELFIE</code>.
+          </p>
+        </div>
         <table>
           <thead>
             <tr>
-              <th>Código</th>
-              <th>Nombre</th>
+              <th>Código Catálogo</th>
+              <th>TipoFotografia (FotografiasEstudio)</th>
               <th>Obligatorio</th>
               <th>Descripción</th>
             </tr>
@@ -4227,93 +4595,143 @@ WHERE e.IdEscalamiento = @IdEscalamiento;</code></pre>
           <tbody>
             <tr>
               <td><code>FOTO_FRONTAL_DOC</code></td>
-              <td>Frente del Documento de Identidad</td>
+              <td><code>DOCUMENTO_FRONTAL</code></td>
               <td><span class="badge badge--red">Sí</span></td>
-              <td>Cara frontal de la cédula/documento del cliente</td>
+              <td>Cara frontal de la cédula. OCR + Rekognition CompareFaces vs. selfie.</td>
             </tr>
             <tr>
               <td><code>FOTO_TRASERA_DOC</code></td>
-              <td>Reverso del Documento de Identidad</td>
+              <td><code>DOCUMENTO_TRASERO</code></td>
               <td><span class="badge badge--red">Sí</span></td>
-              <td>Cara trasera de la cédula/documento del cliente</td>
+              <td>Reverso de la cédula. OCR complementario (sangre, huella, código de barras).</td>
             </tr>
             <tr>
               <td><code>SELFIE</code></td>
-              <td>Selfie del Cliente</td>
+              <td><code>SELFIE</code></td>
               <td><span class="badge badge--red">Sí</span></td>
-              <td>Fotografía del rostro del cliente para comparación biométrica</td>
+              <td>Selfie del cliente. Prueba de vida (<code>PruebaVidaExitosa</code>) + comparación facial.</td>
             </tr>
           </tbody>
         </table>
 
         <!-- ─────────────────────────────────────── -->
-        <h3 id="foto-ciclo-vida">7.2 Ciclo de Vida de una Fotografía</h3>
+        <h3 id="foto-ciclo-vida">7.2 Ciclo de Vida de una Fotografía (v2.6)</h3>
         <p>
-          Cada entrada en <code>FotografiasEstudio</code> transita por los siguientes estados.
-          El campo <code>NumeroVersion</code> permite rastrear cuántas veces se ha reemplazado una foto.
+          Cada registro en <code>FotografiasEstudio</code> tiene un <code>EstadoRevision</code> y un
+          flag <code>EsVigente</code>. Solo puede existir <strong>una foto vigente por tipo por estudio</strong>
+          (garantizado por <code>UQ_FotografiasEstudio_Vigente</code> — índice único filtrado sobre
+          <code>EsVigente = 1</code>). Puede haber más de 3 filas por estudio (intentos rechazados, reemplazos).
         </p>
         <pre><code>                      Cliente sube archivo
-                              │
-                              ▼
-                   ┌─────────────────────┐
-                   │   PENDIENTE_CARGA   │  ← Registro creado antes de la URL
-                   └──────────┬──────────┘
-                              │ URL almacenada
-                              ▼
-                   ┌─────────────────────┐
-                   │       CARGADA       │  ← Archivo disponible en storage
-                   └──────────┬──────────┘
-                              │ Asesor abre revisión
-                              ▼
-                   ┌─────────────────────┐
-                   │     EN_REVISION     │  ← Asesor revisando
-                   └──────┬──────┬───────┘
-                          │      │
-              APROBADA ◄──┘      └──► RECHAZADA
-                   │                      │
-                   ▼                      ▼
-          FotografiasAprobadas++   SolicitudesRecarga
-          (gate biometría)         (link al cliente)
-                                          │
-                                          │ Cliente sube nueva versión
-                                          ▼
-                                     REEMPLAZADA   ← versión anterior
-                                     (nueva entra como CARGADA)
-                                          │
-                                          │ Tiempo expirado sin acción
-                                          ▼
-                                       EXPIRADA</code></pre>
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │      PENDIENTE      │  ← Registro creado, URL almacenada
+                    └──────────┬──────────┘
+                               │ Revisión automática o manual del asesor
+                          ┌────┴────┐
+                          │         │
+                          ▼         ▼
+           ┌──────────────────┐  ┌─────────────────────┐
+           │  APROBADA_AUTO   │  │  APROBADA_ASESOR     │
+           │  (sistema/IA)    │  │  (IdAsesorRevisor)   │
+           └────────┬─────────┘  └──────────┬───────────┘
+                    │                        │
+                    └──────────┬─────────────┘
+                               │ EsVigente = 1, FotografiasAprobadas++
+                               ▼
+                      gate biométrico desbloqueado
+                      cuando FotografiasAprobadas = 3
+
+           ┌─────────────────────┐
+           │      RECHAZADA      │  ← MotivoRechazo registrado inline
+           └──────────┬──────────┘
+                      │ EsVigente = 0, SolicitudesRecarga generada
+                      │ Cliente sube nueva versión
+                      ▼
+                 REEMPLAZADA          ← versión anterior (EsVigente = 0)
+                (nueva entra como PENDIENTE → ciclo se repite)</code></pre>
+        <table>
+          <thead>
+            <tr>
+              <th>EstadoRevision</th>
+              <th>EsVigente</th>
+              <th>Significado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge--amber">PENDIENTE</span></td>
+              <td><code>1</code></td>
+              <td>Foto cargada, esperando revisión (automática o manual)</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">APROBADA_AUTO</span></td>
+              <td><code>1</code></td>
+              <td>Aprobada por proceso automático/IA (<code>MetodoRevision = 'AUTOMATICO'</code>)</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">APROBADA_ASESOR</span></td>
+              <td><code>1</code></td>
+              <td>Aprobada manualmente por el asesor (<code>MetodoRevision = 'MANUAL_ASESOR'</code>)</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--red">RECHAZADA</span></td>
+              <td><code>0</code></td>
+              <td>Rechazada. <code>MotivoRechazo</code> capturado inline en la misma fila</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--accent">REEMPLAZADA</span></td>
+              <td><code>0</code></td>
+              <td>Foto anterior cuando el cliente sube una nueva versión</td>
+            </tr>
+          </tbody>
+        </table>
 
         <!-- ─────────────────────────────────────── -->
-        <h3 id="foto-revision-asesor">7.3 Proceso de Revisión por el Asesor</h3>
+        <h3 id="foto-revision-asesor">7.3 Proceso de Revisión por el Asesor (v2.6)</h3>
         <p>
-          Cuando el estudio llega al estado <code>FOTOS_EN_REVISION</code>, el asesor de fábrica
-          revisa las 3 fotografías y registra su decisión en <code>RevisionesFotografia</code>.
+          En el diseño unificado (GAP-07), la decisión del asesor se registra directamente sobre
+          <code>FotografiasEstudio</code> actualizando los campos <code>EstadoRevision</code>,
+          <code>MetodoRevision</code>, <code>IdAsesorRevisor</code> y <code>FechaRevision</code>.
+          Adicionalmente, <code>RevisionesFotografia</code> recibe un INSERT como pista de auditoría
+          independiente (INSERT-ONLY).
         </p>
         <pre><code>T+00:00  Cliente completa carga de las 3 fotos
          └─► UPDATE EstudiosCredito: IdEstadoActual = FOTOS_EN_REVISION
-         └─► FotografiasEstudio (x3): EstadoFoto = EN_REVISION
+         └─► FotografiasEstudio (x3): EstadoRevision = PENDIENTE
 
 T+00:05  Asesor abre el panel de fotografías del estudio
-         ├─► Visualiza FOTO_FRONTAL_DOC → calidad OK
-         │   └─► INSERT RevisionesFotografia: { ResultadoRevision: 'APROBADA', IdAsesor: [...] }
-         │   └─► UPDATE FotografiasEstudio: EstadoFoto = 'APROBADA'
+         ├─► Visualiza DOCUMENTO_FRONTAL → calidad OK
+         │   └─► UPDATE FotografiasEstudio: {
+         │         EstadoRevision = 'APROBADA_ASESOR',
+         │         MetodoRevision = 'MANUAL_ASESOR',
+         │         IdAsesorRevisor = [...],
+         │         FechaRevision = NOW()
+         │       }
+         │   └─► INSERT RevisionesFotografia: { DecisionRevision: 'APROBADA' }  ← auditoría
          │   └─► UPDATE EstudiosCredito: FotografiasAprobadas = 1
          │
-         ├─► Visualiza FOTO_TRASERA_DOC → calidad OK
-         │   └─► INSERT RevisionesFotografia: { ResultadoRevision: 'APROBADA' }
-         │   └─► UPDATE FotografiasEstudio: EstadoFoto = 'APROBADA'
+         ├─► Visualiza DOCUMENTO_TRASERO → calidad OK
+         │   └─► UPDATE FotografiasEstudio: { EstadoRevision = 'APROBADA_ASESOR', ... }
+         │   └─► INSERT RevisionesFotografia: { DecisionRevision: 'APROBADA' }
          │   └─► UPDATE EstudiosCredito: FotografiasAprobadas = 2
          │
          └─► Visualiza SELFIE → rostro no visible claramente
-             └─► INSERT RevisionesFotografia: {
-                   ResultadoRevision: 'RECHAZADA',
-                   MotivoRechazo: 'Imagen borrosa — rostro no distinguible',
-                   IdAsesor: [...]
+             └─► UPDATE FotografiasEstudio: {
+                   EstadoRevision = 'RECHAZADA',
+                   EsVigente = 0,
+                   MetodoRevision = 'MANUAL_ASESOR',
+                   MotivoRechazo = 'Imagen borrosa — rostro no distinguible',
+                   IdAsesorRevisor = [...],
+                   FechaRevision = NOW()
                  }
-             └─► UPDATE FotografiasEstudio: EstadoFoto = 'RECHAZADA'
+             └─► INSERT RevisionesFotografia: {
+                   DecisionRevision: 'RECHAZADA',
+                   CodigoMotivoRechazo: 'IMAGEN_BORROSA'
+                 }
              └─► INSERT SolicitudesRecarga: {
-                   IdFotografia: [...], UrlCargaFirmada: 'https://storage/...',
+                   IdFotografiaAnterior: [...], UrlCargaFirmada: 'https://storage/...',
                    FechaExpiracion: NOW() + 48h, EstadoSolicitud: 'GENERADO'
                  }
              └─► UPDATE EstudiosCredito: EstadoRevisionFotos = 'CON_RECHAZOS'</code></pre>
@@ -4365,36 +4783,41 @@ T+00:05  Asesor abre el panel de fotografías del estudio
         <h3 id="foto-escenarios">7.5 Escenarios de Ejemplo</h3>
 
         <h4>Escenario A — Flujo Feliz (las 3 fotos aprobadas en primera revisión)</h4>
-        <pre><code>Cliente sube 3 fotos → EstadosCredito pasa a FOTOS_EN_REVISION
-Asesor aprueba las 3 → FotografiasAprobadas = 3
-                     → EstadoRevisionFotos = 'APROBADO'
-                     → EstudiosCredito pasa a estado biometría
-                     → RegistrosBiometria se crea con FK a las 3 fotos aprobadas</code></pre>
+        <pre><code>Cliente sube 3 fotos → EstudiosCredito pasa a FOTOS_EN_REVISION
+                       → FotografiasEstudio (x3): EstadoRevision = PENDIENTE
+Asesor aprueba las 3 → UPDATE FotografiasEstudio (x3): EstadoRevision = 'APROBADA_ASESOR'
+                      → FotografiasAprobadas = 3
+                      → EstadoRevisionFotos = 'APROBADO'
+                      → EstudiosCredito pasa a estado biometría
+                      → RegistrosBiometria se crea con FK a las 3 fotos aprobadas</code></pre>
 
         <h4>Escenario B — Selfie Rechazada y Recargada</h4>
-        <pre><code>Asesor rechaza SELFIE (borrosa) → SolicitudesRecarga generada
-                                 → EstadoRevisionFotos = 'CON_RECHAZOS'
+        <pre><code>Asesor rechaza SELFIE (borrosa)
+  → UPDATE FotografiasEstudio (SELFIE): EstadoRevision = 'RECHAZADA', EsVigente = 0
+  → INSERT SolicitudesRecarga: { ... EstadoSolicitud: 'GENERADO' }
+  → EstadoRevisionFotos = 'CON_RECHAZOS'
 
 Cliente recibe enlace → sube nueva selfie
-                      → FotografiasEstudio (selfie v1) → REEMPLAZADA
-                      → FotografiasEstudio (selfie v2) → CARGADA
-                      → INSERT HistorialFotografias (preserva URL v1)
-                      → SolicitudesRecarga → USADO
+  → INSERT FotografiasEstudio: { TipoFotografia: 'SELFIE', EstadoRevision: 'PENDIENTE', EsVigente: 1 }
+  → UPDATE FotografiasEstudio (selfie anterior): EstadoRevision = 'REEMPLAZADA'
+  → INSERT HistorialFotografias (preserva URL anterior)
+  → UPDATE SolicitudesRecarga: EstadoSolicitud = 'USADO'
 
-Asesor revisa selfie v2 → APROBADA
-                        → FotografiasAprobadas = 3
-                        → EstadoRevisionFotos = 'APROBADO'</code></pre>
+Asesor revisa selfie nueva → APROBADA
+  → UPDATE FotografiasEstudio: EstadoRevision = 'APROBADA_ASESOR'
+  → FotografiasAprobadas = 3
+  → EstadoRevisionFotos = 'APROBADO'</code></pre>
 
         <h4>Escenario C — Foto Faltante y Enlace Expirado</h4>
-        <pre><code>Asesor rechaza FOTO_FRONTAL_DOC → SolicitudesRecarga generada (expira en 48h)
-                                 → Notificación enviada: EstadoSolicitud = ENVIADO
+        <pre><code>Asesor rechaza DOCUMENTO_FRONTAL
+  → SolicitudesRecarga generada (expira en 48h): EstadoSolicitud = GENERADO → ENVIADO
 
 48 horas después → Cliente no subió la foto
-                 → Job nocturno detecta FechaExpiracion &lt; NOW()
-                 → SolicitudesRecarga → EXPIRADO
+  → Job nocturno detecta FechaExpiracion &lt; NOW()
+  → UPDATE SolicitudesRecarga: EstadoSolicitud = 'EXPIRADO'
 
-Asesor genera nuevo enlace → Nueva SolicitudesRecarga (EstadoSolicitud: GENERADO)
-                           → Enlace anterior queda EXPIRADO (trazabilidad)</code></pre>
+Asesor genera nuevo enlace → INSERT SolicitudesRecarga (nuevo, EstadoSolicitud: 'GENERADO')
+  → Enlace anterior queda EXPIRADO (trazabilidad completa)</code></pre>
 
         <!-- ─────────────────────────────────────── -->
         <h3 id="foto-biometria">7.6 Conexión con el Módulo Biométrico</h3>
@@ -4409,13 +4832,13 @@ Asesor genera nuevo enlace → Nueva SolicitudesRecarga (EstadoSolicitud: GENERA
   │
   ▼ (desbloquea biometría)
 RegistrosBiometria
-  ├── IdFotografiaFrontal ──FK──► FotografiasEstudio (FOTO_FRONTAL_DOC, APROBADA)
-  ├── IdFotografiaReverso ──FK──► FotografiasEstudio (FOTO_TRASERA_DOC, APROBADA)
-  └── IdFotografiaSelfie  ──FK──► FotografiasEstudio (SELFIE, APROBADA)
+  ├── IdFotografiaFrontal ──FK──► FotografiasEstudio (DOCUMENTO_FRONTAL, APROBADA_*)
+  ├── IdFotografiaReverso ──FK──► FotografiasEstudio (DOCUMENTO_TRASERO, APROBADA_*)
+  └── IdFotografiaSelfie  ──FK──► FotografiasEstudio (SELFIE, APROBADA_*, PruebaVidaExitosa = 1)
           │
-          │  Coincidencia facial (UmbralMatchFacial)
+          │  Coincidencia facial (PorcentajeCoincidencia)
           ▼
-      ResultadoBiometria = EXITOSO / FALLIDO / DERIVADO_FABRICA</code></pre>
+      EstadoProceso = EXITOSO / FALLIDO / REVISION_MANUAL</code></pre>
 
         <div class="callout callout--warn">
           <p>
@@ -4448,7 +4871,7 @@ RegistrosBiometria
             <tr>
               <td><code>MAX_VERSIONES_FOTO_SUPERADO</code></td>
               <td><span class="badge badge--red">ALTO</span></td>
-              <td>NumeroVersion supera el límite configurado (abuso del sistema de recarga)</td>
+              <td>Número de intentos de carga supera el límite configurado (abuso del sistema de recarga)</td>
               <td>ESCALAR</td>
             </tr>
             <tr>
@@ -4467,44 +4890,43 @@ RegistrosBiometria
         </table>
 
         <!-- ─────────────────────────────────────── -->
-        <h3 id="foto-consulta-asesor">7.8 Consulta Completa del Asesor de Fotografías</h3>
+        <h3 id="foto-consulta-asesor">7.8 Consulta Completa del Asesor de Fotografías (v2.6)</h3>
         <p>
-          El asesor puede reconstruir el estado fotográfico completo de un estudio con una sola consulta SQL,
-          incluyendo cada versión de cada foto y cada decisión de revisión tomada.
+          En el diseño unificado, la información de revisión está inline en <code>FotografiasEstudio</code>.
+          La consulta del asesor solo necesita un LEFT JOIN a <code>RevisionesFotografia</code>
+          para el historial de auditoría detallado y a <code>SolicitudesRecarga</code> para la
+          solicitud activa (si existe).
         </p>
-        <pre><code>-- Consulta completa de fotografías para el asesor:
+        <pre><code>-- Consulta completa de fotografías para el asesor (v2.6 — diseño unificado):
 SELECT
-    ct.Nombre                     AS TipoFotografia,
-    ct.EsObligatorio,
-    fe.NumeroVersion,
-    fe.EstadoFoto,
-    fe.UrlAlmacenamiento,
-    fe.FechaCreacion              AS FechaCarga,
-
-    -- Última revisión del asesor sobre esta foto
-    rv.ResultadoRevision,
-    rv.MotivoRechazo,
-    rv.NotasAsesor,
-    rv.FechaRevision,
+    fe.TipoFotografia,                            -- SELFIE, DOCUMENTO_FRONTAL, DOCUMENTO_TRASERO
+    fe.EstadoRevision,                            -- PENDIENTE, APROBADA_AUTO, APROBADA_ASESOR, RECHAZADA, REEMPLAZADA
+    fe.EsVigente,                                 -- 1 = foto activa para este tipo
+    fe.UrlArchivo,
+    fe.FechaCaptura,
+    fe.MetodoRevision,                            -- AUTOMATICO, MANUAL_ASESOR (NULL si PENDIENTE)
+    fe.MotivoRechazo,                             -- inline — motivo de rechazo si aplica
+    fe.PorcentajeCoincidencia,                    -- % match facial (solo SELFIE)
+    fe.PruebaVidaExitosa,                         -- resultado prueba de vida (solo SELFIE)
+    fe.FechaRevision,
 
     -- Solicitud de recarga activa (si existe)
-    sr.EstadoSolicitud            AS EstadoRecarga,
-    sr.FechaExpiracion            AS ExpiraRecarga
+    sr.EstadoSolicitud                            AS EstadoRecarga,
+    sr.FechaExpiracion                            AS ExpiraRecarga
 
 FROM FotografiasEstudio fe
-JOIN CatalogoTiposFotografia ct ON fe.IdTipoFotografia = ct.IdTipoFotografia
-LEFT JOIN RevisionesFotografia rv ON rv.IdFotografia = fe.IdFotografia
-    AND rv.IdRevision = (
-        SELECT TOP 1 IdRevision
-        FROM RevisionesFotografia
-        WHERE IdFotografia = fe.IdFotografia
-        ORDER BY FechaRevision DESC
-    )
-LEFT JOIN SolicitudesRecarga sr ON sr.IdFotografia = fe.IdFotografia
-    AND sr.EstadoSolicitud IN ('GENERADO', 'ENVIADO')
+LEFT JOIN SolicitudesRecarga sr
+       ON sr.IdFotografiaAnterior = fe.IdFotografia
+      AND sr.EstadoSolicitud IN ('GENERADO', 'ENVIADO')
 
 WHERE fe.IdEstudio = @IdEstudio
-ORDER BY ct.Nombre, fe.NumeroVersion DESC;</code></pre>
+ORDER BY fe.TipoFotografia, fe.FechaCaptura DESC;
+
+-- Para historial de auditoría de decisiones humanas:
+SELECT rv.*
+FROM RevisionesFotografia rv
+WHERE rv.IdEstudio = @IdEstudio
+ORDER BY rv.FechaRevision DESC;</code></pre>
 
       </section>
 
@@ -4584,12 +5006,1136 @@ ORDER BY ct.Nombre, fe.NumeroVersion DESC;</code></pre>
         </ul>
       </section>
 
+      <!-- ===================== TAXONOMÍA DE SERVICIOS ===================== -->
+      <section id="taxonomia-servicios">
+        <h2>Taxonomía de Servicios Backend <span class="badge badge--accent">Nuevo v2.4</span></h2>
+        <p>
+          Diseño completo de la arquitectura de servicios backend para el LOS QUAC. Soporta dos canales:
+          <strong>Flujo Web (autogestión)</strong> desde smartphone e <strong>Flujo Tienda (asistido/híbrido)</strong>
+          desde el PC del asesor, con soporte para <strong>Session Handoffs</strong> entre dispositivos.
+          La <strong>Regla de Oro</strong>: el Backend dicta la máquina de estados — los Frontends son
+          Thin Clients que solo renderizan y envían payloads.
+        </p>
+
+        <div class="card-grid">
+          <div class="card card--violet">
+            <h4>21 Servicios Core</h4>
+            <p>Lógica inmutable. Sin conocimiento de canal. Solo llamados internos vía mTLS.</p>
+          </div>
+          <div class="card card--cyan">
+            <h4>38 Servicios BFF</h4>
+            <p>17 Web + 17 Tienda + 4 Handoff. Orquestan el Core según el canal.</p>
+          </div>
+          <div class="card card--green">
+            <h4>13 Servicios Utilitarios</h4>
+            <p>OTP, SMS, Email, WhatsApp, Storage, Catálogos, Idempotencia.</p>
+          </div>
+          <div class="card card--amber">
+            <h4>12 Adaptadores Externos</h4>
+            <p>Buró, OCR, Biometría, FOSYGA, UBICA, Antecedentes, Infobip, Call Center.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Flujos por canal -->
+      <section id="flujos-canales">
+        <h2>Flujos Web vs Tienda — Comportamiento de la Máquina de Estados</h2>
+        <p>
+          La tabla <code>EstudiosCredito</code> es el <strong>único cursor de verdad</strong>.
+          Los campos clave que gobiernan el routing son:
+        </p>
+        <table>
+          <thead>
+            <tr><th>Campo</th><th>Rol en el Routing</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>IdEstadoActual</code></td><td>Estado global (FK → <code>CatalogoEstados</code>)</td></tr>
+            <tr><td><code>IdPasoActual</code></td><td>Cursor de reanudación (FK → <code>PasosEstudio</code>)</td></tr>
+            <tr><td><code>SlugPasoWeb</code></td><td>Retomar sesión web abandonada</td></tr>
+            <tr><td><code>IdCanal</code></td><td>WEB vs TIENDA vs HANDOFF</td></tr>
+            <tr><td><code>NitComercio</code></td><td><span class="badge badge--amber">v2.6</span> Identifica el comercio de origen del cupo</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Canal WEB — Secuencia de Pasos</h3>
+        <p>Todos los pasos son determinados por el Backend. El Frontend ejecuta el <code>next_action</code> recibido.</p>
+        <pre>POST /web/solicitud/iniciar          → evalúa elegibilidad, crea o retoma estudio
+POST /web/solicitud/{id}/datos-basicos
+POST /web/solicitud/{id}/consentimiento
+POST /util/otp/enviar  ←→  POST /util/otp/validar   (SMS → WA → Llamada escalonado)
+POST /web/solicitud/{id}/confirmar-datos-doc
+POST /web/solicitud/{id}/iniciar-estudio   ← async: Antecedentes → Preselecta → FOSYGA → UBICA
+GET  /web/solicitud/{id}/resultado-estudio ← polling hasta resolución
+POST /web/solicitud/{id}/datos-direccion
+POST /web/solicitud/{id}/biometria/foto-frontal
+POST /web/solicitud/{id}/biometria/foto-reverso
+POST /web/solicitud/{id}/biometria/selfie    ← OCR + faceliveness + face-match ≥85%
+POST /web/solicitud/{id}/activar-cupo        ← valida token correo + activa cupo</pre>
+
+        <h3>Canal TIENDA — Diferencias Operativas</h3>
+        <p>Idéntico al WEB en lógica de negocio. Las diferencias son exclusivamente operativas:</p>
+        <ul>
+          <li><code>IdAsesor</code> e <code>IdBodega</code> se adjuntan automáticamente al estudio.</li>
+          <li>El asesor accede a la <strong>Mesa de Estudios</strong> vía <code>GET /tienda/mesa-estudios</code>.</li>
+          <li>OCR disponible con cámara corporativa <strong>o</strong> link al celular del cliente (Session Handoff).</li>
+          <li>El asesor puede escalar manualmente a Fábrica con motivo tipificado.</li>
+          <li>El asesor revisa y aprueba/rechaza cada foto individualmente.</li>
+        </ul>
+      </section>
+
+      <!-- Session Handoff -->
+      <section id="session-handoff">
+        <h2>Session Handoff — Diseño Técnico</h2>
+        <p>
+          <strong>Problema:</strong> La selfie debe tomarse en el celular del cliente (mayor calidad, mayor naturalidad).
+          El PC del asesor debe detectar automáticamente cuándo el cliente terminó, sin intervención manual.
+        </p>
+
+        <div class="callout callout--info">
+          <p><strong>Solución elegida: Polling HTTP cada 3 segundos + Token UUID</strong><br/>
+          Estado almacenado en <code>SolicitudesRecarga</code> con <code>TipoSolicitud = 'HANDOFF_BIOMETRIA'</code>.
+          Upgrade path: <strong>SSE (Server-Sent Events)</strong> si se supera 500 asesores concurrentes.</p>
+        </div>
+
+        <h3>Secuencia Completa del Handoff</h3>
+        <pre>PC ASESOR                      BACKEND                       CELULAR CLIENTE
+──────────────────────────────────────────────────────────────────────────────
+POST /tienda/handoff/
+  generar-link
+{idEstudio, paso: SELFIE}
+                   →  INSERT SolicitudesRecarga
+                      { Token: UUID, FechaExpiracion: +15min,
+                        Tipo: HANDOFF_BIOMETRIA,
+                        Estado: PENDIENTE }
+                      POST /ext/infobip/sms → link al cliente
+← { token, expiresAt }
+                                              ← Recibe SMS con link
+
+Polling cada 3s:                              GET /handoff/{token}/validar
+GET /tienda/handoff/                          → { idEstudio, paso: SELFIE }
+  estado/{token}
+                   → Estado = PENDIENTE       POST /handoff/{token}/biometria/selfie
+← nextAction:                                 → SolicitudesRecarga.Estado = COMPLETADO
+  WAIT_HANDOFF                                   INSERT FotografiasEstudio (SELFIE)
+                                                 POST /ext/biometria/faceliveness
+                                                 POST /ext/biometria/face-match
+
+GET /tienda/handoff/estado/{token}
+                   → Estado = COMPLETADO
+← nextAction: HANDOFF_COMPLETE
+PC del asesor continúa el flujo ✓</pre>
+
+        <h3>Comparativa: Polling vs WebSocket</h3>
+        <table>
+          <thead>
+            <tr><th>Criterio</th><th>Polling 3s ✅</th><th>WebSocket</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Infraestructura</td><td>Solo HTTP REST stateless</td><td>WS server persistente + sticky sessions</td></tr>
+            <tr><td>Escalabilidad</td><td>Load balancer nativo</td><td>Redis pub/sub requerido</td></tr>
+            <tr><td>TTL / Expiración</td><td>Trivial — responde <code>HANDOFF_EXPIRED</code></td><td>Heartbeat complejo</td></tr>
+            <tr><td>Complejidad</td><td>Días de implementación</td><td>Semanas/meses</td></tr>
+            <tr><td>Volumen actual</td><td>5K–10K sol/mes → suficiente</td><td>Overkill para este volumen</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Servicios Core -->
+      <section id="servicios-core">
+        <h2>A) Servicios Core / Globales — 21 endpoints</h2>
+        <p>
+          Lógica de negocio inmutable. Sin conocimiento de canal. Accesibles únicamente desde los BFFs
+          mediante mTLS o API Key interna — <strong>nunca expuestos al exterior</strong>.
+        </p>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th><th>Tablas Afectadas</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>C-01</td><td><span class="badge badge--green">POST</span></td><td><code>/core/estudios</code></td><td>Crear estudio de crédito</td><td><code>EstudiosCredito</code> ← INSERT</td></tr>
+            <tr><td>C-02</td><td><span class="badge badge--cyan">GET</span></td><td><code>/core/estudios/{id}</code></td><td>Estado completo del estudio</td><td><code>EstudiosCredito</code> → SELECT</td></tr>
+            <tr><td>C-03</td><td><span class="badge badge--green">POST</span></td><td><code>/core/estudios/{id}/estado</code></td><td>Transicionar estado (valida <code>TransicionesEstado</code>)</td><td><code>EstudiosCredito</code>, <code>HistorialEstados</code></td></tr>
+            <tr><td>C-04</td><td><span class="badge badge--cyan">GET</span></td><td><code>/core/estudios/{id}/next-step</code></td><td>Calcular siguiente paso del flujo</td><td><code>PasosEstudio</code>, <code>FasesEstudio</code></td></tr>
+            <tr><td>C-05</td><td><span class="badge badge--green">POST</span></td><td><code>/core/estudios/{id}/paso-completado</code></td><td>Avanzar cursor <code>IdPasoActual</code></td><td><code>EstudiosCredito</code> ← UPDATE</td></tr>
+            <tr><td>C-06</td><td><span class="badge badge--cyan">GET</span></td><td><code>/core/terceros/{nit}/elegibilidad</code></td><td>Bloqueo, cupo activo, cooling-off</td><td><code>TercerosFabricas</code>, <code>KCRM_CadenaCreditos</code></td></tr>
+            <tr><td>C-07</td><td><span class="badge badge--green">POST</span></td><td><code>/core/terceros/{nit}/upsert</code></td><td>Crear o actualizar tercero</td><td><code>TercerosFabricas</code></td></tr>
+            <tr><td>C-08</td><td><span class="badge badge--green">POST</span></td><td><code>/core/evaluaciones-riesgo</code></td><td>Registrar resultado de evaluación externa</td><td><code>EvaluacionesRiesgo</code> ← INSERT</td></tr>
+            <tr><td>C-09</td><td><span class="badge badge--green">POST</span></td><td><code>/core/biometria</code></td><td>Registrar resultado biométrico</td><td><code>RegistrosBiometria</code>, <code>FotografiasEstudio</code></td></tr>
+            <tr><td>C-10</td><td><span class="badge badge--green">POST</span></td><td><code>/core/consentimientos</code></td><td>Registrar consentimiento legal</td><td><code>ConsentimientosLegales</code> ← INSERT</td></tr>
+            <tr><td>C-11</td><td><span class="badge badge--green">POST</span></td><td><code>/core/fraude/evaluar</code></td><td>Ejecutar reglas de fraude contra el estudio</td><td><code>AlertasFraude</code>, <code>CatalogoReglasFraude</code></td></tr>
+            <tr><td>C-12</td><td><span class="badge badge--green">POST</span></td><td><code>/core/escalamientos</code></td><td>Crear escalamiento a Fábrica</td><td><code>EscalamientosFabrica</code>, <code>CatalogoMotivosEscalamiento</code></td></tr>
+            <tr><td>C-13</td><td><span class="badge badge--green">POST</span></td><td><code>/core/fotos/{id}/revision</code></td><td>Registrar decisión de revisión de foto (INSERT-ONLY)</td><td><code>RevisionesFotografia</code></td></tr>
+            <tr><td>C-14</td><td><span class="badge badge--green">POST</span></td><td><code>/core/estudios/{id}/activar-cupo</code></td><td>Activación final del cupo</td><td><code>EstudiosCredito</code>, <code>TercerosFabricas</code>, <code>KCRM_CadenaCreditos</code></td></tr>
+            <tr><td>C-15</td><td><span class="badge badge--green">POST</span></td><td><code>/core/auditoria/cambio-datos</code></td><td>Registrar mutación de datos sensibles</td><td><code>HistorialDatosSensibles</code> ← INSERT</td></tr>
+            <tr><td>C-16</td><td><span class="badge badge--green">POST</span></td><td><code>/core/auditoria/servicio-externo</code></td><td>Registrar llamada a servicio externo</td><td><code>RegistroServiciosExternos</code> ← INSERT</td></tr>
+            <tr><td>C-17</td><td><span class="badge badge--cyan">GET</span></td><td><code>/core/catalogos/estados</code></td><td>Estados de la máquina</td><td><code>CatalogoEstados</code></td></tr>
+            <tr><td>C-18</td><td><span class="badge badge--cyan">GET</span></td><td><code>/core/catalogos/pasos</code></td><td>Pasos y fases del flujo</td><td><code>PasosEstudio</code>, <code>FasesEstudio</code></td></tr>
+            <tr><td>C-19</td><td><span class="badge badge--cyan">GET</span></td><td><code>/core/catalogos/canales</code></td><td>Canales de origen disponibles</td><td><code>CatalogoCanalesOrigen</code></td></tr>
+            <tr><td>C-20</td><td><span class="badge badge--cyan">GET</span></td><td><code>/core/catalogos/tipos-documento</code></td><td>Tipos de documento de identidad</td><td>Tabla dominio QUAC</td></tr>
+            <tr><td>C-21</td><td><span class="badge badge--cyan">GET</span></td><td><code>/core/reglas-negocio</code></td><td>Parámetros configurables (días cooling, intentos OTP, etc.)</td><td><code>ConfiguracionReglasNegocio</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Servicios BFF -->
+      <section id="servicios-bff">
+        <h2>B) Servicios BFF por Canal — 38 endpoints</h2>
+        <p>
+          Servicios específicos para cada interfaz de usuario. Orquestan llamados al Core y manejan el contexto
+          del canal. Los BFFs conocen el canal pero <strong>no contienen lógica de negocio</strong> — la delegan al Core.
+        </p>
+
+        <h3>BFF Canal WEB — 17 endpoints (<code>/web/</code>)</h3>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>W-01</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/iniciar</code></td><td>Punto de entrada único. Evalúa elegibilidad y crea/retoma estudio.</td></tr>
+            <tr><td>W-02</td><td><span class="badge badge--cyan">GET</span></td><td><code>/web/solicitud/{id}/estado</code></td><td>Estado + <code>next_action</code> para renderizado. Idempotente.</td></tr>
+            <tr><td>W-03</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/datos-basicos</code></td><td>Guardar nombre, correo, celular. Dispara auditoría de datos sensibles.</td></tr>
+            <tr><td>W-04</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/consentimiento</code></td><td>Aceptar T&amp;C, disparar OTP por SMS.</td></tr>
+            <tr><td>W-05</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/validar-otp</code></td><td>Validar código OTP. Registra intento en <code>LogValidacionesOTP</code>.</td></tr>
+            <tr><td>W-06</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/confirmar-datos-doc</code></td><td>Confirmar fecha de nacimiento y correo electrónico.</td></tr>
+            <tr><td>W-07</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/iniciar-estudio</code></td><td>Lanzar pipeline async: Antecedentes → Preselecta → FOSYGA → UBICA.</td></tr>
+            <tr><td>W-08</td><td><span class="badge badge--cyan">GET</span></td><td><code>/web/solicitud/{id}/resultado-estudio</code></td><td>Polling del pipeline async de evaluación de riesgo.</td></tr>
+            <tr><td>W-09</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/datos-direccion</code></td><td>Guardar departamento, ciudad, dirección y barrio (staging).</td></tr>
+            <tr><td>W-10</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/biometria/iniciar</code></td><td>Inicializar sesión biométrica.</td></tr>
+            <tr><td>W-11</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/biometria/foto-frontal</code></td><td>Subir foto frontal del documento. Dispara OCR.</td></tr>
+            <tr><td>W-12</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/biometria/foto-reverso</code></td><td>Subir foto reverso del documento.</td></tr>
+            <tr><td>W-13</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/biometria/selfie</code></td><td>Subir selfie + faceliveness + face-match (≥85%).</td></tr>
+            <tr><td>W-14</td><td><span class="badge badge--cyan">GET</span></td><td><code>/web/solicitud/{id}/biometria/estado</code></td><td>Estado del proceso biométrico completo.</td></tr>
+            <tr><td>W-15</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/reenviar-otp</code></td><td>Reenviar OTP por canal alternativo (SMS → WA → Llamada).</td></tr>
+            <tr><td>W-16</td><td><span class="badge badge--green">POST</span></td><td><code>/web/solicitud/{id}/activar-cupo</code></td><td>Validar token correo + activación final del cupo.</td></tr>
+            <tr><td>W-17</td><td><span class="badge badge--cyan">GET</span></td><td><code>/web/solicitud/retomar</code></td><td>Retomar sesión abandonada por NIT + <code>SlugPasoWeb</code>.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>BFF Canal TIENDA — 17 endpoints (<code>/tienda/</code>)</h3>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>T-01</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/solicitud/iniciar-asistida</code></td><td>Punto de entrada del asesor. Adjunta <code>IdAsesor</code> + <code>IdBodega</code> al estudio.</td></tr>
+            <tr><td>T-02</td><td><span class="badge badge--cyan">GET</span></td><td><code>/tienda/solicitud/{id}/estado</code></td><td>Estado + <code>next_action</code> para el PC del asesor.</td></tr>
+            <tr><td>T-03</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/solicitud/{id}/datos-tercero</code></td><td>Crear tercero por OCR o ingreso manual.</td></tr>
+            <tr><td>T-04</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/solicitud/{id}/token-tyc</code></td><td>Enviar token T&amp;C por SMS/WhatsApp al cliente.</td></tr>
+            <tr><td>T-05</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/solicitud/{id}/validar-token</code></td><td>Validar token T&amp;C.</td></tr>
+            <tr><td>T-06</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/solicitud/{id}/evaluar-viabilidad</code></td><td>Antecedentes + Preselecta + FOSYGA + UBICA.</td></tr>
+            <tr><td>T-07</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/solicitud/{id}/direccion</code></td><td>Guardar dirección de residencia del cliente.</td></tr>
+            <tr><td>T-08</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/solicitud/{id}/biometria/asesor</code></td><td>Captura biométrica desde cámara del asesor (sin handoff).</td></tr>
+            <tr><td>T-09</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/handoff/generar-link</code></td><td><strong>Generar link SMS</strong> para handoff biométrico al celular del cliente.</td></tr>
+            <tr><td>T-10</td><td><span class="badge badge--cyan">GET</span></td><td><code>/tienda/handoff/estado/{token}</code></td><td><strong>Polling</strong> — ¿completó el cliente el handoff? Retorna <code>WAIT_HANDOFF</code> o <code>HANDOFF_COMPLETE</code>.</td></tr>
+            <tr><td>T-11</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/solicitud/{id}/escalar-fabrica</code></td><td>Escalar manualmente a Fábrica con motivo tipificado.</td></tr>
+            <tr><td>T-12</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/solicitud/{id}/solicitar-recarga-foto</code></td><td>Generar link de re-carga para foto rechazada.</td></tr>
+            <tr><td>T-13</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/solicitud/{id}/activar-cupo</code></td><td>Activación final del cupo (express o normal).</td></tr>
+            <tr><td>T-14</td><td><span class="badge badge--cyan">GET</span></td><td><code>/tienda/mesa-estudios</code></td><td>Listado de estudios del asesor/tienda con filtros y estados.</td></tr>
+            <tr><td>T-15</td><td><span class="badge badge--cyan">GET</span></td><td><code>/tienda/mesa-estudios/{id}/detalle</code></td><td>Detalle completo de un estudio para el asesor.</td></tr>
+            <tr><td>T-16</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/fotos/{idFoto}/revisar</code></td><td>Asesor aprueba o rechaza una foto individual.</td></tr>
+            <tr><td>T-17</td><td><span class="badge badge--cyan">GET</span></td><td><code>/tienda/estadisticas/diarias</code></td><td>KPIs del día para el asesor o la tienda.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>BFF Canal HANDOFF — 4 endpoints (<code>/handoff/</code>)</h3>
+        <p>
+          Endpoints accesibles mediante link temporal sin JWT estándar. Autenticados por <strong>token UUID en el path</strong>,
+          con TTL de 15 minutos y alcance limitado a un único estudio.
+        </p>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>H-01</td><td><span class="badge badge--cyan">GET</span></td><td><code>/handoff/{token}/validar</code></td><td>Validar token y retornar contexto del estudio al celular del cliente.</td></tr>
+            <tr><td>H-02</td><td><span class="badge badge--green">POST</span></td><td><code>/handoff/{token}/biometria/selfie</code></td><td>Cliente sube selfie desde su celular. Dispara faceliveness + face-match.</td></tr>
+            <tr><td>H-03</td><td><span class="badge badge--cyan">GET</span></td><td><code>/handoff/{token}/estado</code></td><td>Estado del handoff para la UX del cliente (progreso, expiración).</td></tr>
+            <tr><td>H-04</td><td><span class="badge badge--green">POST</span></td><td><code>/handoff/{token}/fotos/recarga</code></td><td>Cliente sube foto de re-carga solicitada por el asesor.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Servicios Utilitarios -->
+      <section id="servicios-utilitarios">
+        <h2>C) Servicios Utilitarios — 13 endpoints</h2>
+        <p>Herramientas transversales disponibles para todos los canales.</p>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th><th>Tablas</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>U-01</td><td><span class="badge badge--green">POST</span></td><td><code>/util/otp/enviar</code></td><td>Enviar OTP por canal. Gestiona escalonamiento SMS→WA→EMAIL.</td><td><code>RetosSeguridad</code></td></tr>
+            <tr><td>U-02</td><td><span class="badge badge--green">POST</span></td><td><code>/util/otp/validar</code></td><td>Validar código contra hash almacenado.</td><td><code>RetosSeguridad</code>, <code>LogValidacionesOTP</code></td></tr>
+            <tr><td>U-03</td><td><span class="badge badge--cyan">GET</span></td><td><code>/util/otp/estado/{idReto}</code></td><td>Estado del reto (activo, expirado, agotado intentos).</td><td><code>RetosSeguridad</code></td></tr>
+            <tr><td>U-04</td><td><span class="badge badge--green">POST</span></td><td><code>/util/otp/reenviar</code></td><td>Reenviar por mismo o distinto canal. Incrementa <code>NumeroReenvios</code>.</td><td><code>RetosSeguridad</code></td></tr>
+            <tr><td>U-05</td><td><span class="badge badge--green">POST</span></td><td><code>/util/sms/enviar</code></td><td>SMS genérico (links, notificaciones).</td><td><code>RegistroServiciosExternos</code></td></tr>
+            <tr><td>U-06</td><td><span class="badge badge--green">POST</span></td><td><code>/util/email/enviar</code></td><td>Email genérico (activación, notificaciones).</td><td><code>RegistroServiciosExternos</code></td></tr>
+            <tr><td>U-07</td><td><span class="badge badge--green">POST</span></td><td><code>/util/whatsapp/enviar</code></td><td>Mensaje WhatsApp.</td><td><code>RegistroServiciosExternos</code></td></tr>
+            <tr><td>U-08</td><td><span class="badge badge--cyan">GET</span></td><td><code>/util/catalogos/departamentos</code></td><td>Listado de departamentos de Colombia.</td><td>Tabla dominio QUAC</td></tr>
+            <tr><td>U-09</td><td><span class="badge badge--cyan">GET</span></td><td><code>/util/catalogos/ciudades/{idDepto}</code></td><td>Ciudades por departamento.</td><td>Tabla dominio QUAC</td></tr>
+            <tr><td>U-10</td><td><span class="badge badge--cyan">GET</span></td><td><code>/util/catalogos/tipos-documento</code></td><td>Tipos de documento de identidad.</td><td>Tabla dominio QUAC</td></tr>
+            <tr><td>U-11</td><td><span class="badge badge--green">POST</span></td><td><code>/util/storage/presigned-url</code></td><td>URL pre-firmada para subida de foto (S3/Blob). TTL 15 min.</td><td>N/A</td></tr>
+            <tr><td>U-12</td><td><span class="badge badge--green">POST</span></td><td><code>/util/idempotencia/verificar</code></td><td>Verificar si <code>ClaveIdempotencia</code> fue procesada. HTTP 409 si duplicado.</td><td><code>EstudiosCredito</code></td></tr>
+            <tr><td>U-13</td><td><span class="badge badge--cyan">GET</span></td><td><code>/util/health</code></td><td>Health check del sistema.</td><td>N/A</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Servicios Externos -->
+      <section id="servicios-externos">
+        <h2>D) Servicios de Integración Externa — 12 adaptadores</h2>
+        <p>
+          Adaptadores que encapsulan la comunicación con proveedores externos. Cada llamada queda registrada
+          automáticamente en <code>RegistroServiciosExternos</code> con el payload completo (request + response + latencia).
+        </p>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th><th>Escribe en</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>E-01</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/antecedentes/consultar</code></td><td>Antecedentes judiciales y listas restrictivas.</td><td><code>EvaluacionesRiesgo</code> (ANTECEDENTES)</td></tr>
+            <tr><td>E-02</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/buro/consultar</code></td><td>Consulta buró de crédito.</td><td><code>EvaluacionesRiesgo</code> (BURO)</td></tr>
+            <tr><td>E-03</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/preselecta/consultar</code></td><td>Viabilidad crediticia Preselecta.</td><td><code>EvaluacionesRiesgo</code> (PRESELECTA)</td></tr>
+            <tr><td>E-04</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/fosyga/consultar</code></td><td>Seguridad social FOSYGA.</td><td><code>EvaluacionesRiesgo</code> (FOSYGA)</td></tr>
+            <tr><td>E-05</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/ubica/consultar</code></td><td>Contactabilidad UBICA.</td><td><code>ValidacionesContactabilidad</code>, <code>EvaluacionesRiesgo</code> (UBICA)</td></tr>
+            <tr><td>E-06</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/ocr/procesar-documento</code></td><td>OCR de documento: extrae nombre, número, fecha expedición.</td><td><code>RegistrosBiometria</code> (campos OCR)</td></tr>
+            <tr><td>E-07</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/biometria/faceliveness</code></td><td>Prueba de vida (vivacidad facial).</td><td><code>RegistrosBiometria</code></td></tr>
+            <tr><td>E-08</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/biometria/face-match</code></td><td>Comparación facial selfie vs documento (umbral ≥85%).</td><td><code>RegistrosBiometria</code> (<code>PorcentajeCoincidencia</code>)</td></tr>
+            <tr><td>E-09</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/biometria/enroll</code></td><td>Enrollar biometría para re-autenticación futura.</td><td><code>RegistrosBiometria</code>, <code>TercerosFabricas</code></td></tr>
+            <tr><td>E-10</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/infobip/sms</code></td><td>Adaptador Infobip — envío de SMS.</td><td><code>RegistroServiciosExternos</code></td></tr>
+            <tr><td>E-11</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/infobip/whatsapp</code></td><td>Adaptador Infobip — envío de WhatsApp.</td><td><code>RegistroServiciosExternos</code></td></tr>
+            <tr><td>E-12</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/call-center/escalar</code></td><td>Notificar caso al Call Center.</td><td><code>EscalamientosFabrica</code>, <code>ValidacionesContactabilidad</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Estado Dirigido por el Sistema -->
+      <section id="backend-driven-state">
+        <h2>Estrategia: Estado Dirigido por el Sistema</h2>
+        <p>
+          El Backend devuelve siempre el mismo envelope estándar. El Frontend <strong>nunca</strong> tiene
+          <code>if/else</code> de reglas de negocio — solo interpreta el <code>next_action</code> recibido
+          y renderiza la pantalla indicada en <code>screen</code>.
+        </p>
+
+        <h3>Estructura del Payload Estándar</h3>
+        <pre>{
+  "status":        "success" | "error",
+  "request_id":   "uuid-de-trazabilidad",
+  "timestamp":    "2026-04-15T10:30:00Z",
+
+  "study_id":      "EST-2026-00123",
+  "nit":           "1023456789",
+
+  "current_state": "EN_PROGRESO",
+  "next_action":   "RENDER_SCREEN",   // ← Frontend obedece esto, sin lógica propia
+
+  "screen":        "BIOMETRIA_FOTO_FRONTAL",  // ← Qué componente renderizar
+  "screen_data":   { ... },                   // ← Datos específicos de esa pantalla
+
+  "alerts":        [],
+  "errors":        [],
+
+  "meta": {
+    "channel":         "WEB" | "TIENDA" | "HANDOFF",
+    "step":            7,
+    "step_slug":       "biometria-foto-frontal",
+    "progress_pct":    65,
+    "phase":           "VERIFICACION_IDENTIDAD",
+    "is_resuming":     false,
+    "is_handoff":      false,
+    "idempotency_key": "idem-abc-123",
+    "row_version":     3
+  }
+}</pre>
+
+        <div class="callout callout--info">
+          <p><strong>Principio de seguridad:</strong> Los campos <code>idempotency_key</code> y <code>row_version</code>
+          deben enviarse de vuelta en la siguiente request para garantizar idempotencia y optimistic locking.
+          Si <code>row_version</code> no coincide → HTTP 409 + <code>next_action: ERROR_CONCURRENCY</code>.</p>
+        </div>
+      </section>
+
+      <!-- NextAction Enum -->
+      <section id="next-action-enum">
+        <h2>Enum <code>NextAction</code> — 28 valores</h2>
+        <p>Lista exhaustiva de todas las acciones que el Backend puede ordenar al Frontend. El Frontend implementa
+        un <code>switch(next_action)</code> sin lógica de negocio interna.</p>
+        <table>
+          <thead>
+            <tr><th>Valor</th><th>Categoría</th><th>Descripción</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>RENDER_SCREEN</code></td><td><span class="badge badge--cyan">Navegación</span></td><td>Renderizar la pantalla indicada en <code>screen</code></td></tr>
+            <tr><td><code>RESUME_STEP</code></td><td><span class="badge badge--cyan">Navegación</span></td><td>Retomar desde el <code>step_slug</code> abandonado</td></tr>
+            <tr><td><code>ADVANCE_STEP</code></td><td><span class="badge badge--cyan">Navegación</span></td><td>Avanzar al siguiente paso del flujo</td></tr>
+            <tr><td><code>RELOAD_STATE</code></td><td><span class="badge badge--cyan">Navegación</span></td><td>Refrescar estado (post-handoff, post-review)</td></tr>
+            <tr><td><code>FINAL_SUCCESS</code></td><td><span class="badge badge--green">Éxito</span></td><td>Cupo activado exitosamente</td></tr>
+            <tr><td><code>EARLY_EXIT</code></td><td><span class="badge badge--green">Éxito</span></td><td>Cupo ya activo — cierre temprano sin acción requerida</td></tr>
+            <tr><td><code>EXPRESS_ACTIVATION</code></td><td><span class="badge badge--green">Éxito</span></td><td>Reactivación express de cupo cancelado (solo token correo)</td></tr>
+            <tr><td><code>WAIT_PROCESSING</code></td><td><span class="badge badge--amber">Espera</span></td><td>Pipeline Preselecta/FOSYGA en proceso async</td></tr>
+            <tr><td><code>WAIT_HANDOFF</code></td><td><span class="badge badge--amber">Espera</span></td><td>Asesor en PC esperando al cliente en celular</td></tr>
+            <tr><td><code>WAIT_FACTORY_REVIEW</code></td><td><span class="badge badge--amber">Espera</span></td><td>Estudio escalado, esperando revisión manual de Fábrica</td></tr>
+            <tr><td><code>WAIT_CALL_CENTER</code></td><td><span class="badge badge--amber">Espera</span></td><td>Resolución de Call Center (UBICA inconsistente)</td></tr>
+            <tr><td><code>WAIT_PHOTO_REVIEW</code></td><td><span class="badge badge--amber">Espera</span></td><td>Fotos subidas, esperando revisión del asesor</td></tr>
+            <tr><td><code>HANDOFF_SEND_SMS</code></td><td><span class="badge badge--violet">Handoff</span></td><td>Tienda: generar y enviar SMS de handoff al cliente</td></tr>
+            <tr><td><code>HANDOFF_EXPIRED</code></td><td><span class="badge badge--violet">Handoff</span></td><td>Link de handoff expiró — debe regenerarse</td></tr>
+            <tr><td><code>HANDOFF_COMPLETE</code></td><td><span class="badge badge--violet">Handoff</span></td><td>Cliente completó el handoff — PC del asesor continúa</td></tr>
+            <tr><td><code>RETRY_OTP</code></td><td><span class="badge badge--amber">Recuperable</span></td><td>OTP incorrecto, puede reintentar</td></tr>
+            <tr><td><code>RETRY_PHOTO</code></td><td><span class="badge badge--amber">Recuperable</span></td><td>Foto rechazada por el asesor — subir de nuevo</td></tr>
+            <tr><td><code>RETRY_BIOMETRIA</code></td><td><span class="badge badge--amber">Recuperable</span></td><td>Faceliveness o face-match fallido</td></tr>
+            <tr><td><code>CHANGE_OTP_CHANNEL</code></td><td><span class="badge badge--amber">Recuperable</span></td><td>Cambiar canal de entrega del OTP (SMS → WA → Llamada)</td></tr>
+            <tr><td><code>BLOCK_FRAUD</code></td><td><span class="badge badge--red">Bloqueante</span></td><td>Alerta de fraude detectada → estado BLOQUEADO_FRAUDE</td></tr>
+            <tr><td><code>BLOCK_DEBT</code></td><td><span class="badge badge--red">Bloqueante</span></td><td>Cartera morosa activa</td></tr>
+            <tr><td><code>BLOCK_COOLING_OFF</code></td><td><span class="badge badge--red">Bloqueante</span></td><td>Periodo de enfriamiento activo post-rechazo</td></tr>
+            <tr><td><code>BLOCK_MAX_ATTEMPTS</code></td><td><span class="badge badge--red">Bloqueante</span></td><td>Máximo de intentos OTP o biometría agotados</td></tr>
+            <tr><td><code>ERROR_TECHNICAL</code></td><td><span class="badge badge--red">Error</span></td><td>Error técnico inesperado del servidor</td></tr>
+            <tr><td><code>ERROR_EXTERNAL_SERVICE</code></td><td><span class="badge badge--red">Error</span></td><td>Proveedor externo no disponible (buró, OCR, etc.)</td></tr>
+            <tr><td><code>ERROR_IDEMPOTENCY</code></td><td><span class="badge badge--red">Error</span></td><td>Clave de idempotencia duplicada — HTTP 409</td></tr>
+            <tr><td><code>ERROR_CONCURRENCY</code></td><td><span class="badge badge--red">Error</span></td><td>Conflicto de versión de fila (optimistic lock) — HTTP 409</td></tr>
+            <tr><td><code>ERROR_VALIDATION</code></td><td><span class="badge badge--red">Error</span></td><td>Payload inválido o datos de entrada incorrectos</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Payloads por Escenario -->
+      <section id="payload-escenarios">
+        <h2>Payloads por Escenario — Ejemplos Reales</h2>
+
+        <h3>1. Happy Path — Biometría lista para capturar</h3>
+        <pre>{
+  "status": "success",
+  "study_id": "EST-2026-00123",
+  "current_state": "EN_PROGRESO",
+  "next_action": "RENDER_SCREEN",
+  "screen": "BIOMETRIA_FOTO_FRONTAL",
+  "screen_data": {
+    "instrucciones": "Ubica el frente de tu cédula dentro del recuadro",
+    "intentos_restantes": 3,
+    "upload_url": "https://storage.quac.co/presigned/abc123?ttl=900"
+  },
+  "alerts": [],
+  "errors": [],
+  "meta": { "channel": "WEB", "step": 7, "progress_pct": 65, "row_version": 3 }
+}</pre>
+
+        <h3>2. Bifurcación — Cupo ya activo (Early Exit)</h3>
+        <pre>{
+  "status": "success",
+  "study_id": null,
+  "current_state": null,
+  "next_action": "EARLY_EXIT",
+  "screen": "CUPO_YA_ACTIVO",
+  "screen_data": {
+    "cupo_disponible": 3500000,
+    "enlace_portal": "https://app.quac.co/mi-cupo"
+  },
+  "meta": { "channel": "WEB", "progress_pct": 100 }
+}</pre>
+
+        <h3>3. Error Recuperable — OTP incorrecto</h3>
+        <pre>{
+  "status": "error",
+  "study_id": "EST-2026-00123",
+  "current_state": "EN_PROGRESO",
+  "next_action": "RETRY_OTP",
+  "screen": "CONSENTIMIENTO_OTP",
+  "screen_data": {
+    "canal_actual": "SMS",
+    "intentos_restantes": 2,
+    "segundos_para_reenvio": 30,
+    "permite_cambiar_canal": true,
+    "canales_disponibles": ["WHATSAPP", "LLAMADA"]
+  },
+  "errors": [{
+    "code": "OTP_INVALID",
+    "recoverable": true,
+    "message": "Código incorrecto. Te quedan 2 intentos."
+  }],
+  "meta": { "channel": "WEB", "step": 3, "progress_pct": 25 }
+}</pre>
+
+        <h3>4. Error Bloqueante — Fraude detectado</h3>
+        <pre>{
+  "status": "error",
+  "study_id": "EST-2026-00456",
+  "current_state": "BLOQUEADO_FRAUDE",
+  "next_action": "BLOCK_FRAUD",
+  "screen": "CLIENTE_BLOQUEADO",
+  "screen_data": {
+    "mensaje_cliente": "Por seguridad, tu solicitud ha sido suspendida.",
+    "telefono_soporte": "018000123456",
+    "referencia_caso": "CASO-FRD-2026-789"
+  },
+  "errors": [{ "code": "FRAUD_DETECTED", "recoverable": false }],
+  "meta": { "channel": "WEB", "step": 3 }
+}</pre>
+
+        <h3>5. Handoff Pendiente — Asesor esperando en PC</h3>
+        <pre>{
+  "status": "success",
+  "study_id": "EST-2026-00789",
+  "current_state": "EN_PROGRESO",
+  "next_action": "WAIT_HANDOFF",
+  "screen": "HANDOFF_ENVIADO",
+  "screen_data": {
+    "celular_destino": "***8901",
+    "paso_handoff": "BIOMETRIA_SELFIE",
+    "token_handoff": "hnd-abc-xyz-789",
+    "expira_en_segundos": 840,
+    "polling_interval_ms": 3000
+  },
+  "meta": { "channel": "TIENDA", "step": 10, "is_handoff": true, "progress_pct": 72 }
+}</pre>
+
+        <h3>6. Cooling Off — Periodo de espera activo</h3>
+        <pre>{
+  "status": "error",
+  "study_id": null,
+  "current_state": null,
+  "next_action": "BLOCK_COOLING_OFF",
+  "screen": "COOLING_OFF",
+  "screen_data": {
+    "fecha_desbloqueo": "2026-06-15",
+    "dias_restantes": 61,
+    "motivo_rechazo": "No cumple criterios de Preselecta"
+  },
+  "errors": [{ "code": "COOLING_OFF_ACTIVE", "recoverable": false }],
+  "meta": { "channel": "WEB" }
+}</pre>
+
+        <h3>7. Revisión de Fábrica</h3>
+        <pre>{
+  "status": "success",
+  "study_id": "EST-2026-01011",
+  "current_state": "REVISION_FABRICA",
+  "next_action": "WAIT_FACTORY_REVIEW",
+  "screen": "ESPERANDO_REVISION_FABRICA",
+  "screen_data": {
+    "tiempo_estimado": "24-48 horas hábiles",
+    "motivo_escalamiento": "Selfie no supera umbral de coincidencia facial",
+    "notificacion_por": ["EMAIL", "SMS"]
+  },
+  "meta": { "channel": "WEB", "step": 7, "progress_pct": 70 }
+}</pre>
+
+        <h3>Seguridad por Capa</h3>
+        <table>
+          <thead>
+            <tr><th>Aspecto</th><th>Implementación</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Auth WEB</strong></td><td>JWT anónimo temporal (P1) → JWT firmado con NIT tras OTP exitoso</td></tr>
+            <tr><td><strong>Auth TIENDA</strong></td><td>JWT del asesor (rol <code>ASESOR_FABRICAS</code>, fuente: <code>BERP_FABRICASOperadores</code>)</td></tr>
+            <tr><td><strong>Auth HANDOFF</strong></td><td>Token UUID en path, TTL 15 min, scoped a 1 estudio</td></tr>
+            <tr><td><strong>Auth CORE/EXT</strong></td><td>mTLS o API Key interna — jamás expuesto al exterior</td></tr>
+            <tr><td><strong>Idempotencia</strong></td><td>Header <code>X-Idempotency-Key</code> → HTTP 409 + <code>ERROR_IDEMPOTENCY</code> si duplicado</td></tr>
+            <tr><td><strong>Optimistic Lock</strong></td><td><code>row_version</code> en body → HTTP 409 + <code>ERROR_CONCURRENCY</code> si mismatch</td></tr>
+            <tr><td><strong>OTP</strong></td><td>Solo <code>HashToken</code> (SHA-256 + salt). Nunca el código plano.</td></tr>
+            <tr><td><strong>Fotos</strong></td><td>URLs pre-firmadas TTL 15 min. Nunca en JSON de respuesta.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
       <!-- Footer -->
+      <hr />
+
+      <!-- ═══════════════════════════════════════════════════════════════════
+           CORRECCIONES v2.5
+           ═══════════════════════════════════════════════════════════════════ -->
+
+      <!-- CORRECCIÓN 1 — División de Responsabilidades: Backend vs Frontend -->
+      <section id="division-responsabilidades">
+        <h2>División de Responsabilidades: Backend vs Frontend <span class="badge badge--accent">Nuevo v2.5</span></h2>
+        <p>
+          Una confusión frecuente en el diseño del LOS es mezclar las responsabilidades del Backend con las del Frontend
+          (enrutador/app). Esta sección establece el límite exacto: qué le pertenece a cada capa.
+        </p>
+
+        <div class="callout callout--info">
+          <p><strong>Principio rector:</strong> El Backend solo contiene lógica de negocio pura — reglas que vienen del
+          dominio del crédito. El Frontend solo contiene lógica de presentación y navegación. Ninguno invade el territorio del otro.</p>
+        </div>
+
+        <div class="card-grid">
+          <div class="card card--violet">
+            <h4>🏛️ Backend — Lógica de Negocio Pura</h4>
+            <p>Reglas que provienen del dominio crediticio. Inmutables desde el Frontend.</p>
+          </div>
+          <div class="card card--cyan">
+            <h4>🖥️ Frontend / Enrutador — Presentación y Navegación</h4>
+            <p>Duración de URLs, estado de pantallas, redirecciones por resultado.</p>
+          </div>
+        </div>
+
+        <h3>¿Qué maneja el Backend?</h3>
+        <table>
+          <thead>
+            <tr><th>Responsabilidad</th><th>Ejemplo Concreto</th><th>Justificación</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Reglas de expiración de OTP</td>
+              <td><em>"El OTP expira en 5 minutos"</em></td>
+              <td>Es una regla de negocio definida por el área de riesgo — no puede cambiarse sin aprobación del negocio</td>
+            </tr>
+            <tr>
+              <td>Límite de intentos</td>
+              <td><em>"Máximo 3 intentos de OTP antes de bloqueo"</em></td>
+              <td>Regla antifraude. Si el Frontend lo controlara, podría ser eludida manipulando la app</td>
+            </tr>
+            <tr>
+              <td>Vigencia del token de acceso</td>
+              <td><em>"JWT válido por 30 minutos"</em></td>
+              <td>Seguridad corporativa — determina cuánto tiempo es válida una sesión autenticada</td>
+            </tr>
+            <tr>
+              <td>Elegibilidad crediticia</td>
+              <td><em>"El cliente tiene cartera morosa activa"</em></td>
+              <td>Dato que viene del ERP QUAC — el Frontend no tiene acceso ni debería tenerlo</td>
+            </tr>
+            <tr>
+              <td>Transiciones de estado válidas</td>
+              <td><em>"Solo se puede pasar de EN_PROGRESO a REVISION_FABRICA si biometría fue exitosa"</em></td>
+              <td>Definido en <code>TransicionesEstado</code> — la máquina de estados es del Backend</td>
+            </tr>
+            <tr>
+              <td>Periodos de enfriamiento</td>
+              <td><em>"60 días de cooling-off tras rechazo por Preselecta"</em></td>
+              <td>Parámetro en <code>ConfiguracionReglasNegocio</code>. El Frontend solo muestra la fecha</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>¿Qué maneja el Frontend (enrutador)?</h3>
+        <table>
+          <thead>
+            <tr><th>Responsabilidad</th><th>Ejemplo Concreto</th><th>Justificación</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Duración y estado de URLs</td>
+              <td><em>La URL <code>/solicitud/paso-3</code> es válida mientras la pestaña esté abierta</em></td>
+              <td>El ciclo de vida de la URL es responsabilidad del navegador/app — el Backend no sabe nada de rutas</td>
+            </tr>
+            <tr>
+              <td>Navegación entre pantallas</td>
+              <td><em>Al recibir <code>next_action: RENDER_SCREEN</code> → muestra el componente indicado en <code>screen</code></em></td>
+              <td>El Backend dice QUÉ mostrar; el Frontend decide CÓMO mostrarlo y gestiona la transición visual</td>
+            </tr>
+            <tr>
+              <td>Redirección por estados</td>
+              <td><em>Al recibir <code>BLOCK_FRAUD</code> → redirige a <code>/solicitud/bloqueada</code></em></td>
+              <td>El Backend retorna el estado; el Frontend mapea ese estado a una ruta de su sistema de navegación</td>
+            </tr>
+            <tr>
+              <td>Mensajes de error amigables</td>
+              <td><em>Traduce <code>OTP_INVALID</code> a "El código que ingresaste no es correcto"</em></td>
+              <td>La presentación del error en el idioma/tono del usuario es responsabilidad de la capa de UI</td>
+            </tr>
+            <tr>
+              <td>Estado de carga / spinners</td>
+              <td><em>Mostrar animación mientras espera la respuesta del polling</em></td>
+              <td>Interacción visual pura — el Backend solo retorna datos, no sabe nada de loaders</td>
+            </tr>
+            <tr>
+              <td>Caché local de pantalla</td>
+              <td><em>No re-consultar si el usuario hace scroll y vuelve a la misma pantalla</em></td>
+              <td>Optimización de UX — decisión puramente del Frontend</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Token de Acceso: Un Solo Origen de Verdad</h3>
+        <div class="callout callout--warn">
+          <p><strong>Regla de diseño:</strong> Solo existe <strong>un tipo de token de acceso</strong>: el <strong>JWT (Bearer Token)</strong>.
+          No hay tokens propietarios, cookies de sesión, ni tokens de múltiples tipos. La diferencia está en quién lo emite y qué claims contiene.</p>
+        </div>
+
+        <table>
+          <thead>
+            <tr><th>Origen de Login</th><th>Identificador Técnico</th><th>Canal</th><th>Claims Clave</th><th>Fuente de Datos</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>LoginWeb</strong></td>
+              <td>JWT emitido tras OTP exitoso del cliente</td>
+              <td><span class="badge badge--cyan">Autogestión</span></td>
+              <td><code>nit</code>, <code>canal: WEB</code>, <code>idEstudio</code></td>
+              <td><code>TercerosFabricas</code></td>
+            </tr>
+            <tr>
+              <td><strong>LoginBodega</strong></td>
+              <td>JWT emitido tras autenticación biométrica del asesor</td>
+              <td><span class="badge badge--violet">Flujo Asistido</span></td>
+              <td><code>idAsesor</code>, <code>idBodega</code>, <code>rol: ASESOR_FABRICAS</code>, <code>canal: TIENDA</code></td>
+              <td><code>BERP_FABRICASOperadores</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout callout--success">
+          <p><strong>Resumen del principio:</strong> El Backend valida el JWT en cada request, extrae los claims y aplica las reglas de negocio.
+          El Frontend solo almacena el token (en memoria o sessionStorage), lo adjunta como <code>Authorization: Bearer &lt;token&gt;</code>
+          y nunca interpreta su contenido.</p>
+        </div>
+      </section>
+
+      <hr>
+
+      <!-- CORRECCIÓN 4 — Autenticación y Validación de Asesores -->
+      <section id="autenticacion-asesores">
+        <h2>Autenticación y Validación de Asesores <span class="badge badge--accent">Nuevo v2.5</span></h2>
+        <p>
+          En el flujo de bodega, el PC es compartido entre múltiples asesores durante el día. No existe una sesión
+          individual por computador — cada asesor debe autenticarse <strong>antes de atender un cliente</strong>.
+          La autenticación se realiza mediante <strong>Prueba de Vida facial</strong> con un microservicio externo.
+        </p>
+
+        <div class="callout callout--warn">
+          <p><strong>Punto crítico de diseño:</strong> El asesor <strong>NO se auto-asigna</strong>. No es suficiente
+          que ingrese su código — debe validarse biométricamente. Esto previene la suplantación de asesores
+          y crea una cadena de custodia auditada para cada estudio de crédito.</p>
+        </div>
+
+        <h3>Flujo Real de Autenticación del Asesor</h3>
+
+        <div class="flow-diagram">
+          <div class="flow-phase">
+            <div class="flow-num">1</div>
+            <div class="flow-content">
+              <h4>Ingreso del Código de Asesor</h4>
+              <p>El asesor ingresa su código (ej: <code>ASE-00157</code>) en la pantalla de inicio del PC de bodega.
+              Este código es el identificador único en <code>BERP_FABRICASOperadores</code>.</p>
+            </div>
+          </div>
+          <div class="flow-phase">
+            <div class="flow-num flow-num--trans">2</div>
+            <div class="flow-content">
+              <h4>Captura Biométrica</h4>
+              <p>El sistema solicita al asesor que mire a la cámara del PC de bodega. Se captura una foto de
+              prueba de vida (faceliveness) en tiempo real.</p>
+            </div>
+          </div>
+          <div class="flow-phase">
+            <div class="flow-num flow-num--config">3</div>
+            <div class="flow-content">
+              <h4>Llamada al Microservicio de Biometría</h4>
+              <p>La API LOS llama al microservicio externo de Prueba de Vida: <code>POST /ext/biometria/prueba-vida</code>.
+              El microservicio compara la foto capturada contra la plantilla biométrica registrada del asesor.</p>
+            </div>
+          </div>
+          <div class="flow-phase">
+            <div class="flow-num flow-num--audit">4</div>
+            <div class="flow-content">
+              <h4>Registro y Resultado</h4>
+              <p>El resultado se registra en <code>ValidacionesAsesor</code> (éxito o falla). Si exitoso,
+              se emite un JWT con rol <code>ASESOR_FABRICAS</code>. Si falla, el intento queda auditado y se bloquea
+              el acceso.</p>
+            </div>
+          </div>
+        </div>
+
+        <h3>Diagrama de Secuencia</h3>
+        <pre><code>Asesor → [PC Bodega]          → Ingresa Código ASE-00157 + captura facial
+PC Bodega → [API LOS]          → POST /bodega/asesor/validar
+                                   { codigoAsesor: "ASE-00157", idBodega: 42, fotoBase64: "..." }
+API LOS → [Microservicio Biometría] → POST /ext/biometria/prueba-vida
+                                         { idAsesor: 157, fotoBase64: "..." }
+Microservicio → [API LOS]      → { exitosa: true, porcentaje: 98.5 }
+API LOS → [ValidacionesAsesor] → INSERT registro { PruebaVidaExitosa: 1, PorcentajeCoincidencia: 98.5 }
+API LOS → [PC Bodega]          → { autenticado: true, idValidacion: 4521, jwt: "Bearer eyJ..." }
+
+─── Si biometría FALLA ──────────────────────────────────────────────────────────────────────
+Microservicio → [API LOS]      → { exitosa: false, porcentaje: 45.2, error: "COINCIDENCIA_INSUFICIENTE" }
+API LOS → [ValidacionesAsesor] → INSERT registro { PruebaVidaExitosa: 0, ResultadoValidacion: "FALLIDA" }
+API LOS → [PC Bodega]          → HTTP 403 { autenticado: false, mensaje: "Validación biométrica fallida. Intente nuevamente." }</code></pre>
+
+        <h3>Nueva Tabla: <code>ValidacionesAsesor</code></h3>
+        <p>
+          Registra cada intento de autenticación biométrica de un asesor. Tabla de auditoría inmutable —
+          solo INSERT, nunca UPDATE ni DELETE. Permite detectar patrones de fraude (intentos repetidos, dispositivos desconocidos).
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>IdValidacion</code></td>
+              <td>BIGINT PK IDENTITY</td>
+              <td>Identificador único del registro de validación</td>
+            </tr>
+            <tr>
+              <td><code>IdAsesor</code></td>
+              <td>INT FK</td>
+              <td>FK a <code>BERP_FABRICASOperadores</code> — el asesor que intentó autenticarse</td>
+            </tr>
+            <tr>
+              <td><code>CodigoAsesor</code></td>
+              <td>VARCHAR(20) NOT NULL</td>
+              <td>Código alfanumérico del asesor (ej: <code>ASE-00157</code>) — copiado en el momento del intento para auditoría</td>
+            </tr>
+            <tr>
+              <td><code>IdBodega</code></td>
+              <td>INT FK</td>
+              <td>FK a <code>QUAC.dbo.bodegas</code> — bodega donde ocurrió el intento de autenticación</td>
+            </tr>
+            <tr>
+              <td><code>FechaValidacion</code></td>
+              <td>DATETIME2(3) NOT NULL DEFAULT GETUTCDATE()</td>
+              <td>Timestamp UTC del intento de validación</td>
+            </tr>
+            <tr>
+              <td><code>PruebaVidaExitosa</code></td>
+              <td>BIT NOT NULL</td>
+              <td><code>1</code> = prueba de vida superada, <code>0</code> = fallida</td>
+            </tr>
+            <tr>
+              <td><code>PorcentajeCoincidencia</code></td>
+              <td>DECIMAL(5,2) NULL</td>
+              <td>Porcentaje de coincidencia retornado por el microservicio biométrico (ej: <code>98.50</code>)</td>
+            </tr>
+            <tr>
+              <td><code>IdDispositivo</code></td>
+              <td>VARCHAR(100) NULL</td>
+              <td>Identificador del dispositivo (fingerprint del navegador o ID de equipo corporativo)</td>
+            </tr>
+            <tr>
+              <td><code>DireccionIP</code></td>
+              <td>VARCHAR(45) NULL</td>
+              <td>Dirección IP del dispositivo — soporta IPv4 e IPv6</td>
+            </tr>
+            <tr>
+              <td><code>ResultadoValidacion</code></td>
+              <td>VARCHAR(20) NOT NULL</td>
+              <td>
+                Enum de resultado:<br>
+                <code>EXITOSA</code> — biometría superada<br>
+                <code>FALLIDA</code> — no superó el umbral de coincidencia<br>
+                <code>ERROR_SERVICIO</code> — el microservicio externo no respondió
+              </td>
+            </tr>
+            <tr>
+              <td><code>MensajeError</code></td>
+              <td>NVARCHAR(500) NULL</td>
+              <td>Detalle del error cuando <code>ResultadoValidacion = ERROR_SERVICIO</code> o <code>FALLIDA</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout callout--info">
+          <p><strong>Nota de arquitectura:</strong> La lógica de <em>creación y gestión del flujo de validación biométrica</em>
+          (templates faciales, umbrales de coincidencia, entrenamiento del modelo) vive en el microservicio externo de biometría.
+          El LOS solo <strong>referencia y registra el resultado</strong>. La tabla <code>ValidacionesAsesor</code> es
+          el ledger inmutable de esos resultados.</p>
+        </div>
+
+        <h3>Relación con <code>EstudiosCredito</code></h3>
+        <p>
+          El campo <code>IdValidacionAsesor</code> (BIGINT NULL FK) añadido a <code>EstudiosCredito</code> en v2.5
+          vincula cada estudio de canal TIENDA a la validación biométrica que autorizó al asesor.
+          Esto permite preguntas de auditoría como:
+        </p>
+        <ul>
+          <li><em>"¿Con qué porcentaje de coincidencia se autenticó el asesor que aprobó este estudio?"</em></li>
+          <li><em>"¿Cuántos estudios abrió el asesor ASE-00157 en la sesión con IdValidacion 4521?"</em></li>
+          <li><em>"¿Hubo intentos fallidos antes del intento exitoso en esa bodega ese día?"</em></li>
+        </ul>
+
+        <pre><code>-- Ejemplo: auditar estudios abiertos tras una validación específica
+SELECT ec.IdEstudio, ec.NitTercero, ec.IdEstadoActual, va.PorcentajeCoincidencia
+FROM EstudiosCredito ec
+JOIN ValidacionesAsesor va ON ec.IdValidacionAsesor = va.IdValidacion
+WHERE va.IdAsesor = 157
+  AND va.FechaValidacion >= '2026-04-15 08:00'
+  AND va.PruebaVidaExitosa = 1
+ORDER BY ec.IdEstudio;</code></pre>
+      </section>
+
+      <hr>
+
+      <!-- CORRECCIÓN 5 — Concurrencia Optimista e Idempotencia -->
+      <section id="concurrencia-idempotencia">
+        <h2>Concurrencia Optimista e Idempotencia — Guía Práctica <span class="badge badge--accent">Nuevo v2.5</span></h2>
+        <p>
+          Dos mecanismos de protección son indispensables para un sistema financiero multicanal. Esta sección los explica
+          con ejemplos reales del día a día en la bodega y en la web.
+        </p>
+
+        <div class="card-grid">
+          <div class="card card--violet">
+            <h4>🔑 Idempotencia</h4>
+            <p>Garantiza que ejecutar la misma operación múltiples veces produce el mismo resultado que ejecutarla una sola vez.</p>
+          </div>
+          <div class="card card--cyan">
+            <h4>🔒 Concurrencia Optimista</h4>
+            <p>Permite que múltiples usuarios trabajen sobre el mismo registro sin bloquearlo, detectando y rechazando modificaciones conflictivas.</p>
+          </div>
+        </div>
+
+        <hr style="margin: 24px 0;">
+
+        <h3>Ejemplo 1 — Doble clic del asesor (Idempotencia)</h3>
+
+        <div class="callout callout--warn">
+          <p><strong>Escenario real:</strong> La asesora María en la bodega de Medellín hace doble clic en el botón
+          <em>"Aprobar Estudio"</em> porque la respuesta tardó 2 segundos. Su conexión es lenta.</p>
+        </div>
+
+        <table>
+          <thead>
+            <tr><th>Sin protección ❌</th><th>Con <code>ClaveIdempotencia</code> ✅</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Se crean <strong>2 aprobaciones</strong> en la base de datos</td>
+              <td>El segundo request llega con el <strong>mismo UUID</strong> → el UNIQUE INDEX sobre <code>ClaveIdempotencia</code> lo rechaza instantáneamente</td>
+            </tr>
+            <tr>
+              <td>El cupo se <strong>desembolsa dos veces</strong></td>
+              <td>La API retorna <strong>HTTP 409 Conflict</strong> con <code>next_action: ERROR_IDEMPOTENCY</code></td>
+            </tr>
+            <tr>
+              <td>Requiere proceso de reversión manual por el área de cartera</td>
+              <td>El Frontend muestra la respuesta original del primer request al asesor</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Flujo técnico — Cómo funciona el UNIQUE INDEX</h4>
+        <pre><code>── Request 1 (clic 1) ─────────────────────────────────────────────────────────
+POST /tienda/solicitud/EST-2026-00123/activar-cupo
+Headers: X-Idempotency-Key: "idem-abc-789-xyz"
+Body:    { "idValidacionAsesor": 4521, "tipoCierre": "EXPRESS" }
+
+Backend:
+  1. Verifica UNIQUE INDEX en EstudiosCredito.ClaveIdempotencia = "idem-abc-789-xyz"
+  2. No existe → ejecuta la activación
+  3. UPDATE EstudiosCredito SET IdEstadoActual = CUPO_ACTIVO, ClaveIdempotencia = "idem-abc-789-xyz"
+  4. Retorna HTTP 200 { "next_action": "FINAL_SUCCESS", ... }
+
+── Request 2 (clic 2, 800ms después) ─────────────────────────────────────────
+POST /tienda/solicitud/EST-2026-00123/activar-cupo
+Headers: X-Idempotency-Key: "idem-abc-789-xyz"   ← mismo UUID
+
+Backend:
+  1. Verifica UNIQUE INDEX en EstudiosCredito.ClaveIdempotencia = "idem-abc-789-xyz"
+  2. YA EXISTE → no ejecuta nada, retorna la respuesta cacheada del request 1
+  3. Retorna HTTP 409 { "next_action": "ERROR_IDEMPOTENCY", "original_response": {...} }
+
+Frontend:
+  Recibe HTTP 409 → muestra la pantalla de "Cupo activado exitosamente" (respuesta original)</code></pre>
+
+        <hr style="margin: 24px 0;">
+
+        <h3>Ejemplo 2 — Cliente y asesor abren el estudio al mismo tiempo (Concurrencia Optimista)</h3>
+
+        <div class="callout callout--warn">
+          <p><strong>Escenario real:</strong> El cliente Juan abre su estudio en su celular (flujo web) para actualizar
+          su dirección. Al <em>mismo tiempo</em>, el asesor Pedro lo tiene abierto en el PC de la bodega para agregar
+          una nota sobre la visita.</p>
+        </div>
+
+        <pre><code>T+0:00  Juan (celular)  abre el estudio → Backend retorna { VersionFila: "0x00000000000007D1" }
+T+0:00  Pedro (PC)      abre el estudio → Backend retorna { VersionFila: "0x00000000000007D1" }
+         (ambos tienen la misma versión de la fila — el estudio no ha sido modificado)
+
+T+0:15  Juan actualiza su dirección:
+          PUT /web/solicitud/EST-2026-00123/datos-direccion
+          Body: { "ciudad": "Manizales", "VersionFila": "0x00000000000007D1" }
+
+Backend:
+  UPDATE EstudiosCredito
+  SET CiudadCapturada = 'Manizales', VersionFila = NEXT_ROW_VERSION()
+  WHERE IdEstudio = 123
+    AND VersionFila = 0x00000000000007D1  ← condición de concurrencia
+
+  → Afecta 1 fila ✓  → Nueva VersionFila: "0x00000000000007D2"
+  → HTTP 200 { "next_action": "ADVANCE_STEP" }
+
+T+0:18  Pedro agrega nota (tiene aún VersionFila vieja = 0x7D1):
+          POST /tienda/solicitud/EST-2026-00123/agregar-nota
+          Body: { "nota": "Cliente vive cerca del parque", "VersionFila": "0x00000000000007D1" }
+
+Backend:
+  UPDATE EstudiosCredito
+  SET NotaAsesor = 'Cliente vive cerca del parque', VersionFila = NEXT_ROW_VERSION()
+  WHERE IdEstudio = 123
+    AND VersionFila = 0x00000000000007D1  ← ya no coincide (está en 0x7D2)
+
+  → Afecta 0 filas ✗
+  → HTTP 409 { "next_action": "ERROR_CONCURRENCY",
+               "mensaje": "Este estudio fue modificado por otro usuario. Recarga para ver los cambios." }
+
+Pedro recibe la alerta → recarga → ve la dirección actualizada por Juan → puede agregar su nota con la nueva versión.</code></pre>
+
+        <h4>¿Por qué concurrencia optimista es mejor que bloqueo pesimista?</h4>
+        <table>
+          <thead>
+            <tr><th>Aspecto</th><th>Concurrencia Optimista ✅</th><th>Bloqueo Pesimista (SELECT FOR UPDATE)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Congela la fila</td>
+              <td>No — múltiples usuarios pueden leer libremente</td>
+              <td>Sí — bloquea la fila para todos los demás desde que se abre el registro</td>
+            </tr>
+            <tr>
+              <td>Escalabilidad</td>
+              <td>Alta — no hay recursos retenidos en el servidor de BD</td>
+              <td>Baja — si el asesor abre un estudio y va a almorzar, la fila queda bloqueada por horas</td>
+            </tr>
+            <tr>
+              <td>Riesgo de deadlock</td>
+              <td>Ninguno — los conflictos se detectan al momento de escritura</td>
+              <td>Alto — dos procesos esperando locks del otro generan deadlocks</td>
+            </tr>
+            <tr>
+              <td>Implementación en SQL Server</td>
+              <td><code>VersionFila ROWVERSION</code> — columna automática, cero código adicional</td>
+              <td><code>WITH (UPDLOCK, HOLDLOCK)</code> — gestión manual de transactions</td>
+            </tr>
+            <tr>
+              <td>Frecuencia de conflictos real</td>
+              <td>Muy baja — los conflictos simultáneos genuinos son raros en el flujo normal</td>
+              <td>Irrelevante — bloquea siempre, aunque no haya conflicto</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout callout--success">
+          <p><strong>Decisión de diseño:</strong> El campo <code>VersionFila ROWVERSION</code> ya está en <code>EstudiosCredito</code>.
+          SQL Server lo actualiza automáticamente en cada UPDATE. El LOS solo necesita incluirlo en el WHERE de cada
+          actualización y retornarlo en cada respuesta dentro del campo <code>meta.row_version</code>.</p>
+        </div>
+
+        <hr style="margin: 24px 0;">
+
+        <h3>Ejemplo 3 — Timeout de red en creación web (Idempotencia en móvil)</h3>
+
+        <div class="callout callout--warn">
+          <p><strong>Escenario real:</strong> El cliente Andrés envía su solicitud desde su celular con señal 3G débil
+          en el centro de Bogotá. El request llega al servidor y se procesa exitosamente, pero la respuesta nunca regresa
+          al celular (timeout de red).</p>
+        </div>
+
+        <pre><code>T+0:00  Andrés presiona "Enviar solicitud"
+T+0:01  App genera UUID: "idem-ANR-2026-6677" y lo almacena en sessionStorage
+T+0:01  POST /web/solicitud/iniciar
+        Headers: X-Idempotency-Key: "idem-ANR-2026-6677"
+        Body:    { "nit": "1023456789", "canal": "WEB" }
+
+T+0:04  Backend procesa exitosamente:
+          INSERT EstudiosCredito → IdEstudio: EST-2026-04521
+          HTTP 200 { "study_id": "EST-2026-04521", "next_action": "RENDER_SCREEN", ... }
+
+T+0:04  ⚡ Timeout de red — la respuesta se pierde en tránsito. El celular no recibe nada.
+
+T+0:06  App detecta timeout (>5 segundos sin respuesta)
+T+0:06  App reintenta automáticamente con el MISMO UUID:
+        POST /web/solicitud/iniciar
+        Headers: X-Idempotency-Key: "idem-ANR-2026-6677"  ← idéntico al anterior
+
+T+0:07  Backend detecta que "idem-ANR-2026-6677" ya fue procesado:
+          NO crea un segundo EstudiosCredito
+          Retorna la respuesta original cacheada:
+          HTTP 200 { "study_id": "EST-2026-04521", "next_action": "RENDER_SCREEN", ... }
+
+T+0:07  App recibe la respuesta → Andrés ve la pantalla de "Datos básicos" sin saber que hubo un retry ✓</code></pre>
+
+        <h4>Reglas de implementación de Idempotencia en el LOS</h4>
+        <table>
+          <thead>
+            <tr><th>Regla</th><th>Detalle</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Header obligatorio en mutaciones</td>
+              <td>Todo POST/PUT/PATCH debe incluir <code>X-Idempotency-Key: {uuid}</code>. El servidor retorna HTTP 400 si falta en operaciones que lo requieren.</td>
+            </tr>
+            <tr>
+              <td>TTL del registro</td>
+              <td>Las claves de idempotencia se mantienen por <strong>24 horas</strong>. Después de ese periodo, el mismo UUID puede reutilizarse (muy improbable en la práctica).</td>
+            </tr>
+            <tr>
+              <td>GET/HEAD son idempotentes por definición</td>
+              <td>Las consultas no necesitan <code>X-Idempotency-Key</code> — releer siempre retorna el estado actual sin efectos secundarios.</td>
+            </tr>
+            <tr>
+              <td>Respuesta en 409</td>
+              <td>El HTTP 409 por idempotencia incluye la respuesta original en <code>original_response</code>. El Frontend puede usarla directamente.</td>
+            </tr>
+            <tr>
+              <td>Generación del UUID</td>
+              <td>El UUID debe generarse en el <strong>cliente</strong> (Frontend/App) antes de enviar el request, no en el Backend. Esto garantiza que el mismo intento tenga siempre el mismo UUID aunque haya retries.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Historial de Versiones -->
+      <section id="historial-versiones">
+        <h2>Historial de Versiones</h2>
+        <p>Registro de cambios significativos por versión del documento de arquitectura.</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Versión</th>
+              <th>Fecha</th>
+              <th>Cambios</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge--amber">v2.6</span></td>
+              <td>2026-04-15</td>
+              <td><strong>Correcciones Iteración 1 + Auditoría DDL: 18 gaps cerrados.</strong> Tabla <code>FotografiasEstudio</code> unificada (selfie + documento frontal + trasero). Nueva tabla <code>AuditoriaLogins</code> (LoginWeb/LoginTienda). <code>NitComercio</code> y <code>CelularCliente</code> en <code>EstudiosCredito</code>. <code>IdBodega</code> renombrado desde <code>IdTienda</code>. Eliminados <code>ClaveIdempotencia</code> y <code>VersionFila</code> de la definición de columnas (se manejan como mecanismos de infraestructura).</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--accent">v2.5</span></td>
+              <td>2026-04-15</td>
+              <td>División de responsabilidades Backend vs Frontend. Autenticación biométrica de asesores (<code>ValidacionesAsesor</code>). Guía de concurrencia optimista e idempotencia.</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--accent">v2.4</span></td>
+              <td>2026-04-14</td>
+              <td>Taxonomía de servicios backend completa: 34 endpoints omnicanal (Web, Tienda, Handoff). Estado dirigido por el sistema (<code>NextAction</code>). Session Handoff entre dispositivos.</td>
+            </tr>
+            <tr>
+              <td><span class="badge" style="background:#10b981;color:#fff;">v2.3</span></td>
+              <td>2026-04-13</td>
+              <td>Módulo de gestión de fotografías: 5 nuevas tablas (<code>CatalogoTiposFotografia</code>, <code>FotografiasEstudio</code>, <code>RevisionesFotografia</code>, <code>SolicitudesRecarga</code>, <code>HistorialFotografias</code>). 10 gaps PH resueltos.</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--red">v2.2</span></td>
+              <td>2026-04-12</td>
+              <td>Sistema de detección de fraude y escalamiento: 6 nuevas tablas. Flujo antifraude con escalamiento a fábrica, log OTP granular e historial de datos sensibles.</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--accent">v2.1</span></td>
+              <td>2026-04-11</td>
+              <td>Canal de origen (<code>CatalogoCanalesOrigen</code>), dirección del cliente, cierre express, tabla <code>EvidenciasFabrica</code>. 15 gaps de DB resueltos.</td>
+            </tr>
+            <tr>
+              <td>v2.0</td>
+              <td>2026-04-10</td>
+              <td>Versión inicial de la arquitectura. 28 tablas nuevas, máquina de estados, auditoría inmutable, integración ERP.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
       <hr />
       <p style="font-size: 13px; color: var(--text-secondary)">
         <strong>Documento:</strong> Arquitectura de Datos — Fábricas de Crédito
-        QUAC v2.3<br />
-        <strong>Fecha:</strong> 13 de abril de 2026<br />
+        QUAC v2.6<br />
+        <strong>Fecha:</strong> 15 de abril de 2026<br />
         <strong>Archivos relacionados:</strong>
         <code>DB/DDL/FABRICASv2.sql</code>
       </p>
