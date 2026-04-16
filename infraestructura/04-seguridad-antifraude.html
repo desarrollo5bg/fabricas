@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seguridad y Antifraude — Fábricas de Crédito QUAC v2.6</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#fafbfc;--white:#ffffff;--text:#1a1a2e;--text-secondary:#555770;--border:#e2e5ea;--border-light:#f0f1f4;--accent:#7633ff;--accent-bg:#f3eeff;--red:#dc2626;--red-bg:#fef2f2;--green:#16a34a;--green-bg:#f0fdf4;--amber:#d97706;--amber-bg:#fffbeb;--violet:#7c3aed;--violet-bg:#f5f3ff;--cyan:#0891b2;--cyan-bg:#ecfeff;--code-bg:#f4f5f7;--sidebar-w:280px}
+    *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}body{font-family:"Plus Jakarta Sans",-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased}
+    .sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--white);border-right:1px solid var(--border);overflow-y:auto;padding:24px 0;z-index:50}
+    .sidebar-title{font-size:13px;font-weight:700;color:var(--accent);padding:0 20px 16px;margin-bottom:4px;letter-spacing:-0.01em;border-bottom:1px solid var(--border-light)}
+    .sidebar nav a{display:block;padding:6px 20px;font-size:13px;color:var(--text-secondary);text-decoration:none;border-left:3px solid transparent;transition:all .15s}
+    .sidebar nav a:hover{color:var(--accent);background:var(--accent-bg);border-left-color:var(--accent)}
+    .sidebar nav a.indent{padding-left:36px;font-size:12px}
+    .sidebar nav a.active{color:var(--accent);font-weight:600;border-left-color:var(--accent);background:var(--accent-bg)}
+    .sidebar-section{padding:10px 20px 4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-secondary)}
+    .main{margin-left:var(--sidebar-w);max-width:960px;padding:48px 56px 120px}
+    h1{font-size:32px;font-weight:800;letter-spacing:-.03em;line-height:1.2;margin-bottom:8px}
+    h2{font-size:24px;font-weight:700;letter-spacing:-.02em;margin-top:56px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--border)}
+    h3{font-size:18px;font-weight:600;margin-top:32px;margin-bottom:12px}
+    h4{font-size:15px;font-weight:600;margin-top:24px;margin-bottom:8px}
+    p{margin-bottom:12px;color:var(--text-secondary);font-size:15px}strong{color:var(--text)}
+    .meta{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+    .meta-item{font-size:13px;color:var(--text-secondary)}.meta-item strong{font-weight:600;color:var(--text)}
+    pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:20px 24px;overflow-x:auto;margin:16px 0 20px;font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.65;color:var(--text)}
+    code{font-family:"JetBrains Mono",monospace;font-size:13px;background:var(--code-bg);padding:2px 6px;border-radius:4px}pre code{background:none;padding:0}
+    table{width:100%;border-collapse:collapse;margin:16px 0 20px;font-size:13px}
+    th{background:var(--code-bg);font-weight:600;text-align:left;padding:10px 14px;border-bottom:2px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-secondary)}
+    td{padding:9px 14px;border-bottom:1px solid var(--border-light);color:var(--text)}tr:hover td{background:var(--accent-bg)}td code{font-size:12px}
+    ul,ol{margin:8px 0 16px 24px}li{font-size:15px;color:var(--text-secondary);margin-bottom:4px}li strong{color:var(--text)}
+    .badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:.03em}
+    .badge--accent{background:var(--accent-bg);color:var(--accent)}.badge--red{background:var(--red-bg);color:var(--red)}.badge--green{background:var(--green-bg);color:var(--green)}.badge--amber{background:var(--amber-bg);color:var(--amber)}.badge--violet{background:var(--violet-bg);color:var(--violet)}.badge--cyan{background:var(--cyan-bg);color:var(--cyan)}
+    .callout{border-radius:8px;padding:16px 20px;margin:16px 0;font-size:14px}.callout p{margin-bottom:4px}
+    .callout--info{background:var(--accent-bg);border-left:4px solid var(--accent)}.callout--warn{background:var(--amber-bg);border-left:4px solid var(--amber)}.callout--danger{background:var(--red-bg);border-left:4px solid var(--red)}.callout--success{background:var(--green-bg);border-left:4px solid var(--green)}
+    hr{border:none;border-top:1px solid var(--border);margin:40px 0}
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-title">FÁBRICAS DE CRÉDITO v2.6</div>
+    <nav>
+      <div class="sidebar-section">Este archivo</div>
+      <a href="#validaciones-asesor" class="active">ValidacionesAsesor</a>
+      <a href="#auditoria-logins" class="indent">AuditoriaLogins</a>
+      <a href="#otp" class="indent">LogValidacionesOTP</a>
+      <a href="#alertas" class="indent">AlertasFraude</a>
+      <a href="#escalamientos" class="indent">EscalamientosFabrica</a>
+      <a href="#reglas-fraude" class="indent">CatalogoReglasFraude</a>
+      <a href="#motivos-esc" class="indent">CatalogoMotivosEscalamiento</a>
+      <a href="#historial-sensibles" class="indent">HistorialDatosSensibles</a>
+      <div class="sidebar-section">Otros documentos</div>
+      <a href="index.html">00 · Índice</a>
+      <a href="01-vision-general.html">01 · Visión General</a>
+      <a href="02-diccionario-datos.html">02 · Diccionario de Datos</a>
+      <a href="03-maquina-estados.html">03 · Máquina de Estados</a>
+      <a href="05-fotografias-biometria.html">05 · Fotografías y Biometría</a>
+      <a href="06-servicios-backend.html">06 · Servicios Backend</a>
+      <a href="07-consentimientos-contactabilidad.html">07 · Consentimientos</a>
+      <a href="08-gaps-historial-cambios.html">08 · Gaps e Historial</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <h1>Seguridad y Antifraude</h1>
+    <p style="font-size:17px;color:var(--text);font-weight:500;">8 tablas de seguridad — DDL v2.5 (SA-01…SA-11, C-03, GAP-15)</p>
+    <div class="meta">
+      <div class="meta-item"><strong>Versión</strong> v2.6</div>
+      <div class="meta-item"><strong>Fecha</strong> 2026-04-16</div>
+      <div class="meta-item"><strong>Fuente</strong> FABRICASv2.sql v2.5</div>
+      <div class="meta-item"><strong>Tablas</strong> 8</div>
+    </div>
+
+    <!-- ── ValidacionesAsesor ─────────────────────────────────────────── -->
+    <h2 id="validaciones-asesor">ValidacionesAsesor <span class="badge badge--cyan">C-03</span></h2>
+    <p>Log de validación biométrica de identidad del asesor en el flujo asistido (canal TIENDA). El asesor ingresa su código en una PC compartida; el sistema valida su identidad mediante prueba de vida facial antes de iniciar el estudio del cliente.</p>
+
+    <div class="callout callout--info">
+      <p><strong>Flujo asistido:</strong> Asesor ingresa "Código de Asesor" en PC compartida → sistema valida vía biometría facial (microservicio externo) → si <code>ResultadoValidacion = 'EXITOSA'</code>, el <code>IdValidacion</code> queda vinculado en <code>EstudiosCredito.IdValidacionAsesor</code>.</p>
+    </div>
+
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdValidacion</code></td><td>BIGINT IDENTITY PK</td><td>No</td><td>Clave primaria</td></tr>
+        <tr><td><code>IdAsesor</code></td><td>INT FK</td><td>No</td><td>FK → QUAC.dbo.BERP_FABRICASOperadores.idOperadorFabrica</td></tr>
+        <tr><td><code>CodigoAsesor</code></td><td>VARCHAR(20)</td><td>No</td><td>Badge/código ingresado en la PC</td></tr>
+        <tr><td><code>IdBodega</code></td><td>INT FK</td><td>No</td><td>FK → QUAC.dbo.bodegas.id — punto de venta donde se valida</td></tr>
+        <tr><td><code>FechaValidacion</code></td><td>DATETIME2(3)</td><td>No</td><td>Timestamp de la validación</td></tr>
+        <tr><td><code>PruebaVidaExitosa</code></td><td>BIT</td><td>No</td><td>1 = prueba de vida facial superada</td></tr>
+        <tr><td><code>PorcentajeCoincidencia</code></td><td>DECIMAL(5,2)</td><td>Sí</td><td>% de coincidencia facial (0.00–100.00)</td></tr>
+        <tr><td><code>IdDispositivo</code></td><td>VARCHAR(100)</td><td>Sí</td><td>Hostname, UUID u otro ID del equipo/PC</td></tr>
+        <tr><td><code>DireccionIP</code></td><td>VARCHAR(45)</td><td>Sí</td><td>IP del dispositivo (IPv4 o IPv6)</td></tr>
+        <tr><td><code>ResultadoValidacion</code></td><td>VARCHAR(20) CHECK</td><td>No</td><td><code>EXITOSA</code> | <code>FALLIDA</code> | <code>ERROR_SERVICIO</code></td></tr>
+        <tr><td><code>MensajeError</code></td><td>NVARCHAR(500)</td><td>Sí</td><td>Detalle si resultado ≠ EXITOSA</td></tr>
+        <tr><td><code>FechaCreacion</code></td><td>DATETIME2(3)</td><td>No</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+
+    <p><strong>Índices:</strong> <code>IX_ValidacionesAsesor_Asesor</code> (IdAsesor, FechaValidacion DESC) · <code>IX_ValidacionesAsesor_Bodega</code> · <code>IX_ValidacionesAsesor_Codigo</code> · <code>IX_ValidacionesAsesor_Exitosas</code> (filtrado: ResultadoValidacion = 'EXITOSA') — GAP-14.</p>
+
+    <!-- ── AuditoriaLogins ─────────────────────────────────────────────── -->
+    <h2 id="auditoria-logins">AuditoriaLogins <span class="badge badge--red">GAP-15</span></h2>
+    <p>Registra cada intento de inicio de sesión (exitoso o fallido) por canal y tipo de usuario. Reemplaza logs dispersos en la aplicación con una tabla centralizada.</p>
+
+    <div class="callout callout--danger">
+      <p><strong>AuditoriaLogins es INSERT-ONLY.</strong> Nunca se actualiza ni se elimina ningún registro. Es la única fuente de verdad para detección de fuerza bruta y reportería de logins por canal.</p>
+    </div>
+
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdLogin</code></td><td>BIGINT IDENTITY PK</td><td>No</td><td>Clave primaria</td></tr>
+        <tr><td><code>OrigenLogin</code></td><td>VARCHAR(20) CHECK</td><td>No</td><td><code>LoginWeb</code> | <code>LoginTienda</code></td></tr>
+        <tr><td><code>IdUsuario</code></td><td>VARCHAR(50)</td><td>No</td><td>Cédula o ID del usuario</td></tr>
+        <tr><td><code>TipoUsuario</code></td><td>VARCHAR(20) CHECK</td><td>No</td><td><code>CLIENTE</code> | <code>ASESOR</code></td></tr>
+        <tr><td><code>FechaLogin</code></td><td>DATETIME2(3)</td><td>No</td><td>DEFAULT GETDATE()</td></tr>
+        <tr><td><code>ResultadoLogin</code></td><td>VARCHAR(20) CHECK</td><td>No</td><td><code>EXITOSO</code> | <code>FALLIDO</code> | <code>BLOQUEADO</code></td></tr>
+        <tr><td><code>DireccionIP</code></td><td>VARCHAR(45)</td><td>Sí</td><td>IPv4 (15) o IPv6 (45)</td></tr>
+        <tr><td><code>UserAgent</code></td><td>NVARCHAR(500)</td><td>Sí</td><td>Cabecera User-Agent del cliente HTTP</td></tr>
+        <tr><td><code>IdBodega</code></td><td>INT</td><td>Sí</td><td>FK blanda → QUAC.dbo.BERP_FABRICASOperadores (solo LoginTienda)</td></tr>
+        <tr><td><code>MensajeError</code></td><td>NVARCHAR(500)</td><td>Sí</td><td>Detalle si ResultadoLogin ≠ EXITOSO</td></tr>
+        <tr><td><code>FechaCreacion</code></td><td>DATETIME2(3)</td><td>No</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+
+    <p><strong>Índices:</strong> <code>IX_AuditoriaLogins_Usuario</code> (IdUsuario, FechaLogin DESC) · <code>IX_AuditoriaLogins_Origen</code> (OrigenLogin, FechaLogin DESC).</p>
+
+    <!-- ── LogValidacionesOTP ─────────────────────────────────────────── -->
+    <h2 id="otp">LogValidacionesOTP <span class="badge badge--amber">SA-03 · INSERT-ONLY</span></h2>
+    <p>Log granular de cada intento individual de OTP. <code>RetosSeguridad</code> registra el RETO (un token); esta tabla registra cada INTENTO: correcto, fallido, expirado. Permite reconstruir la línea de tiempo "intento 1 falló a las 10:01, intento 2 expiró a las 10:06" y correlacionar fallos OTP con cambios de email subsiguientes.</p>
+
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdLogOTP</code></td><td>BIGINT IDENTITY PK</td><td>No</td><td>Clave primaria</td></tr>
+        <tr><td><code>IdReto</code></td><td>BIGINT FK</td><td>No</td><td>FK → RetosSeguridad.IdReto</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>BIGINT FK</td><td>No</td><td>Redundancia para consultas directas por estudio</td></tr>
+        <tr><td><code>NitTercero</code></td><td>VARCHAR(20)</td><td>No</td><td>Redundancia para consultas por cliente</td></tr>
+        <tr><td><code>NumeroIntento</code></td><td>INT</td><td>No</td><td>1, 2, 3… (secuencial por reto)</td></tr>
+        <tr><td><code>DireccionEnvio</code></td><td>NVARCHAR(200)</td><td>Sí</td><td>Email/cel al que se envió ESTE intento</td></tr>
+        <tr><td><code>ResultadoIntento</code></td><td>VARCHAR(20) CHECK</td><td>No</td><td><code>EXITOSO</code> | <code>FALLIDO_HASH</code> | <code>EXPIRADO</code> | <code>CANCELADO</code></td></tr>
+        <tr><td><code>CodigoEntradoHash</code></td><td>VARCHAR(256)</td><td>Sí</td><td>Hash del código ingresado — nunca en claro</td></tr>
+        <tr><td><code>DireccionIP</code></td><td>VARCHAR(45)</td><td>Sí</td><td>IP del cliente en el momento del intento</td></tr>
+        <tr><td><code>UserAgent</code></td><td>NVARCHAR(500)</td><td>Sí</td><td>Cabecera User-Agent</td></tr>
+        <tr><td><code>FechaIntento</code></td><td>DATETIME2(3)</td><td>No</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ── AlertasFraude ──────────────────────────────────────────────── -->
+    <h2 id="alertas">AlertasFraude <span class="badge badge--red">SA-05 · INSERT-ONLY</span></h2>
+    <p>Registro inmutable de alertas disparadas por las reglas de negocio. Una alerta no se cierra ni modifica; si el asesor la descarta, se inserta una nueva fila con <code>AccionTomada = 'DESCARTADO'</code>.</p>
+
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdAlerta</code></td><td>BIGINT IDENTITY PK</td><td>No</td><td>Clave primaria</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>BIGINT FK</td><td>No</td><td>FK → EstudiosCredito</td></tr>
+        <tr><td><code>IdReglaFraude</code></td><td>INT FK</td><td>No</td><td>FK → CatalogoReglasFraude</td></tr>
+        <tr><td><code>NitTercero</code></td><td>VARCHAR(20)</td><td>No</td><td>Redundancia para consultas por cliente</td></tr>
+        <tr><td><code>PasoEnQueOcurrio</code></td><td>VARCHAR(40)</td><td>Sí</td><td>Código del paso donde se disparó la alerta</td></tr>
+        <tr><td><code>ValorAnterior</code></td><td>NVARCHAR(300)</td><td>Sí</td><td>Valor del campo ANTES del cambio anómalo</td></tr>
+        <tr><td><code>ValorNuevo</code></td><td>NVARCHAR(300)</td><td>Sí</td><td>Valor del campo DESPUÉS del cambio anómalo</td></tr>
+        <tr><td><code>CampoAfectado</code></td><td>VARCHAR(50)</td><td>Sí</td><td>Ej. <code>EmailCliente</code>, <code>CelularCliente</code></td></tr>
+        <tr><td><code>ContextoJSON</code></td><td>NVARCHAR(MAX)</td><td>Sí</td><td>Payload completo de contexto (IP, UserAgent, etc.)</td></tr>
+        <tr><td><code>AccionTomada</code></td><td>VARCHAR(20) CHECK</td><td>No</td><td><code>PENDIENTE</code> | <code>ESCALADO</code> | <code>BLOQUEADO</code> | <code>DESCARTADO</code></td></tr>
+        <tr><td><code>FechaAlerta</code></td><td>DATETIME2(3)</td><td>No</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ── EscalamientosFabrica ───────────────────────────────────────── -->
+    <h2 id="escalamientos">EscalamientosFabrica <span class="badge badge--violet">SA-02</span></h2>
+    <p>Una fila por cada vez que un estudio es enviado a revisión manual por la fábrica de crédito. El asesor puede ver el motivo tipificado, la alerta de fraude que lo desencadenó, un snapshot JSON del cliente y el historial de gestión.</p>
+
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdEscalamiento</code></td><td>BIGINT IDENTITY PK</td><td>No</td><td>Clave primaria</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>BIGINT FK</td><td>No</td><td>FK → EstudiosCredito</td></tr>
+        <tr><td><code>IdMotivoEscalamiento</code></td><td>INT FK</td><td>No</td><td>FK → CatalogoMotivosEscalamiento</td></tr>
+        <tr><td><code>IdAlertaOrigen</code></td><td>BIGINT FK</td><td>Sí</td><td>FK → AlertasFraude (si fue por fraude)</td></tr>
+        <tr><td><code>DescripcionContexto</code></td><td>NVARCHAR(1000)</td><td>Sí</td><td>Texto libre con resumen de por qué llegó</td></tr>
+        <tr><td><code>PasoEnQueEscalo</code></td><td>VARCHAR(40)</td><td>Sí</td><td>Código del paso en que se escaló</td></tr>
+        <tr><td><code>IdEstadoAlEscalar</code></td><td>INT FK</td><td>No</td><td>FK → CatalogoEstados (estado en el momento)</td></tr>
+        <tr><td><code>SnapshotDatosCliente</code></td><td>NVARCHAR(MAX)</td><td>Sí</td><td>JSON snapshot de datos clave del cliente</td></tr>
+        <tr><td><code>EscaladoPorSistema</code></td><td>BIT</td><td>No</td><td>1 = automático, 0 = manual por asesor</td></tr>
+        <tr><td><code>EstadoEscalamiento</code></td><td>VARCHAR(20) CHECK</td><td>No</td><td><code>ABIERTO</code> | <code>EN_GESTION</code> | <code>RESUELTO</code> | <code>CERRADO_SIN_RESOLUCION</code></td></tr>
+        <tr><td><code>ResultadoGestion</code></td><td>VARCHAR(20) CHECK</td><td>Sí</td><td><code>APROBADO</code> | <code>RECHAZADO</code> | <code>DEVUELTO_FLUJO</code></td></tr>
+        <tr><td><code>NotasAsesor</code></td><td>NVARCHAR(1000)</td><td>Sí</td><td>Observaciones del asesor que gestionó</td></tr>
+        <tr><td><code>FechaCreacion</code></td><td>DATETIME2(3)</td><td>No</td><td>DEFAULT GETDATE()</td></tr>
+        <tr><td><code>FechaActualizacion</code></td><td>DATETIME2(3)</td><td>No</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ── CatalogoReglasFraude ───────────────────────────────────────── -->
+    <h2 id="reglas-fraude">CatalogoReglasFraude <span class="badge badge--red">SA-06</span></h2>
+    <p>Catálogo tipificado de reglas de detección. Permite activar/desactivar reglas sin deploy y configurar umbrales desde la BD.</p>
+
+    <h3>8 reglas base (v2.2)</h3>
+    <table>
+      <thead><tr><th>Código</th><th>Nivel</th><th>Acción</th><th>Descripción breve</th></tr></thead>
+      <tbody>
+        <tr><td><code>EMAIL_CHANGE_POST_OTP_FAIL</code></td><td><span class="badge badge--red">ALTO</span></td><td>ESCALAR</td><td>Cambio de email después de fallo OTP — patrón de suplantación</td></tr>
+        <tr><td><code>CEL_CHANGE_POST_OTP_FAIL</code></td><td><span class="badge badge--red">ALTO</span></td><td>ESCALAR</td><td>Cambio de celular después de fallo OTP</td></tr>
+        <tr><td><code>CONTACTO_CHANGE_DURANTE_RETO_ACTIVO</code></td><td><span class="badge badge--red">CRITICO</span></td><td>BLOQUEAR</td><td>Modificación de contacto con reto OTP vigente</td></tr>
+        <tr><td><code>MULTIPLES_FALLOS_OTP_MISMA_SESION</code></td><td><span class="badge badge--amber">MEDIO</span></td><td>ESCALAR</td><td>Intentos OTP agotados en la misma sesión</td></tr>
+        <tr><td><code>UBICA_EMAIL_DISCREPANCIA</code></td><td><span class="badge badge--amber">MEDIO</span></td><td>ESCALAR</td><td>Email declarado ≠ email UBICA</td></tr>
+        <tr><td><code>REINTENTO_RAPIDO_OTRO_EMAIL</code></td><td><span class="badge badge--red">ALTO</span></td><td>ESCALAR</td><td>Nuevo OTP a email diferente en &lt; 5 min</td></tr>
+        <tr><td><code>IP_MULTIPLES_ESTUDIOS</code></td><td><span class="badge badge--red">CRITICO</span></td><td>BLOQUEAR</td><td>Misma IP en múltiples estudios simultáneos</td></tr>
+        <tr><td><code>DOCUMENTO_OCR_DISCREPANCIA</code></td><td><span class="badge badge--amber">MEDIO</span></td><td>ESCALAR</td><td>Datos OCR no coinciden con datos declarados</td></tr>
+      </tbody>
+    </table>
+
+    <h3>4 reglas fotográficas adicionales (v2.3)</h3>
+    <table>
+      <thead><tr><th>Código</th><th>Nivel</th><th>Acción</th></tr></thead>
+      <tbody>
+        <tr><td><code>FOTO_RECHAZADA_MULTIPLE_VECES</code></td><td><span class="badge badge--amber">MEDIO</span></td><td>ESCALAR</td></tr>
+        <tr><td><code>MAX_VERSIONES_FOTO_SUPERADO</code></td><td><span class="badge badge--red">ALTO</span></td><td>ESCALAR</td></tr>
+        <tr><td><code>FOTO_DUPLICADA_OTRO_ESTUDIO</code></td><td><span class="badge badge--red">CRITICO</span></td><td>BLOQUEAR</td></tr>
+        <tr><td><code>SELFIE_NO_COINCIDE_DOCUMENTO</code></td><td><span class="badge badge--red">ALTO</span></td><td>ESCALAR</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ── CatalogoMotivosEscalamiento ───────────────────────────────── -->
+    <h2 id="motivos-esc">CatalogoMotivosEscalamiento <span class="badge badge--violet">SA-01</span></h2>
+    <p>Tipificación de razones de escalamiento manual. <code>Origen</code> CHECK: <code>SISTEMA | ASESOR | FRAUDE</code>.</p>
+
+    <h3>8 motivos base (v2.2)</h3>
+    <table>
+      <thead><tr><th>Código</th><th>Origen</th><th>Descripción breve</th></tr></thead>
+      <tbody>
+        <tr><td><code>OTP_FAIL_EMAIL_CHANGE</code></td><td><span class="badge badge--red">FRAUDE</span></td><td>Cambio de email tras fallo OTP — posible suplantación</td></tr>
+        <tr><td><code>OTP_INTENTOS_AGOTADOS</code></td><td><span class="badge badge--accent">SISTEMA</span></td><td>Todos los intentos OTP agotados</td></tr>
+        <tr><td><code>BIOMETRIA_MAX_REINTENTOS</code></td><td><span class="badge badge--accent">SISTEMA</span></td><td>Biometría fallida, máximo de reintentos</td></tr>
+        <tr><td><code>UBICA_GESTION_MANUAL_FABRICA</code></td><td><span class="badge badge--accent">SISTEMA</span></td><td>UBICA indica gestión manual</td></tr>
+        <tr><td><code>ALERTA_FRAUDE_CRITICA</code></td><td><span class="badge badge--red">FRAUDE</span></td><td>Regla CRÍTICO disparada</td></tr>
+        <tr><td><code>DISCREPANCIA_DATOS_UBICA</code></td><td><span class="badge badge--accent">SISTEMA</span></td><td>Datos declarados ≠ UBICA</td></tr>
+        <tr><td><code>ESCALAMIENTO_MANUAL_ASESOR</code></td><td><span class="badge badge--amber">ASESOR</span></td><td>El asesor decide escalar manualmente</td></tr>
+        <tr><td><code>DATO_CONTACTO_MODIFICADO_EN_FLUJO</code></td><td><span class="badge badge--red">FRAUDE</span></td><td>Email/celular modificado durante el flujo</td></tr>
+      </tbody>
+    </table>
+
+    <h3>4 motivos fotográficos adicionales (v2.3)</h3>
+    <table>
+      <thead><tr><th>Código</th><th>Origen</th></tr></thead>
+      <tbody>
+        <tr><td><code>FOTO_MAX_REINTENTOS_SUPERADO</code></td><td><span class="badge badge--accent">SISTEMA</span></td></tr>
+        <tr><td><code>FOTO_RECHAZADA_VARIAS_VECES</code></td><td><span class="badge badge--accent">SISTEMA</span></td></tr>
+        <tr><td><code>LINK_RECARGA_EXPIRADO_SIN_USO</code></td><td><span class="badge badge--accent">SISTEMA</span></td></tr>
+        <tr><td><code>SELFIE_BIOMETRIA_FALLO</code></td><td><span class="badge badge--accent">SISTEMA</span></td></tr>
+      </tbody>
+    </table>
+
+    <!-- ── HistorialDatosSensibles ────────────────────────────────────── -->
+    <h2 id="historial-sensibles">HistorialDatosSensibles <span class="badge badge--amber">SA-04 · INSERT-ONLY</span></h2>
+    <p>Trazabilidad de mutaciones de campos de contacto (email, celular, dirección). Es la única fuente de verdad para el patrón de fraude: <em>"email original → email cambiado después de OTP fallido"</em>. La columna <code>EsPostFalloOTP</code> permite un índice filtrado para detección rápida.</p>
+
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdHistorialDato</code></td><td>BIGINT IDENTITY PK</td><td>No</td><td>Clave primaria</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>BIGINT FK</td><td>No</td><td>FK → EstudiosCredito</td></tr>
+        <tr><td><code>NitTercero</code></td><td>VARCHAR(20)</td><td>No</td><td>NIT del cliente</td></tr>
+        <tr><td><code>CampoCambiado</code></td><td>VARCHAR(50)</td><td>No</td><td><code>EmailCliente</code> | <code>CelularCliente</code> | <code>DireccionCapturada</code></td></tr>
+        <tr><td><code>ValorOriginal</code></td><td>NVARCHAR(300)</td><td>Sí</td><td>Valor ANTES del cambio</td></tr>
+        <tr><td><code>ValorNuevo</code></td><td>NVARCHAR(300)</td><td>Sí</td><td>Valor DESPUÉS del cambio</td></tr>
+        <tr><td><code>IdRetoActivoAlCambio</code></td><td>BIGINT FK</td><td>Sí</td><td>FK → RetosSeguridad (reto vigente al cambiar)</td></tr>
+        <tr><td><code>EsPostFalloOTP</code></td><td>BIT</td><td>No</td><td>1 si había reto OTP fallido reciente</td></tr>
+        <tr><td><code>TipoActor</code></td><td>VARCHAR(20) CHECK</td><td>No</td><td><code>CLIENTE</code> | <code>ASESOR</code> | <code>SISTEMA</code></td></tr>
+        <tr><td><code>DireccionIP</code></td><td>VARCHAR(45)</td><td>Sí</td><td>IP del actor</td></tr>
+        <tr><td><code>MotivoDeclarado</code></td><td>NVARCHAR(300)</td><td>Sí</td><td>Razón declarada por el cliente/asesor</td></tr>
+        <tr><td><code>FechaCambio</code></td><td>DATETIME2(3)</td><td>No</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+
+    <p><strong>Índice filtrado hot-path:</strong> <code>IX_HistDatosSensibles_PostOTP</code> WHERE <code>EsPostFalloOTP = 1</code> — detección rápida del patrón de fraude.</p>
+  </main>
+</body>
+</html>

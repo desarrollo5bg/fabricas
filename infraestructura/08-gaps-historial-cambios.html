@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gaps e Historial de Cambios — Fábricas de Crédito QUAC v2.6</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#fafbfc;--white:#ffffff;--text:#1a1a2e;--text-secondary:#555770;--border:#e2e5ea;--border-light:#f0f1f4;--accent:#7633ff;--accent-bg:#f3eeff;--red:#dc2626;--red-bg:#fef2f2;--green:#16a34a;--green-bg:#f0fdf4;--amber:#d97706;--amber-bg:#fffbeb;--violet:#7c3aed;--violet-bg:#f5f3ff;--cyan:#0891b2;--cyan-bg:#ecfeff;--code-bg:#f4f5f7;--sidebar-w:280px}
+    *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}body{font-family:"Plus Jakarta Sans",-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased}
+    .sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--white);border-right:1px solid var(--border);overflow-y:auto;padding:24px 0;z-index:50}
+    .sidebar-title{font-size:13px;font-weight:700;color:var(--accent);padding:0 20px 16px;margin-bottom:4px;letter-spacing:-0.01em;border-bottom:1px solid var(--border-light)}
+    .sidebar nav a{display:block;padding:6px 20px;font-size:13px;color:var(--text-secondary);text-decoration:none;border-left:3px solid transparent;transition:all .15s}
+    .sidebar nav a:hover{color:var(--accent);background:var(--accent-bg);border-left-color:var(--accent)}
+    .sidebar nav a.indent{padding-left:36px;font-size:12px}
+    .sidebar nav a.active{color:var(--accent);font-weight:600;border-left-color:var(--accent);background:var(--accent-bg)}
+    .sidebar-section{padding:10px 20px 4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-secondary)}
+    .main{margin-left:var(--sidebar-w);max-width:960px;padding:48px 56px 120px}
+    h1{font-size:32px;font-weight:800;letter-spacing:-.03em;line-height:1.2;margin-bottom:8px}
+    h2{font-size:24px;font-weight:700;letter-spacing:-.02em;margin-top:56px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--border)}
+    h3{font-size:18px;font-weight:600;margin-top:32px;margin-bottom:12px}
+    h4{font-size:15px;font-weight:600;margin-top:24px;margin-bottom:8px}
+    p{margin-bottom:12px;color:var(--text-secondary);font-size:15px}strong{color:var(--text)}
+    .meta{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+    .meta-item{font-size:13px;color:var(--text-secondary)}.meta-item strong{font-weight:600;color:var(--text)}
+    pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:20px 24px;overflow-x:auto;margin:16px 0 20px;font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.65;color:var(--text)}
+    code{font-family:"JetBrains Mono",monospace;font-size:13px;background:var(--code-bg);padding:2px 6px;border-radius:4px}pre code{background:none;padding:0}
+    table{width:100%;border-collapse:collapse;margin:16px 0 20px;font-size:13px}
+    th{background:var(--code-bg);font-weight:600;text-align:left;padding:10px 14px;border-bottom:2px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-secondary)}
+    td{padding:9px 14px;border-bottom:1px solid var(--border-light);color:var(--text)}tr:hover td{background:var(--accent-bg)}td code{font-size:12px}
+    ul,ol{margin:8px 0 16px 24px}li{font-size:15px;color:var(--text-secondary);margin-bottom:4px}li strong{color:var(--text)}
+    .badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:.03em}
+    .badge--accent{background:var(--accent-bg);color:var(--accent)}.badge--red{background:var(--red-bg);color:var(--red)}.badge--green{background:var(--green-bg);color:var(--green)}.badge--amber{background:var(--amber-bg);color:var(--amber)}.badge--violet{background:var(--violet-bg);color:var(--violet)}.badge--cyan{background:var(--cyan-bg);color:var(--cyan)}
+    .callout{border-radius:8px;padding:16px 20px;margin:16px 0;font-size:14px}.callout p{margin-bottom:4px}
+    .callout--info{background:var(--accent-bg);border-left:4px solid var(--accent)}.callout--warn{background:var(--amber-bg);border-left:4px solid var(--amber)}.callout--danger{background:var(--red-bg);border-left:4px solid var(--red)}.callout--success{background:var(--green-bg);border-left:4px solid var(--green)}
+    hr{border:none;border-top:1px solid var(--border);margin:40px 0}
+    .gap-id{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;display:inline-block;padding:2px 8px;border-radius:4px;background:var(--code-bg);color:var(--text)}
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-title">FÁBRICAS DE CRÉDITO v2.6</div>
+    <nav>
+      <div class="sidebar-section">Este archivo</div>
+      <a href="#resumen" class="active">Resumen de versiones</a>
+      <a href="#decisiones-po" class="indent">Decisiones del PO</a>
+      <a href="#v21" class="indent">Gaps v2.1</a>
+      <a href="#v22" class="indent">Gaps v2.2 (SA)</a>
+      <a href="#v23" class="indent">Gaps v2.3 (PH)</a>
+      <a href="#v24" class="indent">Gaps v2.4 (C)</a>
+      <a href="#v25" class="indent">Gaps v2.5 (GAP)</a>
+      <a href="#eliminaciones" class="indent">Eliminaciones confirmadas</a>
+      <div class="sidebar-section">Otros documentos</div>
+      <a href="index.html">00 · Índice</a>
+      <a href="01-vision-general.html">01 · Visión General</a>
+      <a href="02-diccionario-datos.html">02 · Diccionario de Datos</a>
+      <a href="03-maquina-estados.html">03 · Máquina de Estados</a>
+      <a href="04-seguridad-antifraude.html">04 · Seguridad y Antifraude</a>
+      <a href="05-fotografias-biometria.html">05 · Fotografías y Biometría</a>
+      <a href="06-servicios-backend.html">06 · Servicios Backend</a>
+      <a href="07-consentimientos-contactabilidad.html">07 · Consentimientos</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <h1>Gaps e Historial de Cambios</h1>
+    <p style="font-size:17px;color:var(--text);font-weight:500;">Decisiones del PO, evolución del esquema v2.1 → v2.5 y eliminaciones confirmadas</p>
+    <div class="meta">
+      <div class="meta-item"><strong>Versión actual</strong> v2.5 (DDL) → v2.6 (docs)</div>
+      <div class="meta-item"><strong>Fecha</strong> 2026-04-16</div>
+      <div class="meta-item"><strong>Total gaps</strong> 57 (12+11+10+6+18)</div>
+    </div>
+
+    <h2 id="resumen">Resumen de versiones</h2>
+    <table>
+      <thead>
+        <tr><th>Versión</th><th>Prefijo</th><th>Gaps</th><th>Foco principal</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="badge badge--accent">v2.1</span></td><td><code>G-DB / G-FL / G-AU / GT</code></td><td>12</td><td>Base de datos y flujo inicial</td></tr>
+        <tr><td><span class="badge badge--violet">v2.2</span></td><td><code>SA</code></td><td>11</td><td>Seguridad y antifraude</td></tr>
+        <tr><td><span class="badge badge--amber">v2.3</span></td><td><code>PH</code></td><td>10</td><td>Fotografías y biometría</td></tr>
+        <tr><td><span class="badge badge--cyan">v2.4</span></td><td><code>C</code></td><td>6</td><td>Correcciones nomenclatura y modelos</td></tr>
+        <tr><td><span class="badge badge--green">v2.5</span></td><td><code>GAP</code></td><td>18</td><td>Consolidación final y gaps funcionales</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="decisiones-po">Decisiones del PO</h2>
+    <p>Estas decisiones son definitivas y están reflejadas en el DDL <code>FABRICASv2.sql</code>. No requieren revisión adicional.</p>
+
+    <div class="callout callout--danger">
+      <p><strong>ClaveIdempotencia y VersionFila eliminadas (C-06).</strong> Ambas columnas fueron removidas de <code>EstudiosCredito</code>. La máquina de estados garantiza la consistencia del flujo — no se requiere control de idempotencia a nivel de columna.</p>
+    </div>
+
+    <div class="callout callout--warn">
+      <p><strong>IdTienda → IdBodega (C-02).</strong> El renombramiento aplica <em>únicamente</em> en <code>EstudiosCredito</code>. Las demás tablas que referenciaban IdTienda mantienen su nombre original o fueron evaluadas caso a caso.</p>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Decisión</th><th>Elemento afectado</th><th>Gap</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>IdTienda → IdBodega</td>
+          <td><code>EstudiosCredito</code></td>
+          <td><span class="badge badge--cyan">C-02</span></td>
+          <td>La columna <code>IdTienda</code> se renombra a <code>IdBodega</code> para alinear con la nomenclatura del ERP</td>
+        </tr>
+        <tr>
+          <td>Eliminar ClaveIdempotencia</td>
+          <td><code>EstudiosCredito</code></td>
+          <td><span class="badge badge--cyan">C-06</span></td>
+          <td>Columna eliminada — la máquina de estados controla duplicados</td>
+        </tr>
+        <tr>
+          <td>Eliminar VersionFila</td>
+          <td><code>EstudiosCredito</code></td>
+          <td><span class="badge badge--cyan">C-06</span></td>
+          <td>Columna eliminada — control de concurrencia manejado por la lógica de negocio</td>
+        </tr>
+        <tr>
+          <td>JWT_ORIGEN_BODEGA → JWT_ORIGEN_TIENDA</td>
+          <td><code>CatalogoCanalesOrigen</code></td>
+          <td><span class="badge badge--green">GAP-04</span></td>
+          <td>Valor del catálogo renombrado para consistencia con terminología de asesor</td>
+        </tr>
+        <tr>
+          <td>FotografiasEstudio unificada biométrica</td>
+          <td><code>FotografiasEstudio</code></td>
+          <td><span class="badge badge--green">GAP-07</span></td>
+          <td>Tabla rediseñada para contener SELFIE + DOCUMENTO_FRONTAL + DOCUMENTO_TRASERO como fila única por estudio, con datos biométricos inline (ConfidenciaComparacion, ResultadoBiometrico)</td>
+        </tr>
+        <tr>
+          <td>EvidenciasFabrica sin tipos fotográficos</td>
+          <td><code>EvidenciasFabrica</code></td>
+          <td><span class="badge badge--green">GAP-07</span></td>
+          <td>El CHECK de <code>TipoEvidencia</code> excluye explícitamente SELFIE, DOCUMENTO_FRONTAL, DOCUMENTO_TRASERO</td>
+        </tr>
+        <tr>
+          <td>AuditoriaLogins INSERT-ONLY</td>
+          <td><code>AuditoriaLogins</code></td>
+          <td><span class="badge badge--green">GAP-15</span></td>
+          <td>Tabla nueva, solo permite INSERT. No se puede actualizar ni eliminar ninguna fila para garantizar integridad del log</td>
+        </tr>
+        <tr>
+          <td>SolicitudesRecarga.IdTipoFoto NULL</td>
+          <td><code>SolicitudesRecarga</code></td>
+          <td><span class="badge badge--green">GAP-01</span></td>
+          <td>El campo <code>IdTipoFoto</code> admite NULL para handoffs biométricos donde el tipo no aplica</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2 id="v21">Gaps v2.1 — Base de datos y flujo inicial</h2>
+    <p>Primera ronda de gaps identificados al diseñar el esquema inicial.</p>
+
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Área</th><th>Descripción</th><th>Resolución</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="gap-id">G-DB-01</span></td><td>Tablas</td><td>Falta tabla de auditoría de cambios de estado</td><td>Creada <code>HistorialEstados</code></td></tr>
+        <tr><td><span class="gap-id">G-DB-02</span></td><td>Tablas</td><td>Falta log de cambios de datos personales</td><td>Creada <code>AuditoriaCambiosDatos</code></td></tr>
+        <tr><td><span class="gap-id">G-DB-03</span></td><td>Columnas</td><td>TipoEvaluacion en EvaluacionesRiesgo no incluye todos los servicios</td><td>CHECK ampliado: +ANTECEDENTES, +UBICA</td></tr>
+        <tr><td><span class="gap-id">G-DB-04</span></td><td>Columnas</td><td>Falta campo de canal en retosSeguridad</td><td>Agregado <code>Canal</code> con CHECK (WHATSAPP, EMAIL, SMS)</td></tr>
+        <tr><td><span class="gap-id">G-DB-05</span></td><td>Índices</td><td>Sin índices en tablas de alto volumen</td><td>Índices creados en RegistroServiciosExternos, HistorialEstados</td></tr>
+        <tr><td><span class="gap-id">G-DB-06</span></td><td>FK</td><td>Relaciones sin CASCADE definido</td><td>FK revisadas — ON DELETE NO ACTION por defecto</td></tr>
+        <tr><td><span class="gap-id">G-FL-01</span></td><td>Flujo</td><td>Estado REVISION_FABRICA no contemplado</td><td>Agregado a <code>CatalogoEstados</code> y transiciones</td></tr>
+        <tr><td><span class="gap-id">G-FL-02</span></td><td>Flujo</td><td>Estado BLOQUEADO_FRAUDE sin transiciones de salida</td><td>Transición → RECHAZADO agregada con rol SUPERVISOR</td></tr>
+        <tr><td><span class="gap-id">G-AU-01</span></td><td>Auditoría</td><td>Falta log de acceso a la aplicación</td><td>Diseñado, implementado en v2.4 como <code>AuditoriaLogins</code></td></tr>
+        <tr><td><span class="gap-id">G-AU-02</span></td><td>Auditoría</td><td>Datos sensibles sin historial de cambio</td><td>Creada <code>HistorialDatosSensibles</code></td></tr>
+        <tr><td><span class="gap-id">GT-01</span></td><td>Técnico</td><td>Tipos de datos inconsistentes (INT vs BIGINT)</td><td>Normalizado: BIGINT para tablas de log, INT para catálogos</td></tr>
+        <tr><td><span class="gap-id">GT-08</span></td><td>Técnico</td><td>DEFAULT GETDATE() vs GETUTCDATE() mezclados</td><td>Estandarizado a GETUTCDATE() en todas las tablas</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="v22">Gaps v2.2 — Seguridad y antifraude (SA)</h2>
+    <p>Segunda ronda enfocada en el módulo de antifraude y controles de seguridad.</p>
+
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Área</th><th>Descripción</th><th>Resolución</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="gap-id">SA-01</span></td><td>Antifraude</td><td>Sin catálogo de reglas de fraude configurable</td><td>Creada <code>CatalogoReglasFraude</code> con 12 reglas</td></tr>
+        <tr><td><span class="gap-id">SA-02</span></td><td>Antifraude</td><td>Sin escalamiento formal de alertas</td><td>Creada <code>EscalamientosFabrica</code> con FK a AlertasFraude</td></tr>
+        <tr><td><span class="gap-id">SA-03</span></td><td>OTP</td><td>Sin log de validaciones OTP</td><td>Creada <code>LogValidacionesOTP</code></td></tr>
+        <tr><td><span class="gap-id">SA-04</span></td><td>Datos sensibles</td><td>Sin historial de acceso a datos PII</td><td>Creada <code>HistorialDatosSensibles</code></td></tr>
+        <tr><td><span class="gap-id">SA-05</span></td><td>Alertas</td><td>Sin tabla centralizada de alertas de fraude</td><td>Creada <code>AlertasFraude</code> con nivel y estado</td></tr>
+        <tr><td><span class="gap-id">SA-06</span></td><td>Reglas</td><td>Sin catálogo de motivos de escalamiento</td><td>Creada <code>CatalogoMotivosEscalamiento</code> con 12 motivos</td></tr>
+        <tr><td><span class="gap-id">SA-07</span></td><td>Alertas</td><td>AlertasFraude sin FK a ValidacionesContactabilidad</td><td>FK agregada en ValidacionesContactabilidad.IdAlertaFraude</td></tr>
+        <tr><td><span class="gap-id">SA-08</span></td><td>Escalamiento</td><td>Sin trazabilidad de resolución de escalamientos</td><td>Columnas FechaResolucion + ObservacionResolucion en EscalamientosFabrica</td></tr>
+        <tr><td><span class="gap-id">SA-09</span></td><td>Reglas</td><td>Umbral de reglas de fraude no configurable</td><td>Campo UmbralNumerico en CatalogoReglasFraude</td></tr>
+        <tr><td><span class="gap-id">SA-10</span></td><td>Alertas</td><td>Sin nivel de severidad en alertas</td><td>Campo NivelAlerta CHECK (BAJA, MEDIA, ALTA, CRITICA)</td></tr>
+        <tr><td><span class="gap-id">SA-11</span></td><td>Auditoría</td><td>Sin registro de quién desactivó una alerta</td><td>Campo IdOperadorResolucion en AlertasFraude</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="v23">Gaps v2.3 — Fotografías y biometría (PH)</h2>
+    <p>Tercera ronda enfocada en el rediseño del módulo fotográfico y la integración biométrica.</p>
+
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Área</th><th>Descripción</th><th>Resolución</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="gap-id">PH-01</span></td><td>Fotografías</td><td>Modelo separado de selfie/documento es ineficiente</td><td>Rediseño: FotografiasEstudio unificada (selfie + doc frontal + trasero)</td></tr>
+        <tr><td><span class="gap-id">PH-02</span></td><td>Biometría</td><td>Sin almacenamiento de score biométrico</td><td>Columnas ConfidenciaComparacion + ResultadoBiometrico en FotografiasEstudio</td></tr>
+        <tr><td><span class="gap-id">PH-03</span></td><td>Revisión</td><td>Sin proceso formal de revisión de fotografías</td><td>Creada <code>RevisionesFotografia</code> INSERT-ONLY</td></tr>
+        <tr><td><span class="gap-id">PH-04</span></td><td>Recargas</td><td>Sin mecanismo de solicitud de re-toma</td><td>Creada <code>SolicitudesRecarga</code></td></tr>
+        <tr><td><span class="gap-id">PH-05</span></td><td>Historial</td><td>Sin historial de cambios en fotografías</td><td>Creada <code>HistorialFotografias</code> INSERT-ONLY</td></tr>
+        <tr><td><span class="gap-id">PH-06</span></td><td>Catálogo</td><td>Sin catálogo de tipos de fotografía</td><td>Creada <code>CatalogoTiposFotografia</code> como referencia</td></tr>
+        <tr><td><span class="gap-id">PH-07</span></td><td>Almacenamiento</td><td>Sin referencia al storage de imágenes</td><td>Campo RutaAlmacenamiento en FotografiasEstudio</td></tr>
+        <tr><td><span class="gap-id">PH-08</span></td><td>Calidad</td><td>Sin indicador de calidad de imagen</td><td>Campo ScoreCalidad en FotografiasEstudio</td></tr>
+        <tr><td><span class="gap-id">PH-09</span></td><td>Biometría</td><td>Sin tracking de servicio biométrico usado</td><td>Campo ServicioBiometrico (AWS_REKOGNITION, etc.) en FotografiasEstudio</td></tr>
+        <tr><td><span class="gap-id">PH-10</span></td><td>Recargas</td><td>SolicitudesRecarga.IdTipoFoto no puede ser NULL para handoffs</td><td>Campo declarado NULL para permitir handoffs sin tipo específico</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="v24">Gaps v2.4 — Correcciones (C)</h2>
+    <p>Correcciones de nomenclatura y decisiones del PO sobre el modelo de datos.</p>
+
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Área</th><th>Descripción</th><th>Resolución</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="gap-id">C-01</span></td><td>Nomenclatura</td><td>Inconsistencia en naming de columnas de fecha</td><td>Estandarizado: FechaCreacion, FechaActualizacion, FechaEliminacion</td></tr>
+        <tr><td><span class="gap-id">C-02</span></td><td>Nomenclatura</td><td>IdTienda vs IdBodega — ambigüedad terminológica</td><td>Renombrado a IdBodega en EstudiosCredito únicamente</td></tr>
+        <tr><td><span class="gap-id">C-03</span></td><td>Tablas</td><td>Sin tabla de validaciones realizadas por el asesor</td><td>Creada <code>ValidacionesAsesor</code></td></tr>
+        <tr><td><span class="gap-id">C-04</span></td><td>Tablas</td><td>Sin registro de logins de asesores</td><td>Creada <code>AuditoriaLogins</code> INSERT-ONLY</td></tr>
+        <tr><td><span class="gap-id">C-05</span></td><td>Columnas</td><td>Falta campo LoginTienda en AuditoriaLogins</td><td>Columna LoginTienda agregada</td></tr>
+        <tr><td><span class="gap-id">C-06</span></td><td>Columnas</td><td>ClaveIdempotencia y VersionFila redundantes</td><td>Ambas columnas eliminadas de EstudiosCredito</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="v25">Gaps v2.5 — Consolidación final (GAP)</h2>
+    <p>Última ronda de 18 gaps aplicados en el DDL final. Estos gaps cierran todas las deudas técnicas identificadas antes del go-live.</p>
+
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Área</th><th>Descripción</th><th>Resolución en DDL</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="gap-id">GAP-01</span></td><td>Fotografías</td><td>SolicitudesRecarga.IdTipoFoto debe admitir NULL para handoffs biométricos</td><td>Columna declarada NULL</td></tr>
+        <tr><td><span class="gap-id">GAP-02</span></td><td>Flujo</td><td>Estado PENDIENTE_FOTOS sin transición de retorno a EN_PROGRESO</td><td>Transición agregada en TransicionesEstado</td></tr>
+        <tr><td><span class="gap-id">GAP-03</span></td><td>Flujo</td><td>FOTOS_EN_REVISION sin transición a RECHAZADO</td><td>Transición agregada con rol SUPERVISOR</td></tr>
+        <tr><td><span class="gap-id">GAP-04</span></td><td>Catálogo</td><td>JWT_ORIGEN_BODEGA mal nombrado — debe ser JWT_ORIGEN_TIENDA</td><td>Valor del catálogo renombrado</td></tr>
+        <tr><td><span class="gap-id">GAP-05</span></td><td>Auditoría</td><td>HistorialEstados sin columna de motivo de cambio</td><td>Campo MotivoTransicion agregado</td></tr>
+        <tr><td><span class="gap-id">GAP-06</span></td><td>Antifraude</td><td>AlertasFraude sin FK a estudio</td><td>FK IdEstudio agregada</td></tr>
+        <tr><td><span class="gap-id">GAP-07</span></td><td>Fotografías</td><td>Modelo de fotografías fragmentado — necesita unificación biométrica</td><td>FotografiasEstudio rediseñada como tabla unificada; EvidenciasFabrica excluye tipos fotográficos</td></tr>
+        <tr><td><span class="gap-id">GAP-08</span></td><td>Reglas</td><td>ConfiguracionReglasNegocio sin campo de descripción</td><td>Campo Descripcion VARCHAR(500) agregado</td></tr>
+        <tr><td><span class="gap-id">GAP-09</span></td><td>Contactabilidad</td><td>ValidacionesContactabilidad sin FK a AlertasFraude</td><td>FK IdAlertaFraude agregada (NULL)</td></tr>
+        <tr><td><span class="gap-id">GAP-10</span></td><td>Servicios</td><td>RegistroServiciosExternos sin índice por servicio</td><td>Índice IX_RegServ_Servicio_Resultado creado</td></tr>
+        <tr><td><span class="gap-id">GAP-11</span></td><td>Catálogo</td><td>CatalogoEstados sin descripción del estado</td><td>Campo DescripcionEstado agregado</td></tr>
+        <tr><td><span class="gap-id">GAP-12</span></td><td>Pasos</td><td>PasosEstudio sin indicador de paso obligatorio vs opcional</td><td>Campo EsObligatorio BIT DEFAULT 1 agregado</td></tr>
+        <tr><td><span class="gap-id">GAP-13</span></td><td>Consentimientos</td><td>ConsentimientosLegales sin hash del documento generado</td><td>Campo HashDocumento VARCHAR(255) agregado</td></tr>
+        <tr><td><span class="gap-id">GAP-14</span></td><td>Biometría</td><td>Sin campo de umbral de comparación en FotografiasEstudio</td><td>Campo UmbralComparacion DECIMAL agregado</td></tr>
+        <tr><td><span class="gap-id">GAP-15</span></td><td>Auditoría</td><td>AuditoriaLogins no tiene restricción INSERT-ONLY explícita</td><td>Trigger INSTEAD OF UPDATE, DELETE agregado</td></tr>
+        <tr><td><span class="gap-id">GAP-16</span></td><td>Historial</td><td>HistorialFotografias sin referencia al operador que aplicó el cambio</td><td>Campo IdOperador INT NULL agregado</td></tr>
+        <tr><td><span class="gap-id">GAP-17</span></td><td>Recargas</td><td>SolicitudesRecarga sin estado de la solicitud</td><td>Campo EstadoSolicitud CHECK (PENDIENTE, APROBADA, RECHAZADA) agregado</td></tr>
+        <tr><td><span class="gap-id">GAP-18</span></td><td>Técnico</td><td>Faltan índices en columnas de búsqueda frecuente</td><td>Índices creados: IX_Estudios_IdTercero, IX_AlertasFraude_IdEstudio, IX_HistorialEstados_IdEstudio</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="eliminaciones">Eliminaciones confirmadas</h2>
+    <p>Elementos que existieron en versiones anteriores del diseño y fueron eliminados definitivamente del DDL final.</p>
+
+    <div class="callout callout--danger">
+      <p><strong>Estas eliminaciones son permanentes.</strong> No deben re-introducirse sin aprobación explícita del PO y revisión del equipo de arquitectura.</p>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Elemento eliminado</th><th>Tabla</th><th>Gap</th><th>Razón</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>ClaveIdempotencia</code></td>
+          <td><code>EstudiosCredito</code></td>
+          <td><span class="badge badge--cyan">C-06</span></td>
+          <td>La máquina de estados garantiza consistencia. Una columna de idempotencia separada duplica la lógica sin agregar valor.</td>
+        </tr>
+        <tr>
+          <td><code>VersionFila</code></td>
+          <td><code>EstudiosCredito</code></td>
+          <td><span class="badge badge--cyan">C-06</span></td>
+          <td>Control de concurrencia optimista descartado. El modelo de fábrica es secuencial por diseño.</td>
+        </tr>
+        <tr>
+          <td><code>SELFIE</code> en <code>TipoEvidencia</code></td>
+          <td><code>EvidenciasFabrica</code></td>
+          <td><span class="badge badge--green">GAP-07</span></td>
+          <td>Las fotografías biométricas se gestionan exclusivamente en <code>FotografiasEstudio</code>. Separar responsabilidades evita datos duplicados.</td>
+        </tr>
+        <tr>
+          <td><code>DOCUMENTO_FRONTAL</code> en <code>TipoEvidencia</code></td>
+          <td><code>EvidenciasFabrica</code></td>
+          <td><span class="badge badge--green">GAP-07</span></td>
+          <td>Ídem — los documentos de identidad son parte del proceso biométrico, no evidencias operacionales.</td>
+        </tr>
+        <tr>
+          <td><code>DOCUMENTO_TRASERO</code> en <code>TipoEvidencia</code></td>
+          <td><code>EvidenciasFabrica</code></td>
+          <td><span class="badge badge--green">GAP-07</span></td>
+          <td>Ídem.</td>
+        </tr>
+        <tr>
+          <td><code>JWT_ORIGEN_BODEGA</code> (valor catálogo)</td>
+          <td><code>CatalogoCanalesOrigen</code></td>
+          <td><span class="badge badge--green">GAP-04</span></td>
+          <td>Renombrado a <code>JWT_ORIGEN_TIENDA</code> para reflejar el término correcto del canal de asesor en tienda.</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </main>
+</body>
+</html>

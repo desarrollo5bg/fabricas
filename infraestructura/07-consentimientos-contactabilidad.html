@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Consentimientos y Contactabilidad — Fábricas de Crédito QUAC v2.6</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#fafbfc;--white:#ffffff;--text:#1a1a2e;--text-secondary:#555770;--border:#e2e5ea;--border-light:#f0f1f4;--accent:#7633ff;--accent-bg:#f3eeff;--red:#dc2626;--red-bg:#fef2f2;--green:#16a34a;--green-bg:#f0fdf4;--amber:#d97706;--amber-bg:#fffbeb;--violet:#7c3aed;--violet-bg:#f5f3ff;--cyan:#0891b2;--cyan-bg:#ecfeff;--code-bg:#f4f5f7;--sidebar-w:280px}
+    *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}body{font-family:"Plus Jakarta Sans",-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased}
+    .sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--white);border-right:1px solid var(--border);overflow-y:auto;padding:24px 0;z-index:50}
+    .sidebar-title{font-size:13px;font-weight:700;color:var(--accent);padding:0 20px 16px;margin-bottom:4px;letter-spacing:-0.01em;border-bottom:1px solid var(--border-light)}
+    .sidebar nav a{display:block;padding:6px 20px;font-size:13px;color:var(--text-secondary);text-decoration:none;border-left:3px solid transparent;transition:all .15s}
+    .sidebar nav a:hover{color:var(--accent);background:var(--accent-bg);border-left-color:var(--accent)}
+    .sidebar nav a.indent{padding-left:36px;font-size:12px}
+    .sidebar nav a.active{color:var(--accent);font-weight:600;border-left-color:var(--accent);background:var(--accent-bg)}
+    .sidebar-section{padding:10px 20px 4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-secondary)}
+    .main{margin-left:var(--sidebar-w);max-width:960px;padding:48px 56px 120px}
+    h1{font-size:32px;font-weight:800;letter-spacing:-.03em;line-height:1.2;margin-bottom:8px}
+    h2{font-size:24px;font-weight:700;letter-spacing:-.02em;margin-top:56px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--border)}
+    h3{font-size:18px;font-weight:600;margin-top:32px;margin-bottom:12px}
+    h4{font-size:15px;font-weight:600;margin-top:24px;margin-bottom:8px}
+    p{margin-bottom:12px;color:var(--text-secondary);font-size:15px}strong{color:var(--text)}
+    .meta{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+    .meta-item{font-size:13px;color:var(--text-secondary)}.meta-item strong{font-weight:600;color:var(--text)}
+    pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:20px 24px;overflow-x:auto;margin:16px 0 20px;font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.65;color:var(--text)}
+    code{font-family:"JetBrains Mono",monospace;font-size:13px;background:var(--code-bg);padding:2px 6px;border-radius:4px}pre code{background:none;padding:0}
+    table{width:100%;border-collapse:collapse;margin:16px 0 20px;font-size:13px}
+    th{background:var(--code-bg);font-weight:600;text-align:left;padding:10px 14px;border-bottom:2px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-secondary)}
+    td{padding:9px 14px;border-bottom:1px solid var(--border-light);color:var(--text)}tr:hover td{background:var(--accent-bg)}td code{font-size:12px}
+    ul,ol{margin:8px 0 16px 24px}li{font-size:15px;color:var(--text-secondary);margin-bottom:4px}li strong{color:var(--text)}
+    .badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:.03em}
+    .badge--accent{background:var(--accent-bg);color:var(--accent)}.badge--red{background:var(--red-bg);color:var(--red)}.badge--green{background:var(--green-bg);color:var(--green)}.badge--amber{background:var(--amber-bg);color:var(--amber)}.badge--violet{background:var(--violet-bg);color:var(--violet)}.badge--cyan{background:var(--cyan-bg);color:var(--cyan)}
+    .callout{border-radius:8px;padding:16px 20px;margin:16px 0;font-size:14px}.callout p{margin-bottom:4px}
+    .callout--info{background:var(--accent-bg);border-left:4px solid var(--accent)}.callout--warn{background:var(--amber-bg);border-left:4px solid var(--amber)}.callout--danger{background:var(--red-bg);border-left:4px solid var(--red)}.callout--success{background:var(--green-bg);border-left:4px solid var(--green)}
+    hr{border:none;border-top:1px solid var(--border);margin:40px 0}
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-title">FÁBRICAS DE CRÉDITO v2.6</div>
+    <nav>
+      <div class="sidebar-section">Este archivo</div>
+      <a href="#flujo" class="active">Flujo General</a>
+      <a href="#retos" class="indent">RetosSeguridad (OTP)</a>
+      <a href="#consentimientos" class="indent">ConsentimientosLegales</a>
+      <a href="#contactabilidad" class="indent">ValidacionesContactabilidad</a>
+      <a href="#evidencias" class="indent">EvidenciasFabrica</a>
+      <div class="sidebar-section">Otros documentos</div>
+      <a href="index.html">00 · Índice</a>
+      <a href="01-vision-general.html">01 · Visión General</a>
+      <a href="02-diccionario-datos.html">02 · Diccionario de Datos</a>
+      <a href="03-maquina-estados.html">03 · Máquina de Estados</a>
+      <a href="04-seguridad-antifraude.html">04 · Seguridad y Antifraude</a>
+      <a href="05-fotografias-biometria.html">05 · Fotografías y Biometría</a>
+      <a href="06-servicios-backend.html">06 · Servicios Backend</a>
+      <a href="08-gaps-historial-cambios.html">08 · Gaps e Historial</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <h1>Consentimientos y Contactabilidad</h1>
+    <p style="font-size:17px;color:var(--text);font-weight:500;">OTP, firma legal, validación UBICA y evidencias — DDL v2.5</p>
+    <div class="meta">
+      <div class="meta-item"><strong>Versión</strong> v2.6</div>
+      <div class="meta-item"><strong>Fecha</strong> 2026-04-16</div>
+      <div class="meta-item"><strong>Fuente</strong> FABRICASv2.sql v2.5</div>
+      <div class="meta-item"><strong>Tablas</strong> 4 (RetosSeguridad, ConsentimientosLegales, ValidacionesContactabilidad, EvidenciasFabrica)</div>
+    </div>
+
+    <h2 id="flujo">Flujo: Contacto → Reto → Consentimiento → Evidencia</h2>
+    <p>La fase <strong>CONSENTIMIENTO_LEGAL</strong> es el corazón regulatorio del flujo. El sistema debe demostrar que el cliente otorgó su consentimiento de forma verificable antes de avanzar a la evaluación de riesgo.</p>
+
+    <pre><code>CLIENTE llega al paso CONSENTIMIENTO_DATOS
+        │
+        ▼
+┌───────────────────────────────────┐
+│         RetosSeguridad            │
+│  Canal: WHATSAPP | EMAIL | SMS    │
+│  OTP generado → DireccionEnvio    │
+│  FechaExpiracion (ventana corta)  │
+│  NumeroReenvios / UltimoReenvio   │
+└──────────────┬────────────────────┘
+               │ Cliente ingresa código OTP correcto
+               ▼
+┌───────────────────────────────────┐
+│      ConsentimientosLegales       │
+│  TipoFirma: OTP_SMS | OTP_EMAIL   │
+│             OTP_WHATSAPP          │
+│             CHECKBOX | FIRMA_DIG  │
+│  TextoConsentimiento (versión)    │
+│  FechaFirma + IdOperador          │
+└──────────────┬────────────────────┘
+               │ Opcional: validar contactabilidad
+               ▼
+┌───────────────────────────────────┐
+│   ValidacionesContactabilidad     │
+│  Servicio UBICA → EstadoUbica     │
+│  IdAlertaFraude FK (si aplica)    │
+└──────────────┬────────────────────┘
+               │ Generar evidencia documental
+               ▼
+┌───────────────────────────────────┐
+│        EvidenciasFabrica          │
+│  TipoEvidencia: COMPROBANTE       │
+│    NOTA_ASESOR | DOCUMENTO_SOPORTE│
+│    OTRO                           │
+└───────────────────────────────────┘</code></pre>
+
+    <h2 id="retos">RetosSeguridad (OTP)</h2>
+    <p>Gestiona el ciclo de vida de los códigos OTP enviados al cliente para verificar su identidad durante el consentimiento. Soporta reenvíos y múltiples canales.</p>
+
+    <h3>DDL de la tabla</h3>
+    <pre><code>CREATE TABLE RetosSeguridad (
+    IdReto              INT IDENTITY(1,1) PRIMARY KEY,
+    IdEstudio           INT           NOT NULL,
+    TipoReto            VARCHAR(20)   NOT NULL
+        CHECK (TipoReto IN ('OTP','PREGUNTA_SECRETA','VALIDACION_MANUAL')),
+    Canal               VARCHAR(20)   NOT NULL
+        CHECK (Canal IN ('WHATSAPP','EMAIL','SMS')),
+    DireccionEnvio      VARCHAR(200)  NOT NULL,   -- teléfono o email destino
+    CodigoHash          VARCHAR(255)  NOT NULL,   -- hash del OTP (nunca plano)
+    FechaExpiracion     DATETIME2     NOT NULL,
+    Intentos            INT           NOT NULL DEFAULT 0,
+    Verificado          BIT           NOT NULL DEFAULT 0,
+    FechaVerificacion   DATETIME2     NULL,
+    NumeroReenvios      INT           NOT NULL DEFAULT 0,
+    UltimoReenvio       DATETIME2     NULL,
+
+    CONSTRAINT FK_Reto_Estudio FOREIGN KEY (IdEstudio)
+        REFERENCES EstudiosCredito(IdEstudio)
+);</code></pre>
+
+    <h3>Diccionario de columnas</h3>
+    <table>
+      <thead>
+        <tr><th>Columna</th><th>Tipo</th><th>NULL</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>IdReto</code></td><td>INT IDENTITY</td><td class="null-no">NO</td><td>PK autoincremental</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>INT FK</td><td class="null-no">NO</td><td>Estudio al que pertenece el reto</td></tr>
+        <tr><td><code>TipoReto</code></td><td>VARCHAR(20) CHECK</td><td class="null-no">NO</td><td><code>OTP</code> | <code>PREGUNTA_SECRETA</code> | <code>VALIDACION_MANUAL</code></td></tr>
+        <tr><td><code>Canal</code></td><td>VARCHAR(20) CHECK</td><td class="null-no">NO</td><td><code>WHATSAPP</code> | <code>EMAIL</code> | <code>SMS</code></td></tr>
+        <tr><td><code>DireccionEnvio</code></td><td>VARCHAR(200)</td><td class="null-no">NO</td><td>Número celular o dirección de email destino</td></tr>
+        <tr><td><code>CodigoHash</code></td><td>VARCHAR(255)</td><td class="null-no">NO</td><td>Hash del código OTP — nunca se almacena en plano</td></tr>
+        <tr><td><code>FechaExpiracion</code></td><td>DATETIME2</td><td class="null-no">NO</td><td>Ventana de validez del OTP (normalmente 5–10 min)</td></tr>
+        <tr><td><code>Intentos</code></td><td>INT DEFAULT 0</td><td class="null-no">NO</td><td>Contador de intentos fallidos</td></tr>
+        <tr><td><code>Verificado</code></td><td>BIT DEFAULT 0</td><td class="null-no">NO</td><td><code>1</code> cuando el cliente ingresa el código correcto</td></tr>
+        <tr><td><code>FechaVerificacion</code></td><td>DATETIME2</td><td class="null-yes">SÍ</td><td>Timestamp de la verificación exitosa</td></tr>
+        <tr><td><code>NumeroReenvios</code></td><td>INT DEFAULT 0</td><td class="null-no">NO</td><td>Conteo de reenvíos del mismo OTP</td></tr>
+        <tr><td><code>UltimoReenvio</code></td><td>DATETIME2</td><td class="null-yes">SÍ</td><td>Timestamp del último reenvío — para rate limiting</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout--warn">
+      <p><strong>Seguridad OTP.</strong> El campo <code>CodigoHash</code> almacena únicamente el hash del código (bcrypt o SHA-256 con salt). El código en plano nunca se persiste. Al validar, se compara el hash del código ingresado contra este campo.</p>
+    </div>
+
+    <h2 id="consentimientos">ConsentimientosLegales</h2>
+    <p>Registra la firma legal del cliente para el tratamiento de datos personales y las condiciones del crédito. Cada tipo de consentimiento tiene su propio mecanismo de firma (<code>TipoFirma</code>).</p>
+
+    <h3>DDL de la tabla</h3>
+    <pre><code>CREATE TABLE ConsentimientosLegales (
+    IdConsentimiento    INT IDENTITY(1,1) PRIMARY KEY,
+    IdEstudio           INT           NOT NULL,
+    TipoConsentimiento  VARCHAR(50)   NOT NULL,
+    TipoFirma           VARCHAR(30)   NOT NULL
+        CHECK (TipoFirma IN (
+            'OTP_SMS','OTP_EMAIL','OTP_WHATSAPP',
+            'CHECKBOX','FIRMA_DIGITAL')),
+    TextoConsentimiento NVARCHAR(MAX) NOT NULL,   -- versión exacta del texto
+    Firmado             BIT           NOT NULL DEFAULT 0,
+    FechaFirma          DATETIME2     NULL,
+    IdOperador          INT           NULL,
+    HashDocumento       VARCHAR(255)  NULL,       -- hash del PDF generado
+
+    CONSTRAINT FK_Consent_Estudio FOREIGN KEY (IdEstudio)
+        REFERENCES EstudiosCredito(IdEstudio)
+);</code></pre>
+
+    <h3>Diccionario de columnas</h3>
+    <table>
+      <thead>
+        <tr><th>Columna</th><th>Tipo</th><th>NULL</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>IdConsentimiento</code></td><td>INT IDENTITY</td><td class="null-no">NO</td><td>PK autoincremental</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>INT FK</td><td class="null-no">NO</td><td>Estudio al que aplica el consentimiento</td></tr>
+        <tr><td><code>TipoConsentimiento</code></td><td>VARCHAR(50)</td><td class="null-no">NO</td><td>Nombre del consentimiento (p.ej. <code>HABEAS_DATA</code>, <code>POLITICA_CREDITO</code>)</td></tr>
+        <tr><td><code>TipoFirma</code></td><td>VARCHAR(30) CHECK</td><td class="null-no">NO</td><td>Ver tabla de mecanismos abajo</td></tr>
+        <tr><td><code>TextoConsentimiento</code></td><td>NVARCHAR(MAX)</td><td class="null-no">NO</td><td>Texto exacto presentado al cliente en el momento de la firma</td></tr>
+        <tr><td><code>Firmado</code></td><td>BIT DEFAULT 0</td><td class="null-no">NO</td><td><code>1</code> cuando el cliente firmó</td></tr>
+        <tr><td><code>FechaFirma</code></td><td>DATETIME2</td><td class="null-yes">SÍ</td><td>Timestamp de la firma — NULL si aún no firmado</td></tr>
+        <tr><td><code>IdOperador</code></td><td>INT</td><td class="null-yes">SÍ</td><td>Operador que gestionó la firma presencial, si aplica</td></tr>
+        <tr><td><code>HashDocumento</code></td><td>VARCHAR(255)</td><td class="null-yes">SÍ</td><td>Hash del PDF de consentimiento generado para trazabilidad</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Mecanismos de firma (TipoFirma CHECK)</h3>
+    <table>
+      <thead>
+        <tr><th>Tipo</th><th>Canal</th><th>Descripción</th><th>¿Requiere OTP?</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>OTP_SMS</code></td><td>SMS</td><td>Código enviado por mensaje de texto</td><td>Sí — RetosSeguridad</td></tr>
+        <tr><td><code>OTP_EMAIL</code></td><td>Email</td><td>Código enviado por correo electrónico</td><td>Sí — RetosSeguridad</td></tr>
+        <tr><td><code>OTP_WHATSAPP</code></td><td>WhatsApp</td><td>Código enviado por WhatsApp Business</td><td>Sí — RetosSeguridad</td></tr>
+        <tr><td><code>CHECKBOX</code></td><td>Portal Web</td><td>Aceptación mediante checkbox en formulario digital</td><td>No</td></tr>
+        <tr><td><code>FIRMA_DIGITAL</code></td><td>Tablet / Portal</td><td>Firma electrónica avanzada con trazabilidad biométrica</td><td>No</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="contactabilidad">ValidacionesContactabilidad</h2>
+    <p>Registra la validación de datos de contacto del cliente a través del servicio <strong>UBICA</strong>. Puede disparar una alerta de fraude si los datos no coinciden con registros conocidos.</p>
+
+    <h3>DDL de la tabla</h3>
+    <pre><code>CREATE TABLE ValidacionesContactabilidad (
+    IdValidacion        INT IDENTITY(1,1) PRIMARY KEY,
+    IdEstudio           INT           NOT NULL,
+    TipoContacto        VARCHAR(30)   NOT NULL
+        CHECK (TipoContacto IN ('TELEFONO','EMAIL','DIRECCION','CELULAR')),
+    DatoContacto        VARCHAR(200)  NOT NULL,
+    EstadoUbica         VARCHAR(50)   NULL,       -- resultado libre del servicio UBICA
+    Validado            BIT           NOT NULL DEFAULT 0,
+    FechaValidacion     DATETIME2     NULL,
+    IdAlertaFraude      INT           NULL,       -- FK a AlertasFraude si hay anomalía
+
+    CONSTRAINT FK_ValidContact_Estudio FOREIGN KEY (IdEstudio)
+        REFERENCES EstudiosCredito(IdEstudio),
+    CONSTRAINT FK_ValidContact_Alerta FOREIGN KEY (IdAlertaFraude)
+        REFERENCES AlertasFraude(IdAlerta)
+);</code></pre>
+
+    <h3>Diccionario de columnas</h3>
+    <table>
+      <thead>
+        <tr><th>Columna</th><th>Tipo</th><th>NULL</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>IdValidacion</code></td><td>INT IDENTITY</td><td class="null-no">NO</td><td>PK autoincremental</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>INT FK</td><td class="null-no">NO</td><td>Estudio validado</td></tr>
+        <tr><td><code>TipoContacto</code></td><td>VARCHAR(30) CHECK</td><td class="null-no">NO</td><td><code>TELEFONO</code> | <code>EMAIL</code> | <code>DIRECCION</code> | <code>CELULAR</code></td></tr>
+        <tr><td><code>DatoContacto</code></td><td>VARCHAR(200)</td><td class="null-no">NO</td><td>Valor del dato de contacto a validar</td></tr>
+        <tr><td><code>EstadoUbica</code></td><td>VARCHAR(50)</td><td class="null-yes">SÍ</td><td>Resultado textual del servicio UBICA — sin CHECK fijo (campo libre)</td></tr>
+        <tr><td><code>Validado</code></td><td>BIT DEFAULT 0</td><td class="null-no">NO</td><td><code>1</code> si UBICA confirmó el dato</td></tr>
+        <tr><td><code>FechaValidacion</code></td><td>DATETIME2</td><td class="null-yes">SÍ</td><td>Timestamp de la validación</td></tr>
+        <tr><td><code>IdAlertaFraude</code></td><td>INT FK</td><td class="null-yes">SÍ</td><td>FK a <code>AlertasFraude</code> si la validación genera una anomalía</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout--info">
+      <p><strong>EstadoUbica es campo libre.</strong> A diferencia de otros campos con CHECK, <code>EstadoUbica</code> es <code>VARCHAR(50) NULL</code> sin restricción de valores. El servicio UBICA puede evolucionar sus estados sin requerir un cambio de DDL.</p>
+    </div>
+
+    <h2 id="evidencias">EvidenciasFabrica</h2>
+    <p>Almacena documentos, notas y comprobantes generados durante el proceso de crédito. <strong>No almacena fotografías ni datos biométricos</strong> — esos tienen su propia tabla (<code>FotografiasEstudio</code>).</p>
+
+    <div class="callout callout--warn">
+      <p><strong>Tipos fotográficos excluidos.</strong> El CHECK de <code>TipoEvidencia</code> no incluye <code>SELFIE</code>, <code>DOCUMENTO_FRONTAL</code> ni <code>DOCUMENTO_TRASERO</code>. Las fotografías se gestionan exclusivamente en <code>FotografiasEstudio</code> — decisión del PO documentada en GAP-07.</p>
+    </div>
+
+    <h3>DDL de la tabla</h3>
+    <pre><code>CREATE TABLE EvidenciasFabrica (
+    IdEvidencia         INT IDENTITY(1,1) PRIMARY KEY,
+    IdEstudio           INT           NOT NULL,
+    TipoEvidencia       VARCHAR(30)   NOT NULL
+        CHECK (TipoEvidencia IN (
+            'COMPROBANTE','NOTA_ASESOR',
+            'DOCUMENTO_SOPORTE','OTRO')),
+    NombreArchivo       VARCHAR(255)  NULL,
+    RutaAlmacenamiento  VARCHAR(500)  NULL,    -- path o URL al blob storage
+    MimeType            VARCHAR(100)  NULL,
+    TamanoBytes         BIGINT        NULL,
+    Descripcion         NVARCHAR(500) NULL,
+    IdOperador          INT           NULL,
+    FechaCreacion       DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
+
+    CONSTRAINT FK_Evidencia_Estudio FOREIGN KEY (IdEstudio)
+        REFERENCES EstudiosCredito(IdEstudio)
+);</code></pre>
+
+    <h3>Diccionario de columnas</h3>
+    <table>
+      <thead>
+        <tr><th>Columna</th><th>Tipo</th><th>NULL</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>IdEvidencia</code></td><td>INT IDENTITY</td><td class="null-no">NO</td><td>PK autoincremental</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>INT FK</td><td class="null-no">NO</td><td>Estudio al que pertenece la evidencia</td></tr>
+        <tr><td><code>TipoEvidencia</code></td><td>VARCHAR(30) CHECK</td><td class="null-no">NO</td><td>Ver tabla de tipos abajo</td></tr>
+        <tr><td><code>NombreArchivo</code></td><td>VARCHAR(255)</td><td class="null-yes">SÍ</td><td>Nombre original del archivo subido</td></tr>
+        <tr><td><code>RutaAlmacenamiento</code></td><td>VARCHAR(500)</td><td class="null-yes">SÍ</td><td>Path o URL al blob storage (Azure Blob / S3)</td></tr>
+        <tr><td><code>MimeType</code></td><td>VARCHAR(100)</td><td class="null-yes">SÍ</td><td>Tipo MIME del archivo (p.ej. <code>application/pdf</code>)</td></tr>
+        <tr><td><code>TamanoBytes</code></td><td>BIGINT</td><td class="null-yes">SÍ</td><td>Tamaño del archivo en bytes</td></tr>
+        <tr><td><code>Descripcion</code></td><td>NVARCHAR(500)</td><td class="null-yes">SÍ</td><td>Texto libre del asesor describiendo la evidencia</td></tr>
+        <tr><td><code>IdOperador</code></td><td>INT</td><td class="null-yes">SÍ</td><td>Operador que subió la evidencia</td></tr>
+        <tr><td><code>FechaCreacion</code></td><td>DATETIME2 DEFAULT GETUTCDATE()</td><td class="null-no">NO</td><td>Timestamp UTC de creación</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Tipos de evidencia (TipoEvidencia CHECK)</h3>
+    <table>
+      <thead>
+        <tr><th>Tipo</th><th>Descripción</th><th>Ejemplo de uso</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>COMPROBANTE</code></td><td>Comprobante oficial de una operación</td><td>PDF de pago de cuota inicial, comprobante de desembolso</td></tr>
+        <tr><td><code>NOTA_ASESOR</code></td><td>Nota textual o documento generado por el asesor</td><td>Observación sobre condición especial del cliente</td></tr>
+        <tr><td><code>DOCUMENTO_SOPORTE</code></td><td>Documento externo de soporte requerido</td><td>Carta laboral, desprendible de nómina</td></tr>
+        <tr><td><code>OTRO</code></td><td>Evidencia no clasificada en los tipos anteriores</td><td>Cualquier adjunto fuera de las categorías</td></tr>
+      </tbody>
+    </table>
+
+  </main>
+</body>
+</html>

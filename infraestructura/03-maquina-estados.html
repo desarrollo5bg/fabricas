@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Máquina de Estados — Fábricas de Crédito QUAC v2.6</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#fafbfc;--white:#ffffff;--text:#1a1a2e;--text-secondary:#555770;--border:#e2e5ea;--border-light:#f0f1f4;--accent:#7633ff;--accent-bg:#f3eeff;--red:#dc2626;--red-bg:#fef2f2;--green:#16a34a;--green-bg:#f0fdf4;--amber:#d97706;--amber-bg:#fffbeb;--violet:#7c3aed;--violet-bg:#f5f3ff;--cyan:#0891b2;--cyan-bg:#ecfeff;--code-bg:#f4f5f7;--sidebar-w:280px}
+    *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}body{font-family:"Plus Jakarta Sans",-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased}
+    .sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--white);border-right:1px solid var(--border);overflow-y:auto;padding:24px 0;z-index:50}
+    .sidebar-title{font-size:13px;font-weight:700;color:var(--accent);padding:0 20px 16px;margin-bottom:4px;letter-spacing:-0.01em;border-bottom:1px solid var(--border-light)}
+    .sidebar nav a{display:block;padding:6px 20px;font-size:13px;color:var(--text-secondary);text-decoration:none;border-left:3px solid transparent;transition:all .15s}
+    .sidebar nav a:hover{color:var(--accent);background:var(--accent-bg);border-left-color:var(--accent)}
+    .sidebar nav a.indent{padding-left:36px;font-size:12px}
+    .sidebar nav a.active{color:var(--accent);font-weight:600;border-left-color:var(--accent);background:var(--accent-bg)}
+    .sidebar-section{padding:10px 20px 4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-secondary)}
+    .main{margin-left:var(--sidebar-w);max-width:960px;padding:48px 56px 120px}
+    h1{font-size:32px;font-weight:800;letter-spacing:-.03em;line-height:1.2;margin-bottom:8px}
+    h2{font-size:24px;font-weight:700;letter-spacing:-.02em;margin-top:56px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--border)}
+    h3{font-size:18px;font-weight:600;margin-top:32px;margin-bottom:12px}
+    h4{font-size:15px;font-weight:600;margin-top:24px;margin-bottom:8px}
+    p{margin-bottom:12px;color:var(--text-secondary);font-size:15px}strong{color:var(--text)}
+    .meta{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+    .meta-item{font-size:13px;color:var(--text-secondary)}.meta-item strong{font-weight:600;color:var(--text)}
+    pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:20px 24px;overflow-x:auto;margin:16px 0 20px;font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.65;color:var(--text)}
+    code{font-family:"JetBrains Mono",monospace;font-size:13px;background:var(--code-bg);padding:2px 6px;border-radius:4px}pre code{background:none;padding:0}
+    table{width:100%;border-collapse:collapse;margin:16px 0 20px;font-size:13px}
+    th{background:var(--code-bg);font-weight:600;text-align:left;padding:10px 14px;border-bottom:2px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-secondary)}
+    td{padding:9px 14px;border-bottom:1px solid var(--border-light);color:var(--text)}tr:hover td{background:var(--accent-bg)}td code{font-size:12px}
+    ul,ol{margin:8px 0 16px 24px}li{font-size:15px;color:var(--text-secondary);margin-bottom:4px}li strong{color:var(--text)}
+    .badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:.03em}
+    .badge--accent{background:var(--accent-bg);color:var(--accent)}.badge--red{background:var(--red-bg);color:var(--red)}.badge--green{background:var(--green-bg);color:var(--green)}.badge--amber{background:var(--amber-bg);color:var(--amber)}.badge--violet{background:var(--violet-bg);color:var(--violet)}.badge--cyan{background:var(--cyan-bg);color:var(--cyan)}
+    .callout{border-radius:8px;padding:16px 20px;margin:16px 0;font-size:14px}.callout p{margin-bottom:4px}
+    .callout--info{background:var(--accent-bg);border-left:4px solid var(--accent)}.callout--warn{background:var(--amber-bg);border-left:4px solid var(--amber)}.callout--danger{background:var(--red-bg);border-left:4px solid var(--red)}.callout--success{background:var(--green-bg);border-left:4px solid var(--green)}
+    hr{border:none;border-top:1px solid var(--border);margin:40px 0}
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-title">FÁBRICAS DE CRÉDITO v2.6</div>
+    <nav>
+      <div class="sidebar-section">Este archivo</div>
+      <a href="#estados" class="active">Los 15 Estados</a>
+      <a href="#fases" class="indent">7 Fases del flujo</a>
+      <a href="#pasos" class="indent">13 Pasos</a>
+      <a href="#transiciones" class="indent">Transiciones válidas</a>
+      <a href="#diagrama" class="indent">Diagrama ASCII</a>
+      <a href="#canales" class="indent">WEB vs TIENDA</a>
+      <div class="sidebar-section">Otros documentos</div>
+      <a href="index.html">00 · Índice</a>
+      <a href="01-vision-general.html">01 · Visión General</a>
+      <a href="02-diccionario-datos.html">02 · Diccionario de Datos</a>
+      <a href="04-seguridad-antifraude.html">04 · Seguridad y Antifraude</a>
+      <a href="05-fotografias-biometria.html">05 · Fotografías y Biometría</a>
+      <a href="06-servicios-backend.html">06 · Servicios Backend</a>
+      <a href="07-consentimientos-contactabilidad.html">07 · Consentimientos</a>
+      <a href="08-gaps-historial-cambios.html">08 · Gaps e Historial</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <h1>Máquina de Estados</h1>
+    <p style="font-size:17px;color:var(--text);font-weight:500;">15 estados · 7 fases · 13 pasos — DDL v2.5</p>
+    <div class="meta">
+      <div class="meta-item"><strong>Versión</strong> v2.6</div>
+      <div class="meta-item"><strong>Fecha</strong> 2026-04-16</div>
+      <div class="meta-item"><strong>Fuente</strong> FABRICASv2.sql v2.5</div>
+      <div class="meta-item"><strong>Estados</strong> 15</div>
+      <div class="meta-item"><strong>Tablas</strong> CatalogoEstados · TransicionesEstado · FasesEstudio · PasosEstudio</div>
+    </div>
+
+    <!-- ── ESTADOS ─────────────────────────────────────────────────────── -->
+    <h2 id="estados">Los 15 Estados del Sistema</h2>
+    <p>Definidos en <code>CatalogoEstados</code>. El campo <code>Grupo</code> tiene CHECK: <code>INICIAL | PROCESO | TERMINAL</code>.</p>
+
+    <table>
+      <thead>
+        <tr><th>Código</th><th>Nombre</th><th>Grupo</th><th>Terminal</th><th>PermitePausa</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>BORRADOR</code></td><td>Borrador</td><td><span class="badge badge--accent">INICIAL</span></td><td>No</td><td>No</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td>En Progreso</td><td><span class="badge badge--violet">PROCESO</span></td><td>No</td><td>Sí</td></tr>
+        <tr><td><code>PAUSADO</code></td><td>Pausado</td><td><span class="badge badge--violet">PROCESO</span></td><td>No</td><td>No</td></tr>
+        <tr><td><code>PENDIENTE_OTP</code></td><td>Pendiente Validación OTP</td><td><span class="badge badge--violet">PROCESO</span></td><td>No</td><td>Sí</td></tr>
+        <tr><td><code>PENDIENTE_BIOMETRIA</code></td><td>Pendiente Biometría</td><td><span class="badge badge--violet">PROCESO</span></td><td>No</td><td>Sí</td></tr>
+        <tr><td><code>PENDIENTE_CALL</code></td><td>Pendiente Gestión Call Center</td><td><span class="badge badge--violet">PROCESO</span></td><td>No</td><td>No</td></tr>
+        <tr><td><code>PENDIENTE_FOTOS</code></td><td>Pendiente Envío de Fotos</td><td><span class="badge badge--violet">PROCESO</span></td><td>No</td><td>Sí</td></tr>
+        <tr><td><code>FOTOS_EN_REVISION</code></td><td>Fotografías en Revisión Manual</td><td><span class="badge badge--violet">PROCESO</span></td><td>No</td><td>No</td></tr>
+        <tr><td><code>CUPO_PREAPROBADO</code></td><td>Cupo Preaprobado</td><td><span class="badge badge--violet">PROCESO</span></td><td>No</td><td>Sí</td></tr>
+        <tr><td><code>REVISION_FABRICA</code></td><td>En Revisión Manual — Fábrica</td><td><span class="badge badge--violet">PROCESO</span></td><td>No</td><td>No</td></tr>
+        <tr><td><code>APROBADO</code></td><td>Aprobado y Activado</td><td><span class="badge badge--green">TERMINAL</span></td><td>Sí</td><td>No</td></tr>
+        <tr><td><code>RECHAZADO</code></td><td>Rechazado</td><td><span class="badge badge--red">TERMINAL</span></td><td>Sí</td><td>No</td></tr>
+        <tr><td><code>EXPIRADO</code></td><td>Expirado</td><td><span class="badge badge--red">TERMINAL</span></td><td>Sí</td><td>No</td></tr>
+        <tr><td><code>CANCELADO_CLIENTE</code></td><td>Cancelado por el Cliente</td><td><span class="badge badge--red">TERMINAL</span></td><td>Sí</td><td>No</td></tr>
+        <tr><td><code>BLOQUEADO_FRAUDE</code></td><td>Bloqueado por Sospecha de Fraude</td><td><span class="badge badge--red">TERMINAL</span></td><td>Sí</td><td>No</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout--info">
+      <p><strong>Nota v2.5:</strong> <code>REVISION_FABRICA</code> y <code>BLOQUEADO_FRAUDE</code> fueron añadidos en v2.2 (SA-11). <code>PENDIENTE_FOTOS</code> y <code>FOTOS_EN_REVISION</code> en v2.3 (PH-08).</p>
+    </div>
+
+    <!-- ── FASES ──────────────────────────────────────────────────────── -->
+    <h2 id="fases">7 Fases del Flujo</h2>
+    <p>Definidas en <code>FasesEstudio</code>. Ordenadas por <code>OrdenEjecucion</code>.</p>
+
+    <table>
+      <thead>
+        <tr><th>Orden</th><th>Código</th><th>Nombre</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td><code>IDENTIFICACION</code></td><td>Identificación del Cliente</td><td>Ingreso de documento, validación de existencia, verificación de cupo activo/bloqueado</td></tr>
+        <tr><td>2</td><td><code>DATOS_CLIENTE</code></td><td>Datos del Cliente</td><td>Captura o actualización de datos personales y de contacto</td></tr>
+        <tr><td>3</td><td><code>CONSENTIMIENTO_LEGAL</code></td><td>Consentimiento Legal</td><td>Aceptación de términos, autorización de tratamiento de datos, tokenización</td></tr>
+        <tr><td>4</td><td><code>VALIDACIONES_RIESGO</code></td><td>Validaciones de Riesgo</td><td>Listas restrictivas, buró de crédito, Preselecta, FOSYGA</td></tr>
+        <tr><td>5</td><td><code>LIMITE_CREDITO</code></td><td>Límite de Crédito</td><td>Cálculo y presentación del cupo preaprobado</td></tr>
+        <tr><td>6</td><td><code>VERIFICACION_IDENTIDAD</code></td><td>Verificación de Identidad</td><td>Biometría facial, OCR de documento, prueba de vida</td></tr>
+        <tr><td>7</td><td><code>ACTIVACION</code></td><td>Activación del Cupo</td><td>Validación UBICA, activación automática o gestión manual Call Center</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ── PASOS ──────────────────────────────────────────────────────── -->
+    <h2 id="pasos">13 Pasos del Flujo</h2>
+    <p>Definidos en <code>PasosEstudio</code> con referencia a <code>FasesEstudio</code>. <code>Actor</code> CHECK: <code>ASESOR | SISTEMA | CLIENTE | CALL_CENTER</code>.</p>
+
+    <table>
+      <thead>
+        <tr><th>Global</th><th>Código</th><th>Fase</th><th>Actor</th><th>Servicio Externo</th><th>Automático</th><th>Timeout (s)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td><code>INGRESO_DOCUMENTO</code></td><td>IDENTIFICACION</td><td><span class="badge badge--amber">ASESOR</span></td><td>—</td><td>No</td><td>—</td></tr>
+        <tr><td>2</td><td><code>VALIDAR_EXISTENCIA</code></td><td>IDENTIFICACION</td><td><span class="badge badge--accent">SISTEMA</span></td><td>ERP_QUAC</td><td>Sí</td><td>30</td></tr>
+        <tr><td>3</td><td><code>VALIDAR_CUPO_BLOQUEO</code></td><td>IDENTIFICACION</td><td><span class="badge badge--accent">SISTEMA</span></td><td>CORE_CREDITO</td><td>Sí</td><td>30</td></tr>
+        <tr><td>4</td><td><code>CAPTURA_DATOS</code></td><td>DATOS_CLIENTE</td><td><span class="badge badge--amber">ASESOR</span></td><td>—</td><td>No</td><td>—</td></tr>
+        <tr><td>5</td><td><code>CONSENTIMIENTO_DATOS</code></td><td>CONSENTIMIENTO_LEGAL</td><td><span class="badge badge--cyan">CLIENTE</span></td><td>—</td><td>No</td><td>—</td></tr>
+        <tr><td>6</td><td><code>TOKENIZACION</code></td><td>CONSENTIMIENTO_LEGAL</td><td><span class="badge badge--accent">SISTEMA</span></td><td>OTP_PROVIDER</td><td>Sí</td><td>120</td></tr>
+        <tr><td>7</td><td><code>VALIDAR_LISTAS</code></td><td>VALIDACIONES_RIESGO</td><td><span class="badge badge--accent">SISTEMA</span></td><td>LISTAS_RESTRICTIVAS</td><td>Sí</td><td>30</td></tr>
+        <tr><td>8</td><td><code>CONSULTAR_BURO</code></td><td>VALIDACIONES_RIESGO</td><td><span class="badge badge--accent">SISTEMA</span></td><td>BURO_CREDITO</td><td>Sí</td><td>60</td></tr>
+        <tr><td>9</td><td><code>EVALUAR_PRESELECTA</code></td><td>VALIDACIONES_RIESGO</td><td><span class="badge badge--accent">SISTEMA</span></td><td>PRESELECTA</td><td>Sí</td><td>60</td></tr>
+        <tr><td>10</td><td><code>VALIDAR_FOSYGA</code></td><td>VALIDACIONES_RIESGO</td><td><span class="badge badge--accent">SISTEMA</span></td><td>FOSYGA</td><td>Sí</td><td>30</td></tr>
+        <tr><td>11</td><td><code>CALCULAR_CUPO</code></td><td>LIMITE_CREDITO</td><td><span class="badge badge--accent">SISTEMA</span></td><td>MOTOR_CUPO</td><td>Sí</td><td>30</td></tr>
+        <tr><td>12</td><td><code>VERIFICACION_BIOMETRICA</code></td><td>VERIFICACION_IDENTIDAD</td><td><span class="badge badge--accent">SISTEMA</span></td><td>BIOMETRIA</td><td>Sí</td><td>120</td></tr>
+        <tr><td>13</td><td><code>ACTIVACION_CUPO</code></td><td>ACTIVACION</td><td><span class="badge badge--accent">SISTEMA</span></td><td>UBICA</td><td>Sí</td><td>60</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ── TRANSICIONES ───────────────────────────────────────────────── -->
+    <h2 id="transiciones">Transiciones Válidas</h2>
+    <p>Definidas en <code>TransicionesEstado</code>. <code>UQ_Transiciones_OrigenDestino</code> garantiza unicidad. <code>RequiereMotivo = 1</code> implica que <code>HistorialEstados.MotivoTransicion</code> es obligatorio.</p>
+
+    <h3>Transiciones base (seeds iniciales)</h3>
+    <table>
+      <thead>
+        <tr><th>Origen</th><th>Destino</th><th>Req. Motivo</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>BORRADOR</code></td><td><code>EN_PROGRESO</code></td><td>No</td><td>Iniciar procesamiento del estudio</td></tr>
+        <tr><td><code>BORRADOR</code></td><td><code>CANCELADO_CLIENTE</code></td><td>No</td><td>Cancelación voluntaria antes de iniciar</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>PAUSADO</code></td><td>No</td><td>Cliente se retira, pausar estudio</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>PENDIENTE_OTP</code></td><td>No</td><td>Paso de tokenización: esperar OTP</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>PENDIENTE_BIOMETRIA</code></td><td>No</td><td>Paso biométrico: esperar captura</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>PENDIENTE_CALL</code></td><td>Sí</td><td>Fallo automático: derivar a call center</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>CUPO_PREAPROBADO</code></td><td>No</td><td>Cupo calculado exitosamente</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>APROBADO</code></td><td>No</td><td>Todas las validaciones aprobadas, cupo activado</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>RECHAZADO</code></td><td>Sí</td><td>Rechazado por validación de riesgo</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>CANCELADO_CLIENTE</code></td><td>No</td><td>Cancelación voluntaria durante el proceso</td></tr>
+        <tr><td><code>PAUSADO</code></td><td><code>EN_PROGRESO</code></td><td>No</td><td>Cliente regresa, reanudar estudio</td></tr>
+        <tr><td><code>PAUSADO</code></td><td><code>EXPIRADO</code></td><td>No</td><td>Estudio expiró por inactividad</td></tr>
+        <tr><td><code>PAUSADO</code></td><td><code>CANCELADO_CLIENTE</code></td><td>No</td><td>Cancelación voluntaria mientras pausado</td></tr>
+        <tr><td><code>PENDIENTE_OTP</code></td><td><code>EN_PROGRESO</code></td><td>No</td><td>OTP validado exitosamente</td></tr>
+        <tr><td><code>PENDIENTE_OTP</code></td><td><code>PAUSADO</code></td><td>No</td><td>Cliente se retira, pausar</td></tr>
+        <tr><td><code>PENDIENTE_OTP</code></td><td><code>RECHAZADO</code></td><td>Sí</td><td>OTP fallido, intentos agotados</td></tr>
+        <tr><td><code>PENDIENTE_BIOMETRIA</code></td><td><code>EN_PROGRESO</code></td><td>No</td><td>Biometría validada exitosamente</td></tr>
+        <tr><td><code>PENDIENTE_BIOMETRIA</code></td><td><code>PAUSADO</code></td><td>No</td><td>Cliente se retira, pausar</td></tr>
+        <tr><td><code>PENDIENTE_BIOMETRIA</code></td><td><code>PENDIENTE_CALL</code></td><td>Sí</td><td>Biometría fallida, derivar a call center</td></tr>
+        <tr><td><code>PENDIENTE_BIOMETRIA</code></td><td><code>RECHAZADO</code></td><td>Sí</td><td>Biometría rechazada definitivamente</td></tr>
+        <tr><td><code>PENDIENTE_CALL</code></td><td><code>EN_PROGRESO</code></td><td>No</td><td>Call center resuelve exitosamente</td></tr>
+        <tr><td><code>PENDIENTE_CALL</code></td><td><code>APROBADO</code></td><td>No</td><td>Call center aprueba y activa directamente</td></tr>
+        <tr><td><code>PENDIENTE_CALL</code></td><td><code>RECHAZADO</code></td><td>Sí</td><td>Call center rechaza la solicitud</td></tr>
+        <tr><td><code>CUPO_PREAPROBADO</code></td><td><code>EN_PROGRESO</code></td><td>No</td><td>Continuar a verificación de identidad</td></tr>
+        <tr><td><code>CUPO_PREAPROBADO</code></td><td><code>PAUSADO</code></td><td>No</td><td>Cliente se retira, pausar</td></tr>
+        <tr><td><code>CUPO_PREAPROBADO</code></td><td><code>CANCELADO_CLIENTE</code></td><td>No</td><td>Cancelación voluntaria con cupo preaprobado</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Transiciones v2.2 — Fraude y Escalamiento (SA-11)</h3>
+    <table>
+      <thead>
+        <tr><th>Origen</th><th>Destino</th><th>Req. Motivo</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>REVISION_FABRICA</code></td><td>Sí</td><td>Anomalía detectada: derivar a revisión manual por fábrica de crédito</td></tr>
+        <tr><td><code>PENDIENTE_CALL</code></td><td><code>REVISION_FABRICA</code></td><td>Sí</td><td>Call center no puede resolver: escala a revisión fábrica</td></tr>
+        <tr><td><code>REVISION_FABRICA</code></td><td><code>EN_PROGRESO</code></td><td>Sí</td><td>Asesor de fábrica resuelve: devolver al flujo automático</td></tr>
+        <tr><td><code>REVISION_FABRICA</code></td><td><code>RECHAZADO</code></td><td>Sí</td><td>Asesor de fábrica determina rechazo definitivo</td></tr>
+        <tr><td><code>REVISION_FABRICA</code></td><td><code>BLOQUEADO_FRAUDE</code></td><td>Sí</td><td>Asesor de fábrica confirma sospecha de fraude</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>BLOQUEADO_FRAUDE</code></td><td>Sí</td><td>Regla de fraude crítica: bloqueo automático inmediato</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Transiciones v2.3 — Ciclo de Fotografías (PH-08)</h3>
+    <table>
+      <thead>
+        <tr><th>Origen</th><th>Destino</th><th>Req. Motivo</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>PENDIENTE_FOTOS</code></td><td>Sí</td><td>Foto obligatoria faltante o rechazada: sistema envía link de re-carga al cliente</td></tr>
+        <tr><td><code>PENDIENTE_BIOMETRIA</code></td><td><code>PENDIENTE_FOTOS</code></td><td>Sí</td><td>Desde paso biométrico: foto rechazada o de calidad insuficiente para Rekognition</td></tr>
+        <tr><td><code>PENDIENTE_FOTOS</code></td><td><code>FOTOS_EN_REVISION</code></td><td>No</td><td>Cliente subió todas las fotos pendientes: pasan a revisión del asesor</td></tr>
+        <tr><td><code>FOTOS_EN_REVISION</code></td><td><code>EN_PROGRESO</code></td><td>No</td><td>Asesor aprobó todas las fotografías: proceso de crédito se reanuda automáticamente</td></tr>
+        <tr><td><code>FOTOS_EN_REVISION</code></td><td><code>PENDIENTE_FOTOS</code></td><td>Sí</td><td>Asesor rechazó una o más fotografías: se genera nuevo link de re-carga al cliente</td></tr>
+        <tr><td><code>FOTOS_EN_REVISION</code></td><td><code>RECHAZADO</code></td><td>Sí</td><td>Asesor determina rechazo definitivo por fotografías: suplantación, documento falso, etc.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ── DIAGRAMA ASCII ─────────────────────────────────────────────── -->
+    <h2 id="diagrama">Diagrama de Flujo (ASCII)</h2>
+    <p>Vista simplificada del camino feliz y los principales desvíos. Los estados terminales están marcados con <code>[T]</code>.</p>
+    <pre><code>
+ BORRADOR
+    │
+    ▼
+ EN_PROGRESO ──────────────────────────────────────────────────────────────────┐
+    │                                                                           │
+    ├──► PAUSADO ◄──────────────────────────────────────────────────────────── │
+    │       │ (cliente regresa)                                                 │
+    │       ▼                                                                   │
+    ├──► PENDIENTE_OTP                                                          │
+    │       │ (OTP ok)                                                          │
+    │       ▼                                                                   │
+    │   EN_PROGRESO ──────────────────────────────────────────────────────── ──┤
+    │                                                                           │
+    ├──► PENDIENTE_BIOMETRIA                                                    │
+    │       │ (biometría ok)         ┌──► PENDIENTE_FOTOS                      │
+    │       ▼                        │         │ (fotos ok)                     │
+    │   EN_PROGRESO ─────────────────┘         ▼                               │
+    │                                     FOTOS_EN_REVISION                    │
+    │                                          │ (asesor aprueba)              │
+    │                                          ▼                               │
+    ├──► CUPO_PREAPROBADO                  EN_PROGRESO ──────────────────── ───┤
+    │       │                                                                   │
+    │       ▼                                                                   │
+    │   EN_PROGRESO                                                             │
+    │                                                                           │
+    ├──► PENDIENTE_CALL                                                         │
+    │       │ (resuelto)                                                        │
+    │       ▼                                                                   │
+    │   EN_PROGRESO / APROBADO [T]                                              │
+    │                                                                           │
+    ├──► REVISION_FABRICA                                                       │
+    │       ├──► EN_PROGRESO (devuelto al flujo)                                │
+    │       ├──► RECHAZADO [T]                                                  │
+    │       └──► BLOQUEADO_FRAUDE [T]                                           │
+    │                                                                           │
+    ├──► RECHAZADO [T] ◄────────────────────────────────────────────────────── ┘
+    ├──► APROBADO [T]
+    ├──► CANCELADO_CLIENTE [T]
+    ├──► EXPIRADO [T]
+    └──► BLOQUEADO_FRAUDE [T]
+    </code></pre>
+
+    <!-- ── CANALES ─────────────────────────────────────────────────────── -->
+    <h2 id="canales">Diferencias WEB vs TIENDA</h2>
+    <p>El canal de origen (<code>EstudiosCredito.IdCanal</code> → <code>CatalogoCanalesOrigen</code>) determina el flujo de autenticación y qué actor inicia los pasos.</p>
+
+    <table>
+      <thead>
+        <tr><th>Aspecto</th><th>Canal WEB</th><th>Canal TIENDA</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>JWT claim <code>origen</code></td><td><code>LoginWeb</code></td><td><code>LoginTienda</code></td></tr>
+        <tr><td>Actor en paso 1 (INGRESO_DOCUMENTO)</td><td>CLIENTE (autoservicio)</td><td>ASESOR (presencial)</td></tr>
+        <tr><td>Validación de identidad del actor</td><td>No aplica</td><td><code>ValidacionesAsesor</code> (biometría facial)</td></tr>
+        <tr><td>FK en EstudiosCredito</td><td><code>IdValidacionAsesor</code> = NULL</td><td><code>IdValidacionAsesor</code> → ValidacionesAsesor</td></tr>
+        <tr><td>Captura de datos (paso 4)</td><td>El cliente lo llena</td><td>El asesor asiste al cliente</td></tr>
+        <tr><td>Consentimiento (paso 5)</td><td>Aceptación digital</td><td>Firma asistida en dispositivo</td></tr>
+        <tr><td>Registro en AuditoriaLogins</td><td><code>OrigenLogin = 'LoginWeb'</code></td><td><code>OrigenLogin = 'LoginTienda'</code></td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout--warn">
+      <p><strong>GAP-04:</strong> El claim del JWT para tienda es <code>LoginTienda</code> (no <code>LoginBodega</code>). El seed en <code>ConfiguracionReglasNegocio</code> tiene <code>Codigo = 'JWT_ORIGEN_TIENDA'</code>, valor <code>'LoginTienda'</code>.</p>
+    </div>
+  </main>
+</body>
+</html>
