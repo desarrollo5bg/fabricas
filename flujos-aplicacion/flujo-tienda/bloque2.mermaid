@@ -1,0 +1,48 @@
+flowchart TD
+
+A{Cliente tiene cupo}
+
+A -- Si --> B{Cupo bloqueado}
+A -- No --> M{Cupo eliminado recientemente}
+
+B -- No --> C[Cierre Cupo activo]
+
+B -- Si --> D{Tiene mora}
+
+D -- Si --> E[Cierre No aplica por mora]
+D -- No --> F{Compras recientes}
+
+F -- No --> X[Validar estudio vigente]
+
+F -- Si --> G{Tiene documentos y selfie}
+
+G -- No --> X
+
+G -- Si --> H{Cambios recientes en datos}
+
+H -- No --> I[Validar antecedentes y reportes]
+H -- Si --> X
+
+I --> J{Cumple condiciones}
+
+J -- Si --> K[Cierre Cupo desbloqueado]
+J -- No --> L[Cierre No viable desbloqueo]
+
+M -- Si --> N{Datos cambiaron}
+M -- No --> X
+
+N -- No --> O[Enviar token identidad]
+N -- Si --> X
+
+O --> P{Token valido}
+
+P -- Si --> Q[Cierre Cupo reactivado]
+P -- No --> R[Reintento o finalizar]
+
+X --> S{Tiene estudio ultimos 90 dias}
+
+S -- Si --> T{Permite retomar}
+S -- No --> W[Ir Bloque 3 Inicio estudio]
+
+T -- Si --> U[Retomar solicitud]
+T -- No --> V[Cierre Estudio no viable]

@@ -1,0 +1,44 @@
+flowchart TD
+
+A[Inicio Bloque 4 Evaluacion inicial]
+
+A --> B[Ejecutar modelo preselecta]
+
+B --> C{Cliente viable en preselecta}
+
+C -- No --> D[Cierre No viable por preselecta]
+
+C -- Si --> E{Caso especial}
+
+E -- No --> H[Marcar solicitud preaprobada]
+
+E -- Si --> F[Validar cotizante o historial]
+
+F --> G{Cumple al menos una condicion}
+
+G -- No --> I[Cierre Credito no aprobado]
+
+G -- Si --> H
+
+H --> J[Calcular cupo preliminar]
+
+J --> K{Cupo disponible ahora}
+
+K -- Si --> L[Mostrar valor cupo]
+
+K -- No --> M[Mostrar estado preaprobado]
+
+L --> N[Solicitar direccion]
+M --> N
+
+N --> O{Direccion registrada}
+
+O -- Si --> P[Ir Bloque 5 Validacion identidad]
+
+O -- No --> Q[Pendiente cliente]
+
+Q --> R{Retoma antes 90 dias}
+
+R -- Si --> N
+
+R -- No --> S[Cierre Expirada por inactividad]
