@@ -119,7 +119,7 @@ BEGIN
     );
     PRINT '✓ Tabla FasesEstudio creada';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 1.2 PasosEstudio: Los 13 pasos individuales del flujo
@@ -151,7 +151,7 @@ BEGIN
     CREATE INDEX IX_PasosEstudio_Fase ON PasosEstudio(IdFase);
     PRINT '✓ Tabla PasosEstudio creada';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 1.3 CatalogoEstados: Todos los estados posibles del estudio
@@ -170,11 +170,11 @@ BEGIN
         
         CONSTRAINT PK_CatalogoEstados PRIMARY KEY (IdEstado),
         CONSTRAINT UQ_CatalogoEstados_Codigo UNIQUE (Codigo),
-        CONSTRAINT CK_CatalogoEstados_Grupo CHECK (Grupo IN ('INICIAL','PROCESO','TERMINAL'))
+        CONSTRAINT CK_CatalogoEstados_Grupo CHECK (Grupo IN ('INICIAL','PROCESO','TERMINAL','BLOQUEO','REACTIVACION'))
     );
     PRINT '✓ Tabla CatalogoEstados creada';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 1.4 TransicionesEstado: Máquina de estados - transiciones válidas
@@ -196,7 +196,7 @@ BEGIN
     );
     PRINT '✓ Tabla TransicionesEstado creada';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 1.5 ConfiguracionReglasNegocio: Parámetros configurables del sistema
@@ -224,7 +224,7 @@ BEGIN
     );
     PRINT '✓ Tabla ConfiguracionReglasNegocio creada';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 1.6 CatalogoCanalesOrigen: Catálogo de canales por los que ingresa el cliente
@@ -246,7 +246,7 @@ BEGIN
     );
     PRINT '✓ Tabla CatalogoCanalesOrigen creada';
 END
-GO
+
 
 
 -- ==============================================================================
@@ -297,7 +297,7 @@ BEGIN
     
     PRINT '✓ Tabla TercerosFabricas creada exitosamente';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 2.2 Modificar QUAC.dbo.KCRM_CadenaCreditos: Añadir estados de fábricas
@@ -310,28 +310,28 @@ BEGIN
     ALTER TABLE QUAC.dbo.KCRM_CadenaCreditos ADD EstadoActualFabricas VARCHAR(20) NULL;
     PRINT '✓ Columna EstadoActualFabricas añadida a KCRM_CadenaCreditos';
 END
-GO
+
 
 IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'QUAC.dbo.KCRM_CadenaCreditos') AND name = 'MotivoBloqueoFabricas')
 BEGIN
     ALTER TABLE QUAC.dbo.KCRM_CadenaCreditos ADD MotivoBloqueoFabricas VARCHAR(50) NULL;
     PRINT '✓ Columna MotivoBloqueoFabricas añadida a KCRM_CadenaCreditos';
 END
-GO
+
 
 IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'QUAC.dbo.KCRM_CadenaCreditos') AND name = 'FechaCancelacionFabricas')
 BEGIN
     ALTER TABLE QUAC.dbo.KCRM_CadenaCreditos ADD FechaCancelacionFabricas DATETIME2 NULL;
     PRINT '✓ Columna FechaCancelacionFabricas añadida a KCRM_CadenaCreditos';
 END
-GO
+
 
 IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'QUAC.dbo.KCRM_CadenaCreditos') AND name = 'ElegibleReactivacion')
 BEGIN
     ALTER TABLE QUAC.dbo.KCRM_CadenaCreditos ADD ElegibleReactivacion BIT NOT NULL DEFAULT 0;
     PRINT '✓ Columna ElegibleReactivacion añadida a KCRM_CadenaCreditos';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 2.3 Modificar QUAC.dbo.BERP_FABRICASOperadores: Añadir campos de control
@@ -343,7 +343,7 @@ BEGIN
     ALTER TABLE QUAC.dbo.BERP_FABRICASOperadores ADD Activo BIT NOT NULL DEFAULT 1;
     PRINT '✓ Columna Activo añadida a BERP_FABRICASOperadores';
 END
-GO
+
 
 
 -- ==============================================================================
@@ -581,7 +581,7 @@ BEGIN
     
     PRINT '✓ Tabla RegistrosBiometria creada';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 3.5 ValidacionesContactabilidad: UBICA y gestión manual
@@ -706,7 +706,7 @@ BEGIN
     
     PRINT '✓ Tabla EvidenciasFabrica creada';
 END
-GO
+
 
 
 -- ==============================================================================
@@ -751,7 +751,7 @@ BEGIN
     
     PRINT '✓ Tabla HistorialEstados creada';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 4.2 AuditoriaCambiosDatos: Registro de cambios en datos mutables
@@ -781,7 +781,7 @@ BEGIN
     
     PRINT '✓ Tabla AuditoriaCambiosDatos creada';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 4.3 RegistroServiciosExternos: Logging de invocaciones a servicios
@@ -822,7 +822,7 @@ BEGIN
     
     PRINT '✓ Tabla RegistroServiciosExternos creada';
 END
-GO
+
 
 
 -- ==============================================================================
@@ -876,7 +876,7 @@ BEGIN
     );
     PRINT '✓ Tabla CatalogoReglasFraude creada';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 5.2  CatalogoMotivosEscalamiento — tipificación de razones de escalamiento manual
@@ -905,7 +905,7 @@ BEGIN
     );
     PRINT '✓ Tabla CatalogoMotivosEscalamiento creada';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 5.3  AlertasFraude — registro inmutable de alertas disparadas por reglas de negocio
@@ -953,7 +953,7 @@ BEGIN
 
     PRINT '✓ Tabla AlertasFraude creada';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 5.4  EscalamientosFabrica — registro transaccional de escalamientos a revisión manual
@@ -1014,7 +1014,7 @@ BEGIN
 
     PRINT '✓ Tabla EscalamientosFabrica creada';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 5.5  LogValidacionesOTP — log granular de cada intento individual de OTP
@@ -1053,7 +1053,7 @@ BEGIN
 
     PRINT '✓ Tabla LogValidacionesOTP creada';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 5.6  HistorialDatosSensibles — trazabilidad de mutaciones de campos de contacto
@@ -1096,7 +1096,7 @@ BEGIN
 
     PRINT '✓ Tabla HistorialDatosSensibles creada';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 5.7  EstudiosCredito — columnas de control incorporadas en CREATE TABLE
@@ -1107,7 +1107,7 @@ GO
 --             previenen duplicados sin necesidad de control en base de datos.
 -- ─────────────────────────────────────────────────────────────────────────────
 -- (sin ALTER TABLE — columnas consolidadas en CREATE TABLE, Sección 3.1)
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 5.8  HistorialEstados — IdCorrelacion incorporado en CREATE TABLE
@@ -1115,7 +1115,7 @@ GO
 --             CREATE TABLE de HistorialEstados (Sección 4.1).
 -- ─────────────────────────────────────────────────────────────────────────────
 -- (sin ALTER TABLE — columna consolidada en CREATE TABLE, Sección 4.1)
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 5.9  RetosSeguridad — DireccionEnvio incorporada en CREATE TABLE
@@ -1123,7 +1123,7 @@ GO
 --             CREATE TABLE de RetosSeguridad (Sección 3.2).
 -- ─────────────────────────────────────────────────────────────────────────────
 -- (sin ALTER TABLE — columna consolidada en CREATE TABLE, Sección 3.2)
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 5.10 ValidacionesContactabilidad — IdAlertaFraude y FK física (SA-10)
@@ -1144,7 +1144,7 @@ BEGIN
         FOREIGN KEY (IdAlertaFraude) REFERENCES AlertasFraude(IdAlerta);
     PRINT '✓ ValidacionesContactabilidad: FK FK_ValidContact_AlertaFraude añadida';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 5.11 NUEVO ESTADO: REVISION_FABRICA — estado faltante en CatalogoEstados
@@ -1159,7 +1159,7 @@ BEGIN
             'Estudio derivado a revisión manual por asesor de fábrica de crédito, usualmente por alerta de fraude o anomalía en el flujo');
     PRINT '✓ Estado REVISION_FABRICA insertado en CatalogoEstados';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 5.12 NUEVO ESTADO: BLOQUEADO_FRAUDE — estado terminal por sospecha de fraude
@@ -1173,7 +1173,7 @@ BEGIN
             'Solicitud bloqueada por detección de patrón de fraude. Requiere investigación por área de seguridad.');
     PRINT '✓ Estado BLOQUEADO_FRAUDE insertado en CatalogoEstados';
 END
-GO
+
 
 -- ==============================================================================
 -- ══════════════════════════════════════════════════════════════════════════════
@@ -1198,31 +1198,259 @@ BEGIN
     
     PRINT '✓ Seeds insertados en FasesEstudio';
 END
-GO
 
+
+-- ==============================================================================
+-- SECCIÓN 6.2 (ACTUALIZADA): ESTADOS DEL PROCESO DE CRÉDITO
+-- Total: 23 estados — cubre pre-estudio, estudo formal, reactivarón y rechazos específicos
+-- ==============================================================================
+-- AGRUPACIÓN POR GRUPO:
+--   INICIAL     = Estados de entrada (antes de Preselecta)
+--   PROCESO     = Estados transaccionales mientras el estudio está activo
+--   TERMINAL    = Estados de cierre (viables y no viables)
+--   BLOQUEO     = Estados de bloqueo (cupo activo, mora, fraude)
+--   REACTIVACION= Estados de reactivación de cupos cancelados
+--
+--  NUEVOS ESTADOS v2.6:
+--    - CUPO_YA_ACTIVO, DESBLOQUEADO, REACTIVADO
+--    - NO_APLICA_MORA, NO_VIABLE_ANTECEDENTES_PREVIO, EXPIRADO_PREVIO
+--    - NO_VIABLE_ANTECEDENTES, NO_VIABLE_CENTRALES, NO_APLICA_CUPO
+--    - PENDIENTE_VALIDACION_AUTOMATICA, EN_FABRICA
+--
+--  NOTA: Se insertan de uno en uno para compatibilidad con datos existentes
+--        (el bulk insert IF NOT EXISTS no funciona si ya hay datos de versiones anteriores)
 -- ─────────────────────────────────────────────────────────────────────────────
--- 6.2 Insertar CatalogoEstados (11 estados base + 2 nuevos en sección 5)
--- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM CatalogoEstados)
+
+ -- INICIAL: Borrador (validación previa)
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'BORRADOR')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion) VALUES
-    ('BORRADOR',            'Borrador',                         'INICIAL',  0, 0, 'Solicitud iniciada, documento ingresado pero aún sin procesar'),
-    ('EN_PROGRESO',         'En Progreso',                      'PROCESO',  0, 1, 'Estudio en ejecución activa de pasos automáticos'),
-    ('PAUSADO',             'Pausado',                          'PROCESO',  0, 0, 'Cliente se retiró de la tienda; estudio en espera de reanudación'),
-    ('PENDIENTE_OTP',       'Pendiente Validación OTP',         'PROCESO',  0, 1, 'Esperando que el cliente valide el token de seguridad'),
-    ('PENDIENTE_BIOMETRIA', 'Pendiente Biometría',              'PROCESO',  0, 1, 'Esperando captura y validación biométrica'),
-    ('PENDIENTE_CALL',      'Pendiente Gestión Call Center',    'PROCESO',  0, 0, 'Derivado a call center por fallo en automatización'),
-    ('PENDIENTE_FOTOS',     'Pendiente Envío de Fotos',         'PROCESO',  0, 1, 'Esperando que el cliente envíe fotos para validación manual'),
-    ('FOTOS_EN_REVISION',   'Fotos en Revisión Manual',         'PROCESO',  0, 0, 'Fotos recibidas, en revisión manual por el equipo de crédito'),
-    ('CUPO_PREAPROBADO',    'Cupo Preaprobado',                 'PROCESO',  0, 1, 'Cupo calculado exitosamente, pendiente verificación de identidad'),
-    ('APROBADO',            'Aprobado y Activado',              'TERMINAL', 1, 0, 'Cupo activado exitosamente, disponible para uso'),
-    ('RECHAZADO',           'Rechazado',                        'TERMINAL', 1, 0, 'Solicitud rechazada por alguna validación'),
-    ('EXPIRADO',            'Expirado',                         'TERMINAL', 1, 0, 'Solicitud expirada por inactividad'),
-    ('CANCELADO_CLIENTE',   'Cancelado por el Cliente',         'TERMINAL', 1, 0, 'El cliente solicitó cancelar el proceso voluntariamente');
-    
-    PRINT '✓ Seeds insertados en CatalogoEstados';
+    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    VALUES ('BORRADOR', 'En Validación Previa', 'INICIAL', 0, 0,
+     'El cliente se encuentra en pasos iniciales: identificación, creación, validacion de cupo o preparacion para estudio.');
+    PRINT '✓ Estado BORRADOR insertado';
 END
-GO
+
+ -- INICIAL: Pendiente Cliente Previo
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_CLIENTE_PREVIO')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    VALUES ('PENDIENTE_CLIENTE_PREVIO', 'Pendiente Cliente — Previo', 'INICIAL', 0, 1,
+     'Se requiere una accion del cliente antes de crear la solicitud formal: completar datos, corregir correo, recibir token, validar identidad, etc.');
+    PRINT '✓ Estado PENDIENTE_CLIENTE_PREVIO insertado';
+END
+
+ -- INICIAL: Expirado Previo
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'EXPIRADO_PREVIO')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    VALUES ('EXPIRADO_PREVIO', 'Expirada — Previo', 'INICIAL', 1, 0,
+     'El proceso previo no continuo dentro del tiempo permitido o agoto intentos criticos antes de solicitud formal.');
+    PRINT '✓ Estado EXPIRADO_PREVIO insertado';
+END
+
+ -- BLOQUEO: Cupo Ya Activo
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'CUPO_YA_ACTIVO')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    VALUES ('CUPO_YA_ACTIVO', 'Cupo Ya Activo', 'BLOQUEO', 1, 0,
+     'El cliente ya cuenta con cupo disponible y no requiere nuevo estudio.');
+    PRINT '✓ Estado CUPO_YA_ACTIVO insertado';
+END
+
+ -- BLOQUEO: No Aplica Por Mora
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'NO_APLICA_MORA')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    VALUES ('NO_APLICA_MORA', 'No Aplica — Por Mora', 'BLOQUEO', 1, 0,
+     'No puede continuar por cartera en mora u otra restriccion previa.');
+    PRINT '✓ Estado NO_APLICA_MORA insertado';
+END
+
+ -- REACTIVACION: Desbloqueado
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'DESBLOQUEADO')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    VALUES ('DESBLOQUEADO', 'Desbloqueado', 'REACTIVACION', 0, 0,
+     'Se rehabilito un cupo bloqueado sin iniciar una nueva solicitud formal.');
+    PRINT '✓ Estado DESBLOQUEADO insertado';
+END
+
+ -- REACTIVACION: Reactivado
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'REACTIVADO')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    VALUES ('REACTIVADO', 'Reactivado', 'REACTIVACION', 0, 0,
+     'Se reactivo un cupo eliminado previamente bajo reglas definidas.');
+    PRINT '✓ Estado REACTIVADO insertado';
+END
+
+ -- PROCESO: En Progreso
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'EN_PROGRESO')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    VALUES ('EN_PROGRESO', 'En Proceso', 'PROCESO', 0, 1,
+     'La solicitud avanza normalmente entre validaciones, reglas y bloques del flujo.');
+    PRINT '✓ Estado EN_PROGRESO insertado';
+END
+
+ -- PROCESO: Pausado
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'PAUSADO')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    VALUES ('PAUSADO', 'Pausado', 'PROCESO', 0, 0,
+     'El cliente se retiro de la tienda o del portal; estudio en espera de reanudacion.');
+    PRINT '✓ Estado PAUSADO insertado';
+END
+
+ -- PROCESO: Pendiente Cliente
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_CLIENTE')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    VALUES ('PENDIENTE_CLIENTE', 'Pendiente Cliente', 'PROCESO', 0, 1,
+     'Se requiere accion del cliente para continuar: direccion, captura documental, biometria, token final, etc.');
+    PRINT '✓ Estado PENDIENTE_CLIENTE insertado';
+END
+
+ -- PROCESO: Pendiente OTP
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_OTP')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    VALUES ('PENDIENTE_OTP', 'Pendiente Validacion OTP', 'PROCESO', 0, 1,
+     'Esperando que el cliente valide el token de seguridad.');
+    PRINT '✓ Estado PENDIENTE_OTP insertado';
+END
+
+ -- PROCESO: Pendiente Biometria
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_BIOMETRIA')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    VALUES ('PENDIENTE_BIOMETRIA', 'Pendiente Biometria', 'PROCESO', 0, 1,
+     'Esperando captura y validacion biometrica.');
+    PRINT '✓ Estado PENDIENTE_BIOMETRIA insertado';
+END
+
+ -- PROCESO: Pendiente Fotos
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_FOTOS')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    VALUES ('PENDIENTE_FOTOS', 'Pendiente Envio de Fotos', 'PROCESO', 0, 1,
+     'Esperando que el cliente envie fotos para validacion manual.');
+    PRINT '✓ Estado PENDIENTE_FOTOS insertado';
+END
+
+ -- PROCESO: Fotos en Revision
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'FOTOS_EN_REVISION')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    VALUES ('FOTOS_EN_REVISION', 'Fotos en Revision Manual', 'PROCESO', 0, 0,
+     'Fotos recibidas, en revision manual por el equipo de credito.');
+    PRINT '✓ Estado FOTOS_EN_REVISION insertado';
+END
+
+ -- PROCESO: Pendiente Validacion Automatica
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    VALUES ('PENDIENTE_VALIDACION_AUTOMATICA', 'Pendiente Validacion Automatica', 'PROCESO', 0, 1,
+     'La solicitud esta esperando respuesta de motores, integraciones o procesos automaticos externos.');
+    PRINT '✓ Estado PENDIENTE_VALIDACION_AUTOMATICA insertado';
+END
+
+ -- PROCESO: En Fabrica
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'EN_FABRICA')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    VALUES ('EN_FABRICA', 'En Fabrica de Soporte', 'PROCESO', 0, 0,
+     'Caso enviado a gestion manual por excepcion, novedad o validacion no concluyente.');
+    PRINT '✓ Estado EN_FABRICA insertado';
+END
+
+ -- PROCESO: Cupo Preaprobado
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'CUPO_PREAPROBADO')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    VALUES ('CUPO_PREAPROBADO', 'Cupo Preaprobado', 'PROCESO', 0, 1,
+     'Cupo calculado exitosamente, pendiente verificacion de identidad.');
+    PRINT '✓ Estado CUPO_PREAPROBADO insertado';
+END
+
+ -- PROCESO: Revision Fabrica (ya existe en secciones anteriores, no duplicar)
+-- Este estado ya se inserta en seccion 5.11, aqui solo verificamos que exista para logs
+
+ -- TERMINAL: Aprobado
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'APROBADO')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    VALUES ('APROBADO', 'Cupo Activado', 'TERMINAL', 1, 0,
+     'Solicitud aprobada y cupo activado exitosamente.');
+    PRINT '✓ Estado APROBADO insertado';
+END
+
+ -- TERMINAL: Rechazado
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'RECHAZADO')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
+    VALUES ('RECHAZADO','Rechazado','TERMINAL',1,0,'Solicitud rechazada por alguna validacion.');
+    PRINT '✓ Estado RECHAZADO insertado';
+END
+
+ -- TERMINAL: No Viable Antecedentes Previo
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'NO_VIABLE_ANTECEDENTES_PREVIO')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
+    VALUES ('NO_VIABLE_ANTECEDENTES_PREVIO','No Viable — Antecedentes (Previo)','TERMINAL',1,0,
+     'Rechazo en validaciones previas por antecedentes o reportes negativos.');
+    PRINT '✓ Estado NO_VIABLE_ANTECEDENTES_PREVIO insertado';
+END
+
+ -- TERMINAL: No Viable Antecedentes
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'NO_VIABLE_ANTECEDENTES')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
+    VALUES ('NO_VIABLE_ANTECEDENTES','No Viable — Antecedentes','TERMINAL',1,0,
+     'Rechazo por antecedentes negativos en solicitud formal.');
+    PRINT '✓ Estado NO_VIABLE_ANTECEDENTES insertado';
+END
+
+ -- TERMINAL: No Viable Centrales
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'NO_VIABLE_CENTRALES')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
+    VALUES ('NO_VIABLE_CENTRALES','No Viable — Centrales','TERMINAL',1,0,
+     'Rechazo por modelo de viabilidad, centrales o preselecta.');
+    PRINT '✓ Estado NO_VIABLE_CENTRALES insertado';
+END
+
+ -- TERMINAL: No Aplica Para Cupo
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'NO_APLICA_CUPO')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
+    VALUES ('NO_APLICA_CUPO','No Aplica — Para Cupo','TERMINAL',1,0,
+     'Cumple viabilidad base, pero no supera reglas complementarias definidas para otorgamiento.');
+    PRINT '✓ Estado NO_APLICA_CUPO insertado';
+END
+
+ -- TERMINAL: Bloqueado Fraude (ya existe en secciones anteriores)
+
+ -- TERMINAL: Expirado
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'EXPIRADO')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
+    VALUES ('EXPIRADO','Expirada','TERMINAL',1,0,'No retomo dentro del tiempo permitido.');
+    PRINT '✓ Estado EXPIRADO insertado';
+END
+
+ -- TERMINAL: Cancelado Cliente
+IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'CANCELADO_CLIENTE')
+BEGIN
+    INSERT INTO CatalogoEstados (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
+    VALUES ('CANCELADO_CLIENTE','Cancelada por Cliente','TERMINAL',1,0,
+     'El cliente desistio voluntariamente durante la solicitud formal.');
+    PRINT '✓ Estado CANCELADO_CLIENTE insertado';
+END
+
+PRINT '✓ Seeds v2.6 insertados en CatalogoEstados (23 estados)';
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 6.3 Insertar PasosEstudio (13 pasos)
@@ -1246,44 +1474,213 @@ BEGIN
     
     PRINT '✓ Seeds insertados en PasosEstudio';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- 6.4 Insertar TransicionesEstado (transiciones válidas)
+-- 6.4 Insertar TransicionesEstado (transiciones válidas v2.6)
+--      Usa códigos de estado para evitar dependencia de IDs hardcoded
 -- ─────────────────────────────────────────────────────────────────────────────
 IF NOT EXISTS (SELECT * FROM TransicionesEstado)
 BEGIN
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion) VALUES
-    (1,  2,  0, 'Iniciar procesamiento del estudio'),
-    (1, 11, 0, 'Cancelación voluntaria antes de iniciar'),
-    (2,  3,  0, 'Cliente se retira, pausar estudio'),
-    (2,  4,  0, 'Paso de tokenización: esperar OTP'),
-    (2,  5,  0, 'Paso biométrico: esperar captura'),
-    (2,  6,  1, 'Fallo automático: derivar a call center'),
-    (2,  7,  0, 'Cupo calculado exitosamente'),
-    (2,  8,  0, 'Todas las validaciones aprobadas, cupo activado'),
-    (2,  9,  1, 'Rechazado por validación de riesgo'),
-    (2, 11, 0, 'Cancelación voluntaria durante el proceso'),
-    (3,  2,  0, 'Cliente regresa, reanudar estudio'),
-    (3, 10, 0, 'Estudio expiró por inactividad'),
-    (3, 11, 0, 'Cancelación voluntaria mientras pausado'),
-    (4,  2,  0, 'OTP validado exitosamente'),
-    (4,  3,  0, 'Cliente se retira, pausar'),
-    (4,  9,  1, 'OTP fallido, intentos agotados'),
-    (5,  2,  0, 'Biometría validada exitosamente'),
-    (5,  3,  0, 'Cliente se retira, pausar'),
-    (5,  6,  1, 'Biometría fallida, derivar a call center'),
-    (5,  9,  1, 'Biometría rechazada definitivamente'),
-    (6,  2,  0, 'Call center resuelve exitosamente'),
-    (6,  8,  0, 'Call center aprueba y activa directamente'),
-    (6,  9,  1, 'Call center rechaza la solicitud'),
-    (7,  2,  0, 'Continuar a verificación de identidad'),
-    (7,  3,  0, 'Cliente se retira, pausar'),
-    (7, 11, 0, 'Cancelación voluntaria con cupo preaprobado');
+    -- Transiciones desde BORRADOR (validación previa)
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Iniciar procesamiento del estudio'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'BORRADOR' AND eDestino.Codigo = 'EN_PROGRESO';
     
-    PRINT '✓ Seeds insertados en TransicionesEstado';
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cancelación voluntaria antes de iniciar'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'BORRADOR' AND eDestino.Codigo = 'CANCELADO_CLIENTE';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cliente se retracta en validación previa'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'BORRADOR' AND eDestino.Codigo = 'PENDIENTE_CLIENTE_PREVIO';
+    
+    -- Transiciones desde PENDIENTE_CLIENTE_PREVIO
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cliente completa datos pendientes'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'PENDIENTE_CLIENTE_PREVIO' AND eDestino.Codigo = 'BORRADOR';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cancelación voluntaria en previo'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'PENDIENTE_CLIENTE_PREVIO' AND eDestino.Codigo = 'CANCELADO_CLIENTE';
+    
+    -- Transiciones desde EN_PROGRESO (estudio activo)
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cliente se retira, pausar estudio'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'PAUSADO';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Esperando validación OTP'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'PENDIENTE_OTP';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Esperando biométrica'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'PENDIENTE_BIOMETRIA';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Esperando fotos del cliente'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'PENDIENTE_FOTOS';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Esperando respuesta de servicio externo'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cupo preaprobado confirmado'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'CUPO_PREAPROBADO';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Todas las validaciones aprobadas'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'APROBADO';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Rechazado por validación de riesgo'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'RECHAZADO';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Rechazo por antecedentes'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'NO_VIABLE_ANTECEDENTES';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Rechazo por centrales/preselecta'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'NO_VIABLE_CENTRALES';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'No aplica para cupo: no supera reglas complementarias'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'NO_APLICA_CUPO';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Derivar a fábrica de soporte'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'EN_FABRICA';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Fraude detectado'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'BLOQUEADO_FRAUDE';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cancelación voluntaria durante el proceso'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'CANCELADO_CLIENTE';
+    
+    -- Transiciones desde PAUSADO
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cliente regresa, reanudar estudio'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'PAUSADO' AND eDestino.Codigo = 'EN_PROGRESO';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Estudio expiró por inactividad'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'PAUSADO' AND eDestino.Codigo = 'EXPIRADO';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cancelación voluntaria mientras pausado'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'PAUSADO' AND eDestino.Codigo = 'CANCELADO_CLIENTE';
+    
+    -- Transiciones desde PENDIENTE_OTP
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'OTP validado exitosamente'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'PENDIENTE_OTP' AND eDestino.Codigo = 'EN_PROGRESO';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cliente se retira, pausar'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'PENDIENTE_OTP' AND eDestino.Codigo = 'PAUSADO';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'OTP fallido, intentos agotados'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'PENDIENTE_OTP' AND eDestino.Codigo = 'RECHAZADO';
+    
+    -- Transiciones desde PENDIENTE_BIOMETRIA
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Biometría validada exitosamente'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'PENDIENTE_BIOMETRIA' AND eDestino.Codigo = 'EN_PROGRESO';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cliente se retira, pausar'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'PENDIENTE_BIOMETRIA' AND eDestino.Codigo = 'PAUSADO';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Biometría fallida, derivar a fábrica'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'PENDIENTE_BIOMETRIA' AND eDestino.Codigo = 'EN_FABRICA';
+    
+    -- Transiciones desde PENDIENTE_FOTOS
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Fotos recibidas, en revisión'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'PENDIENTE_FOTOS' AND eDestino.Codigo = 'FOTOS_EN_REVISION';
+    
+    -- Transiciones desde FOTOS_EN_REVISION
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Asesor aprueba fotos: proceso se reanuda'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'FOTOS_EN_REVISION' AND eDestino.Codigo = 'EN_PROGRESO';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Asesor rechaza fotos: nueva solicitud'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'FOTOS_EN_REVISION' AND eDestino.Codigo = 'PENDIENTE_FOTOS';
+    
+    -- Transiciones desde EN_FABRICA
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Fábrica resuelve: reanudar flujo'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'EN_FABRICA' AND eDestino.Codigo = 'EN_PROGRESO';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Fábrica determina rechazo'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'EN_FABRICA' AND eDestino.Codigo = 'RECHAZADO';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Fábrica detecta fraude'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'EN_FABRICA' AND eDestino.Codigo = 'BLOQUEADO_FRAUDE';
+    
+    -- Transiciones desde PENDIENTE_VALIDACION_AUTOMATICA
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Validación automática exitosa'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA' AND eDestino.Codigo = 'EN_PROGRESO';
+    
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Validación automática fallida'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA' AND eDestino.Codigo = 'EN_FABRICA';
+    
+    -- Transiciones especiales de rechazos específicos
+    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Preselecta rechaza por antecedentes'
+    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'NO_VIABLE_ANTECEDENTES_PREVIO';
+    
+    PRINT '✓ Seeds v2.6 insertados en TransicionesEstado';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 6.5 Insertar ConfiguracionReglasNegocio (reglas iniciales)
@@ -1302,7 +1699,7 @@ BEGIN
     
     PRINT '✓ Seeds insertados en ConfiguracionReglasNegocio';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 6.6 Insertar CatalogoCanalesOrigen (canales iniciales)
@@ -1317,7 +1714,7 @@ BEGIN
     
     PRINT '✓ Seeds insertados en CatalogoCanalesOrigen';
 END
-GO
+
 
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -1362,7 +1759,7 @@ BEGIN
 
     PRINT '✓ Seeds insertados en CatalogoReglasFraude';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 6.8 Insertar CatalogoMotivosEscalamiento (motivos de escalamiento a fábrica)
@@ -1406,7 +1803,7 @@ BEGIN
 
     PRINT '✓ Seeds insertados en CatalogoMotivosEscalamiento';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 6.9 Insertar TransicionesEstado para los nuevos estados (REVISION_FABRICA, BLOQUEADO_FRAUDE)
@@ -1474,7 +1871,7 @@ BEGIN
 END
 
 PRINT '✓ Transiciones para REVISION_FABRICA y BLOQUEADO_FRAUDE insertadas';
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 6.10 Insertar ConfiguracionReglasNegocio — parámetros adicionales para fraude y escalamiento
@@ -1502,7 +1899,7 @@ BEGIN
 
     PRINT '✓ Seeds adicionales insertados en ConfiguracionReglasNegocio';
 END
-GO
+
 
 -- ==============================================================================
 -- ══════════════════════════════════════════════════════════════════════════════
@@ -1580,7 +1977,7 @@ BEGIN
     );
     PRINT '✓ Tabla CatalogoTiposFotografia creada';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 7.2  FotografiasEstudio — tabla UNIFICADA de fotografías biométricas (GAP-07)
@@ -1658,7 +2055,7 @@ BEGIN
 
     PRINT '✓ Tabla FotografiasEstudio creada (GAP-07: diseño unificado biométrico)';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 7.3  RevisionesFotografia — decisiones de revisión por fotografía
@@ -1731,7 +2128,7 @@ BEGIN
 
     PRINT '✓ Tabla RevisionesFotografia creada';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 7.4  SolicitudesRecarga — links de re-carga enviados al cliente
@@ -1816,7 +2213,7 @@ BEGIN
 
     PRINT '✓ Tabla SolicitudesRecarga creada';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 7.5  HistorialFotografias — auditoría inmutable de cambios en FotografiasEstudio
@@ -1884,7 +2281,7 @@ BEGIN
 
     PRINT '✓ Tabla HistorialFotografias creada';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 7.6  EstudiosCredito — FotografiasAprobadas y EstadoRevisionFotos
@@ -1893,7 +2290,7 @@ GO
 --             definidos directamente en el CREATE TABLE (Sección 3.1).
 -- ─────────────────────────────────────────────────────────────────────────────
 -- (sin ALTER TABLE — columnas y constraint consolidados en CREATE TABLE, Sección 3.1)
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 7.7  RegistrosBiometria — FKs físicas a FotografiasEstudio (PH-07)
@@ -1917,7 +2314,7 @@ BEGIN
         FOREIGN KEY (IdFotografiaFrontal) REFERENCES FotografiasEstudio(IdFotografia);
     PRINT '✓ RegistrosBiometria: FK FK_RegistrosBiometria_FotoFrontal añadida';
 END
-GO
+
 
 IF NOT EXISTS (
     SELECT * FROM sys.foreign_keys
@@ -1930,7 +2327,7 @@ BEGIN
         FOREIGN KEY (IdFotografiaReverso) REFERENCES FotografiasEstudio(IdFotografia);
     PRINT '✓ RegistrosBiometria: FK FK_RegistrosBiometria_FotoReverso añadida';
 END
-GO
+
 
 IF NOT EXISTS (
     SELECT * FROM sys.foreign_keys
@@ -1943,7 +2340,7 @@ BEGIN
         FOREIGN KEY (IdFotografiaSelfie) REFERENCES FotografiasEstudio(IdFotografia);
     PRINT '✓ RegistrosBiometria: FK FK_RegistrosBiometria_FotoSelfie añadida';
 END
-GO
+
 
 -- GAP-07: La nueva FotografiasEstudio no referencia RegistrosBiometria ni SolicitudesRecarga
 -- (las FKs inversas de la v2.3 son eliminadas en el rediseño unificado).
@@ -1951,7 +2348,7 @@ GO
 
 -- FK en FotografiasEstudio → SolicitudesRecarga
 -- GAP-07: ELIMINADA — la nueva FotografiasEstudio no tiene IdSolicitudRecarga
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 7.8  NUEVOS ESTADOS — PENDIENTE_FOTOS y FOTOS_EN_REVISION
@@ -1977,7 +2374,7 @@ BEGIN
     );
     PRINT '✓ Estado PENDIENTE_FOTOS insertado en CatalogoEstados';
 END
-GO
+
 
 IF NOT EXISTS (SELECT * FROM CatalogoEstados WHERE Codigo = 'FOTOS_EN_REVISION')
 BEGIN
@@ -1991,7 +2388,7 @@ BEGIN
     );
     PRINT '✓ Estado FOTOS_EN_REVISION insertado en CatalogoEstados';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 7.9  Transiciones de estado para los nuevos estados fotográficos
@@ -2068,7 +2465,7 @@ BEGIN
 END
 
 PRINT '✓ Transiciones PENDIENTE_FOTOS y FOTOS_EN_REVISION insertadas';
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 7.10 Seeds CatalogoTiposFotografia — los 3 tipos obligatorios
@@ -2110,7 +2507,7 @@ BEGIN
 
     PRINT '✓ Seeds insertados en CatalogoTiposFotografia';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 7.11 Seeds ConfiguracionReglasNegocio — parámetros del módulo fotográfico
@@ -2168,7 +2565,7 @@ BEGIN
 
     PRINT '✓ Seeds de parámetros fotográficos insertados en ConfiguracionReglasNegocio';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 7.12 Seeds CatalogoReglasFraude — reglas de fraude fotográfico
@@ -2211,7 +2608,7 @@ BEGIN
 
     PRINT '✓ Seeds de reglas de fraude fotográfico insertados en CatalogoReglasFraude';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 7.13 Seeds CatalogoMotivosEscalamiento — motivos de escalamiento fotográfico
@@ -2255,7 +2652,7 @@ BEGIN
 
     PRINT '✓ Seeds de motivos de escalamiento fotográfico insertados en CatalogoMotivosEscalamiento';
 END
-GO
+
 
 
 -- ==============================================================================
@@ -2346,7 +2743,7 @@ BEGIN
 
     PRINT '✓ Tabla ValidacionesAsesor creada';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 8.2  EstudiosCredito — FK IdValidacionAsesor (C-04)
@@ -2368,7 +2765,7 @@ BEGIN
         FOREIGN KEY (IdValidacionAsesor) REFERENCES ValidacionesAsesor(IdValidacion);
     PRINT '✓ EstudiosCredito: FK FK_EstudiosCredito_ValidacionAsesor añadida';
 END
-GO
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 8.3  Seeds ConfiguracionReglasNegocio — reglas de autenticación JWT por canal
@@ -2399,7 +2796,7 @@ BEGIN
 
     PRINT '✓ Seeds JWT_ORIGEN_WEB y JWT_ORIGEN_TIENDA insertados en ConfiguracionReglasNegocio (GAP-04)';
 END
-GO
+
 
 
 -- ==============================================================================
@@ -2447,7 +2844,7 @@ BEGIN
 
     PRINT '✓ Tabla AuditoriaLogins creada (GAP-15)';
 END
-GO
+
 
 
 /*
