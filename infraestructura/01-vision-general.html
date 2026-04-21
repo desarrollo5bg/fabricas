@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visión General — Fábricas de Crédito QUAC v2.6</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#fafbfc;--white:#ffffff;--text:#1a1a2e;--text-secondary:#555770;--border:#e2e5ea;--border-light:#f0f1f4;--accent:#7633ff;--accent-bg:#f3eeff;--red:#dc2626;--red-bg:#fef2f2;--green:#16a34a;--green-bg:#f0fdf4;--amber:#d97706;--amber-bg:#fffbeb;--violet:#7c3aed;--violet-bg:#f5f3ff;--cyan:#0891b2;--cyan-bg:#ecfeff;--code-bg:#f4f5f7;--sidebar-w:280px; }
+    *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}body{font-family:"Plus Jakarta Sans",-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased}
+    .sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--white);border-right:1px solid var(--border);overflow-y:auto;padding:24px 0;z-index:50}
+    .sidebar-title{font-size:13px;font-weight:700;color:var(--accent);padding:0 20px 16px;margin-bottom:4px;letter-spacing:-0.01em;border-bottom:1px solid var(--border-light)}
+    .sidebar nav a{display:block;padding:6px 20px;font-size:13px;color:var(--text-secondary);text-decoration:none;border-left:3px solid transparent;transition:all .15s}
+    .sidebar nav a:hover{color:var(--accent);background:var(--accent-bg);border-left-color:var(--accent)}
+    .sidebar nav a.indent{padding-left:36px;font-size:12px}
+    .sidebar nav a.active{color:var(--accent);font-weight:600;border-left-color:var(--accent);background:var(--accent-bg)}
+    .sidebar-section{padding:10px 20px 4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-secondary)}
+    .main{margin-left:var(--sidebar-w);max-width:960px;padding:48px 56px 120px}
+    h1{font-size:32px;font-weight:800;letter-spacing:-.03em;line-height:1.2;margin-bottom:8px}
+    h2{font-size:24px;font-weight:700;letter-spacing:-.02em;margin-top:56px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--border)}
+    h3{font-size:18px;font-weight:600;margin-top:32px;margin-bottom:12px}
+    h4{font-size:15px;font-weight:600;margin-top:24px;margin-bottom:8px}
+    p{margin-bottom:12px;color:var(--text-secondary);font-size:15px}strong{color:var(--text)}
+    .meta{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+    .meta-item{font-size:13px;color:var(--text-secondary)}.meta-item strong{font-weight:600;color:var(--text)}
+    pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:20px 24px;overflow-x:auto;margin:16px 0 20px;font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.65;color:var(--text)}
+    code{font-family:"JetBrains Mono",monospace;font-size:13px;background:var(--code-bg);padding:2px 6px;border-radius:4px}pre code{background:none;padding:0}
+    table{width:100%;border-collapse:collapse;margin:16px 0 20px;font-size:13px}
+    th{background:var(--code-bg);font-weight:600;text-align:left;padding:10px 14px;border-bottom:2px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-secondary)}
+    td{padding:9px 14px;border-bottom:1px solid var(--border-light);color:var(--text)}tr:hover td{background:var(--accent-bg)}td code{font-size:12px}
+    ul,ol{margin:8px 0 16px 24px}li{font-size:15px;color:var(--text-secondary);margin-bottom:4px}li strong{color:var(--text)}
+    .badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:.03em}
+    .badge--accent{background:var(--accent-bg);color:var(--accent)}.badge--red{background:var(--red-bg);color:var(--red)}.badge--green{background:var(--green-bg);color:var(--green)}.badge--amber{background:var(--amber-bg);color:var(--amber)}.badge--violet{background:var(--violet-bg);color:var(--violet)}.badge--cyan{background:var(--cyan-bg);color:var(--cyan)}
+    .callout{border-radius:8px;padding:16px 20px;margin:16px 0;font-size:14px}.callout p{margin-bottom:4px}
+    .callout--info{background:var(--accent-bg);border-left:4px solid var(--accent)}.callout--warn{background:var(--amber-bg);border-left:4px solid var(--amber)}.callout--danger{background:var(--red-bg);border-left:4px solid var(--red)}.callout--success{background:var(--green-bg);border-left:4px solid var(--green)}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:20px 0 24px}
+    .card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px;border-left:4px solid var(--accent)}
+    .card--violet{border-left-color:var(--violet)}.card--amber{border-left-color:var(--amber)}.card--green{border-left-color:var(--green)}.card--cyan{border-left-color:var(--cyan)}.card--red{border-left-color:var(--red)}
+    .card h4{margin-top:0;font-size:14px}.card p{font-size:13px;margin:0}
+    hr{border:none;border-top:1px solid var(--border);margin:40px 0}
+    .layer{display:flex;align-items:center;gap:12px;padding:14px 20px;background:var(--white);border:1px solid var(--border);border-radius:8px;margin-bottom:8px}
+    .layer-num{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0}
+    .layer-num--v{background:var(--violet)}.layer-num--c{background:var(--cyan)}.layer-num--g{background:var(--green)}.layer-num--a{background:var(--amber)}
+    .layer h4{margin:0;font-size:14px}.layer p{margin:0;font-size:12px}
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-title">FÁBRICAS DE CRÉDITO v2.6</div>
+    <nav>
+      <div class="sidebar-section">Este archivo</div>
+      <a href="#descripcion" class="active">Descripción del sistema</a>
+      <a href="#canales" class="indent">Canales de origen</a>
+      <a href="#arquitectura" class="indent">Arquitectura en capas</a>
+      <a href="#grupos" class="indent">Grupos funcionales</a>
+      <a href="#tablas" class="indent">Las 29 tablas</a>
+      <div class="sidebar-section">Otros documentos</div>
+      <a href="index.html">00 · Índice</a>
+      <a href="02-diccionario-datos.html">02 · Diccionario de Datos</a>
+      <a href="03-maquina-estados.html">03 · Máquina de Estados</a>
+      <a href="04-seguridad-antifraude.html">04 · Seguridad y Antifraude</a>
+      <a href="05-fotografias-biometria.html">05 · Fotografías y Biometría</a>
+      <a href="06-servicios-backend.html">06 · Servicios Backend</a>
+      <a href="07-consentimientos-contactabilidad.html">07 · Consentimientos</a>
+      <a href="08-gaps-historial-cambios.html">08 · Gaps e Historial</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <h1>Visión General y Arquitectura</h1>
+    <p style="font-size:17px;color:var(--text);font-weight:500;">LOS — Loan Origination System · Fábricas de Crédito QUAC</p>
+    <div class="meta">
+      <div class="meta-item"><strong>Versión</strong> v2.6</div>
+      <div class="meta-item"><strong>Fecha</strong> 2026-04-16</div>
+      <div class="meta-item"><strong>Proyecto</strong> Fábricas de Crédito QUAC</div>
+    </div>
+
+    <h2 id="descripcion">Descripción del sistema LOS</h2>
+    <p>Las <strong>Fábricas de Crédito QUAC</strong> implementan un <strong>Loan Origination System (LOS)</strong> para la originación de crédito al consumo en Colombia. El sistema soporta el ciclo de vida completo de una solicitud de cupo de crédito: desde la identificación del cliente hasta la activación del cupo en el core bancario.</p>
+    <p>El proceso está orquestado por una <strong>máquina de estados finita</strong> parametrizable (15 estados, 40+ transiciones) con soporte para múltiples canales de origen, validaciones de riesgo, verificación biométrica facial, módulo de fotografías y detección de fraude en tiempo real.</p>
+
+    <h2 id="canales">Canales de origen</h2>
+    <p>El sistema soporta tres canales, definidos en la tabla <code>CatalogoCanalesOrigen</code>:</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <h4 style="font-size:13px;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:.04em">Canal WEB</h4>
+        <p style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px;">Autoservicio digital</p>
+        <p>El cliente inicia el proceso desde el portal web o app móvil sin asistencia. No requiere asesor. JWT generado con origen <code>LoginWeb</code>.</p>
+        <p style="margin-top:8px"><span class="badge badge--accent">AUTOSERVICIO</span></p>
+      </div>
+      <div class="card card--violet">
+        <h4 style="font-size:13px;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:.04em">Canal TIENDA</h4>
+        <p style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px;">Punto de venta asistido</p>
+        <p>El asesor asiste al cliente en tienda/bodega. Requiere validación biométrica del asesor (<code>ValidacionesAsesor</code>). JWT con origen <code>LoginTienda</code>.</p>
+        <p style="margin-top:8px"><span class="badge badge--violet">ASISTIDO</span></p>
+      </div>
+      <div class="card card--amber">
+        <h4 style="font-size:13px;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:.04em">Canal EXTERNO</h4>
+        <p style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px;">Fuerza de ventas</p>
+        <p>Originación por vendedores externos o aliados comerciales. Usa <code>kcrm_VendedoresExternos</code> (tabla existente en PRUEBASBD).</p>
+        <p style="margin-top:8px"><span class="badge badge--amber">EXTERNO</span></p>
+      </div>
+    </div>
+
+    <div class="callout callout--info">
+      <p><strong>Canal RENOVACIÓN:</strong> El sistema soporta estudios de reactivación mediante la bandera <code>EsReactivacion = 1</code> en EstudiosCredito y la configuración <code>DIAS_CANCELACION_REACTIV</code> en ConfiguracionReglasNegocio. No es un canal separado en el catálogo.</p>
+    </div>
+
+    <h2 id="arquitectura">Arquitectura en capas</h2>
+    <p>El modelo de datos soporta la siguiente arquitectura de servicios:</p>
+
+    <div style="margin:20px 0">
+      <div class="layer">
+        <div class="layer-num">1</div>
+        <div><h4>API Gateway</h4><p>Autenticación JWT, enrutamiento por canal (LoginWeb / LoginTienda), rate limiting, correlación de requests (IdCorrelacion)</p></div>
+      </div>
+      <div style="text-align:center;color:var(--text-secondary);font-size:13px;padding:4px 0">↕ JWT con claim <code>origen</code></div>
+      <div class="layer">
+        <div class="layer-num layer-num--v">2</div>
+        <div><h4>BFF (Backend for Frontend)</h4><p>Adaptadores por canal. Canal WEB usa flujo autoservicio. Canal TIENDA valida asesor previamente. Construye respuesta optimizada por contexto.</p></div>
+      </div>
+      <div style="text-align:center;color:var(--text-secondary);font-size:13px;padding:4px 0">↕ Servicios internos</div>
+      <div class="layer">
+        <div class="layer-num layer-num--c">3</div>
+        <div><h4>Microservicios de dominio</h4><p>Servicios de: Originación, Biometría (AWS Rekognition), Riesgo (Buró, Preselecta, FOSYGA), OTP (WhatsApp/SMS/Email), Contactabilidad (UBICA), Antifraude</p></div>
+      </div>
+      <div style="text-align:center;color:var(--text-secondary);font-size:13px;padding:4px 0">↕ Dapper + Stored Procedures</div>
+      <div class="layer">
+        <div class="layer-num layer-num--g">4</div>
+        <div><h4>Base de datos — SQL Server 2019+</h4><p>29 tablas propias + tablas existentes QUAC (terceros, bodegas, KCRM_CadenaCreditos, BERP_FABRICASOperadores). Máquina de estados + auditoría inmutable.</p></div>
+      </div>
+    </div>
+
+    <h2 id="grupos">Grupos funcionales</h2>
+    <p>Las 29 tablas del proyecto se organizan en 6 grupos funcionales:</p>
+
+    <table>
+      <thead>
+        <tr><th>Grupo</th><th>Tablas</th><th>Propósito</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge badge--violet">Configuración</span></td>
+          <td>6</td>
+          <td>Parametrizan el flujo: estados, transiciones, fases, pasos, canales, reglas de negocio</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--cyan">Transaccional</span></td>
+          <td>9</td>
+          <td>Registran operaciones del proceso: estudios, retos OTP, biometría, contactabilidad, consentimientos, evidencias, escalamientos, validación asesor, fotografías, solicitudes recarga</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--green">Auditoría</span></td>
+          <td>5</td>
+          <td>Trazabilidad inmutable (INSERT-ONLY): historial de estados, cambios de datos, servicios externos, revisiones de foto, historial de fotos</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--red">Antifraude</span></td>
+          <td>4</td>
+          <td>Detección y trazabilidad de fraude: catálogos de reglas y motivos, alertas (INSERT-ONLY), log OTP (INSERT-ONLY), datos sensibles (INSERT-ONLY)</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--accent">Seguridad</span></td>
+          <td>2</td>
+          <td>ValidacionesAsesor (biometría del asesor) y AuditoriaLogins (todos los intentos de login)</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--amber">Integración</span></td>
+          <td>1</td>
+          <td>TercerosFabricas: fuente de verdad del proceso, sincroniza con QUAC.dbo.terceros</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2 id="tablas">Las 29 tablas del proyecto</h2>
+    <p>Referencia completa de todas las tablas creadas por este proyecto. Las tablas de producción modificadas (<code>KCRM_CadenaCreditos</code>, <code>BERP_FABRICASOperadores</code>) se modifican vía ALTER TABLE y no se listan aquí como tablas propias.</p>
+
+    <table>
+      <thead>
+        <tr><th>Tabla</th><th>Tipo</th><th>Grupo</th><th>Descripción</th><th>Versión</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>FasesEstudio</code></td><td>INT IDENTITY</td><td><span class="badge badge--violet">Config</span></td><td>7 fases macro del proceso de originación</td><td>v2.0</td></tr>
+        <tr><td><code>PasosEstudio</code></td><td>INT IDENTITY</td><td><span class="badge badge--violet">Config</span></td><td>13 pasos individuales del flujo, con actor y servicio externo</td><td>v2.0</td></tr>
+        <tr><td><code>CatalogoEstados</code></td><td>INT IDENTITY</td><td><span class="badge badge--violet">Config</span></td><td>15 estados posibles del estudio (INICIAL/PROCESO/TERMINAL)</td><td>v2.0</td></tr>
+        <tr><td><code>TransicionesEstado</code></td><td>INT IDENTITY</td><td><span class="badge badge--violet">Config</span></td><td>~40 transiciones válidas entre estados</td><td>v2.0</td></tr>
+        <tr><td><code>ConfiguracionReglasNegocio</code></td><td>INT IDENTITY</td><td><span class="badge badge--violet">Config</span></td><td>Parámetros configurables: OTP, biometría, fotos, JWT, riesgo</td><td>v2.0</td></tr>
+        <tr><td><code>CatalogoCanalesOrigen</code></td><td>INT IDENTITY</td><td><span class="badge badge--violet">Config</span></td><td>WEB, TIENDA, EXTERNO</td><td>v2.1</td></tr>
+        <tr><td><code>TercerosFabricas</code></td><td>INT IDENTITY</td><td><span class="badge badge--amber">Integración</span></td><td>Fuente de verdad de clientes, sincroniza con QUAC.dbo.terceros</td><td>v2.0</td></tr>
+        <tr><td><code>EstudiosCredito</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>Tabla central: orquesta el flujo completo del estudio</td><td>v2.0</td></tr>
+        <tr><td><code>RetosSeguridad</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>Tokens OTP: hash, canal, intentos, reenvíos, dirección de envío</td><td>v2.0</td></tr>
+        <tr><td><code>EvaluacionesRiesgo</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>LISTAS, BURO, PRESELECTA, FOSYGA, ANTECEDENTES, UBICA</td><td>v2.0</td></tr>
+        <tr><td><code>RegistrosBiometria</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>Resultados de biometría facial y OCR; FK a las 3 fotos</td><td>v2.0</td></tr>
+        <tr><td><code>ValidacionesContactabilidad</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>Score UBICA, gestión manual Call Center, vínculo alerta fraude</td><td>v2.0</td></tr>
+        <tr><td><code>ConsentimientosLegales</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>Aceptaciones con tipo de firma (OTP/CHECKBOX/FIRMA_DIGITAL)</td><td>v2.0</td></tr>
+        <tr><td><code>EvidenciasFabrica</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>Archivos adjuntos genéricos: COMPROBANTE, NOTA_ASESOR, DOCUMENTO_SOPORTE, OTRO</td><td>v2.1</td></tr>
+        <tr><td><code>EscalamientosFabrica</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>Casos derivados a revisión manual de fábrica de crédito</td><td>v2.2</td></tr>
+        <tr><td><code>FotografiasEstudio</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>SELFIE, DOCUMENTO_FRONTAL, DOCUMENTO_TRASERO con ciclo de vida completo</td><td>v2.3→v2.5</td></tr>
+        <tr><td><code>SolicitudesRecarga</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>Links de re-carga de fotos enviados al cliente</td><td>v2.3</td></tr>
+        <tr><td><code>ValidacionesAsesor</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--accent">Seguridad</span></td><td>INSERT-ONLY: prueba de vida biométrica del asesor en tienda</td><td>v2.4</td></tr>
+        <tr><td><code>HistorialEstados</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--green">Auditoría</span></td><td>INSERT-ONLY: cada transición de estado con correlation-ID</td><td>v2.0</td></tr>
+        <tr><td><code>AuditoriaCambiosDatos</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--green">Auditoría</span></td><td>INSERT-ONLY: cambios en datos mutables de cualquier tabla</td><td>v2.0</td></tr>
+        <tr><td><code>RegistroServiciosExternos</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--green">Auditoría</span></td><td>Log de invocaciones a servicios externos con request/response y duración</td><td>v2.0</td></tr>
+        <tr><td><code>RevisionesFotografia</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--green">Auditoría</span></td><td>INSERT-ONLY: decisiones de revisión por fotografía (APROBADA/RECHAZADA)</td><td>v2.3</td></tr>
+        <tr><td><code>HistorialFotografias</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--green">Auditoría</span></td><td>INSERT-ONLY: transiciones de estado de cada fotografía</td><td>v2.3</td></tr>
+        <tr><td><code>AuditoriaLogins</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--accent">Seguridad</span></td><td>INSERT-ONLY: todos los intentos de login por canal y tipo de usuario</td><td>v2.5</td></tr>
+        <tr><td><code>CatalogoReglasFraude</code></td><td>INT IDENTITY</td><td><span class="badge badge--red">Antifraude</span></td><td>12 reglas tipificadas de detección de fraude</td><td>v2.2</td></tr>
+        <tr><td><code>CatalogoMotivosEscalamiento</code></td><td>INT IDENTITY</td><td><span class="badge badge--red">Antifraude</span></td><td>12 motivos tipificados de escalamiento a fábrica</td><td>v2.2</td></tr>
+        <tr><td><code>AlertasFraude</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--red">Antifraude</span></td><td>INSERT-ONLY: alertas disparadas por reglas de negocio</td><td>v2.2</td></tr>
+        <tr><td><code>LogValidacionesOTP</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--red">Antifraude</span></td><td>INSERT-ONLY: log granular de cada intento individual de OTP</td><td>v2.2</td></tr>
+        <tr><td><code>HistorialDatosSensibles</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--red">Antifraude</span></td><td>INSERT-ONLY: mutaciones de email/celular/dirección con contexto de fraude</td><td>v2.2</td></tr>
+        <tr><td><code>CatalogoTiposFotografia</code></td><td>INT IDENTITY</td><td><span class="badge badge--violet">Config</span></td><td>3 tipos: FOTO_FRONTAL_DOC, FOTO_TRASERA_DOC, SELFIE</td><td>v2.3</td></tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>

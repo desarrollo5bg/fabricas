@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diccionario de Datos — Fábricas de Crédito QUAC v2.6</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#fafbfc;--white:#ffffff;--text:#1a1a2e;--text-secondary:#555770;--border:#e2e5ea;--border-light:#f0f1f4;--accent:#7633ff;--accent-bg:#f3eeff;--red:#dc2626;--red-bg:#fef2f2;--green:#16a34a;--green-bg:#f0fdf4;--amber:#d97706;--amber-bg:#fffbeb;--violet:#7c3aed;--violet-bg:#f5f3ff;--cyan:#0891b2;--cyan-bg:#ecfeff;--code-bg:#f4f5f7;--sidebar-w:280px}
+    *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}body{font-family:"Plus Jakarta Sans",-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased}
+    .sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--white);border-right:1px solid var(--border);overflow-y:auto;padding:24px 0;z-index:50}
+    .sidebar-title{font-size:13px;font-weight:700;color:var(--accent);padding:0 20px 16px;margin-bottom:4px;letter-spacing:-0.01em;border-bottom:1px solid var(--border-light)}
+    .sidebar nav a{display:block;padding:6px 20px;font-size:13px;color:var(--text-secondary);text-decoration:none;border-left:3px solid transparent;transition:all .15s}
+    .sidebar nav a:hover{color:var(--accent);background:var(--accent-bg);border-left-color:var(--accent)}
+    .sidebar nav a.indent{padding-left:36px;font-size:12px}
+    .sidebar nav a.active{color:var(--accent);font-weight:600;border-left-color:var(--accent);background:var(--accent-bg)}
+    .sidebar-section{padding:10px 20px 4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-secondary)}
+    .main{margin-left:var(--sidebar-w);max-width:960px;padding:48px 56px 120px}
+    h1{font-size:32px;font-weight:800;letter-spacing:-.03em;line-height:1.2;margin-bottom:8px}
+    h2{font-size:24px;font-weight:700;letter-spacing:-.02em;margin-top:56px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--border)}
+    h3{font-size:18px;font-weight:600;margin-top:32px;margin-bottom:12px}
+    h4{font-size:15px;font-weight:600;margin-top:24px;margin-bottom:8px}
+    p{margin-bottom:12px;color:var(--text-secondary);font-size:15px}strong{color:var(--text)}
+    .meta{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+    .meta-item{font-size:13px;color:var(--text-secondary)}.meta-item strong{font-weight:600;color:var(--text)}
+    pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:20px 24px;overflow-x:auto;margin:16px 0 20px;font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.65;color:var(--text)}
+    code{font-family:"JetBrains Mono",monospace;font-size:13px;background:var(--code-bg);padding:2px 6px;border-radius:4px}pre code{background:none;padding:0}
+    table{width:100%;border-collapse:collapse;margin:16px 0 20px;font-size:13px}
+    th{background:var(--code-bg);font-weight:600;text-align:left;padding:10px 14px;border-bottom:2px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-secondary)}
+    td{padding:9px 14px;border-bottom:1px solid var(--border-light);color:var(--text)}tr:hover td{background:var(--accent-bg)}td code{font-size:12px}
+    ul,ol{margin:8px 0 16px 24px}li{font-size:15px;color:var(--text-secondary);margin-bottom:4px}li strong{color:var(--text)}
+    .badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:.03em}
+    .badge--accent{background:var(--accent-bg);color:var(--accent)}.badge--red{background:var(--red-bg);color:var(--red)}.badge--green{background:var(--green-bg);color:var(--green)}.badge--amber{background:var(--amber-bg);color:var(--amber)}.badge--violet{background:var(--violet-bg);color:var(--violet)}.badge--cyan{background:var(--cyan-bg);color:var(--cyan)}
+    .callout{border-radius:8px;padding:16px 20px;margin:16px 0;font-size:14px}.callout p{margin-bottom:4px}
+    .callout--info{background:var(--accent-bg);border-left:4px solid var(--accent)}.callout--warn{background:var(--amber-bg);border-left:4px solid var(--amber)}.callout--danger{background:var(--red-bg);border-left:4px solid var(--red)}.callout--success{background:var(--green-bg);border-left:4px solid var(--green)}
+    hr{border:none;border-top:1px solid var(--border);margin:40px 0}
+    .group-header{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:8px;margin:32px 0 8px;font-weight:700;font-size:14px}
+    .group-config{background:var(--accent-bg);color:var(--accent)}
+    .group-transac{background:var(--violet-bg);color:var(--violet)}
+    .group-audit{background:var(--cyan-bg);color:var(--cyan)}
+    .group-fraud{background:var(--red-bg);color:var(--red)}
+    .group-foto{background:var(--amber-bg);color:var(--amber)}
+    .group-new{background:var(--green-bg);color:var(--green)}
+    .null-yes{color:var(--text-secondary);font-style:italic}
+    .null-no{color:var(--text);font-weight:600}
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-title">FÁBRICAS DE CRÉDITO v2.6</div>
+    <nav>
+      <div class="sidebar-section">Este archivo</div>
+      <a href="#config" class="active">Tablas de Configuración</a>
+      <a href="#transac" class="indent">Transaccionales</a>
+      <a href="#auditoria" class="indent">Auditoría</a>
+      <a href="#antifraude" class="indent">Antifraude</a>
+      <a href="#fotos" class="indent">Fotografías / Biometría</a>
+      <a href="#nuevas" class="indent">Nuevas v2.4–v2.5</a>
+      <div class="sidebar-section">Otros documentos</div>
+      <a href="index.html">00 · Índice</a>
+      <a href="01-vision-general.html">01 · Visión General</a>
+      <a href="03-maquina-estados.html">03 · Máquina de Estados</a>
+      <a href="04-seguridad-antifraude.html">04 · Seguridad y Antifraude</a>
+      <a href="05-fotografias-biometria.html">05 · Fotografías y Biometría</a>
+      <a href="06-servicios-backend.html">06 · Servicios Backend</a>
+      <a href="07-consentimientos-contactabilidad.html">07 · Consentimientos</a>
+      <a href="08-gaps-historial-cambios.html">08 · Gaps e Historial</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <h1>Diccionario Completo de Datos</h1>
+    <p style="font-size:17px;color:var(--text);font-weight:500;">Columnas exactas de las 29 tablas — DDL v2.5</p>
+    <div class="meta">
+      <div class="meta-item"><strong>Versión</strong> v2.6</div>
+      <div class="meta-item"><strong>Fecha</strong> 2026-04-16</div>
+      <div class="meta-item"><strong>Fuente</strong> FABRICASv2.sql v2.5</div>
+      <div class="meta-item"><strong>Tablas</strong> 29 propias</div>
+    </div>
+
+    <div class="callout callout--info">
+      <p><strong>Convención:</strong> Las columnas marcadas como <em>NOT NULL</em> tienen valor obligatorio. Las tablas marcadas como INSERT-ONLY no deben recibir UPDATE ni DELETE bajo ninguna circunstancia.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <h2 id="config">Grupo 1 — Configuración (6 tablas)</h2>
+    <p>Definen el flujo, estados y reglas de negocio. Son relativamente estables; se modifican vía seeds o migraciones controladas.</p>
+
+    <h3>FasesEstudio</h3>
+    <p>Las 7 fases macro del proceso de otorgamiento de crédito. Cada fase agrupa uno o más pasos del flujo. Catálogo estable: se espera que no cambie en producción.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdFase</code></td><td>INT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK autoincremental</td></tr>
+        <tr><td><code>Codigo</code></td><td>VARCHAR(30)</td><td class="null-no">NOT NULL</td><td>Clave única legible por código (ej. IDENTIFICACION)</td></tr>
+        <tr><td><code>Nombre</code></td><td>NVARCHAR(100)</td><td class="null-no">NOT NULL</td><td>Nombre descriptivo de la fase</td></tr>
+        <tr><td><code>OrdenEjecucion</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>Orden de ejecución de la fase (UQ)</td></tr>
+        <tr><td><code>Descripcion</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Descripción del propósito de la fase</td></tr>
+        <tr><td><code>Activa</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 1. 0 para deshabilitar la fase sin borrarla</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout--info">
+      <p><strong>Constraints:</strong> PK_FasesEstudio (IdFase), UQ_FasesEstudio_Codigo (Codigo), UQ_FasesEstudio_Orden (OrdenEjecucion)</p>
+    </div>
+
+    <h3>PasosEstudio</h3>
+    <p>Los 13 pasos individuales del flujo de crédito. Cada paso pertenece a una fase y tiene un orden global. Algunos pasos son automáticos (SISTEMA), otros requieren intervención de actores humanos.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdPaso</code></td><td>INT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK autoincremental</td></tr>
+        <tr><td><code>IdFase</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>FK → FasesEstudio.IdFase</td></tr>
+        <tr><td><code>Codigo</code></td><td>VARCHAR(40)</td><td class="null-no">NOT NULL</td><td>Clave única del paso (ej. TOKENIZACION)</td></tr>
+        <tr><td><code>Nombre</code></td><td>NVARCHAR(150)</td><td class="null-no">NOT NULL</td><td>Nombre descriptivo del paso</td></tr>
+        <tr><td><code>OrdenEnFase</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>Orden dentro de la fase padre</td></tr>
+        <tr><td><code>OrdenGlobal</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>Orden global en el flujo completo (UQ, 1–13)</td></tr>
+        <tr><td><code>Actor</code></td><td>VARCHAR(30)</td><td class="null-no">NOT NULL</td><td>DEFAULT 'SISTEMA'. CHECK: ASESOR, SISTEMA, CLIENTE, CALL_CENTER</td></tr>
+        <tr><td><code>ServicioExterno</code></td><td>VARCHAR(50)</td><td class="null-yes">NULL</td><td>Servicio externo que ejecuta este paso (ej. OTP_PROVIDER)</td></tr>
+        <tr><td><code>EsAutomatico</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 1. 0 si requiere acción manual</td></tr>
+        <tr><td><code>RequiereIntervencion</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0. 1 si puede pausar esperando al cliente/asesor</td></tr>
+        <tr><td><code>TiempoTimeoutSeg</code></td><td>INT</td><td class="null-yes">NULL</td><td>Tiempo máximo de espera en segundos antes de timeout</td></tr>
+        <tr><td><code>Descripcion</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Descripción detallada del paso</td></tr>
+        <tr><td><code>Activo</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 1</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout--info">
+      <p><strong>Constraints:</strong> PK_PasosEstudio, UQ_PasosEstudio_Codigo, UQ_PasosEstudio_OrdenGlobal, FK_PasosEstudio_Fase, CK_PasosEstudio_Actor<br>
+      <strong>Índices:</strong> IX_PasosEstudio_Fase (IdFase)</p>
+    </div>
+
+    <h3>CatalogoEstados</h3>
+    <p>Todos los estados posibles del estudio de crédito. 15 estados en total: 11 base + 4 añadidos en v2.2–v2.3. Los estados terminales no admiten más transiciones.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdEstado</code></td><td>INT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK autoincremental</td></tr>
+        <tr><td><code>Codigo</code></td><td>VARCHAR(40)</td><td class="null-no">NOT NULL</td><td>Clave única del estado (ej. BORRADOR, APROBADO)</td></tr>
+        <tr><td><code>Nombre</code></td><td>NVARCHAR(100)</td><td class="null-no">NOT NULL</td><td>Nombre legible del estado</td></tr>
+        <tr><td><code>Grupo</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>CHECK: INICIAL, PROCESO, TERMINAL</td></tr>
+        <tr><td><code>EsTerminal</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0. 1 = no se admiten más transiciones desde este estado</td></tr>
+        <tr><td><code>PermitePausa</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0. 1 = el proceso puede pausarse en este estado</td></tr>
+        <tr><td><code>Descripcion</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Descripción del significado del estado</td></tr>
+        <tr><td><code>Activo</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 1</td></tr>
+      </tbody>
+    </table>
+
+    <h3>TransicionesEstado</h3>
+    <p>Define las transiciones válidas entre estados. Solo las combinaciones registradas aquí son permitidas por la máquina de estados. 40 transiciones totales (32 base + 8 nuevas en v2.3).</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdTransicion</code></td><td>INT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK autoincremental</td></tr>
+        <tr><td><code>IdEstadoOrigen</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>FK → CatalogoEstados.IdEstado</td></tr>
+        <tr><td><code>IdEstadoDestino</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>FK → CatalogoEstados.IdEstado</td></tr>
+        <tr><td><code>RequiereMotivo</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0. 1 = HistorialEstados.MotivoTransicion es obligatorio</td></tr>
+        <tr><td><code>Descripcion</code></td><td>NVARCHAR(200)</td><td class="null-yes">NULL</td><td>Descripción del evento que dispara esta transición</td></tr>
+        <tr><td><code>Activa</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 1</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout--info">
+      <p><strong>Constraint único:</strong> UQ_Transiciones_OrigenDestino (IdEstadoOrigen, IdEstadoDestino) — una sola regla por par de estados</p>
+    </div>
+
+    <h3>ConfiguracionReglasNegocio</h3>
+    <p>Parámetros configurables del sistema sin necesidad de re-deploy. 20 registros en seeds (v2.4: duplicados OTP eliminados). Categorías válidas: ENFRIAMIENTO, GENERAL, OTP, BIOMETRIA, RIESGO, FOTOS, AUTH.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdRegla</code></td><td>INT IDENTITY PK</td><td class="null-no">NOT NULL</td><td>PK autoincremental</td></tr>
+        <tr><td><code>Codigo</code></td><td>VARCHAR(50)</td><td class="null-no">NOT NULL</td><td>Clave única usada en código (ej. INTENTOS_OTP_MAX)</td></tr>
+        <tr><td><code>Nombre</code></td><td>NVARCHAR(150)</td><td class="null-no">NOT NULL</td><td>Nombre legible de la regla</td></tr>
+        <tr><td><code>Valor</code></td><td>NVARCHAR(500)</td><td class="null-no">NOT NULL</td><td>Valor actual de la regla (serializado como string)</td></tr>
+        <tr><td><code>TipoDato</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>DEFAULT 'INT'. CHECK: INT, DECIMAL, BOOL, TEXT, JSON</td></tr>
+        <tr><td><code>Categoria</code></td><td>VARCHAR(30)</td><td class="null-no">NOT NULL</td><td>GAP-05: CHECK: ENFRIAMIENTO, GENERAL, OTP, BIOMETRIA, RIESGO, FOTOS, AUTH</td></tr>
+        <tr><td><code>Descripcion</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Descripción del efecto de la regla</td></tr>
+        <tr><td><code>VigenciaDesde</code></td><td>DATE</td><td class="null-no">NOT NULL</td><td>DEFAULT CAST(GETDATE() AS DATE)</td></tr>
+        <tr><td><code>VigenciaHasta</code></td><td>DATE</td><td class="null-yes">NULL</td><td>NULL = vigente indefinidamente</td></tr>
+        <tr><td><code>FechaCreacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+        <tr><td><code>FechaActualizacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+
+    <h3>CatalogoCanalesOrigen</h3>
+    <p>Catálogo de los canales por los que el cliente puede iniciar el proceso. 3 canales base: WEB, TIENDA, EXTERNO. (G-DB-01, añadida en v2.1).</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdCanal</code></td><td>INT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK autoincremental</td></tr>
+        <tr><td><code>Codigo</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>Clave única del canal (WEB, TIENDA, EXTERNO)</td></tr>
+        <tr><td><code>Nombre</code></td><td>NVARCHAR(100)</td><td class="null-no">NOT NULL</td><td>Nombre legible del canal</td></tr>
+        <tr><td><code>Descripcion</code></td><td>NVARCHAR(300)</td><td class="null-yes">NULL</td><td>Descripción del canal</td></tr>
+        <tr><td><code>Activo</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 1</td></tr>
+        <tr><td><code>FechaCreacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE() — GAP-11</td></tr>
+        <tr><td><code>FechaActualizacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE() — GAP-11</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <h2 id="transac">Grupo 2 — Transaccionales (8 tablas)</h2>
+    <p>Registran las operaciones del proceso de originación. Alta cardinalidad; dependen de las tablas de configuración.</p>
+
+    <h3>TercerosFabricas</h3>
+    <p>Fuente de verdad para datos de clientes en el proceso de fábricas. Se integra con <code>QUAC.dbo.terceros</code> via NIT pero es independiente. Estrategia: leer de terceros para validar, escribir aquí para el proceso.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdTerceroFabricas</code></td><td>INT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK clustered</td></tr>
+        <tr><td><code>NitTercero</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>NIT único del cliente. FK → QUAC.dbo.terceros(nit)</td></tr>
+        <tr><td><code>NombreTercero</code></td><td>NVARCHAR(200)</td><td class="null-yes">NULL</td><td>GAP-09: NVARCHAR para soportar ñ y acentos</td></tr>
+        <tr><td><code>EstadoTercero</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>DEFAULT 'ACTIVO'</td></tr>
+        <tr><td><code>TieneCupoActivo</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0. Flag desnormalizado para consulta rápida</td></tr>
+        <tr><td><code>EstaBloqueadoFabricas</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0. Bloqueo dentro del proceso fábricas</td></tr>
+        <tr><td><code>MotivoBloqueo</code></td><td>VARCHAR(100)</td><td class="null-yes">NULL</td><td>Razón del bloqueo si EstaBloqueadoFabricas=1</td></tr>
+        <tr><td><code>FechaBloqueo</code></td><td>DATETIME2(3)</td><td class="null-yes">NULL</td><td>GAP-06: precisión explícita (3)</td></tr>
+        <tr><td><code>FechaDesbloqueo</code></td><td>DATETIME2(3)</td><td class="null-yes">NULL</td><td>GAP-06: precisión explícita (3)</td></tr>
+        <tr><td><code>TieneRegistroBiometrico</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0</td></tr>
+        <tr><td><code>FechaRegistroBiometrico</code></td><td>DATETIME2(3)</td><td class="null-yes">NULL</td><td>GAP-06: precisión explícita (3)</td></tr>
+        <tr><td><code>PuntajeCredito</code></td><td>DECIMAL(5,2)</td><td class="null-yes">NULL</td><td>Último score crediticio calculado</td></tr>
+        <tr><td><code>FechaUltimaEvaluacion</code></td><td>DATETIME2(3)</td><td class="null-yes">NULL</td><td>GAP-06: precisión explícita (3)</td></tr>
+        <tr><td><code>CelularTercero</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>GAP-18: celular principal para contacto y OTP</td></tr>
+        <tr><td><code>FechaCreacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+        <tr><td><code>FechaModificacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout--info">
+      <p><strong>Índices:</strong> IX_TercerosFabricas_Nit (NitTercero), IX_TercerosFabricas_Estado (EstadoTercero, EstaBloqueadoFabricas)</p>
+    </div>
+
+    <h3>EstudiosCredito</h3>
+    <p>Tabla central que orquesta el flujo. Una fila por solicitud de crédito. Contiene el estado actual, referencias al cliente, canal, asesor y bodega, y campos desnormalizados para el gate de aprobación fotográfico.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdEstudio</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>NitTercero</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>FK → TercerosFabricas.NitTercero</td></tr>
+        <tr><td><code>NitComercio</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>NIT del comercio donde se origina el cupo (C-05)</td></tr>
+        <tr><td><code>CelularCliente</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>GAP-03: celular del cliente para envío de OTP</td></tr>
+        <tr><td><code>IdBodega</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → QUAC.dbo.bodegas.id (C-02: renombrado de IdTienda)</td></tr>
+        <tr><td><code>IdAsesor</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → BERP_FABRICASOperadores.idOperadorFabrica</td></tr>
+        <tr><td><code>IdCanal</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → CatalogoCanalesOrigen.IdCanal</td></tr>
+        <tr><td><code>IdEstadoActual</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>FK → CatalogoEstados.IdEstado</td></tr>
+        <tr><td><code>IdPasoActual</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → PasosEstudio.IdPaso — cursor de reanudación</td></tr>
+        <tr><td><code>MotivoRechazo</code></td><td>NVARCHAR(200)</td><td class="null-yes">NULL</td><td>Motivo si el estudio fue rechazado</td></tr>
+        <tr><td><code>CupoPreaprobado</code></td><td>DECIMAL(18,2)</td><td class="null-yes">NULL</td><td>Monto del cupo calculado</td></tr>
+        <tr><td><code>EsPreaprobado</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0</td></tr>
+        <tr><td><code>EsReactivacion</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0</td></tr>
+        <tr><td><code>RequiereCallCenter</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0</td></tr>
+        <tr><td><code>EsCupoExpress</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0 (GT-04)</td></tr>
+        <tr><td><code>TipoCierre</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>CHECK: EXPRESS, NORMAL, FABRICA (GT-04)</td></tr>
+        <tr><td><code>EmailCliente</code></td><td>NVARCHAR(200)</td><td class="null-yes">NULL</td><td>Email propio declarado por el cliente (G-DB-06)</td></tr>
+        <tr><td><code>EmailUbica</code></td><td>NVARCHAR(200)</td><td class="null-yes">NULL</td><td>Email retornado por el servicio UBICA (G-DB-06)</td></tr>
+        <tr><td><code>SlugPasoWeb</code></td><td>VARCHAR(50)</td><td class="null-yes">NULL</td><td>Identificador del paso web para reanudar sesión (G-DB-07)</td></tr>
+        <tr><td><code>FechaUltimoAbandono</code></td><td>DATETIME2(3)</td><td class="null-yes">NULL</td><td>Última vez que el cliente abandonó el flujo (G-DB-07)</td></tr>
+        <tr><td><code>DepartamentoCapturado</code></td><td>NVARCHAR(100)</td><td class="null-yes">NULL</td><td>Staging de dirección (GT-05)</td></tr>
+        <tr><td><code>CiudadCapturada</code></td><td>NVARCHAR(100)</td><td class="null-yes">NULL</td><td>Staging de dirección (GT-05)</td></tr>
+        <tr><td><code>DireccionCapturada</code></td><td>NVARCHAR(300)</td><td class="null-yes">NULL</td><td>Staging de dirección (GT-05)</td></tr>
+        <tr><td><code>BarrioCapturado</code></td><td>NVARCHAR(100)</td><td class="null-yes">NULL</td><td>Staging de dirección (GT-05)</td></tr>
+        <tr><td><code>FechaInicio</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+        <tr><td><code>FechaUltimaActividad</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+        <tr><td><code>FechaFinalizacion</code></td><td>DATETIME2(3)</td><td class="null-yes">NULL</td><td>NULL mientras el estudio está activo</td></tr>
+        <tr><td><code>FechaPausa</code></td><td>DATETIME2(3)</td><td class="null-yes">NULL</td><td>Última vez que el estudio fue pausado</td></tr>
+        <tr><td><code>FechaCreacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+        <tr><td><code>FechaActualizacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+        <tr><td><code>EliminadoLogico</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0. Soft delete; no borra históricos (SA-07)</td></tr>
+        <tr><td><code>IdCorrelacion</code></td><td>VARCHAR(64)</td><td class="null-yes">NULL</td><td>Correlation-ID del request HTTP original (SA-07)</td></tr>
+        <tr><td><code>IdEscalamientoActivo</code></td><td>BIGINT</td><td class="null-yes">NULL</td><td>FK lógica → EscalamientosFabrica (SA-07)</td></tr>
+        <tr><td><code>FotografiasAprobadas</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0. Contador desnormalizado 0–3. Gate: = 3 (PH-06)</td></tr>
+        <tr><td><code>EstadoRevisionFotos</code></td><td>VARCHAR(15)</td><td class="null-no">NOT NULL</td><td>DEFAULT 'PENDIENTE'. CHECK: PENDIENTE, EN_REVISION, APROBADO, CON_RECHAZOS (PH-06)</td></tr>
+        <tr><td><code>IdValidacionAsesor</code></td><td>BIGINT</td><td class="null-yes">NULL</td><td>FK → ValidacionesAsesor.IdValidacion. NULL en canal WEB (C-04)</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout--warn">
+      <p><strong>Columnas ELIMINADAS (v2.4, C-06):</strong> <code>ClaveIdempotencia</code> y <code>VersionFila</code> no existen en producción. La máquina de estados previene duplicados sin control en base de datos.</p>
+    </div>
+
+    <h3>RetosSeguridad</h3>
+    <p>Retos de verificación OTP (token de seguridad). Registra cada token emitido con su canal de envío, expiración, intentos y resultado. Complementado por <code>LogValidacionesOTP</code> para el log granular de cada intento.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdReto</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>BIGINT</td><td class="null-no">NOT NULL</td><td>FK → EstudiosCredito</td></tr>
+        <tr><td><code>NitTercero</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>Redundancia para consultas directas por cliente</td></tr>
+        <tr><td><code>CanalEnvio</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>CHECK: WHATSAPP, EMAIL, SMS</td></tr>
+        <tr><td><code>HashToken</code></td><td>VARCHAR(256)</td><td class="null-no">NOT NULL</td><td>Hash del token OTP (nunca texto claro)</td></tr>
+        <tr><td><code>FechaEnvio</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+        <tr><td><code>FechaExpiracion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>Calculada: GETDATE() + VIGENCIA_OTP_SEG</td></tr>
+        <tr><td><code>FechaValidacion</code></td><td>DATETIME2(3)</td><td class="null-yes">NULL</td><td>Momento en que el cliente validó el token correctamente</td></tr>
+        <tr><td><code>NumeroIntentos</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0. Contador total de intentos</td></tr>
+        <tr><td><code>Exitoso</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0. 1 = token validado correctamente</td></tr>
+        <tr><td><code>NumeroReenvios</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0. Cantidad de reenvíos del token (G-DB-05)</td></tr>
+        <tr><td><code>UltimoReenvio</code></td><td>DATETIME2(3)</td><td class="null-yes">NULL</td><td>Fecha del último reenvío (G-DB-05)</td></tr>
+        <tr><td><code>DireccionEnvio</code></td><td>NVARCHAR(200)</td><td class="null-yes">NULL</td><td>Email/cel exacto al que se envió (SA-09)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>EvaluacionesRiesgo</h3>
+    <p>Resultado de consultas a servicios de riesgo externos: listas restrictivas, buró, Preselecta, FOSYGA, antecedentes y UBICA. Un estudio puede tener múltiples evaluaciones de distintos tipos.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdEvaluacion</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>BIGINT</td><td class="null-no">NOT NULL</td><td>FK → EstudiosCredito</td></tr>
+        <tr><td><code>IdPaso</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → PasosEstudio — paso que originó la evaluación</td></tr>
+        <tr><td><code>TipoEvaluacion</code></td><td>VARCHAR(30)</td><td class="null-no">NOT NULL</td><td>CHECK: LISTAS, BURO, PRESELECTA, FOSYGA, ANTECEDENTES, UBICA</td></tr>
+        <tr><td><code>CoincidenciaListasRestrictivas</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0. TRUE si encontró coincidencia en listas negras</td></tr>
+        <tr><td><code>ScoreBuro</code></td><td>INT</td><td class="null-yes">NULL</td><td>Puntuación del buró de crédito</td></tr>
+        <tr><td><code>ViablePreselecta</code></td><td>BIT</td><td class="null-yes">NULL</td><td>Resultado del motor Preselecta</td></tr>
+        <tr><td><code>EsPensionado</code></td><td>BIT</td><td class="null-yes">NULL</td><td>Resultado FOSYGA/ADRES</td></tr>
+        <tr><td><code>TieneSeguridadSocial</code></td><td>BIT</td><td class="null-yes">NULL</td><td>Resultado FOSYGA/ADRES</td></tr>
+        <tr><td><code>Resultado</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>CHECK: APROBADO, RECHAZADO, PENDIENTE, ERROR</td></tr>
+        <tr><td><code>MotivoResultado</code></td><td>NVARCHAR(200)</td><td class="null-yes">NULL</td><td>Descripción del resultado</td></tr>
+        <tr><td><code>DetallesJSON</code></td><td>NVARCHAR(MAX)</td><td class="null-yes">NULL</td><td>Payload original de la respuesta del servicio externo</td></tr>
+        <tr><td><code>FechaEvaluacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+
+    <h3>RegistrosBiometria</h3>
+    <p>Resultados de los procesos biométricos (AWS Rekognition): prueba de vida, comparación facial (selfie vs cédula), OCR del documento. Almacena el <em>resultado</em>, no el archivo (los archivos van a FotografiasEstudio).</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdBiometria</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>BIGINT</td><td class="null-no">NOT NULL</td><td>FK → EstudiosCredito</td></tr>
+        <tr><td><code>IdTransaccionProveedor</code></td><td>VARCHAR(100)</td><td class="null-yes">NULL</td><td>ID de transacción del proveedor biométrico</td></tr>
+        <tr><td><code>TipoVerificacion</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>CHECK: ONBOARDING, AUTENTICACION, PRUEBA_VIDA_HANDOFF (GAP-13)</td></tr>
+        <tr><td><code>PruebaVidaAprobada</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0</td></tr>
+        <tr><td><code>PorcentajeCoincidencia</code></td><td>DECIMAL(5,2)</td><td class="null-yes">NULL</td><td>% coincidencia facial</td></tr>
+        <tr><td><code>EstadoOCR</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>Estado del proceso OCR</td></tr>
+        <tr><td><code>NumeroIntentos</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>DEFAULT 1</td></tr>
+        <tr><td><code>EstadoProceso</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>CHECK: EXITOSO, FALLIDO, REVISION_MANUAL</td></tr>
+        <tr><td><code>NombreExtraidoOCR</code></td><td>NVARCHAR(200)</td><td class="null-yes">NULL</td><td>Nombre completo según OCR del documento (G-DB-08)</td></tr>
+        <tr><td><code>FechaExpedicionExtraidaOCR</code></td><td>DATE</td><td class="null-yes">NULL</td><td>Fecha de expedición del documento según OCR (G-DB-08)</td></tr>
+        <tr><td><code>NumeroDocumentoExtraidoOCR</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>Número de documento según OCR (G-DB-08)</td></tr>
+        <tr><td><code>CoincidenciaOCR</code></td><td>BIT</td><td class="null-yes">NULL</td><td>TRUE si OCR coincide con datos declarados (G-DB-08)</td></tr>
+        <tr><td><code>FechaRegistro</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+        <tr><td><code>IdFotografiaFrontal</code></td><td>BIGINT</td><td class="null-yes">NULL</td><td>FK → FotografiasEstudio. Foto usada en Rekognition CompareFaces (PH-07)</td></tr>
+        <tr><td><code>IdFotografiaReverso</code></td><td>BIGINT</td><td class="null-yes">NULL</td><td>FK → FotografiasEstudio. Foto usada en OCR reverso (PH-07)</td></tr>
+        <tr><td><code>IdFotografiaSelfie</code></td><td>BIGINT</td><td class="null-yes">NULL</td><td>FK → FotografiasEstudio. Selfie usada en DetectFaces (PH-07)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>ValidacionesContactabilidad</h3>
+    <p>Resultados del servicio UBICA y de la gestión manual de contactabilidad. Determina si el cliente puede ser contactado automáticamente o requiere gestión de call center o fábrica.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdValidacion</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>BIGINT</td><td class="null-no">NOT NULL</td><td>FK → EstudiosCredito</td></tr>
+        <tr><td><code>ScoreUbica</code></td><td>VARCHAR(30)</td><td class="null-yes">NULL</td><td>Puntuación del servicio UBICA</td></tr>
+        <tr><td><code>EsActivacionAutomatica</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0. TRUE si UBICA permite activación sin call center</td></tr>
+        <tr><td><code>EstadoUbica</code></td><td>VARCHAR(30)</td><td class="null-yes">NULL</td><td>CHECK: OK_CEL_CORREO, OK_CEL, GESTION_MANUAL_CALL, GESTION_MANUAL_FABRICA, NO_CONTACTABLE, PENDIENTE (G-DB-04)</td></tr>
+        <tr><td><code>EstadoVerificacionManual</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>CHECK: PENDIENTE, CONFIRMADO, RECHAZADO</td></tr>
+        <tr><td><code>IdAsesorCallCenter</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → BERP_FABRICASOperadores</td></tr>
+        <tr><td><code>ComentariosAgente</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Notas del agente de call center</td></tr>
+        <tr><td><code>IdAlertaFraude</code></td><td>BIGINT</td><td class="null-yes">NULL</td><td>FK → AlertasFraude (SA-10). Alerta asociada a esta validación</td></tr>
+        <tr><td><code>FechaVerificacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+
+    <h3>ConsentimientosLegales</h3>
+    <p>Trazabilidad de aceptaciones legales del cliente: términos y condiciones, autorización de datos, consentimiento de tokenización. Una fila por cada consentimiento otorgado.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdConsentimiento</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>BIGINT</td><td class="null-no">NOT NULL</td><td>FK → EstudiosCredito</td></tr>
+        <tr><td><code>NitTercero</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>Redundancia para consultas directas por cliente</td></tr>
+        <tr><td><code>TipoConsentimiento</code></td><td>VARCHAR(40)</td><td class="null-no">NOT NULL</td><td>Tipo de documento aceptado</td></tr>
+        <tr><td><code>VersionDocumento</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>Versión del documento aceptado</td></tr>
+        <tr><td><code>Aceptado</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0. TRUE si el cliente aceptó</td></tr>
+        <tr><td><code>DireccionIP</code></td><td>VARCHAR(45)</td><td class="null-yes">NULL</td><td>IP del cliente al momento de aceptar</td></tr>
+        <tr><td><code>UserAgent</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Navegador/dispositivo del cliente</td></tr>
+        <tr><td><code>TipoFirma</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>DEFAULT 'CHECKBOX'. CHECK: OTP_SMS, OTP_EMAIL, OTP_WHATSAPP, CHECKBOX, FIRMA_DIGITAL (G-DB-09)</td></tr>
+        <tr><td><code>FechaAceptacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+
+    <h3>EvidenciasFabrica</h3>
+    <p>Archivos adjuntos y evidencias genéricas del proceso de revisión en fábrica. Notas de asesor, comprobantes, documentos de soporte. Las fotos de identidad van exclusivamente a <code>FotografiasEstudio</code> (GAP-07).</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdEvidencia</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>IdEstudioCredito</code></td><td>BIGINT</td><td class="null-no">NOT NULL</td><td>FK → EstudiosCredito.IdEstudio</td></tr>
+        <tr><td><code>TipoEvidencia</code></td><td>VARCHAR(30)</td><td class="null-no">NOT NULL</td><td>CHECK: COMPROBANTE, NOTA_ASESOR, DOCUMENTO_SOPORTE, OTRO</td></tr>
+        <tr><td><code>UrlArchivo</code></td><td>NVARCHAR(500)</td><td class="null-no">NOT NULL</td><td>URL o ruta del archivo almacenado</td></tr>
+        <tr><td><code>NombreArchivo</code></td><td>NVARCHAR(200)</td><td class="null-no">NOT NULL</td><td>Nombre original del archivo</td></tr>
+        <tr><td><code>ContentType</code></td><td>VARCHAR(100)</td><td class="null-yes">NULL</td><td>MIME type (ej. image/jpeg, application/pdf)</td></tr>
+        <tr><td><code>TamanoBytes</code></td><td>BIGINT</td><td class="null-yes">NULL</td><td>Tamaño del archivo en bytes</td></tr>
+        <tr><td><code>SubidoPor</code></td><td>NVARCHAR(100)</td><td class="null-no">NOT NULL</td><td>Usuario o sistema que cargó el archivo</td></tr>
+        <tr><td><code>Observaciones</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Notas adicionales del asesor</td></tr>
+        <tr><td><code>FechaCreacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout--success">
+      <p><strong>GAP-07:</strong> FOTO_DOCUMENTO y SELFIE eliminados del CHECK de TipoEvidencia. Las fotos de identidad pertenecen a <code>FotografiasEstudio</code> — tienen ciclo de vida propio y son gate de aprobación.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <h2 id="auditoria">Grupo 3 — Auditoría (3 tablas)</h2>
+    <p>Trazabilidad inmutable del sistema. Todas son INSERT-ONLY; el historial completo nunca se modifica.</p>
+
+    <h3>HistorialEstados</h3>
+    <p>Máquina de estados inmutable. Registra cada cambio de estado de cualquier estudio. Es la fuente de verdad para reconstruir el timeline completo de una solicitud.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdHistorial</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>BIGINT</td><td class="null-no">NOT NULL</td><td>FK → EstudiosCredito</td></tr>
+        <tr><td><code>IdEstadoAnterior</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → CatalogoEstados. NULL en la primera transición</td></tr>
+        <tr><td><code>IdEstadoNuevo</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>FK → CatalogoEstados</td></tr>
+        <tr><td><code>IdPasoRelacionado</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → PasosEstudio — paso que disparó la transición</td></tr>
+        <tr><td><code>IdUsuarioAccion</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → BERP_FABRICASOperadores (si fue un humano)</td></tr>
+        <tr><td><code>TipoUsuario</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>DEFAULT 'SISTEMA'. CHECK: SISTEMA, ASESOR, CALL_CENTER, CLIENTE, ADMINISTRADOR (GAP-02)</td></tr>
+        <tr><td><code>MotivoTransicion</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Motivo de la transición (obligatorio cuando RequiereMotivo=1)</td></tr>
+        <tr><td><code>IdCorrelacion</code></td><td>VARCHAR(64)</td><td class="null-yes">NULL</td><td>Correlation-ID del request HTTP para trazabilidad distribuida (SA-08)</td></tr>
+        <tr><td><code>FechaTransicion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+
+    <h3>AuditoriaCambiosDatos</h3>
+    <p>Registro de cambios en datos mutables de clientes. Campo por campo, con valor anterior y nuevo. Complementa <code>HistorialDatosSensibles</code> que es específica para campos de contacto.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdAuditoria</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>BIGINT</td><td class="null-yes">NULL</td><td>FK → EstudiosCredito. NULL si el cambio no es en contexto de un estudio</td></tr>
+        <tr><td><code>NitTercero</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>NIT del cliente cuyo dato fue cambiado</td></tr>
+        <tr><td><code>NombreTabla</code></td><td>VARCHAR(50)</td><td class="null-no">NOT NULL</td><td>Tabla en la que se realizó el cambio</td></tr>
+        <tr><td><code>NombreCampo</code></td><td>VARCHAR(50)</td><td class="null-no">NOT NULL</td><td>Columna específica que fue modificada</td></tr>
+        <tr><td><code>ValorAnterior</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Valor antes del cambio</td></tr>
+        <tr><td><code>ValorNuevo</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Valor después del cambio</td></tr>
+        <tr><td><code>IdUsuarioAccion</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → operador que realizó el cambio</td></tr>
+        <tr><td><code>TipoUsuario</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>DEFAULT 'SISTEMA'. CHECK: SISTEMA, ASESOR, CLIENTE, ADMINISTRADOR (GAP-08)</td></tr>
+        <tr><td><code>FechaCambio</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+
+    <h3>RegistroServiciosExternos</h3>
+    <p>Log completo de todas las invocaciones a servicios externos (UBICA, buró, Preselecta, FOSYGA, OTP, biometría). Incluye payloads de request/response, duración en ms y resultado interpretado.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdRegistro</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>BIGINT</td><td class="null-no">NOT NULL</td><td>FK → EstudiosCredito</td></tr>
+        <tr><td><code>IdPaso</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → PasosEstudio — paso que originó la llamada</td></tr>
+        <tr><td><code>NombreServicio</code></td><td>VARCHAR(50)</td><td class="null-no">NOT NULL</td><td>Nombre del servicio externo (ej. UBICA, BURO_CREDITO)</td></tr>
+        <tr><td><code>URLEndpoint</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>URL del endpoint invocado</td></tr>
+        <tr><td><code>MetodoHTTP</code></td><td>VARCHAR(10)</td><td class="null-yes">NULL</td><td>GET, POST, etc.</td></tr>
+        <tr><td><code>PayloadRequest</code></td><td>NVARCHAR(MAX)</td><td class="null-yes">NULL</td><td>Request enviado al servicio</td></tr>
+        <tr><td><code>PayloadResponse</code></td><td>NVARCHAR(MAX)</td><td class="null-yes">NULL</td><td>Response recibida del servicio</td></tr>
+        <tr><td><code>CodigoHTTPRespuesta</code></td><td>INT</td><td class="null-yes">NULL</td><td>Código HTTP de respuesta</td></tr>
+        <tr><td><code>ResultadoInterpretado</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>CHECK: EXITOSO, FALLIDO, TIMEOUT, ERROR</td></tr>
+        <tr><td><code>MensajeError</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Mensaje de error si aplica</td></tr>
+        <tr><td><code>DuracionMs</code></td><td>INT</td><td class="null-yes">NULL</td><td>Duración de la llamada en milisegundos</td></tr>
+        <tr><td><code>FechaInvocacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+        <tr><td><code>FechaRespuesta</code></td><td>DATETIME2(3)</td><td class="null-yes">NULL</td><td>Momento en que se recibió la respuesta</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <h2 id="antifraude">Grupo 4 — Antifraude (6 tablas)</h2>
+    <p>Añadidas en v2.2 (Architect Audit). Cubren el caso de estrés del proceso: cambio de email post-fallo OTP, escalamiento manual y bloqueo por fraude.</p>
+
+    <h3>CatalogoReglasFraude</h3>
+    <p>Catálogo tipificado de reglas de detección de fraude. Permite activar/desactivar reglas sin deploy. 12 reglas seeded (8 base + 4 fotográficas en v2.3).</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdReglaFraude</code></td><td>INT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>Codigo</code></td><td>VARCHAR(50)</td><td class="null-no">NOT NULL</td><td>Clave única (ej. EMAIL_CHANGE_POST_OTP_FAIL)</td></tr>
+        <tr><td><code>Nombre</code></td><td>NVARCHAR(150)</td><td class="null-no">NOT NULL</td><td>Nombre legible para el asesor</td></tr>
+        <tr><td><code>Descripcion</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Qué detecta y por qué es fraude</td></tr>
+        <tr><td><code>NivelRiesgo</code></td><td>VARCHAR(10)</td><td class="null-no">NOT NULL</td><td>DEFAULT 'MEDIO'. CHECK: BAJO, MEDIO, ALTO, CRITICO</td></tr>
+        <tr><td><code>AccionAutomatica</code></td><td>VARCHAR(30)</td><td class="null-no">NOT NULL</td><td>DEFAULT 'ESCALAR'. CHECK: ESCALAR, BLOQUEAR, NOTIFICAR, SOLO_REGISTRO</td></tr>
+        <tr><td><code>Activa</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 1</td></tr>
+        <tr><td><code>FechaCreacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+        <tr><td><code>FechaActualizacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+
+    <h3>CatalogoMotivosEscalamiento</h3>
+    <p>Catálogo de razones por las que un estudio se escala a revisión manual. Permite dashboards de volumen por motivo y SLA diferenciados. 12 motivos seeded.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdMotivo</code></td><td>INT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>Codigo</code></td><td>VARCHAR(50)</td><td class="null-no">NOT NULL</td><td>Clave única del motivo</td></tr>
+        <tr><td><code>Nombre</code></td><td>NVARCHAR(150)</td><td class="null-no">NOT NULL</td><td>Nombre legible</td></tr>
+        <tr><td><code>Descripcion</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Descripción del motivo</td></tr>
+        <tr><td><code>Origen</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>DEFAULT 'SISTEMA'. CHECK: SISTEMA, ASESOR, FRAUDE</td></tr>
+        <tr><td><code>Activo</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 1</td></tr>
+        <tr><td><code>FechaCreacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+        <tr><td><code>FechaActualizacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+
+    <h3>AlertasFraude <span class="badge badge--red">INSERT-ONLY</span></h3>
+    <p>Registro inmutable de alertas disparadas por reglas de negocio. Una alerta no se cierra: si el asesor la descarta, se crea una nueva con AccionTomada='DESCARTADA'.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdAlerta</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>BIGINT</td><td class="null-no">NOT NULL</td><td>FK → EstudiosCredito</td></tr>
+        <tr><td><code>IdReglaFraude</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>FK → CatalogoReglasFraude</td></tr>
+        <tr><td><code>NitTercero</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>Redundancia para consultas por cliente</td></tr>
+        <tr><td><code>PasoEnQueOcurrio</code></td><td>VARCHAR(40)</td><td class="null-yes">NULL</td><td>Código del paso donde se detectó la anomalía</td></tr>
+        <tr><td><code>ValorAnterior</code></td><td>NVARCHAR(300)</td><td class="null-yes">NULL</td><td>Valor del campo ANTES del cambio anómalo</td></tr>
+        <tr><td><code>ValorNuevo</code></td><td>NVARCHAR(300)</td><td class="null-yes">NULL</td><td>Valor del campo DESPUÉS del cambio anómalo</td></tr>
+        <tr><td><code>CampoAfectado</code></td><td>VARCHAR(50)</td><td class="null-yes">NULL</td><td>Ej. EmailCliente, CelularCliente</td></tr>
+        <tr><td><code>ContextoJSON</code></td><td>NVARCHAR(MAX)</td><td class="null-yes">NULL</td><td>Payload completo de contexto (IP, UserAgent, etc.)</td></tr>
+        <tr><td><code>AccionTomada</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>DEFAULT 'PENDIENTE'. CHECK: PENDIENTE, ESCALADO, BLOQUEADO, DESCARTADO</td></tr>
+        <tr><td><code>IdUsuarioResolucion</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → operador que resolvió la alerta</td></tr>
+        <tr><td><code>NotasResolucion</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Notas del revisor</td></tr>
+        <tr><td><code>FechaResolucion</code></td><td>DATETIME2(3)</td><td class="null-yes">NULL</td><td>Momento de resolución</td></tr>
+        <tr><td><code>FechaAlerta</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+
+    <h3>EscalamientosFabrica</h3>
+    <p>Registro transaccional de escalamientos a revisión manual. Una fila por cada vez que un estudio va a revisión manual. El asesor ve el motivo tipificado, la alerta de fraude origen, y el contexto completo.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdEscalamiento</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>BIGINT</td><td class="null-no">NOT NULL</td><td>FK → EstudiosCredito</td></tr>
+        <tr><td><code>IdMotivoEscalamiento</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>FK → CatalogoMotivosEscalamiento</td></tr>
+        <tr><td><code>IdAlertaOrigen</code></td><td>BIGINT</td><td class="null-yes">NULL</td><td>FK → AlertasFraude (si fue por fraude)</td></tr>
+        <tr><td><code>DescripcionContexto</code></td><td>NVARCHAR(1000)</td><td class="null-yes">NULL</td><td>Resumen del contexto del escalamiento</td></tr>
+        <tr><td><code>PasoEnQueEscalo</code></td><td>VARCHAR(40)</td><td class="null-yes">NULL</td><td>Código del paso en que se escaló</td></tr>
+        <tr><td><code>IdEstadoAlEscalar</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>FK → CatalogoEstados — estado en el momento de escalar</td></tr>
+        <tr><td><code>SnapshotDatosCliente</code></td><td>NVARCHAR(MAX)</td><td class="null-yes">NULL</td><td>JSON snapshot de datos clave del cliente en ese momento</td></tr>
+        <tr><td><code>EscaladoPorSistema</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 1. 0 = escalamiento manual por asesor</td></tr>
+        <tr><td><code>IdUsuarioEscala</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → operador que escaló manualmente</td></tr>
+        <tr><td><code>IdAsesorAsignado</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → operador asignado para resolver</td></tr>
+        <tr><td><code>FechaAsignacion</code></td><td>DATETIME2(3)</td><td class="null-yes">NULL</td><td>Momento de asignación al asesor</td></tr>
+        <tr><td><code>EstadoEscalamiento</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>DEFAULT 'ABIERTO'. CHECK: ABIERTO, EN_GESTION, RESUELTO, CERRADO_SIN_RESOLUCION</td></tr>
+        <tr><td><code>ResultadoGestion</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>CHECK: APROBADO, RECHAZADO, DEVUELTO_FLUJO</td></tr>
+        <tr><td><code>NotasAsesor</code></td><td>NVARCHAR(1000)</td><td class="null-yes">NULL</td><td>Notas del asesor al resolver</td></tr>
+        <tr><td><code>FechaResolucion</code></td><td>DATETIME2(3)</td><td class="null-yes">NULL</td><td>Momento de resolución</td></tr>
+        <tr><td><code>FechaCreacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+        <tr><td><code>FechaActualizacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+
+    <h3>LogValidacionesOTP <span class="badge badge--red">INSERT-ONLY</span></h3>
+    <p>Log granular de cada intento individual de validación OTP. Complementa <code>RetosSeguridad</code> (que registra el token, no cada intento). Permite reconstruir "intento 1 falló, intento 2 expiró".</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdLogOTP</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>IdReto</code></td><td>BIGINT</td><td class="null-no">NOT NULL</td><td>FK → RetosSeguridad</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>BIGINT</td><td class="null-no">NOT NULL</td><td>Redundancia para consultas por estudio</td></tr>
+        <tr><td><code>NitTercero</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>Redundancia para consultas por cliente</td></tr>
+        <tr><td><code>NumeroIntento</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>Número secuencial del intento (1, 2, 3...)</td></tr>
+        <tr><td><code>DireccionEnvio</code></td><td>NVARCHAR(200)</td><td class="null-yes">NULL</td><td>Email/cel al que se envió ESTE intento</td></tr>
+        <tr><td><code>ResultadoIntento</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>CHECK: EXITOSO, FALLIDO_HASH, EXPIRADO, CANCELADO</td></tr>
+        <tr><td><code>CodigoEntradoHash</code></td><td>VARCHAR(256)</td><td class="null-yes">NULL</td><td>Hash del código ingresado (nunca en claro)</td></tr>
+        <tr><td><code>DireccionIP</code></td><td>VARCHAR(45)</td><td class="null-yes">NULL</td><td>IP del cliente al momento del intento</td></tr>
+        <tr><td><code>UserAgent</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Navegador/dispositivo del cliente</td></tr>
+        <tr><td><code>FechaIntento</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+
+    <h3>HistorialDatosSensibles <span class="badge badge--red">INSERT-ONLY</span></h3>
+    <p>Fuente de verdad para mutaciones de campos de contacto (email, celular, dirección). Diseñada para detectar el patrón de fraude: <em>"email original → email cambiado después de OTP fallido"</em>.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdHistorialDato</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>BIGINT</td><td class="null-no">NOT NULL</td><td>FK → EstudiosCredito</td></tr>
+        <tr><td><code>NitTercero</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>NIT del cliente</td></tr>
+        <tr><td><code>CampoCambiado</code></td><td>VARCHAR(50)</td><td class="null-no">NOT NULL</td><td>Ej. EmailCliente, CelularCliente, DireccionCapturada</td></tr>
+        <tr><td><code>ValorOriginal</code></td><td>NVARCHAR(300)</td><td class="null-yes">NULL</td><td>Valor ANTES del cambio</td></tr>
+        <tr><td><code>ValorNuevo</code></td><td>NVARCHAR(300)</td><td class="null-yes">NULL</td><td>Valor DESPUÉS del cambio</td></tr>
+        <tr><td><code>IdRetoActivoAlCambio</code></td><td>BIGINT</td><td class="null-yes">NULL</td><td>FK → RetosSeguridad activo al cambiar el dato</td></tr>
+        <tr><td><code>EsPostFalloOTP</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0. 1 = había OTP fallido reciente al cambiar</td></tr>
+        <tr><td><code>TipoActor</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>DEFAULT 'CLIENTE'. CHECK: CLIENTE, ASESOR, SISTEMA</td></tr>
+        <tr><td><code>DireccionIP</code></td><td>VARCHAR(45)</td><td class="null-yes">NULL</td><td>IP del actor al momento del cambio</td></tr>
+        <tr><td><code>UserAgent</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Navegador/dispositivo</td></tr>
+        <tr><td><code>MotivoDeclarado</code></td><td>NVARCHAR(300)</td><td class="null-yes">NULL</td><td>Razón declarada por el cliente o asesor</td></tr>
+        <tr><td><code>FechaCambio</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout--info">
+      <p><strong>Índice de detección de fraude:</strong> IX_HistDatosSensibles_PostOTP filtra solo filas con EsPostFalloOTP=1 — hot-path para detección rápida del patrón de suplantación.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <h2 id="fotos">Grupo 5 — Fotografías y Biometría (5 tablas)</h2>
+    <p>Añadidas en v2.3, <strong>FotografiasEstudio</strong> fue rediseñada en v2.5 (GAP-07) como tabla unificada biométrica.</p>
+
+    <h3>CatalogoTiposFotografia</h3>
+    <p>Catálogo de los 3 tipos de fotografías obligatorias. Define cuáles son obligatorias, en qué orden aparecen en el módulo de revisión y qué servicio AWS usa cada tipo.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdTipoFoto</code></td><td>INT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>Codigo</code></td><td>VARCHAR(30)</td><td class="null-no">NOT NULL</td><td>FOTO_FRONTAL_DOC, FOTO_TRASERA_DOC, SELFIE</td></tr>
+        <tr><td><code>Nombre</code></td><td>NVARCHAR(100)</td><td class="null-no">NOT NULL</td><td>Nombre legible para la UI</td></tr>
+        <tr><td><code>Descripcion</code></td><td>NVARCHAR(300)</td><td class="null-yes">NULL</td><td>Instrucción de qué debe contener la foto</td></tr>
+        <tr><td><code>EsObligatoria</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 1. 1 = bloquea aprobación si falta</td></tr>
+        <tr><td><code>OrdenRevision</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>Orden en el módulo de revisión (1=Frontal, 2=Reverso, 3=Selfie)</td></tr>
+        <tr><td><code>ServicioAWS</code></td><td>VARCHAR(30)</td><td class="null-yes">NULL</td><td>Referencia informativa: REKOGNITION_DETECT_FACES, etc.</td></tr>
+        <tr><td><code>Activo</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 1</td></tr>
+        <tr><td><code>FechaCreacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+        <tr><td><code>FechaActualizacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+
+    <h3>FotografiasEstudio <span class="badge badge--accent">Rediseñada v2.5</span></h3>
+    <p>Tabla unificada biométrica (GAP-07). Ciclo de vida completo de las 3 fotos obligatorias por estudio: SELFIE, DOCUMENTO_FRONTAL, DOCUMENTO_TRASERO. Incluye datos biométricos inline y estado de revisión.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdFotografia</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>BIGINT</td><td class="null-no">NOT NULL</td><td>FK → EstudiosCredito</td></tr>
+        <tr><td><code>TipoFotografia</code></td><td>VARCHAR(30)</td><td class="null-no">NOT NULL</td><td>CHECK: SELFIE, DOCUMENTO_FRONTAL, DOCUMENTO_TRASERO</td></tr>
+        <tr><td><code>UrlArchivo</code></td><td>NVARCHAR(500)</td><td class="null-no">NOT NULL</td><td>URL/path al archivo (S3, Azure Blob, etc.)</td></tr>
+        <tr><td><code>FechaCaptura</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+        <tr><td><code>EstadoRevision</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>DEFAULT 'PENDIENTE'. CHECK: PENDIENTE, APROBADA_AUTO, APROBADA_ASESOR, RECHAZADA, REEMPLAZADA</td></tr>
+        <tr><td><code>EsVigente</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 1. 1 = foto activa; UQ filtrado garantiza una sola vigente por tipo</td></tr>
+        <tr><td><code>MetodoRevision</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>CHECK: AUTOMATICO, MANUAL_ASESOR</td></tr>
+        <tr><td><code>IdAsesorRevisor</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → BERP_FABRICASOperadores (NULL si automático)</td></tr>
+        <tr><td><code>FechaRevision</code></td><td>DATETIME2(3)</td><td class="null-yes">NULL</td><td>Momento de la revisión</td></tr>
+        <tr><td><code>MotivoRechazo</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Razón si EstadoRevision = RECHAZADA</td></tr>
+        <tr><td><code>PorcentajeCoincidencia</code></td><td>DECIMAL(5,2)</td><td class="null-yes">NULL</td><td>% coincidencia facial (selfie vs doc frontal)</td></tr>
+        <tr><td><code>PruebaVidaExitosa</code></td><td>BIT</td><td class="null-yes">NULL</td><td>Resultado prueba de vida (solo tipo SELFIE)</td></tr>
+        <tr><td><code>FechaCreacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+        <tr><td><code>CreadoPor</code></td><td>VARCHAR(50)</td><td class="null-yes">NULL</td><td>SISTEMA, ASESOR, CLIENTE</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout--info">
+      <p><strong>Índice único:</strong> UQ_FotografiasEstudio_Vigente (IdEstudio, TipoFotografia) WHERE EsVigente=1 — garantiza exactamente una foto vigente por tipo por estudio.</p>
+    </div>
+
+    <h3>SolicitudesRecarga</h3>
+    <p>Links de re-carga enviados al cliente para subir/volver a subir fotografías. Registra el token, canal de envío, estado y expiración. Nota GAP-01: <code>IdTipoFoto</code> es nullable para handoffs biométricos.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdSolicitudRecarga</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>BIGINT</td><td class="null-no">NOT NULL</td><td>FK → EstudiosCredito</td></tr>
+        <tr><td><code>IdTipoFoto</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → CatalogoTiposFotografia. NULL = handoff biométrico (GAP-01)</td></tr>
+        <tr><td><code>IdFotografiaAnterior</code></td><td>BIGINT</td><td class="null-yes">NULL</td><td>FK → FotografiasEstudio rechazada o faltante</td></tr>
+        <tr><td><code>TokenRecarga</code></td><td>VARCHAR(128)</td><td class="null-no">NOT NULL</td><td>Token único (GUID o hash) para la URL del link (UQ)</td></tr>
+        <tr><td><code>HashToken</code></td><td>VARCHAR(64)</td><td class="null-yes">NULL</td><td>SHA-256 del token para verificación segura</td></tr>
+        <tr><td><code>CanalEnvio</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>CHECK: EMAIL, SMS, WHATSAPP</td></tr>
+        <tr><td><code>DireccionEnvio</code></td><td>NVARCHAR(200)</td><td class="null-no">NOT NULL</td><td>Email o número al que se envió</td></tr>
+        <tr><td><code>EstadoSolicitud</code></td><td>VARCHAR(15)</td><td class="null-no">NOT NULL</td><td>DEFAULT 'GENERADO'. CHECK: GENERADO, ENVIADO, USADO, EXPIRADO, CANCELADO</td></tr>
+        <tr><td><code>MotivoSolicitud</code></td><td>NVARCHAR(300)</td><td class="null-yes">NULL</td><td>Por qué se generó (ej. "Selfie rechazada: foto borrosa")</td></tr>
+        <tr><td><code>FechaExpiracion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>GETDATE() + VIGENCIA_LINK_RECARGA_HORAS</td></tr>
+        <tr><td><code>FechaEnvio</code></td><td>DATETIME2(3)</td><td class="null-yes">NULL</td><td>Cuándo se envió efectivamente</td></tr>
+        <tr><td><code>FechaUso</code></td><td>DATETIME2(3)</td><td class="null-yes">NULL</td><td>Cuándo el cliente usó el link</td></tr>
+        <tr><td><code>NumeroReintentos</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0. Veces que se reenvió el mismo link</td></tr>
+        <tr><td><code>GeneradaPorSistema</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 1. 0 = generación manual por asesor</td></tr>
+        <tr><td><code>IdAsesorGenerador</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → operador si fue manual</td></tr>
+        <tr><td><code>FechaCreacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+        <tr><td><code>FechaActualizacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+
+    <h3>RevisionesFotografia <span class="badge badge--red">INSERT-ONLY</span></h3>
+    <p>Decisiones de revisión humana por fotografía. Cada vez que un revisor toma una decisión (APROBADA/RECHAZADA) se inserta una nueva fila. Permite reconstruir "quién aprobó, quién rechazó, quién aprobó al final".</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdRevision</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>IdFotografia</code></td><td>BIGINT</td><td class="null-no">NOT NULL</td><td>FK → FotografiasEstudio</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>BIGINT</td><td class="null-no">NOT NULL</td><td>Redundancia para consultas directas</td></tr>
+        <tr><td><code>IdRevisor</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>FK → BERP_FABRICASOperadores</td></tr>
+        <tr><td><code>NombreRevisor</code></td><td>NVARCHAR(150)</td><td class="null-yes">NULL</td><td>Snapshot del nombre en el momento de la revisión</td></tr>
+        <tr><td><code>DecisionRevision</code></td><td>VARCHAR(10)</td><td class="null-no">NOT NULL</td><td>CHECK: APROBADA, RECHAZADA</td></tr>
+        <tr><td><code>MotivoRechazo</code></td><td>NVARCHAR(300)</td><td class="null-yes">NULL</td><td>Obligatorio si DecisionRevision = RECHAZADA</td></tr>
+        <tr><td><code>CodigoMotivoRechazo</code></td><td>VARCHAR(40)</td><td class="null-yes">NULL</td><td>CHECK: FOTO_BORROSA, FOTO_CORTADA, DOCUMENTO_VENCIDO, DOCUMENTO_DAÑADO, ROSTRO_NO_VISIBLE, NO_COINCIDE_PERSONA, FOTO_INCORRECTA, REFLEJO_O_BRILLO, FOTO_DUPLICADA, CALIDAD_INSUFICIENTE, OTRO</td></tr>
+        <tr><td><code>NotasAdicionales</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Observaciones opcionales del revisor</td></tr>
+        <tr><td><code>FechaRevision</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+
+    <h3>HistorialFotografias <span class="badge badge--red">INSERT-ONLY</span></h3>
+    <p>Auditoría inmutable de cambios de estado en FotografiasEstudio. Complementa RevisionesFotografia: mientras que esa registra decisiones humanas, esta registra transiciones de estado (sistema/cliente/asesor).</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdHistorialFoto</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>IdFotografia</code></td><td>BIGINT</td><td class="null-no">NOT NULL</td><td>FK → FotografiasEstudio</td></tr>
+        <tr><td><code>IdEstudio</code></td><td>BIGINT</td><td class="null-no">NOT NULL</td><td>Redundancia para consultas directas</td></tr>
+        <tr><td><code>IdTipoFoto</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>FK → CatalogoTiposFotografia — redundancia para filtros</td></tr>
+        <tr><td><code>EstadoAnterior</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>NULL en la primera transición (creación)</td></tr>
+        <tr><td><code>EstadoNuevo</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>CHECK: PENDIENTE_CARGA, CARGADA, EN_REVISION, APROBADA, RECHAZADA, REEMPLAZADA, EXPIRADA</td></tr>
+        <tr><td><code>TipoActor</code></td><td>VARCHAR(15)</td><td class="null-no">NOT NULL</td><td>DEFAULT 'SISTEMA'. CHECK: SISTEMA, CLIENTE, ASESOR</td></tr>
+        <tr><td><code>IdActorUsuario</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → operador si es ASESOR</td></tr>
+        <tr><td><code>IdentificadorActor</code></td><td>NVARCHAR(100)</td><td class="null-yes">NULL</td><td>NIT si CLIENTE, login si ASESOR, 'SISTEMA' si automático</td></tr>
+        <tr><td><code>MotivoTransicion</code></td><td>NVARCHAR(300)</td><td class="null-yes">NULL</td><td>Descripción del motivo de la transición</td></tr>
+        <tr><td><code>IdRevisionRelacionada</code></td><td>BIGINT</td><td class="null-yes">NULL</td><td>FK → RevisionesFotografia (si fue por revisión)</td></tr>
+        <tr><td><code>IdSolicitudRelacionada</code></td><td>BIGINT</td><td class="null-yes">NULL</td><td>FK → SolicitudesRecarga (si fue por re-carga)</td></tr>
+        <tr><td><code>FechaTransicion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <h2 id="nuevas">Grupo 6 — Nuevas v2.4–v2.5 (2 tablas)</h2>
+
+    <h3>ValidacionesAsesor <span class="badge badge--amber">v2.4 · C-03</span> <span class="badge badge--red">INSERT-ONLY</span></h3>
+    <p>Log de validación biométrica de identidad del asesor en el canal tienda/bodega. Flujo: asesor ingresa código en PC compartida → sistema valida via prueba de vida facial. <code>IdValidacion</code> se referencia desde <code>EstudiosCredito.IdValidacionAsesor</code>.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdValidacion</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>IdAsesor</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>FK → QUAC.dbo.BERP_FABRICASOperadores.idOperadorFabrica</td></tr>
+        <tr><td><code>CodigoAsesor</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>Badge/código ingresado por el asesor en la PC</td></tr>
+        <tr><td><code>IdBodega</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>FK → QUAC.dbo.bodegas.id — PC/punto de venta donde se valida</td></tr>
+        <tr><td><code>FechaValidacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+        <tr><td><code>PruebaVidaExitosa</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0. 1 = prueba de vida facial superada</td></tr>
+        <tr><td><code>PorcentajeCoincidencia</code></td><td>DECIMAL(5,2)</td><td class="null-yes">NULL</td><td>Porcentaje de coincidencia facial (0.00–100.00)</td></tr>
+        <tr><td><code>IdDispositivo</code></td><td>VARCHAR(100)</td><td class="null-yes">NULL</td><td>Identificador del equipo/PC (hostname, UUID)</td></tr>
+        <tr><td><code>DireccionIP</code></td><td>VARCHAR(45)</td><td class="null-yes">NULL</td><td>IP del dispositivo (IPv4 e IPv6)</td></tr>
+        <tr><td><code>ResultadoValidacion</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>CHECK: EXITOSA, FALLIDA, ERROR_SERVICIO</td></tr>
+        <tr><td><code>MensajeError</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Mensaje de error si no fue EXITOSA</td></tr>
+        <tr><td><code>FechaCreacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout--info">
+      <p><strong>GAP-14:</strong> IX_ValidacionesAsesor_Exitosas es un índice filtrado WHERE ResultadoValidacion='EXITOSA' para el hot-path de consultas de autorización.</p>
+    </div>
+
+    <h3>AuditoriaLogins <span class="badge badge--green">v2.5 · GAP-15</span> <span class="badge badge--red">INSERT-ONLY</span></h3>
+    <p>Auditoría de intentos de inicio de sesión por canal y tipo de usuario. <code>OrigenLogin</code> discrimina entre <code>LoginWeb</code> (cliente en autoservicio) y <code>LoginTienda</code> (asesor en bodega). Reemplaza logs dispersos en aplicación.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdLogin</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
+        <tr><td><code>OrigenLogin</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>CHECK: LoginWeb, LoginTienda</td></tr>
+        <tr><td><code>IdUsuario</code></td><td>VARCHAR(50)</td><td class="null-no">NOT NULL</td><td>Cédula o ID del usuario que inicia sesión</td></tr>
+        <tr><td><code>TipoUsuario</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>CHECK: CLIENTE, ASESOR</td></tr>
+        <tr><td><code>FechaLogin</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+        <tr><td><code>ResultadoLogin</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>CHECK: EXITOSO, FALLIDO, BLOQUEADO</td></tr>
+        <tr><td><code>DireccionIP</code></td><td>VARCHAR(45)</td><td class="null-yes">NULL</td><td>IPv4 (máx 15) o IPv6 (máx 45)</td></tr>
+        <tr><td><code>UserAgent</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Navegador/dispositivo</td></tr>
+        <tr><td><code>IdBodega</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK blanda a QUAC.dbo.bodegas (solo LoginTienda)</td></tr>
+        <tr><td><code>MensajeError</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Detalle si ResultadoLogin ≠ EXITOSO</td></tr>
+        <tr><td><code>FechaCreacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout--danger">
+      <p><strong>AuditoriaLogins es INSERT-ONLY — nunca UPDATE ni DELETE.</strong> Esta tabla es la fuente de verdad para detección de fuerza bruta y auditoría de seguridad de accesos. Cualquier modificación posterior invalida la evidencia forense.</p>
+    </div>
+  </main>
+</body>
+</html>
