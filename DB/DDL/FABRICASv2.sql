@@ -2,8 +2,8 @@
 ================================================================================
   FÁBRICAS DE CRÉDITO QUAC — MODELO DE DATOS V2
   Motor:    SQL Server 2019+
-  Versión:  2.3
-  Fecha:    2026-04-13
+  Versión:  2.5
+  Fecha:    2026-04-15
   Autor:    Arquitectura de Datos — QUAC FinTech
   
   ESTRUCTURA DEL SCRIPT:
@@ -12,9 +12,11 @@
   2. MODIFICACIÓN DE TABLAS EXISTENTES        → ALTER TABLE a tablas prod.
   3. TABLAS TRANSACCIONALES (7 tablas)        → Operaciones del proceso
   4. TABLAS DE AUDITORÍA (3 tablas)           → Trazabilidad inmutable
-  5. PARCHES V2.2 — SENIOR ARCHITECT AUDIT    → Tablas y columnas de fraude/escalamiento
+  5. PARCHES V2.2 — Architect Audit    → Tablas y columnas de fraude/escalamiento
   6. DATOS SEMILLA (SEEDS)                    → Catálogos iniciales
-  7. PARCHES V2.3 — GESTIÓN DE FOTOGRAFÍAS    → Ciclo de vida de fotos, revisión, re-carga
+   7. PARCHES V2.3 — GESTIÓN DE FOTOGRAFÍAS    → Ciclo de vida de fotos, revisión, re-carga
+   8. PARCHES V2.4 — CORRECCIONES ARQUITECTURA → ValidacionesAsesor, IdBodega, reglas OTP/JWT
+   9. PARCHES V2.5 — 18 AUDIT GAPS            → Correcciones de auditoría v2.5
   
   NOTAS:
   - Las tablas QUAC.dbo.terceros, QUAC.dbo.bodegas, PRUEBASBD.dbo.kcrm_VendedoresExternos,
@@ -36,18 +38,46 @@
   - GT-05: Columnas de dirección capturada en EstudiosCredito
   - GT-08: Nueva tabla EvidenciasFabrica
 
-  CAMBIOS v2.2 — Senior Architect Audit (2026-04-10):
+  CAMBIOS v2.2 — Architect Audit (2026-04-10):
   - SA-01: Nueva tabla CatalogoMotivosEscalamiento (catálogo tipificado de razones)
   - SA-02: Nueva tabla EscalamientosFabrica (trazabilidad completa para asesor)
   - SA-03: Nueva tabla LogValidacionesOTP (log granular de intentos, INSERT-ONLY)
   - SA-04: Nueva tabla HistorialDatosSensibles (mutaciones email/cel con contexto)
   - SA-05: Nueva tabla AlertasFraude (registro inmutable de alertas, INSERT-ONLY)
   - SA-06: Nueva tabla CatalogoReglasFraude (tipificación de reglas de detección)
-  - SA-07: EstudiosCredito +ClaveIdempotencia +VersionFila +EliminadoLogico +IdCorrelacion +IdEscalamientoActivo
+  - SA-07: EstudiosCredito +EliminadoLogico +IdCorrelacion +IdEscalamientoActivo (ClaveIdempotencia y VersionFila eliminados por decisión PO)
   - SA-08: HistorialEstados +IdCorrelacion
   - SA-09: RetosSeguridad +DireccionEnvio
   - SA-10: ValidacionesContactabilidad +IdAlertaFraude +FK
   - SA-11: CatalogoEstados: estados REVISION_FABRICA y BLOQUEADO_FRAUDE + 6 transiciones
+
+  CAMBIOS v2.4 — Correcciones de Arquitectura (2026-04-15):
+  - C-01: Auth — Reglas de negocio OTP_EXPIRACION_MINUTOS, OTP_MAXIMO_INTENTOS, JWT_ORIGEN_WEB, JWT_ORIGEN_BODEGA en ConfiguracionReglasNegocio
+  - C-02: IdTienda → IdBodega en EstudiosCredito + renombre índice IX_EstudiosCredito_Tienda → IX_EstudiosCredito_Bodega
+  - C-03: Nueva tabla ValidacionesAsesor (log de validación biométrica de identidad del asesor)
+  - C-04: IdValidacionAsesor BIGINT NULL FK → ValidacionesAsesor (columna en CREATE TABLE; FK como ALTER por dependencia circular)
+  - C-05: NitComercio VARCHAR(20) NOT NULL añadido a EstudiosCredito (NIT del comercio donde se origina el cupo)
+  - C-06: ClaveIdempotencia y VersionFila ELIMINADOS de EstudiosCredito (la máquina de estados y reglas de negocio previenen duplicados en la capa de servicio)
+
+  CAMBIOS v2.5 — 18 Audit Gaps (2026-04-15):
+  - GAP-01: SolicitudesRecarga.IdTipoFoto cambiado de NOT NULL a NULL (handoff biométrico)
+  - GAP-02: HistorialEstados.TipoUsuario CHECK ampliado con 'CLIENTE' y 'ADMINISTRADOR'
+  - GAP-03: EstudiosCredito +CelularCliente VARCHAR(20) NULL (envío de OTP)
+  - GAP-04: ConfiguracionReglasNegocio: eliminadas semillas duplicadas OTP_MAXIMO_INTENTOS y OTP_EXPIRACION_MINUTOS; JWT_ORIGEN_BODEGA renombrado a JWT_ORIGEN_TIENDA
+  - GAP-05: ConfiguracionReglasNegocio +CHECK CK_ConfiguracionReglasNegocio_Categoria
+  - GAP-06: TercerosFabricas: todos los DATETIME2 sin precisión → DATETIME2(3)
+  - GAP-07: FotografiasEstudio REDISEÑADA (tabla unificada biométrica); EvidenciasFabrica conservada sin valores fotográficos en CHECK
+  - GAP-08: AuditoriaCambiosDatos +CHECK CK_AuditoriaCambiosDatos_TipoUsuario
+  - GAP-09: TercerosFabricas.NombreTercero VARCHAR→NVARCHAR(200)
+  - GAP-10: Seeds de TransicionesEstado: patrón IF NOT EXISTS idempotente (ya aplicado en v2.2)
+  - GAP-11: CatalogoCanalesOrigen: SYSDATETIME() → GETDATE()
+  - GAP-12: EstudiosCredito +IX_EstudiosCredito_EscalamientoActivo
+  - GAP-13: RegistrosBiometria.TipoVerificacion CHECK ampliado con 'PRUEBA_VIDA_HANDOFF'
+  - GAP-14: ValidacionesAsesor +IX_ValidacionesAsesor_Exitosas (índice filtrado hot-path)
+  - GAP-15: Nueva tabla AuditoriaLogins
+  - GAP-16: SolicitudesRecarga: índice IX_SolicitudesRecarga_Estudio no incluye IdTipoFoto en clave
+  - GAP-17: JWT_ORIGEN_TIENDA seed (ya cubierto por GAP-04)
+  - GAP-18: TercerosFabricas +CelularTercero VARCHAR(20) NULL
 
   CAMBIOS v2.3 — Gestión de Fotografías / Módulo de Revisión (2026-04-13):
   - PH-01: Nueva tabla CatalogoTiposFotografia (catálogo de los 3 tipos obligatorios)
@@ -187,7 +217,10 @@ BEGIN
         FechaActualizacion  DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
         
         CONSTRAINT UQ_ConfigReglasNegocio_Codigo UNIQUE (Codigo),
-        CONSTRAINT CK_ConfigReglas_TipoDato CHECK (TipoDato IN ('INT','DECIMAL','BOOL','TEXT','JSON'))
+        CONSTRAINT CK_ConfigReglas_TipoDato CHECK (TipoDato IN ('INT','DECIMAL','BOOL','TEXT','JSON')),
+        CONSTRAINT CK_ConfiguracionReglasNegocio_Categoria CHECK (  -- GAP-05
+            Categoria IN ('ENFRIAMIENTO','GENERAL','OTP','BIOMETRIA','RIESGO','FOTOS','AUTH')
+        )
     );
     PRINT '✓ Tabla ConfiguracionReglasNegocio creada';
 END
@@ -205,8 +238,8 @@ BEGIN
         Nombre              NVARCHAR(100)       NOT NULL,
         Descripcion         NVARCHAR(300)       NULL,
         Activo              BIT                 NOT NULL DEFAULT 1,
-        FechaCreacion       DATETIME2(3)        NOT NULL DEFAULT SYSDATETIME(),
-        FechaActualizacion  DATETIME2(3)        NOT NULL DEFAULT SYSDATETIME(),
+        FechaCreacion       DATETIME2(3)        NOT NULL DEFAULT GETDATE(),    -- GAP-11: GETDATE() estándar
+        FechaActualizacion  DATETIME2(3)        NOT NULL DEFAULT GETDATE(),    -- GAP-11: GETDATE() estándar
         
         CONSTRAINT PK_CatalogoCanalesOrigen PRIMARY KEY (IdCanal),
         CONSTRAINT UQ_CatalogoCanalesOrigen_Codigo UNIQUE (Codigo)
@@ -218,10 +251,12 @@ GO
 
 -- ==============================================================================
 -- ══════════════════════════════════════════════════════════════════════════════
--- SECCIÓN 2: MODIFICACIÓN DE TABLAS EXISTENTES (ALTER TABLE)
+-- SECCIÓN 2: MODIFICACIÓN DE TABLAS EXISTENTES EN PRODUCCIÓN (ALTER TABLE)
 -- ==============================================================================
--- Se añaden columnas a las tablas que ya existen en producción.
--- Estas mejoras permiten integrar la nueva arquitectura de fábricas.
+-- IMPORTANTE: Esta sección SOLO contiene ALTER TABLE sobre tablas que YA EXISTEN
+-- en producción (QUAC.dbo.KCRM_CadenaCreditos, QUAC.dbo.BERP_FABRICASOperadores).
+-- Las nuevas tablas de este proyecto se crean con su DDL completo en las secciones
+-- siguientes. NO hay ALTER TABLE para tablas creadas en este mismo script.
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 2.1 Nueva Tabla: TercerosFabricas — Fuente de Verdad para Clientes
@@ -237,19 +272,20 @@ BEGIN
     CREATE TABLE dbo.TercerosFabricas (
         IdTerceroFabricas       INT IDENTITY(1,1) NOT NULL,
         NitTercero              VARCHAR(20) NOT NULL,
-        NombreTercero           VARCHAR(200) NULL,
+        NombreTercero           NVARCHAR(200) NULL,          -- GAP-09: NVARCHAR para soportar ñ y acentos
         EstadoTercero           VARCHAR(20) NOT NULL DEFAULT 'ACTIVO',
         TieneCupoActivo        BIT NOT NULL DEFAULT 0,
         EstaBloqueadoFabricas  BIT NOT NULL DEFAULT 0,
         MotivoBloqueo          VARCHAR(100) NULL,
-        FechaBloqueo           DATETIME2 NULL,
-        FechaDesbloqueo        DATETIME2 NULL,
+        FechaBloqueo           DATETIME2(3) NULL,            -- GAP-06: precisión explícita (3)
+        FechaDesbloqueo        DATETIME2(3) NULL,            -- GAP-06: precisión explícita (3)
         TieneRegistroBiometrico BIT NOT NULL DEFAULT 0,
-        FechaRegistroBiometrico DATETIME2 NULL,
+        FechaRegistroBiometrico DATETIME2(3) NULL,           -- GAP-06: precisión explícita (3)
         PuntajeCredito         DECIMAL(5,2) NULL,
-        FechaUltimaEvaluacion  DATETIME2 NULL,
-        FechaCreacion          DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
-        FechaModificacion      DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+        FechaUltimaEvaluacion  DATETIME2(3) NULL,            -- GAP-06: precisión explícita (3)
+        CelularTercero         VARCHAR(20) NULL,             -- GAP-18: celular principal para contacto y OTP
+        FechaCreacion          DATETIME2(3) NOT NULL DEFAULT GETDATE(),  -- GAP-06+11: DATETIME2(3) y GETDATE()
+        FechaModificacion      DATETIME2(3) NOT NULL DEFAULT GETDATE(),  -- GAP-06+11: DATETIME2(3) y GETDATE()
         CONSTRAINT PK_TercerosFabricas PRIMARY KEY CLUSTERED (IdTerceroFabricas),
         CONSTRAINT UQ_TercerosFabricas_Nit UNIQUE (NitTercero),
         CONSTRAINT FK_TercerosFabricas_Terceros FOREIGN KEY (NitTercero)
@@ -327,9 +363,11 @@ BEGIN
         
         -- Referencia al cliente (terceros)
         NitTercero              VARCHAR(20)         NOT NULL,
+        NitComercio             VARCHAR(20)         NOT NULL,   -- NIT del comercio donde se origina el cupo
+        CelularCliente          VARCHAR(20)         NULL,       -- GAP-03: Celular del cliente para envío de OTP (SMS/WhatsApp)
         
         -- Referencias a entidades existentes
-        IdTienda               INT                 NULL,       -- FK a QUAC.dbo.bodegas.id
+        IdBodega               INT                 NULL,       -- FK a QUAC.dbo.bodegas.id
         IdAsesor               INT                 NULL,       -- FK a BERP_FABRICASOperadores.idOperadorFabrica
         IdCanal                INT                 NULL,       -- FK a CatalogoCanalesOrigen.IdCanal (G-DB-01)
         
@@ -375,23 +413,44 @@ BEGIN
         FechaCreacion          DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
         FechaActualizacion     DATETIME2(3)       NOT NULL DEFAULT GETDATE(),
         
+        -- Control de concurrencia y trazabilidad distribuida (SA-07)
+        EliminadoLogico        BIT                 NOT NULL DEFAULT 0,   -- Soft delete: cierra el estudio sin borrar históricos
+        IdCorrelacion          VARCHAR(64)         NULL,                  -- Correlation-ID del request HTTP original
+        IdEscalamientoActivo   BIGINT              NULL,                  -- FK lógica → EscalamientosFabrica (FK física genera circular ref)
+        
+        -- Fotografías — resumen desnormalizado para gate de aprobación (PH-06)
+        FotografiasAprobadas   INT                 NOT NULL DEFAULT 0,   -- Contador desnormalizado: 0-3. Gate: = 3 para aprobar crédito
+        EstadoRevisionFotos    VARCHAR(15)         NOT NULL DEFAULT 'PENDIENTE',  -- PENDIENTE, EN_REVISION, APROBADO, CON_RECHAZOS
+        
+        -- Validación biométrica del asesor que inició la sesión (C-04)
+        IdValidacionAsesor     BIGINT              NULL,                  -- FK → ValidacionesAsesor.IdValidacion (NULL en canal WEB)
+        
         CONSTRAINT PK_EstudiosCredito PRIMARY KEY (IdEstudio),
         CONSTRAINT FK_EstudiosCredito_Estado FOREIGN KEY (IdEstadoActual) REFERENCES CatalogoEstados(IdEstado),
         CONSTRAINT FK_EstudiosCredito_Paso FOREIGN KEY (IdPasoActual) REFERENCES PasosEstudio(IdPaso),
         CONSTRAINT FK_EstudiosCredito_Canal FOREIGN KEY (IdCanal) REFERENCES CatalogoCanalesOrigen(IdCanal),  -- G-DB-01
         CONSTRAINT FK_EstudiosCredito_Tercero FOREIGN KEY (NitTercero) REFERENCES TercerosFabricas(NitTercero),  -- G-DB-02
-        CONSTRAINT CK_EstudiosCredito_TipoCierre CHECK (TipoCierre IS NULL OR TipoCierre IN ('EXPRESS','NORMAL','FABRICA'))  -- GT-04
+        CONSTRAINT CK_EstudiosCredito_TipoCierre CHECK (TipoCierre IS NULL OR TipoCierre IN ('EXPRESS','NORMAL','FABRICA')),  -- GT-04
+        CONSTRAINT CK_EstudiosCredito_EstadoRevisionFotos CHECK (EstadoRevisionFotos IN ('PENDIENTE','EN_REVISION','APROBADO','CON_RECHAZOS'))  -- PH-06
     );
     
     CREATE INDEX IX_EstudiosCredito_Cliente ON EstudiosCredito(NitTercero);
+    CREATE INDEX IX_EstudiosCredito_NitComercio ON EstudiosCredito(NitComercio);
     CREATE INDEX IX_EstudiosCredito_Estado ON EstudiosCredito(IdEstadoActual);
     CREATE INDEX IX_EstudiosCredito_Asesor ON EstudiosCredito(IdAsesor) WHERE IdAsesor IS NOT NULL;
-    CREATE INDEX IX_EstudiosCredito_Tienda ON EstudiosCredito(IdTienda) WHERE IdTienda IS NOT NULL;
+    CREATE INDEX IX_EstudiosCredito_Bodega ON EstudiosCredito(IdBodega) WHERE IdBodega IS NOT NULL;  -- C-02: renombrado de IX_EstudiosCredito_Tienda
     CREATE INDEX IX_EstudiosCredito_Canal ON EstudiosCredito(IdCanal) WHERE IdCanal IS NOT NULL;  -- G-DB-01
     CREATE INDEX IX_EstudiosCredito_FechaInicio ON EstudiosCredito(FechaInicio);
     CREATE INDEX IX_EstudiosCredito_ClienteFecha ON EstudiosCredito(NitTercero, FechaInicio) INCLUDE (IdEstadoActual);
     CREATE INDEX IX_EstudiosCredito_CallCenter ON EstudiosCredito(RequiereCallCenter, IdEstadoActual) WHERE RequiereCallCenter = 1;
     CREATE INDEX IX_EstudiosCredito_SlugWeb ON EstudiosCredito(SlugPasoWeb) WHERE SlugPasoWeb IS NOT NULL;  -- G-DB-07
+    CREATE INDEX IX_EstudiosCredito_Correlacion ON EstudiosCredito(IdCorrelacion) WHERE IdCorrelacion IS NOT NULL;  -- SA-07
+    CREATE INDEX IX_EstudiosCredito_RevisionFotos ON EstudiosCredito(EstadoRevisionFotos, IdEstadoActual)  -- PH-06
+        WHERE EstadoRevisionFotos IN ('EN_REVISION','CON_RECHAZOS');
+    CREATE INDEX IX_EstudiosCredito_ValidacionAsesor ON EstudiosCredito(IdValidacionAsesor)  -- C-04
+        WHERE IdValidacionAsesor IS NOT NULL;
+    CREATE INDEX IX_EstudiosCredito_EscalamientoActivo ON EstudiosCredito(IdEscalamientoActivo)  -- GAP-12
+        WHERE IdEscalamientoActivo IS NOT NULL;
     
     PRINT '✓ Tabla EstudiosCredito creada';
 END
@@ -416,6 +475,9 @@ BEGIN
         -- G-DB-05: Seguimiento de reenvíos del token
         NumeroReenvios      INT                 NOT NULL DEFAULT 0,   -- Cantidad de veces que se reenvió el token
         UltimoReenvio       DATETIME2(3)        NULL,                  -- Fecha y hora del último reenvío realizado
+        
+        -- SA-09: Dirección exacta a la que se envió el token (puede diferir si hubo cambio de email)
+        DireccionEnvio      NVARCHAR(200)       NULL,   -- Email o celular exacto al que se envió el token
         
         CONSTRAINT PK_RetosSeguridad PRIMARY KEY (IdReto),
         CONSTRAINT FK_RetosSeguridad_Estudio FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio),
@@ -497,13 +559,25 @@ BEGIN
         
         FechaRegistro           DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
         
+        -- PH-07: FKs directas a las fotografías usadas en Rekognition
+        -- (FotografiasEstudio se crea en Sección 7 — FKs físicas se añaden como ALTER posterior)
+        IdFotografiaFrontal     BIGINT              NULL,   -- FK → FotografiasEstudio (FOTO_FRONTAL_DOC usada en Rekognition)
+        IdFotografiaReverso     BIGINT              NULL,   -- FK → FotografiasEstudio (FOTO_TRASERA_DOC usada en OCR)
+        IdFotografiaSelfie      BIGINT              NULL,   -- FK → FotografiasEstudio (SELFIE usada en CompareFaces/DetectFaces)
+        
         CONSTRAINT PK_RegistrosBiometria PRIMARY KEY (IdBiometria),
         CONSTRAINT FK_RegistrosBiometria_Estudio FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio),
-        CONSTRAINT CK_RegistrosBiometria_Tipo CHECK (TipoVerificacion IN ('ONBOARDING','AUTENTICACION')),
+        CONSTRAINT CK_RegistrosBiometria_Tipo CHECK (TipoVerificacion IN ('ONBOARDING','AUTENTICACION','PRUEBA_VIDA_HANDOFF')),  -- GAP-13: añadido PRUEBA_VIDA_HANDOFF
         CONSTRAINT CK_RegistrosBiometria_Estado CHECK (EstadoProceso IN ('EXITOSO','FALLIDO','REVISION_MANUAL'))
     );
     
     CREATE INDEX IX_RegistrosBiometria_Estudio ON RegistrosBiometria(IdEstudio);
+    CREATE INDEX IX_RegistrosBiometria_FotoFrontal ON RegistrosBiometria(IdFotografiaFrontal)
+        WHERE IdFotografiaFrontal IS NOT NULL;   -- PH-07
+    CREATE INDEX IX_RegistrosBiometria_FotoReverso ON RegistrosBiometria(IdFotografiaReverso)
+        WHERE IdFotografiaReverso IS NOT NULL;   -- PH-07
+    CREATE INDEX IX_RegistrosBiometria_FotoSelfie ON RegistrosBiometria(IdFotografiaSelfie)
+        WHERE IdFotografiaSelfie IS NOT NULL;    -- PH-07
     
     PRINT '✓ Tabla RegistrosBiometria creada';
 END
@@ -528,6 +602,9 @@ BEGIN
         IdAsesorCallCenter       INT                 NULL,
         ComentariosAgente         NVARCHAR(500)       NULL,
         
+        -- SA-10: Vínculo con alerta de fraude (FK física añadida tras crear AlertasFraude en Sección 5)
+        IdAlertaFraude            BIGINT              NULL,   -- FK → AlertasFraude (si esta validación generó o está asociada a una alerta)
+        
         FechaVerificacion         DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
         
         CONSTRAINT PK_ValidacionesContactabilidad PRIMARY KEY (IdValidacion),
@@ -548,6 +625,8 @@ BEGIN
         WHERE EstadoVerificacionManual = 'PENDIENTE';
     CREATE INDEX IX_ValidContact_EstadoUbica ON ValidacionesContactabilidad(EstadoUbica)  -- G-DB-04
         WHERE EstadoUbica IS NOT NULL;
+    CREATE INDEX IX_ValidContact_AlertaFraude ON ValidacionesContactabilidad(IdAlertaFraude)  -- SA-10
+        WHERE IdAlertaFraude IS NOT NULL;
     
     PRINT '✓ Tabla ValidacionesContactabilidad creada';
 END
@@ -609,12 +688,12 @@ BEGIN
         SubidoPor           NVARCHAR(100)           NOT NULL,   -- Usuario o sistema que cargó el archivo
         Observaciones       NVARCHAR(500)           NULL,       -- Notas adicionales del asesor o sistema
         
-        FechaCreacion       DATETIME2(3)            NOT NULL DEFAULT SYSDATETIME(),
+        FechaCreacion       DATETIME2(3)            NOT NULL DEFAULT GETDATE(),  -- GAP-11: GETDATE() estándar
         
         CONSTRAINT PK_EvidenciasFabrica PRIMARY KEY (IdEvidencia),
         CONSTRAINT FK_EvidenciasFabrica_Estudio FOREIGN KEY (IdEstudioCredito) REFERENCES EstudiosCredito(IdEstudio),
         CONSTRAINT CK_EvidenciasFabrica_Tipo CHECK (
-            TipoEvidencia IN ('FOTO_DOCUMENTO','SELFIE','COMPROBANTE','NOTA_ASESOR','DOCUMENTO_SOPORTE','OTRO')
+            TipoEvidencia IN ('COMPROBANTE','NOTA_ASESOR','DOCUMENTO_SOPORTE','OTRO')  -- GAP-07: FOTO_DOCUMENTO y SELFIE eliminados; fotos van a FotografiasEstudio
         )
     );
     
@@ -654,6 +733,9 @@ BEGIN
         TipoUsuario         VARCHAR(20)         NOT NULL DEFAULT 'SISTEMA',
         MotivoTransicion    NVARCHAR(500)       NULL,
         
+        -- SA-08: Correlation-ID propagado desde el request para trazabilidad distribuida
+        IdCorrelacion       VARCHAR(64)         NULL,   -- Correlation-ID propagado desde el request
+        
         FechaTransicion     DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
         
         CONSTRAINT PK_HistorialEstados PRIMARY KEY (IdHistorial),
@@ -661,7 +743,7 @@ BEGIN
         CONSTRAINT FK_Hist_EstAnterior FOREIGN KEY (IdEstadoAnterior) REFERENCES CatalogoEstados(IdEstado),
         CONSTRAINT FK_Hist_EstNuevo FOREIGN KEY (IdEstadoNuevo) REFERENCES CatalogoEstados(IdEstado),
         CONSTRAINT FK_Hist_Paso FOREIGN KEY (IdPasoRelacionado) REFERENCES PasosEstudio(IdPaso),
-        CONSTRAINT CK_HistorialEstados_TipoUsr CHECK (TipoUsuario IN ('SISTEMA','ASESOR','CALL_CENTER'))
+        CONSTRAINT CK_HistorialEstados_TipoUsr CHECK (TipoUsuario IN ('SISTEMA','ASESOR','CALL_CENTER','CLIENTE','ADMINISTRADOR'))  -- GAP-02: añadidos CLIENTE y ADMINISTRADOR
     );
     
     CREATE INDEX IX_HistorialEstados_Estudio ON HistorialEstados(IdEstudio, FechaTransicion);
@@ -690,7 +772,8 @@ BEGIN
         FechaCambio         DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
         
         CONSTRAINT PK_AuditoriaCambiosDatos PRIMARY KEY (IdAuditoria),
-        CONSTRAINT FK_Audit_Request FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio)
+        CONSTRAINT FK_Audit_Request FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio),
+        CONSTRAINT CK_AuditoriaCambiosDatos_TipoUsuario CHECK (TipoUsuario IN ('SISTEMA','ASESOR','CLIENTE','ADMINISTRADOR'))  -- GAP-08
     );
     
     CREATE INDEX IX_AuditoriaCambiosDatos_Cliente ON AuditoriaCambiosDatos(NitTercero, FechaCambio);
@@ -744,7 +827,7 @@ GO
 
 -- ==============================================================================
 -- ══════════════════════════════════════════════════════════════════════════════
--- SECCIÓN 5: PARCHES V2.2 — GAPS DEL ESCENARIO DE ESTRÉS (SENIOR ARCHITECT AUDIT)
+-- SECCIÓN 5: PARCHES V2.2 — GAPS DEL ESCENARIO DE ESTRÉS (Architect Audit)
 -- ══════════════════════════════════════════════════════════════════════════════
 -- Identificados mediante análisis senior de arquitectura de datos (2026-04-10).
 -- Cubren EXACTAMENTE los 5 pasos del caso de estrés: autoservicio, validación
@@ -1016,108 +1099,40 @@ END
 GO
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- 5.7  ALTER EstudiosCredito — columnas de control de concurrencia, idempotencia,
---      escalamiento, soft-delete y correlación distribuida
---      SA-07: Estas columnas son necesarias para la preparación API y para
---             vincular el estudio con su escalamiento activo de forma directa.
+-- 5.7  EstudiosCredito — columnas de control incorporadas en CREATE TABLE
+--      SA-07: EliminadoLogico, IdCorrelacion e IdEscalamientoActivo ya están
+--             definidos directamente en el CREATE TABLE de la Sección 3.1.
+--             ClaveIdempotencia y VersionFila ELIMINADOS por decisión del PO:
+--             la máquina de estados y las reglas de negocio del servicio ya
+--             previenen duplicados sin necesidad de control en base de datos.
 -- ─────────────────────────────────────────────────────────────────────────────
-
--- Clave de idempotencia para el API: evita procesar dos veces la misma solicitud
-IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'EstudiosCredito') AND name = 'ClaveIdempotencia')
-BEGIN
-    ALTER TABLE EstudiosCredito ADD ClaveIdempotencia VARCHAR(64) NULL;  -- Hash/UUID del request original del cliente
-    PRINT '✓ EstudiosCredito: columna ClaveIdempotencia añadida';
-END
-GO
-
--- Control de concurrencia optimista (row versioning) — previene race conditions
-IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'EstudiosCredito') AND name = 'VersionFila')
-BEGIN
-    ALTER TABLE EstudiosCredito ADD VersionFila ROWVERSION NOT NULL;  -- Actualizada automáticamente por SQL Server en cada UPDATE
-    PRINT '✓ EstudiosCredito: columna VersionFila (ROWVERSION) añadida';
-END
-GO
-
--- Soft delete: permite "cerrar" un estudio sin borrar datos históricos
-IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'EstudiosCredito') AND name = 'EliminadoLogico')
-BEGIN
-    ALTER TABLE EstudiosCredito ADD EliminadoLogico BIT NOT NULL DEFAULT 0;
-    PRINT '✓ EstudiosCredito: columna EliminadoLogico añadida';
-END
-GO
-
--- ID de correlación para trazabilidad distribuida (tracing entre microservicios)
-IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'EstudiosCredito') AND name = 'IdCorrelacion')
-BEGIN
-    ALTER TABLE EstudiosCredito ADD IdCorrelacion VARCHAR(64) NULL;   -- Correlation-ID del request HTTP original
-    PRINT '✓ EstudiosCredito: columna IdCorrelacion añadida';
-END
-GO
-
--- FK directa al escalamiento activo (denormalización controlada para consulta rápida)
-IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'EstudiosCredito') AND name = 'IdEscalamientoActivo')
-BEGIN
-    ALTER TABLE EstudiosCredito ADD IdEscalamientoActivo BIGINT NULL;  -- FK lógica → EscalamientosFabrica (FK física genera circular ref)
-    PRINT '✓ EstudiosCredito: columna IdEscalamientoActivo añadida';
-END
-GO
-
--- Índice para deduplicación de requests por clave de idempotencia
-IF NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'EstudiosCredito') AND name = 'UQ_EstudiosCredito_Idempotencia')
-BEGIN
-    CREATE UNIQUE INDEX UQ_EstudiosCredito_Idempotencia ON EstudiosCredito(ClaveIdempotencia)
-        WHERE ClaveIdempotencia IS NOT NULL;
-    PRINT '✓ EstudiosCredito: índice UQ_EstudiosCredito_Idempotencia creado';
-END
-GO
-
--- Índice para correlación distribuida
-IF NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'EstudiosCredito') AND name = 'IX_EstudiosCredito_Correlacion')
-BEGIN
-    CREATE INDEX IX_EstudiosCredito_Correlacion ON EstudiosCredito(IdCorrelacion)
-        WHERE IdCorrelacion IS NOT NULL;
-    PRINT '✓ EstudiosCredito: índice IX_EstudiosCredito_Correlacion creado';
-END
+-- (sin ALTER TABLE — columnas consolidadas en CREATE TABLE, Sección 3.1)
 GO
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- 5.8  ALTER HistorialEstados — añadir IdCorrelacion para trazabilidad
---      SA-08: Permite correlacionar cada transición de estado con el request
---             HTTP que la originó, esencial para debugging en producción.
+-- 5.8  HistorialEstados — IdCorrelacion incorporado en CREATE TABLE
+--      SA-08: La columna IdCorrelacion ya está definida directamente en el
+--             CREATE TABLE de HistorialEstados (Sección 4.1).
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'HistorialEstados') AND name = 'IdCorrelacion')
-BEGIN
-    ALTER TABLE HistorialEstados ADD IdCorrelacion VARCHAR(64) NULL;   -- Correlation-ID propagado desde el request
-    PRINT '✓ HistorialEstados: columna IdCorrelacion añadida';
-END
+-- (sin ALTER TABLE — columna consolidada en CREATE TABLE, Sección 4.1)
 GO
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- 5.9  ALTER RetosSeguridad — añadir DireccionEnvio para registrar el email/cel
---      exacto al que se envió ESTE token (puede diferir si hubo cambio de email)
---      SA-09: Permite detectar la anomalía "OTP enviado a email A pero cliente
---             luego cambió a email B antes de validar".
+-- 5.9  RetosSeguridad — DireccionEnvio incorporada en CREATE TABLE
+--      SA-09: La columna DireccionEnvio ya está definida directamente en el
+--             CREATE TABLE de RetosSeguridad (Sección 3.2).
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'RetosSeguridad') AND name = 'DireccionEnvio')
-BEGIN
-    ALTER TABLE RetosSeguridad ADD DireccionEnvio NVARCHAR(200) NULL;  -- Email o celular exacto al que se envió el token
-    PRINT '✓ RetosSeguridad: columna DireccionEnvio añadida';
-END
+-- (sin ALTER TABLE — columna consolidada en CREATE TABLE, Sección 3.2)
 GO
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- 5.10 ALTER ValidacionesContactabilidad — añadir IdAlertaFraude
---      SA-10: Vincula el resultado de la validación UBICA con la alerta de
---             fraude que ésta generó (o que existía antes de la validación).
+-- 5.10 ValidacionesContactabilidad — IdAlertaFraude y FK física (SA-10)
+--      La columna IdAlertaFraude ya está definida en el CREATE TABLE (Sección 3.5).
+--      La FK física se añade aquí como ALTER porque AlertasFraude se crea en la
+--      Sección 5.3, DESPUÉS de ValidacionesContactabilidad — dependencia forward.
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'ValidacionesContactabilidad') AND name = 'IdAlertaFraude')
-BEGIN
-    ALTER TABLE ValidacionesContactabilidad ADD IdAlertaFraude BIGINT NULL;  -- FK → AlertasFraude (si esta validación generó o está asociada a una alerta)
-    PRINT '✓ ValidacionesContactabilidad: columna IdAlertaFraude añadida';
-END
-GO
 
--- Añadir FK para IdAlertaFraude (la tabla AlertasFraude ya existe a este punto)
+-- Añadir FK para IdAlertaFraude (AlertasFraude ya existe a este punto)
 IF NOT EXISTS (
     SELECT * FROM sys.foreign_keys
     WHERE parent_object_id = OBJECT_ID(N'ValidacionesContactabilidad')
@@ -1197,6 +1212,8 @@ BEGIN
     ('PENDIENTE_OTP',       'Pendiente Validación OTP',         'PROCESO',  0, 1, 'Esperando que el cliente valide el token de seguridad'),
     ('PENDIENTE_BIOMETRIA', 'Pendiente Biometría',              'PROCESO',  0, 1, 'Esperando captura y validación biométrica'),
     ('PENDIENTE_CALL',      'Pendiente Gestión Call Center',    'PROCESO',  0, 0, 'Derivado a call center por fallo en automatización'),
+    ('PENDIENTE_FOTOS',     'Pendiente Envío de Fotos',         'PROCESO',  0, 1, 'Esperando que el cliente envíe fotos para validación manual'),
+    ('FOTOS_EN_REVISION',   'Fotos en Revisión Manual',         'PROCESO',  0, 0, 'Fotos recibidas, en revisión manual por el equipo de crédito'),
     ('CUPO_PREAPROBADO',    'Cupo Preaprobado',                 'PROCESO',  0, 1, 'Cupo calculado exitosamente, pendiente verificación de identidad'),
     ('APROBADO',            'Aprobado y Activado',              'TERMINAL', 1, 0, 'Cupo activado exitosamente, disponible para uso'),
     ('RECHAZADO',           'Rechazado',                        'TERMINAL', 1, 0, 'Solicitud rechazada por alguna validación'),
@@ -1566,96 +1583,80 @@ END
 GO
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- 7.2  FotografiasEstudio — entidad de primera clase para ciclo de vida de fotos
---      PH-02: Una fila por INSTANCIA de fotografía (no por tipo).
---             Si el cliente re-sube la selfie, se inserta una nueva fila con
---             NumeroVersion = 2. La fila anterior queda como registro histórico.
---             La foto ACTIVA para el estudio es la de mayor NumeroVersion que
---             no esté en estado REEMPLAZADA.
+-- 7.2  FotografiasEstudio — tabla UNIFICADA de fotografías biométricas (GAP-07)
+--      PH-02 + GAP-07: Rediseño completo. Una tabla para el ciclo de vida
+--      completo de las 3 fotos obligatorias (Selfie, Frontal del documento,
+--      Trasera del documento) con revisión, aprobación y datos biométricos.
 --
---      EstadoFoto (máquina de estados simplificada):
---        PENDIENTE_CARGA  → cliente aún no sube la foto (link enviado)
---        CARGADA          → foto subida, esperando revisión del asesor
---        EN_REVISION      → asesor está revisando activamente
---        APROBADA         → asesor aprobó la foto
---        RECHAZADA        → asesor rechazó la foto (motivo en RevisionesFotografia)
---        REEMPLAZADA      → foto supersedida por una nueva versión del cliente
---        EXPIRADA         → link de carga expiró sin que el cliente subiera la foto
+--      Flujo de Prueba de Vida (orden):
+--        1. SELFIE             — prueba de vida (persona real y viva)
+--        2. DOCUMENTO_FRONTAL  — frente de la cédula (cara comparada con selfie)
+--        3. DOCUMENTO_TRASERO  — reverso de la cédula (OCR complementario)
 --
---      BIGINT IDENTITY porque en alto volumen puede haber millones de filas
---      (múltiples estudios × 3 fotos × múltiples versiones por re-cargas).
+--      Reglas de negocio clave:
+--        - El cliente DEBE tener exactamente 3 fotos APROBADAS (una de cada tipo)
+--        - Puede haber MÁS de 3 filas por estudio (intentos fallidos, reemplazos)
+--        - EsVigente = 1 solo para la foto activa de cada tipo (garantizado por UQ filtrado)
+--        - UQ_FotografiasEstudio_Vigente: solo UNA foto vigente por tipo por estudio
+--
+--      BIGINT IDENTITY: alta cardinalidad (estudios × 3 tipos × versiones × reintentos)
 -- ─────────────────────────────────────────────────────────────────────────────
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'FotografiasEstudio') AND type = N'U')
 BEGIN
     CREATE TABLE FotografiasEstudio (
-        IdFotografia        BIGINT IDENTITY(1,1)    NOT NULL,
-        IdEstudio           BIGINT                  NOT NULL,   -- FK → EstudiosCredito
-        IdTipoFoto          INT                     NOT NULL,   -- FK → CatalogoTiposFotografia
-        NumeroVersion       INT                     NOT NULL DEFAULT 1,  -- 1=original, 2=re-carga 1, etc.
+        IdFotografia            BIGINT IDENTITY(1,1)    NOT NULL,
+        IdEstudio               BIGINT                  NOT NULL,   -- FK → EstudiosCredito
+        TipoFotografia          VARCHAR(30)             NOT NULL,   -- SELFIE, DOCUMENTO_FRONTAL, DOCUMENTO_TRASERO
+        UrlArchivo              NVARCHAR(500)           NOT NULL,   -- URL/path al archivo almacenado (S3, Azure Blob, etc.)
+        FechaCaptura            DATETIME2(3)            NOT NULL DEFAULT GETDATE(),
 
-        -- Datos del archivo
-        UrlArchivo          NVARCHAR(500)           NOT NULL,   -- URL en S3 / Azure Blob / almacenamiento
-        NombreArchivoOriginal NVARCHAR(200)         NULL,       -- Nombre original del archivo subido
-        ContentType         VARCHAR(100)            NULL,       -- MIME type (image/jpeg, image/png)
-        TamanoBytes         BIGINT                  NULL,       -- Tamaño del archivo en bytes
-        HashArchivo         VARCHAR(64)             NULL,       -- SHA-256 del contenido (detección de duplicados/manipulación)
+        -- Revisión y aprobación
+        EstadoRevision          VARCHAR(20)             NOT NULL DEFAULT 'PENDIENTE',
+                                                                    -- PENDIENTE, APROBADA_AUTO, APROBADA_ASESOR, RECHAZADA, REEMPLAZADA
+        EsVigente               BIT                     NOT NULL DEFAULT 1,  -- 1 = foto activa/vigente para este tipo; 0 = reemplazada o rechazada
 
-        -- Estado del ciclo de vida
-        EstadoFoto          VARCHAR(20)             NOT NULL DEFAULT 'PENDIENTE_CARGA',
-                                                                -- PENDIENTE_CARGA, CARGADA, EN_REVISION,
-                                                                -- APROBADA, RECHAZADA, REEMPLAZADA, EXPIRADA
+        -- Quién revisó
+        MetodoRevision          VARCHAR(20)             NULL,       -- AUTOMATICO, MANUAL_ASESOR
+        IdAsesorRevisor         INT                     NULL,       -- FK → QUAC.dbo.BERP_FABRICASOperadores (NULL si automático)
+        FechaRevision           DATETIME2(3)            NULL,
+        MotivoRechazo           NVARCHAR(500)           NULL,       -- Razón si EstadoRevision = 'RECHAZADA'
 
-        -- Trazabilidad de carga
-        SubidaPorCliente    BIT                     NOT NULL DEFAULT 1,  -- 1=cliente, 0=asesor (carga manual excepcional)
-        IdentificadorCargador NVARCHAR(100)         NULL,       -- NitTercero del cliente o login del asesor
-        FechaCarga          DATETIME2(3)            NULL,       -- NULL si aún no se ha cargado
+        -- Datos biométricos del servicio externo
+        PorcentajeCoincidencia  DECIMAL(5,2)            NULL,       -- % coincidencia facial (selfie vs doc frontal)
+        PruebaVidaExitosa       BIT                     NULL,       -- Resultado de prueba de vida (solo SELFIE)
 
-        -- Vinculación al proceso de Rekognition
-        IdBiometria         BIGINT                  NULL,       -- FK → RegistrosBiometria (resultado del proceso Rekognition)
-
-        -- Vinculación a la solicitud de re-carga que originó esta versión
-        IdSolicitudRecarga  BIGINT                  NULL,       -- FK → SolicitudesRecarga (NULL para la versión original)
-
-        -- Metadatos de auditoría
-        FechaCreacion       DATETIME2(3)            NOT NULL DEFAULT GETDATE(),
-        FechaActualizacion  DATETIME2(3)            NOT NULL DEFAULT GETDATE(),
+        -- Auditoría
+        FechaCreacion           DATETIME2(3)            NOT NULL DEFAULT GETDATE(),
+        CreadoPor               VARCHAR(50)             NULL,       -- SISTEMA, ASESOR, CLIENTE
 
         CONSTRAINT PK_FotografiasEstudio PRIMARY KEY (IdFotografia),
-        CONSTRAINT FK_FotografiasEstudio_Estudio    FOREIGN KEY (IdEstudio)  REFERENCES EstudiosCredito(IdEstudio),
-        CONSTRAINT FK_FotografiasEstudio_TipoFoto   FOREIGN KEY (IdTipoFoto) REFERENCES CatalogoTiposFotografia(IdTipoFoto),
-        -- FK a RegistrosBiometria se añade en PH-07 (dependencia circular)
-        CONSTRAINT UQ_FotografiasEstudio_Version    UNIQUE (IdEstudio, IdTipoFoto, NumeroVersion),
-        CONSTRAINT CK_FotografiasEstudio_Estado     CHECK (EstadoFoto IN (
-            'PENDIENTE_CARGA','CARGADA','EN_REVISION','APROBADA','RECHAZADA','REEMPLAZADA','EXPIRADA'
-        )),
-        CONSTRAINT CK_FotografiasEstudio_Version    CHECK (NumeroVersion >= 1)
+        CONSTRAINT FK_FotografiasEstudio_Estudio FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio),
+        CONSTRAINT CK_FotografiasEstudio_Tipo CHECK (
+            TipoFotografia IN ('SELFIE','DOCUMENTO_FRONTAL','DOCUMENTO_TRASERO')
+        ),
+        CONSTRAINT CK_FotografiasEstudio_Estado CHECK (
+            EstadoRevision IN ('PENDIENTE','APROBADA_AUTO','APROBADA_ASESOR','RECHAZADA','REEMPLAZADA')
+        ),
+        CONSTRAINT CK_FotografiasEstudio_Metodo CHECK (
+            MetodoRevision IS NULL OR MetodoRevision IN ('AUTOMATICO','MANUAL_ASESOR')
+        )
     );
 
-    -- Índice principal: consultar las 3 fotos de un estudio (módulo de revisión)
+    -- Índice principal: fotos activas por estudio (módulo de revisión)
     CREATE INDEX IX_FotografiasEstudio_Estudio
-        ON FotografiasEstudio(IdEstudio, IdTipoFoto, NumeroVersion);
+        ON FotografiasEstudio(IdEstudio, TipoFotografia, EsVigente);
 
-    -- Índice para cola de revisión: fotos en estado CARGADA o EN_REVISION
-    CREATE INDEX IX_FotografiasEstudio_PendientesRevision
-        ON FotografiasEstudio(EstadoFoto, FechaCarga)
-        WHERE EstadoFoto IN ('CARGADA','EN_REVISION');
+    -- Cola de revisión pendiente
+    CREATE INDEX IX_FotografiasEstudio_Revision
+        ON FotografiasEstudio(EstadoRevision)
+        WHERE EstadoRevision = 'PENDIENTE';
 
-    -- Índice para fotos aprobadas (verificación rápida del gate de aprobación)
-    CREATE INDEX IX_FotografiasEstudio_Aprobadas
-        ON FotografiasEstudio(IdEstudio, EstadoFoto)
-        WHERE EstadoFoto = 'APROBADA';
+    -- Garantiza UNA sola foto vigente por tipo por estudio (integridad del gate de aprobación)
+    CREATE UNIQUE INDEX UQ_FotografiasEstudio_Vigente
+        ON FotografiasEstudio(IdEstudio, TipoFotografia)
+        WHERE EsVigente = 1;
 
-    -- Índice para fotos rechazadas (follow-up de re-carga)
-    CREATE INDEX IX_FotografiasEstudio_Rechazadas
-        ON FotografiasEstudio(IdEstudio, EstadoFoto)
-        WHERE EstadoFoto = 'RECHAZADA';
-
-    -- Índice para FK a biometría
-    CREATE INDEX IX_FotografiasEstudio_Biometria
-        ON FotografiasEstudio(IdBiometria)
-        WHERE IdBiometria IS NOT NULL;
-
-    PRINT '✓ Tabla FotografiasEstudio creada';
+    PRINT '✓ Tabla FotografiasEstudio creada (GAP-07: diseño unificado biométrico)';
 END
 GO
 
@@ -1755,7 +1756,8 @@ BEGIN
     CREATE TABLE SolicitudesRecarga (
         IdSolicitudRecarga  BIGINT IDENTITY(1,1)    NOT NULL,
         IdEstudio           BIGINT                  NOT NULL,   -- FK → EstudiosCredito
-        IdTipoFoto          INT                     NOT NULL,   -- FK → CatalogoTiposFotografia (qué foto se pide)
+        IdTipoFoto          INT                     NULL,       -- FK → CatalogoTiposFotografia (qué foto se pide)
+                                                                -- NULL cuando la recarga es por handoff biométrico, no fotográfico
         IdFotografiaAnterior BIGINT                 NULL,       -- FK → FotografiasEstudio (la foto rechazada o faltante)
 
         -- Token del link
@@ -1786,7 +1788,7 @@ BEGIN
 
         CONSTRAINT PK_SolicitudesRecarga PRIMARY KEY (IdSolicitudRecarga),
         CONSTRAINT FK_SolicitudesRecarga_Estudio  FOREIGN KEY (IdEstudio)  REFERENCES EstudiosCredito(IdEstudio),
-        CONSTRAINT FK_SolicitudesRecarga_TipoFoto FOREIGN KEY (IdTipoFoto) REFERENCES CatalogoTiposFotografia(IdTipoFoto),
+        CONSTRAINT FK_SolicitudesRecarga_TipoFoto FOREIGN KEY (IdTipoFoto) REFERENCES CatalogoTiposFotografia(IdTipoFoto),  -- NULL permitido (GAP-01)
         CONSTRAINT FK_SolicitudesRecarga_FotoAnterior FOREIGN KEY (IdFotografiaAnterior) REFERENCES FotografiasEstudio(IdFotografia),
         CONSTRAINT UQ_SolicitudesRecarga_Token    UNIQUE (TokenRecarga),
         CONSTRAINT CK_SolicitudesRecarga_Canal    CHECK (CanalEnvio IN ('EMAIL','SMS','WHATSAPP')),
@@ -1798,8 +1800,10 @@ BEGIN
         ON SolicitudesRecarga(TokenRecarga);
 
     -- Índice para consultar todas las solicitudes de un estudio
+    -- GAP-16: IdTipoFoto puede ser NULL (handoff), se usa como INCLUDE no en clave
     CREATE INDEX IX_SolicitudesRecarga_Estudio
-        ON SolicitudesRecarga(IdEstudio, IdTipoFoto, FechaCreacion);
+        ON SolicitudesRecarga(IdEstudio, FechaCreacion)
+        INCLUDE (IdTipoFoto);
 
     -- Índice para expiración batch (job nocturno que marca links expirados)
     CREATE INDEX IX_SolicitudesRecarga_Expiracion
@@ -1883,89 +1887,23 @@ END
 GO
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- 7.6  ALTER EstudiosCredito — contador de fotos aprobadas y estado de revisión
---      PH-06: Columnas de resumen para evitar JOINs costosos en la validación
---             del gate de aprobación ("¿están las 3 fotos aprobadas?").
---
---      FotografiasAprobadas: entero desnormalizado, incrementado por trigger/SP
---        cuando una foto pasa a APROBADA. Gate: FotografiasAprobadas >= 3.
---      EstadoRevisionFotos: estado resumen del proceso fotográfico para la UI.
---        PENDIENTE      → aún no se han subido todas las fotos
---        EN_REVISION    → todas cargadas, al menos una en revisión
---        APROBADO       → las 3 fotos obligatorias están APROBADAS
---        CON_RECHAZOS   → al menos una foto fue rechazada (re-carga pendiente)
+-- 7.6  EstudiosCredito — FotografiasAprobadas y EstadoRevisionFotos
+--      PH-06: Ambas columnas, el índice IX_EstudiosCredito_RevisionFotos y el
+--             constraint CK_EstudiosCredito_EstadoRevisionFotos ya están
+--             definidos directamente en el CREATE TABLE (Sección 3.1).
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'EstudiosCredito') AND name = 'FotografiasAprobadas')
-BEGIN
-    ALTER TABLE EstudiosCredito
-        ADD FotografiasAprobadas INT NOT NULL DEFAULT 0;  -- Contador desnormalizado: 0-3. Gate: = 3 para aprobar crédito
-    PRINT '✓ EstudiosCredito: columna FotografiasAprobadas añadida';
-END
-GO
-
-IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'EstudiosCredito') AND name = 'EstadoRevisionFotos')
-BEGIN
-    ALTER TABLE EstudiosCredito
-        ADD EstadoRevisionFotos VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE';
-                                                            -- PENDIENTE, EN_REVISION, APROBADO, CON_RECHAZOS
-    PRINT '✓ EstudiosCredito: columna EstadoRevisionFotos añadida';
-END
-GO
-
-IF NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'EstudiosCredito') AND name = 'IX_EstudiosCredito_RevisionFotos')
-BEGIN
-    CREATE INDEX IX_EstudiosCredito_RevisionFotos
-        ON EstudiosCredito(EstadoRevisionFotos, IdEstadoActual)
-        WHERE EstadoRevisionFotos IN ('EN_REVISION','CON_RECHAZOS');
-    PRINT '✓ EstudiosCredito: índice IX_EstudiosCredito_RevisionFotos creado';
-END
-GO
-
--- Constraint para los valores válidos de EstadoRevisionFotos
-IF NOT EXISTS (
-    SELECT * FROM sys.check_constraints
-    WHERE parent_object_id = OBJECT_ID(N'EstudiosCredito')
-      AND name = 'CK_EstudiosCredito_EstadoRevisionFotos'
-)
-BEGIN
-    ALTER TABLE EstudiosCredito
-        ADD CONSTRAINT CK_EstudiosCredito_EstadoRevisionFotos
-        CHECK (EstadoRevisionFotos IN ('PENDIENTE','EN_REVISION','APROBADO','CON_RECHAZOS'));
-    PRINT '✓ EstudiosCredito: constraint CK_EstudiosCredito_EstadoRevisionFotos añadido';
-END
+-- (sin ALTER TABLE — columnas y constraint consolidados en CREATE TABLE, Sección 3.1)
 GO
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- 7.7  ALTER RegistrosBiometria — FKs directas a las 3 fotografías del proceso
---      PH-07: El proceso Rekognition opera SOBRE fotografías concretas.
---             Estas FKs permiten saber exactamente qué versión de cada foto
---             usó Rekognition para calcular el match %, hacer el OCR, y la
---             prueba de vida. Crítico para reproductibilidad de auditoría:
---             "¿con qué foto se procesó la biometría del estudio 12345?"
+-- 7.7  RegistrosBiometria — FKs físicas a FotografiasEstudio (PH-07)
+--      Las columnas IdFotografiaFrontal, IdFotografiaReverso e IdFotografiaSelfie
+--      ya están definidas en el CREATE TABLE (Sección 3.4).
+--      Las FKs físicas se añaden aquí como ALTER porque FotografiasEstudio
+--      se crea en la Sección 7.2, DESPUÉS de RegistrosBiometria — dependencia forward.
+--      GAP-07: La nueva FotografiasEstudio mantiene la misma PK IdFotografia, por lo
+--      que estas FKs siguen siendo válidas.
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'RegistrosBiometria') AND name = 'IdFotografiaFrontal')
-BEGIN
-    ALTER TABLE RegistrosBiometria
-        ADD IdFotografiaFrontal BIGINT NULL;  -- FK → FotografiasEstudio (FOTO_FRONTAL_DOC usada en Rekognition)
-    PRINT '✓ RegistrosBiometria: columna IdFotografiaFrontal añadida';
-END
-GO
-
-IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'RegistrosBiometria') AND name = 'IdFotografiaReverso')
-BEGIN
-    ALTER TABLE RegistrosBiometria
-        ADD IdFotografiaReverso BIGINT NULL;  -- FK → FotografiasEstudio (FOTO_TRASERA_DOC usada en OCR)
-    PRINT '✓ RegistrosBiometria: columna IdFotografiaReverso añadida';
-END
-GO
-
-IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'RegistrosBiometria') AND name = 'IdFotografiaSelfie')
-BEGIN
-    ALTER TABLE RegistrosBiometria
-        ADD IdFotografiaSelfie BIGINT NULL;   -- FK → FotografiasEstudio (SELFIE usada en CompareFaces/DetectFaces)
-    PRINT '✓ RegistrosBiometria: columna IdFotografiaSelfie añadida';
-END
-GO
 
 -- Añadir FKs físicas (FotografiasEstudio ya existe a este punto)
 IF NOT EXISTS (
@@ -2007,59 +1945,12 @@ BEGIN
 END
 GO
 
--- Índices para los FK en RegistrosBiometria
-IF NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'RegistrosBiometria') AND name = 'IX_RegistrosBiometria_FotoFrontal')
-BEGIN
-    CREATE INDEX IX_RegistrosBiometria_FotoFrontal ON RegistrosBiometria(IdFotografiaFrontal)
-        WHERE IdFotografiaFrontal IS NOT NULL;
-    PRINT '✓ RegistrosBiometria: índice IX_RegistrosBiometria_FotoFrontal creado';
-END
-GO
-
-IF NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'RegistrosBiometria') AND name = 'IX_RegistrosBiometria_FotoReverso')
-BEGIN
-    CREATE INDEX IX_RegistrosBiometria_FotoReverso ON RegistrosBiometria(IdFotografiaReverso)
-        WHERE IdFotografiaReverso IS NOT NULL;
-    PRINT '✓ RegistrosBiometria: índice IX_RegistrosBiometria_FotoReverso creado';
-END
-GO
-
-IF NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'RegistrosBiometria') AND name = 'IX_RegistrosBiometria_FotoSelfie')
-BEGIN
-    CREATE INDEX IX_RegistrosBiometria_FotoSelfie ON RegistrosBiometria(IdFotografiaSelfie)
-        WHERE IdFotografiaSelfie IS NOT NULL;
-    PRINT '✓ RegistrosBiometria: índice IX_RegistrosBiometria_FotoSelfie creado';
-END
-GO
-
--- Ahora se puede añadir la FK en FotografiasEstudio → RegistrosBiometria
--- (la dependencia circular se rompe añadiendo la FK como ALTER posterior)
-IF NOT EXISTS (
-    SELECT * FROM sys.foreign_keys
-    WHERE parent_object_id = OBJECT_ID(N'FotografiasEstudio')
-      AND name = 'FK_FotografiasEstudio_Biometria'
-)
-BEGIN
-    ALTER TABLE FotografiasEstudio
-        ADD CONSTRAINT FK_FotografiasEstudio_Biometria
-        FOREIGN KEY (IdBiometria) REFERENCES RegistrosBiometria(IdBiometria);
-    PRINT '✓ FotografiasEstudio: FK FK_FotografiasEstudio_Biometria añadida';
-END
-GO
+-- GAP-07: La nueva FotografiasEstudio no referencia RegistrosBiometria ni SolicitudesRecarga
+-- (las FKs inversas de la v2.3 son eliminadas en el rediseño unificado).
+-- RegistrosBiometria sigue referenciando FotografiasEstudio (válido — misma PK IdFotografia).
 
 -- FK en FotografiasEstudio → SolicitudesRecarga
--- (SolicitudesRecarga ya existe a este punto)
-IF NOT EXISTS (
-    SELECT * FROM sys.foreign_keys
-    WHERE parent_object_id = OBJECT_ID(N'FotografiasEstudio')
-      AND name = 'FK_FotografiasEstudio_SolicitudRecarga'
-)
-BEGIN
-    ALTER TABLE FotografiasEstudio
-        ADD CONSTRAINT FK_FotografiasEstudio_SolicitudRecarga
-        FOREIGN KEY (IdSolicitudRecarga) REFERENCES SolicitudesRecarga(IdSolicitudRecarga);
-    PRINT '✓ FotografiasEstudio: FK FK_FotografiasEstudio_SolicitudRecarga añadida';
-END
+-- GAP-07: ELIMINADA — la nueva FotografiasEstudio no tiene IdSolicitudRecarga
 GO
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -2369,44 +2260,245 @@ GO
 
 -- ==============================================================================
 -- ══════════════════════════════════════════════════════════════════════════════
--- RESUMEN DE MIGRACIÓN
+-- SECCIÓN 8: PARCHES V2.4 — CORRECCIONES DE ARQUITECTURA (2026-04-15)
+-- ══════════════════════════════════════════════════════════════════════════════
+-- Correcciones identificadas tras revisión de arquitectura (2026-04-15).
+--
+-- CAMBIOS EN ESTE BLOQUE:
+--   C-01: ConfiguracionReglasNegocio — reglas OTP_EXPIRACION_MINUTOS, OTP_MAXIMO_INTENTOS,
+--         JWT_ORIGEN_WEB, JWT_ORIGEN_BODEGA (son reglas de negocio, NO navegación)
+--   C-02: EstudiosCredito — renombre IdTienda → IdBodega + índice Tienda → Bodega
+--         (solo en la definición CREATE TABLE; ya aplicado en la Sección 3)
+--   C-03: Nueva tabla ValidacionesAsesor — log de validación biométrica del asesor
+--         (flujo asistido: asesor ingresa código en PC compartida → prueba de vida)
+--   C-04: ALTER EstudiosCredito — añadir IdValidacionAsesor BIGINT NULL
+--         FK → ValidacionesAsesor.IdValidacion (vincula estudio con la validación
+--         que autorizó al asesor para la sesión)
+--   C-05: ClaveIdempotencia y VersionFila ya existen en EstudiosCredito — sin cambios DDL
 -- ==============================================================================
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 8.1  ValidacionesAsesor — log de validación biométrica de identidad del asesor
+--      C-03: En el flujo asistido (canal TIENDA/BODEGA), el asesor NO se auto-asigna.
+--            Flujo: asesor ingresa "Código de Asesor" en PC compartida → sistema
+--            valida via biometría facial (prueba de vida, microservicio externo).
+--            Esta tabla registra cada intento de validación y su resultado.
+--
+--      BIGINT IDENTITY: tabla transaccional de alto volumen.
+--      INSERT-ONLY para los registros exitosos (auditoría inmutable).
+--      Registros FALLIDA/ERROR_SERVICIO también son inmutables.
+-- ─────────────────────────────────────────────────────────────────────────────
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'ValidacionesAsesor') AND type = N'U')
+BEGIN
+    CREATE TABLE ValidacionesAsesor (
+        IdValidacion            BIGINT IDENTITY(1,1)    NOT NULL,
+        IdAsesor                INT                     NOT NULL,   -- FK → QUAC.dbo.BERP_FABRICASOperadores.idOperadorFabrica
+        CodigoAsesor            VARCHAR(20)             NOT NULL,   -- Badge/código ingresado por el asesor en la PC
+        IdBodega                INT                     NOT NULL,   -- FK → QUAC.dbo.bodegas.id — PC/punto de venta donde se valida
+        FechaValidacion         DATETIME2(3)            NOT NULL DEFAULT GETDATE(),
+
+        -- Resultado de la prueba de vida biométrica
+        PruebaVidaExitosa       BIT                     NOT NULL DEFAULT 0, -- 1 = prueba de vida facial superada
+        PorcentajeCoincidencia  DECIMAL(5,2)            NULL,       -- Porcentaje de coincidencia facial (0.00–100.00)
+
+        -- Identificación del dispositivo/PC
+        IdDispositivo           VARCHAR(100)            NULL,       -- Identificador del equipo/PC (hostname, UUID, etc.)
+        DireccionIP             VARCHAR(45)             NULL,       -- IP del dispositivo (soporta IPv4 e IPv6)
+
+        -- Resultado final de la validación
+        ResultadoValidacion     VARCHAR(20)             NOT NULL,   -- CHECK: 'EXITOSA', 'FALLIDA', 'ERROR_SERVICIO'
+        MensajeError            NVARCHAR(500)           NULL,       -- Mensaje de error si ResultadoValidacion != 'EXITOSA'
+
+        FechaCreacion           DATETIME2(3)            NOT NULL DEFAULT GETDATE(),
+
+        CONSTRAINT PK_ValidacionesAsesor PRIMARY KEY (IdValidacion),
+        CONSTRAINT CK_ValidacionesAsesor_Resultado CHECK (
+            ResultadoValidacion IN ('EXITOSA', 'FALLIDA', 'ERROR_SERVICIO')
+        ),
+        -- FK física al operador en BERP (mismo servidor SQL)
+        CONSTRAINT FK_ValidacionesAsesor_Asesor
+            FOREIGN KEY (IdAsesor)
+            REFERENCES QUAC.dbo.BERP_FABRICASOperadores (idOperadorFabrica)
+            ON UPDATE NO ACTION ON DELETE NO ACTION,
+        -- FK física a la bodega en QUAC (mismo servidor SQL)
+        CONSTRAINT FK_ValidacionesAsesor_Bodega
+            FOREIGN KEY (IdBodega)
+            REFERENCES QUAC.dbo.bodegas (id)
+            ON UPDATE NO ACTION ON DELETE NO ACTION
+    );
+
+    -- Índice para consultar las validaciones de un asesor por fecha (timeline del asesor)
+    CREATE INDEX IX_ValidacionesAsesor_Asesor
+        ON ValidacionesAsesor(IdAsesor, FechaValidacion DESC);
+
+    -- Índice para consultar las validaciones desde una bodega (auditoría por punto de venta)
+    CREATE INDEX IX_ValidacionesAsesor_Bodega
+        ON ValidacionesAsesor(IdBodega, FechaValidacion DESC);
+
+    -- Índice para búsqueda por código de asesor (deduplicación, lookups rápidos)
+    CREATE INDEX IX_ValidacionesAsesor_Codigo
+        ON ValidacionesAsesor(CodigoAsesor);
+
+    -- GAP-14: Índice filtrado para el hot-path: validaciones exitosas por asesor
+    CREATE INDEX IX_ValidacionesAsesor_Exitosas
+        ON ValidacionesAsesor(IdAsesor, FechaValidacion DESC)
+        WHERE ResultadoValidacion = 'EXITOSA';
+
+    PRINT '✓ Tabla ValidacionesAsesor creada';
+END
+GO
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 8.2  EstudiosCredito — FK IdValidacionAsesor (C-04)
+--      La columna IdValidacionAsesor ya está definida en el CREATE TABLE (Sección 3.1).
+--      El índice IX_EstudiosCredito_ValidacionAsesor también está en el CREATE TABLE.
+--      La FK física se añade aquí como ALTER porque ValidacionesAsesor se crea
+--      en la Sección 8.1, DESPUÉS de EstudiosCredito — dependencia forward.
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- FK física para IdValidacionAsesor (ValidacionesAsesor ya existe a este punto)
+IF NOT EXISTS (
+    SELECT * FROM sys.foreign_keys
+    WHERE parent_object_id = OBJECT_ID(N'EstudiosCredito')
+      AND name = 'FK_EstudiosCredito_ValidacionAsesor'
+)
+BEGIN
+    ALTER TABLE EstudiosCredito
+        ADD CONSTRAINT FK_EstudiosCredito_ValidacionAsesor
+        FOREIGN KEY (IdValidacionAsesor) REFERENCES ValidacionesAsesor(IdValidacion);
+    PRINT '✓ EstudiosCredito: FK FK_EstudiosCredito_ValidacionAsesor añadida';
+END
+GO
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 8.3  Seeds ConfiguracionReglasNegocio — reglas de autenticación JWT por canal
+--      C-01: JWT_ORIGEN_* tipifican el flujo de autenticación según el canal de origen.
+--      GAP-04: OTP_EXPIRACION_MINUTOS y OTP_MAXIMO_INTENTOS ELIMINADAS (duplican
+--              VIGENCIA_OTP_SEG e INTENTOS_OTP_MAX que ya existen en sección 6.5).
+--              JWT_ORIGEN_BODEGA renombrado a JWT_ORIGEN_TIENDA (coherencia con LoginTienda).
+-- ─────────────────────────────────────────────────────────────────────────────
+IF NOT EXISTS (SELECT * FROM ConfiguracionReglasNegocio WHERE Codigo = 'JWT_ORIGEN_WEB')
+BEGIN
+    INSERT INTO ConfiguracionReglasNegocio (Codigo, Nombre, Valor, TipoDato, Categoria, Descripcion) VALUES
+    (
+        'JWT_ORIGEN_WEB',
+        'Valor del claim ''origen'' en el JWT para el canal de autoservicio web',
+        'LoginWeb', 'TEXT', 'AUTH',
+        'Identificador de origen que se incluye en el JWT emitido para sesiones iniciadas '
+        + 'por el cliente en el portal web de autoservicio. Usado para autorización diferenciada '
+        + 'y auditoría de origen del token en el API.'
+    ),
+    (
+        'JWT_ORIGEN_TIENDA',  -- GAP-04: renombrado de JWT_ORIGEN_BODEGA a JWT_ORIGEN_TIENDA
+        'Valor del claim ''origen'' en el JWT para el canal de tienda asistida',
+        'LoginTienda', 'TEXT', 'AUTH',
+        'Identificador de origen que se incluye en el JWT emitido para sesiones iniciadas '
+        + 'por el asesor en una tienda/bodega (flujo asistido). Usado para autorización diferenciada '
+        + 'y para vincular el JWT con la validación biométrica del asesor (ValidacionesAsesor).'
+    );
+
+    PRINT '✓ Seeds JWT_ORIGEN_WEB y JWT_ORIGEN_TIENDA insertados en ConfiguracionReglasNegocio (GAP-04)';
+END
+GO
+
+
+-- ==============================================================================
+-- SECCIÓN 9: PARCHES V2.5 — GAPS DE AUDITORÍA PRE-PRODUCCIÓN (2026-04-15)
+-- ==============================================================================
+-- Correcciones identificadas en revisión de arquitectura antes de ir a producción.
+-- Todos los cambios son aditivos o correcciones de definición — no hay migraciones
+-- de datos ni drops de columnas con información existente.
+-- ==============================================================================
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 9.1  AuditoriaLogins — GAP-15: Auditoría de intentos de inicio de sesión
+--      Registra cada intento de login (exitoso o fallido) por canal y tipo de usuario.
+--      INSERT-ONLY: no se actualiza ni elimina. Reemplaza logs dispersos en aplicación.
+--      OrigenLogin discrimina si el acceso fue web (cliente) o tienda (asesor).
+-- ─────────────────────────────────────────────────────────────────────────────
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'AuditoriaLogins') AND type in (N'U'))
+BEGIN
+    CREATE TABLE AuditoriaLogins (
+        IdLogin             BIGINT IDENTITY(1,1)    NOT NULL,
+        OrigenLogin         VARCHAR(20)             NOT NULL,  -- 'LoginWeb' | 'LoginTienda'
+        IdUsuario           VARCHAR(50)             NOT NULL,  -- cédula o ID del usuario
+        TipoUsuario         VARCHAR(20)             NOT NULL,  -- 'CLIENTE' | 'ASESOR'
+        FechaLogin          DATETIME2(3)            NOT NULL   CONSTRAINT DF_AuditoriaLogins_FechaLogin     DEFAULT GETDATE(),
+        ResultadoLogin      VARCHAR(20)             NOT NULL,  -- 'EXITOSO' | 'FALLIDO' | 'BLOQUEADO'
+        DireccionIP         VARCHAR(45)                 NULL,  -- IPv4 (15) o IPv6 (45)
+        UserAgent           NVARCHAR(500)               NULL,
+        IdBodega            INT                         NULL,  -- FK blanda a QUAC.dbo.BERP_FABRICASOperadores
+        MensajeError        NVARCHAR(500)               NULL,  -- detalle si ResultadoLogin != 'EXITOSO'
+        FechaCreacion       DATETIME2(3)            NOT NULL   CONSTRAINT DF_AuditoriaLogins_FechaCreacion  DEFAULT GETDATE(),
+
+        CONSTRAINT PK_AuditoriaLogins             PRIMARY KEY (IdLogin),
+        CONSTRAINT CK_AuditoriaLogins_Origen      CHECK (OrigenLogin    IN ('LoginWeb', 'LoginTienda')),
+        CONSTRAINT CK_AuditoriaLogins_TipoUsuario CHECK (TipoUsuario    IN ('CLIENTE', 'ASESOR')),
+        CONSTRAINT CK_AuditoriaLogins_Resultado   CHECK (ResultadoLogin IN ('EXITOSO', 'FALLIDO', 'BLOQUEADO'))
+    );
+
+    -- Índice hot-path: consultas por usuario en rango de fecha (detección de fuerza bruta)
+    CREATE INDEX IX_AuditoriaLogins_Usuario
+        ON AuditoriaLogins (IdUsuario, FechaLogin DESC);
+
+    -- Índice hot-path: consultas por canal de origen y fecha (reportería por canal)
+    CREATE INDEX IX_AuditoriaLogins_Origen
+        ON AuditoriaLogins (OrigenLogin, FechaLogin DESC);
+
+    PRINT '✓ Tabla AuditoriaLogins creada (GAP-15)';
+END
+GO
+
+
 /*
   ╔══════════════════════════════════════════════════════════════════════════════╗
-  ║                        RESUMEN DE IMPLEMENTACIÓN V2.3                        ║
+  ║                        RESUMEN DE IMPLEMENTACIÓN V2.5                        ║
   ╠══════════════════════════════════════════════════════════════════════════════╣
   ║                                                                              ║
-  ║  TABLAS CREADAS:                     27 tablas (23 v2.2 + 4 v2.3)           ║
+  ║  TABLAS CREADAS:                     29 tablas (28 v2.4 + 1 v2.5)           ║
   ║  ├── Configuración:                  9 tablas                                ║
   ║  │   ├── CatalogoCanalesOrigen       (G-DB-01 — nueva en v2.1)               ║
   ║  │   ├── CatalogoReglasFraude        (SA-06 — nueva en v2.2)                 ║
   ║  │   ├── CatalogoMotivosEscalamiento (SA-01 — nueva en v2.2)                 ║
   ║  │   └── CatalogoTiposFotografia     (PH-01 — nueva en v2.3)                 ║
-  ║  ├── Transaccionales:                14 tablas                               ║
+  ║  ├── Transaccionales:                16 tablas                               ║
   ║  │   ├── EvidenciasFabrica           (GT-08 — nueva en v2.1)                 ║
   ║  │   ├── EscalamientosFabrica        (SA-02 — nueva en v2.2)                 ║
   ║  │   ├── AlertasFraude               (SA-05 — nueva en v2.2, INSERT-ONLY)    ║
   ║  │   ├── LogValidacionesOTP          (SA-03 — nueva en v2.2, INSERT-ONLY)    ║
   ║  │   ├── HistorialDatosSensibles     (SA-04 — nueva en v2.2, INSERT-ONLY)    ║
-  ║  │   ├── FotografiasEstudio          (PH-02 — nueva en v2.3)                 ║
+  ║  │   ├── FotografiasEstudio          (PH-02+GAP-07 — rediseñada en v2.5)     ║
   ║  │   ├── SolicitudesRecarga          (PH-04 — nueva en v2.3)                 ║
+  ║  │   ├── ValidacionesAsesor          (C-03  — nueva en v2.4, INSERT-ONLY)    ║
+  ║  │   └── AuditoriaLogins             (GAP-15 — nueva en v2.5)               ║
   ║  ├── Auditoría:                      5 tablas                                ║
   ║  │   ├── RevisionesFotografia        (PH-03 — nueva en v2.3, INSERT-ONLY)    ║
   ║  │   └── HistorialFotografias        (PH-05 — nueva en v2.3, INSERT-ONLY)    ║
   ║  └── Integración:                    1 tabla (TercerosFabricas)              ║
   ║                                                                              ║
-  ║  TABLAS MODIFICADAS (ALTER):         10 tablas                               ║
+  ║  TABLAS MODIFICADAS (ALTER — solo tablas de PRODUCCIÓN existentes):          ║
   ║  ├── QUAC.dbo.KCRM_CadenaCreditos   +4 columnas (v2.1)                      ║
-  ║  ├── QUAC.dbo.BERP_FABRICASOperadores +1 columna (v2.1)                     ║
-  ║  ├── EstudiosCredito                 +10 col (v2.1) +5 col (v2.2: SA-07)    ║
-  ║  │                                   +2 col (v2.3: PH-06)                    ║
-  ║  ├── RetosSeguridad                  +2 col (v2.1) +1 col DireccionEnvio    ║
-  ║  ├── EvaluacionesRiesgo              CHECK ampliado (G-DB-03)                ║
-  ║  ├── RegistrosBiometria              +4 columnas OCR (G-DB-08)               ║
-  ║  │                                   +3 FK a FotografiasEstudio (PH-07)      ║
-  ║  ├── ValidacionesContactabilidad     +1 col EstadoUbica (v2.1) +1 FK (SA-10) ║
-  ║  ├── ConsentimientosLegales          +1 columna (G-DB-09)                    ║
-  ║  └── HistorialEstados                +1 col IdCorrelacion (SA-08)            ║
+  ║  └── QUAC.dbo.BERP_FABRICASOperadores +1 columna (v2.1)                     ║
+  ║                                                                              ║
+  ║  ALTER TABLE para FKs circulares/forward (no pueden ir en CREATE TABLE):     ║
+  ║  ├── ValidacionesContactabilidad    FK → AlertasFraude (SA-10)               ║
+  ║  ├── RegistrosBiometria             FK × 3 → FotografiasEstudio (PH-07)      ║
+  ║  └── EstudiosCredito                FK → ValidacionesAsesor  (C-04)          ║
+  ║                                                                              ║
+  ║  COLUMNAS CONSOLIDADAS EN CREATE TABLE (antes eran ALTER TABLE):             ║
+  ║  ├── EstudiosCredito: NitComercio, CelularCliente, EliminadoLogico,          ║
+  ║  │                    IdCorrelacion, IdEscalamientoActivo,                   ║
+  ║  │                    FotografiasAprobadas, EstadoRevisionFotos,             ║
+  ║  │                    IdValidacionAsesor                                      ║
+  ║  ├── RetosSeguridad:  DireccionEnvio                                         ║
+  ║  ├── HistorialEstados: IdCorrelacion                                         ║
+  ║  ├── ValidacionesContactabilidad: IdAlertaFraude (columna; FK sigue ALTER)   ║
+  ║  └── RegistrosBiometria: IdFotografiaFrontal, IdFotografiaReverso,           ║
+  ║                           IdFotografiaSelfie (cols; FKs siguen ALTER)        ║
+  ║                                                                              ║
+  ║  COLUMNAS ELIMINADAS (decisión PO):                                          ║
+  ║  └── EstudiosCredito: ClaveIdempotencia, VersionFila                         ║
+  ║      (la maquina de estados + reglas de servicio previenen duplicados)       ║
   ║                                                                              ║
   ║  ESTADOS NUEVOS EN CatalogoEstados:                                          ║
   ║  ├── REVISION_FABRICA               (SA-11 — estado PROCESO)                 ║
@@ -2418,34 +2510,42 @@ GO
   ║  ├── QUAC.dbo.terceros: SIN MODIFICACIÓN (tabla producción existente)        ║
   ║  └── TercerosFabricas: Tabla propia como fuente de verdad                    ║
   ║                                                                              ║
-  ║  DATOS SEMILLA INSERTADOS:           13 catálogos                            ║
+  ║  DATOS SEMILLA INSERTADOS:           14 catálogos                            ║
   ║  ├── FasesEstudio:                   7 registros                             ║
   ║  ├── CatalogoEstados:               15 registros (11 base + 4 nuevos)        ║
   ║  ├── PasosEstudio:                  13 registros                             ║
   ║  ├── TransicionesEstado:            40 registros (+8 nuevas v2.3)            ║
-  ║  ├── ConfiguracionReglasNegocio:    18 registros (+6 nuevos v2.3)            ║
+  ║  ├── ConfiguracionReglasNegocio:    20 registros (v2.4 duplicados eliminados)║
   ║  ├── CatalogoCanalesOrigen:          3 registros                             ║
   ║  ├── CatalogoReglasFraude:          12 registros (+4 nuevas v2.3)            ║
   ║  ├── CatalogoMotivosEscalamiento:   12 registros (+4 nuevos v2.3)            ║
   ║  └── CatalogoTiposFotografia:        3 registros (PH-10)                     ║
   ║                                                                              ║
-  ║  GAPS CORREGIDOS v2.3 (10) — Módulo de Gestión de Fotografías 2026-04-13:   ║
-  ║  ├── PH-01: CatalogoTiposFotografia (3 tipos: frontal, reverso, selfie)      ║
-  ║  ├── PH-02: FotografiasEstudio (ciclo de vida individual por foto + versión) ║
-  ║  ├── PH-03: RevisionesFotografia (decisiones de revisión INSERT-ONLY)        ║
-  ║  ├── PH-04: SolicitudesRecarga (links con estado, canal, expiración)         ║
-  ║  ├── PH-05: HistorialFotografias (auditoría inmutable INSERT-ONLY)           ║
-  ║  ├── PH-06: EstudiosCredito +FotografiasAprobadas +EstadoRevisionFotos       ║
-  ║  ├── PH-07: RegistrosBiometria +IdFotografiaFrontal +Reverso +Selfie (FKs)  ║
-  ║  ├── PH-08: Estados PENDIENTE_FOTOS + FOTOS_EN_REVISION + 6 transiciones    ║
-  ║  ├── PH-09: ConfiguracionReglasNegocio +6 parámetros fotográficos            ║
-  ║  └── PH-10: Seeds completos para todos los catálogos fotográficos            ║
+  ║  GAPS CORREGIDOS v2.5 (18) — Auditoría Pre-Producción 2026-04-15:           ║
+  ║  ├── GAP-01 🔴 SolicitudesRecarga.IdTipoFoto → NULL (handoff biométrico)     ║
+  ║  ├── GAP-02 🔴 HistorialEstados CHECK +CLIENTE +ADMINISTRADOR                ║
+  ║  ├── GAP-03 🔴 EstudiosCredito +CelularCliente                               ║
+  ║  ├── GAP-04 🟠 Seeds duplicados OTP eliminados; JWT_ORIGEN_TIENDA            ║
+  ║  ├── GAP-05 🟠 ConfiguracionReglasNegocio +CHECK Categoria                  ║
+  ║  ├── GAP-06 🟠 TercerosFabricas DATETIME2 → DATETIME2(3)                    ║
+  ║  ├── GAP-07 🟠 FotografiasEstudio REDISEÑADA (tabla unificada biométrica)    ║
+  ║  ├── GAP-08 🟠 AuditoriaCambiosDatos +CHECK TipoUsuario                     ║
+  ║  ├── GAP-09 🟡 TercerosFabricas.NombreTercero VARCHAR→NVARCHAR               ║
+  ║  ├── GAP-10 🟡 TransicionesEstado seeds ya idempotentes (IF NOT EXISTS)      ║
+  ║  ├── GAP-11 🟡 SYSDATETIME() → GETDATE() (CatalogoCanalesOrigen+Evidencias)  ║
+  ║  ├── GAP-12 🟡 +IX_EstudiosCredito_EscalamientoActivo                       ║
+  ║  ├── GAP-13 🟡 RegistrosBiometria CHECK +PRUEBA_VIDA_HANDOFF                 ║
+  ║  ├── GAP-14 🟡 +IX_ValidacionesAsesor_Exitosas (hot-path filtrado)           ║
+  ║  ├── GAP-15 🟢 Nueva tabla AuditoriaLogins                                  ║
+  ║  ├── GAP-16 🟢 IX_SolicitudesRecarga_Estudio: IdTipoFoto → INCLUDE (nullable)║
+  ║  ├── GAP-17 🟢 JWT_ORIGEN_TIENDA (cubierto en GAP-04)                       ║
+  ║  └── GAP-18 🟢 TercerosFabricas +CelularTercero                             ║
   ║                                                                              ║
   ╚══════════════════════════════════════════════════════════════════════════════╝
 */
 
 PRINT '================================================================';
-PRINT '  MIGRACIÓN FABRICASV2.3 COMPLETADA EXITOSAMENTE';
+PRINT '  MIGRACIÓN FABRICASV2.5 COMPLETADA EXITOSAMENTE';
 PRINT '================================================================';
 PRINT '  Fecha: ' + CONVERT(VARCHAR, GETDATE(), 120);
 PRINT '================================================================';
