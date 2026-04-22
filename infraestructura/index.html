@@ -91,7 +91,6 @@
       <a href="#metricas" class="active">Métricas del sistema</a>
       <a href="#archivos" class="indent">Archivos de documentación</a>
       <a href="#versiones" class="indent">Historial de versiones</a>
-      <a href="#decisiones" class="indent">Decisiones del PO</a>
       <div class="sidebar-section">Índice de Infraestructura</div>
       <a href="index.html" class="active">00 · Índice</a>
       <a href="01-vision-general.html">01 · Visión General</a>
@@ -250,33 +249,6 @@
         <h4>v2.6 — Documentación actual <span class="badge badge--accent" style="margin-left:8px">Hoy</span></h4>
         <p>Esta documentación (9 archivos HTML). Sincronización completa con DDL v2.5. Reorganización en subcarpeta <code>infraestructura/</code>. Diccionario de datos completo con todas las columnas exactas del DDL.</p>
       </div>
-    </div>
-
-    <h2 id="decisiones">Decisiones de diseño confirmadas por PO</h2>
-
-    <div class="callout callout--success">
-      <p><strong>✓ ClaveIdempotencia y VersionFila eliminadas de EstudiosCredito</strong></p>
-      <p>La máquina de estados y las reglas de negocio en la capa de servicio previenen duplicados sin necesidad de control en base de datos. Decisión tomada en v2.4 (C-06). Las columnas no existirán en producción.</p>
-    </div>
-
-    <div class="callout callout--success">
-      <p><strong>✓ FotografiasEstudio rediseñada como tabla unificada biométrica (GAP-07)</strong></p>
-      <p>La tabla v2.3 original separaba datos fotográficos y biométricos. La v2.5 unifica selfie + documento frontal + documento trasero en una sola tabla con ciclo de vida completo (EstadoRevision, EsVigente, MetodoRevision, datos biométricos inline). CatalogoTiposFotografia permanece como catálogo de referencia pero EvidenciasFabrica ya no incluye tipos fotográficos en su CHECK.</p>
-    </div>
-
-    <div class="callout callout--success">
-      <p><strong>✓ JWT_ORIGEN_BODEGA renombrado a JWT_ORIGEN_TIENDA (GAP-04)</strong></p>
-      <p>Coherencia con el campo <code>LoginTienda</code> en AuditoriaLogins. Seeds duplicados OTP_EXPIRACION_MINUTOS y OTP_MAXIMO_INTENTOS eliminados (ya existen como VIGENCIA_OTP_SEG e INTENTOS_OTP_MAX).</p>
-    </div>
-
-    <div class="callout callout--success">
-      <p><strong>✓ EvidenciasFabrica conservada para evidencias genéricas de fábrica</strong></p>
-      <p>El CHECK de TipoEvidencia incluye únicamente: COMPROBANTE, NOTA_ASESOR, DOCUMENTO_SOPORTE, OTRO. Las fotos de identidad van exclusivamente a <code>FotografiasEstudio</code> (FOTO_DOCUMENTO y SELFIE eliminados del CHECK de EvidenciasFabrica en GAP-07).</p>
-    </div>
-
-    <div class="callout callout--warn">
-      <p><strong>⚠ SolicitudesRecarga.IdTipoFoto es nullable (GAP-01)</strong></p>
-      <p>Cuando la solicitud de recarga es por handoff biométrico (no fotográfico), el campo IdTipoFoto es NULL. Las consultas deben contemplar este caso.</p>
     </div>
   </main>
 </body>
