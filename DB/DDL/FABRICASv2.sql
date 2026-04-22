@@ -95,6 +95,15 @@
 
 -- ==============================================================================
 -- ══════════════════════════════════════════════════════════════════════════════
+-- ==============================================================================
+-- CREACIÓN DE ESQUEMAS LÓGICOS
+-- ==============================================================================
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'cfg') EXEC('CREATE SCHEMA cfg');
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'cat') EXEC('CREATE SCHEMA cat');
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'fab') EXEC('CREATE SCHEMA fab');
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'aud') EXEC('CREATE SCHEMA aud');
+
+
 -- SECCIÓN 1: TABLAS DE CONFIGURACIÓN (MAQUINA DE ESTADOS)
 -- ==============================================================================
 -- Estas tablas definen el flujo, estados y reglas de negocio.
@@ -103,9 +112,9 @@
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 1.1 FasesEstudio: Las 7 fases macro del proceso de otorgamiento
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'FasesEstudio') AND type in (N'U'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'cfg.FasesEstudio') AND type in (N'U'))
 BEGIN
-    CREATE TABLE FasesEstudio (
+    CREATE TABLE [cfg].[FasesEstudio] (
         IdFase              INT IDENTITY(1,1)   NOT NULL,
         Codigo              VARCHAR(30)         NOT NULL,
         Nombre              NVARCHAR(100)       NOT NULL,
@@ -124,9 +133,9 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 1.2 PasosEstudio: Los 13 pasos individuales del flujo
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'PasosEstudio') AND type in (N'U'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'cfg.PasosEstudio') AND type in (N'U'))
 BEGIN
-    CREATE TABLE PasosEstudio (
+    CREATE TABLE [cfg].[PasosEstudio] (
         IdPaso              INT IDENTITY(1,1)   NOT NULL,
         IdFase              INT                 NOT NULL,
         Codigo              VARCHAR(40)         NOT NULL,
@@ -144,11 +153,11 @@ BEGIN
         CONSTRAINT PK_PasosEstudio PRIMARY KEY (IdPaso),
         CONSTRAINT UQ_PasosEstudio_Codigo UNIQUE (Codigo),
         CONSTRAINT UQ_PasosEstudio_OrdenGlobal UNIQUE (OrdenGlobal),
-        CONSTRAINT FK_PasosEstudio_Fase FOREIGN KEY (IdFase) REFERENCES FasesEstudio(IdFase),
+        CONSTRAINT FK_PasosEstudio_Fase FOREIGN KEY (IdFase) REFERENCES [cfg].[FasesEstudio](IdFase),
         CONSTRAINT CK_PasosEstudio_Actor CHECK (Actor IN ('ASESOR','SISTEMA','CLIENTE','CALL_CENTER'))
     );
     
-    CREATE INDEX IX_PasosEstudio_Fase ON PasosEstudio(IdFase);
+    CREATE INDEX IX_PasosEstudio_Fase ON [cfg].[PasosEstudio](IdFase);
     PRINT '✓ Tabla PasosEstudio creada';
 END
 
@@ -156,9 +165,9 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 1.3 CatalogoEstados: Todos los estados posibles del estudio
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'CatalogoEstados') AND type in (N'U'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'cfg.CatalogoEstados') AND type in (N'U'))
 BEGIN
-    CREATE TABLE CatalogoEstados (
+    CREATE TABLE [cfg].[CatalogoEstados] (
         IdEstado            INT IDENTITY(1,1)   NOT NULL,
         Codigo              VARCHAR(40)         NOT NULL,
         Nombre              NVARCHAR(100)       NOT NULL,
@@ -179,9 +188,9 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 1.4 TransicionesEstado: Máquina de estados - transiciones válidas
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'TransicionesEstado') AND type in (N'U'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'cfg.TransicionesEstado') AND type in (N'U'))
 BEGIN
-    CREATE TABLE TransicionesEstado (
+    CREATE TABLE [cfg].[TransicionesEstado] (
         IdTransicion        INT IDENTITY(1,1)   NOT NULL,
         IdEstadoOrigen      INT                 NOT NULL,
         IdEstadoDestino     INT                 NOT NULL,
@@ -190,8 +199,8 @@ BEGIN
         Activa              BIT                 NOT NULL DEFAULT 1,
         
         CONSTRAINT PK_TransicionesEstado PRIMARY KEY (IdTransicion),
-        CONSTRAINT FK_Transiciones_Origen FOREIGN KEY (IdEstadoOrigen) REFERENCES CatalogoEstados(IdEstado),
-        CONSTRAINT FK_Transiciones_Destino FOREIGN KEY (IdEstadoDestino) REFERENCES CatalogoEstados(IdEstado),
+        CONSTRAINT FK_Transiciones_Origen FOREIGN KEY (IdEstadoOrigen) REFERENCES [cfg].[CatalogoEstados](IdEstado),
+        CONSTRAINT FK_Transiciones_Destino FOREIGN KEY (IdEstadoDestino) REFERENCES [cfg].[CatalogoEstados](IdEstado),
         CONSTRAINT UQ_Transiciones_OrigenDestino UNIQUE (IdEstadoOrigen, IdEstadoDestino)
     );
     PRINT '✓ Tabla TransicionesEstado creada';
@@ -201,9 +210,9 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 1.5 ConfiguracionReglasNegocio: Parámetros configurables del sistema
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'ConfiguracionReglasNegocio') AND type in (N'U'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'cfg.ConfiguracionReglasNegocio') AND type in (N'U'))
 BEGIN
-    CREATE TABLE ConfiguracionReglasNegocio (
+    CREATE TABLE [cfg].[ConfiguracionReglasNegocio] (
         IdRegla             INT IDENTITY(1,1)   PRIMARY KEY,
         Codigo              VARCHAR(50)         NOT NULL,
         Nombre              NVARCHAR(150)       NOT NULL,
@@ -230,9 +239,9 @@ END
 -- 1.6 CatalogoCanalesOrigen: Catálogo de canales por los que ingresa el cliente
 --     G-DB-01: Tabla dominio para EstudiosCredito.IdCanal
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'CatalogoCanalesOrigen') AND type in (N'U'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'cat.CatalogoCanalesOrigen') AND type in (N'U'))
 BEGIN
-    CREATE TABLE CatalogoCanalesOrigen (
+    CREATE TABLE [cat].[CatalogoCanalesOrigen] (
         IdCanal             INT IDENTITY(1,1)   NOT NULL,
         Codigo              VARCHAR(20)         NOT NULL,
         Nombre              NVARCHAR(100)       NOT NULL,
@@ -267,9 +276,9 @@ END
 -- para el proceso de originación. Sincronización inversa hacia terceros según
 -- reglas de negocio (no se altera la estructura de terceros).
 
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'dbo.TercerosFabricas') AND type in (N'U'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'fab.TercerosFabricas') AND type in (N'U'))
 BEGIN
-    CREATE TABLE dbo.TercerosFabricas (
+    CREATE TABLE [fab].[TercerosFabricas] (
         IdTerceroFabricas       INT IDENTITY(1,1) NOT NULL,
         NitTercero              VARCHAR(20) NOT NULL,
         NombreTercero           NVARCHAR(200) NULL,          -- GAP-09: NVARCHAR para soportar ñ y acentos
@@ -292,8 +301,8 @@ BEGIN
             REFERENCES QUAC.dbo.terceros (nit) ON UPDATE NO ACTION ON DELETE NO ACTION
     );
     
-    CREATE NONCLUSTERED INDEX IX_TercerosFabricas_Nit ON dbo.TercerosFabricas (NitTercero);
-    CREATE NONCLUSTERED INDEX IX_TercerosFabricas_Estado ON dbo.TercerosFabricas (EstadoTercero, EstaBloqueadoFabricas);
+    CREATE NONCLUSTERED INDEX IX_TercerosFabricas_Nit ON [fab].[TercerosFabricas] (NitTercero);
+    CREATE NONCLUSTERED INDEX IX_TercerosFabricas_Estado ON [fab].[TercerosFabricas] (EstadoTercero, EstaBloqueadoFabricas);
     
     PRINT '✓ Tabla TercerosFabricas creada exitosamente';
 END
@@ -356,9 +365,9 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 3.1 EstudiosCredito: Tabla central que orquesta el flujo
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'EstudiosCredito') AND type in (N'U'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'fab.EstudiosCredito') AND type in (N'U'))
 BEGIN
-    CREATE TABLE EstudiosCredito (
+    CREATE TABLE [fab].[EstudiosCredito] (
         IdEstudio               BIGINT IDENTITY(1,1) NOT NULL,
         
         -- Referencia al cliente (terceros)
@@ -426,30 +435,30 @@ BEGIN
         IdValidacionAsesor     BIGINT              NULL,                  -- FK → ValidacionesAsesor.IdValidacion (NULL en canal WEB)
         
         CONSTRAINT PK_EstudiosCredito PRIMARY KEY (IdEstudio),
-        CONSTRAINT FK_EstudiosCredito_Estado FOREIGN KEY (IdEstadoActual) REFERENCES CatalogoEstados(IdEstado),
-        CONSTRAINT FK_EstudiosCredito_Paso FOREIGN KEY (IdPasoActual) REFERENCES PasosEstudio(IdPaso),
-        CONSTRAINT FK_EstudiosCredito_Canal FOREIGN KEY (IdCanal) REFERENCES CatalogoCanalesOrigen(IdCanal),  -- G-DB-01
-        CONSTRAINT FK_EstudiosCredito_Tercero FOREIGN KEY (NitTercero) REFERENCES TercerosFabricas(NitTercero),  -- G-DB-02
+        CONSTRAINT FK_EstudiosCredito_Estado FOREIGN KEY (IdEstadoActual) REFERENCES [cfg].[CatalogoEstados](IdEstado),
+        CONSTRAINT FK_EstudiosCredito_Paso FOREIGN KEY (IdPasoActual) REFERENCES [cfg].[PasosEstudio](IdPaso),
+        CONSTRAINT FK_EstudiosCredito_Canal FOREIGN KEY (IdCanal) REFERENCES [cat].[CatalogoCanalesOrigen](IdCanal),  -- G-DB-01
+        CONSTRAINT FK_EstudiosCredito_Tercero FOREIGN KEY (NitTercero) REFERENCES [fab].[TercerosFabricas](NitTercero),  -- G-DB-02
         CONSTRAINT CK_EstudiosCredito_TipoCierre CHECK (TipoCierre IS NULL OR TipoCierre IN ('EXPRESS','NORMAL','FABRICA')),  -- GT-04
         CONSTRAINT CK_EstudiosCredito_EstadoRevisionFotos CHECK (EstadoRevisionFotos IN ('PENDIENTE','EN_REVISION','APROBADO','CON_RECHAZOS'))  -- PH-06
     );
     
-    CREATE INDEX IX_EstudiosCredito_Cliente ON EstudiosCredito(NitTercero);
-    CREATE INDEX IX_EstudiosCredito_NitComercio ON EstudiosCredito(NitComercio);
-    CREATE INDEX IX_EstudiosCredito_Estado ON EstudiosCredito(IdEstadoActual);
-    CREATE INDEX IX_EstudiosCredito_Asesor ON EstudiosCredito(IdAsesor) WHERE IdAsesor IS NOT NULL;
-    CREATE INDEX IX_EstudiosCredito_Bodega ON EstudiosCredito(IdBodega) WHERE IdBodega IS NOT NULL;  -- C-02: renombrado de IX_EstudiosCredito_Tienda
-    CREATE INDEX IX_EstudiosCredito_Canal ON EstudiosCredito(IdCanal) WHERE IdCanal IS NOT NULL;  -- G-DB-01
-    CREATE INDEX IX_EstudiosCredito_FechaInicio ON EstudiosCredito(FechaInicio);
-    CREATE INDEX IX_EstudiosCredito_ClienteFecha ON EstudiosCredito(NitTercero, FechaInicio) INCLUDE (IdEstadoActual);
-    CREATE INDEX IX_EstudiosCredito_CallCenter ON EstudiosCredito(RequiereCallCenter, IdEstadoActual) WHERE RequiereCallCenter = 1;
-    CREATE INDEX IX_EstudiosCredito_SlugWeb ON EstudiosCredito(SlugPasoWeb) WHERE SlugPasoWeb IS NOT NULL;  -- G-DB-07
-    CREATE INDEX IX_EstudiosCredito_Correlacion ON EstudiosCredito(IdCorrelacion) WHERE IdCorrelacion IS NOT NULL;  -- SA-07
-    CREATE INDEX IX_EstudiosCredito_RevisionFotos ON EstudiosCredito(EstadoRevisionFotos, IdEstadoActual)  -- PH-06
+    CREATE INDEX IX_EstudiosCredito_Cliente ON [fab].[EstudiosCredito](NitTercero);
+    CREATE INDEX IX_EstudiosCredito_NitComercio ON [fab].[EstudiosCredito](NitComercio);
+    CREATE INDEX IX_EstudiosCredito_Estado ON [fab].[EstudiosCredito](IdEstadoActual);
+    CREATE INDEX IX_EstudiosCredito_Asesor ON [fab].[EstudiosCredito](IdAsesor) WHERE IdAsesor IS NOT NULL;
+    CREATE INDEX IX_EstudiosCredito_Bodega ON [fab].[EstudiosCredito](IdBodega) WHERE IdBodega IS NOT NULL;  -- C-02: renombrado de IX_EstudiosCredito_Tienda
+    CREATE INDEX IX_EstudiosCredito_Canal ON [fab].[EstudiosCredito](IdCanal) WHERE IdCanal IS NOT NULL;  -- G-DB-01
+    CREATE INDEX IX_EstudiosCredito_FechaInicio ON [fab].[EstudiosCredito](FechaInicio);
+    CREATE INDEX IX_EstudiosCredito_ClienteFecha ON [fab].[EstudiosCredito](NitTercero, FechaInicio) INCLUDE (IdEstadoActual);
+    CREATE INDEX IX_EstudiosCredito_CallCenter ON [fab].[EstudiosCredito](RequiereCallCenter, IdEstadoActual) WHERE RequiereCallCenter = 1;
+    CREATE INDEX IX_EstudiosCredito_SlugWeb ON [fab].[EstudiosCredito](SlugPasoWeb) WHERE SlugPasoWeb IS NOT NULL;  -- G-DB-07
+    CREATE INDEX IX_EstudiosCredito_Correlacion ON [fab].[EstudiosCredito](IdCorrelacion) WHERE IdCorrelacion IS NOT NULL;  -- SA-07
+    CREATE INDEX IX_EstudiosCredito_RevisionFotos ON [fab].[EstudiosCredito](EstadoRevisionFotos, IdEstadoActual)  -- PH-06
         WHERE EstadoRevisionFotos IN ('EN_REVISION','CON_RECHAZOS');
-    CREATE INDEX IX_EstudiosCredito_ValidacionAsesor ON EstudiosCredito(IdValidacionAsesor)  -- C-04
+    CREATE INDEX IX_EstudiosCredito_ValidacionAsesor ON [fab].[EstudiosCredito](IdValidacionAsesor)  -- C-04
         WHERE IdValidacionAsesor IS NOT NULL;
-    CREATE INDEX IX_EstudiosCredito_EscalamientoActivo ON EstudiosCredito(IdEscalamientoActivo)  -- GAP-12
+    CREATE INDEX IX_EstudiosCredito_EscalamientoActivo ON [fab].[EstudiosCredito](IdEscalamientoActivo)  -- GAP-12
         WHERE IdEscalamientoActivo IS NOT NULL;
     
     PRINT '✓ Tabla EstudiosCredito creada';
@@ -458,9 +467,9 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 3.2 RetosSeguridad: OTP, tokenización y retos de verificación
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'RetosSeguridad') AND type in (N'U'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'fab.RetosSeguridad') AND type in (N'U'))
 BEGIN
-    CREATE TABLE RetosSeguridad (
+    CREATE TABLE [fab].[RetosSeguridad] (
         IdReto              BIGINT IDENTITY(1,1) NOT NULL,
         IdEstudio           BIGINT              NOT NULL,
         NitTercero          VARCHAR(20)         NOT NULL,
@@ -480,12 +489,12 @@ BEGIN
         DireccionEnvio      NVARCHAR(200)       NULL,   -- Email o celular exacto al que se envió el token
         
         CONSTRAINT PK_RetosSeguridad PRIMARY KEY (IdReto),
-        CONSTRAINT FK_RetosSeguridad_Estudio FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio),
+        CONSTRAINT FK_RetosSeguridad_Estudio FOREIGN KEY (IdEstudio) REFERENCES [fab].[EstudiosCredito](IdEstudio),
         CONSTRAINT CK_RetosSeguridad_Canal CHECK (CanalEnvio IN ('WHATSAPP','EMAIL','SMS'))
     );
     
-    CREATE INDEX IX_RetosSeguridad_ClienteFecha ON RetosSeguridad(NitTercero, FechaEnvio);
-    CREATE INDEX IX_RetosSeguridad_Estudio ON RetosSeguridad(IdEstudio);
+    CREATE INDEX IX_RetosSeguridad_ClienteFecha ON [fab].[RetosSeguridad](NitTercero, FechaEnvio);
+    CREATE INDEX IX_RetosSeguridad_Estudio ON [fab].[RetosSeguridad](IdEstudio);
     
     PRINT '✓ Tabla RetosSeguridad creada';
 END
@@ -493,9 +502,9 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 3.3 EvaluacionesRiesgo: Listas restrictivas, buró, Preselecta, FOSYGA
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'EvaluacionesRiesgo') AND type in (N'U'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'fab.EvaluacionesRiesgo') AND type in (N'U'))
 BEGIN
-    CREATE TABLE EvaluacionesRiesgo (
+    CREATE TABLE [fab].[EvaluacionesRiesgo] (
         IdEvaluacion                BIGINT IDENTITY(1,1) NOT NULL,
         IdEstudio                  BIGINT              NOT NULL,
         IdPaso                     INT                 NULL,
@@ -518,15 +527,15 @@ BEGIN
         FechaEvaluacion            DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
         
         CONSTRAINT PK_EvaluacionesRiesgo PRIMARY KEY (IdEvaluacion),
-        CONSTRAINT FK_EvaluacionesRiesgo_Estudio FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio),
-        CONSTRAINT FK_EvaluacionesRiesgo_Paso FOREIGN KEY (IdPaso) REFERENCES PasosEstudio(IdPaso),
+        CONSTRAINT FK_EvaluacionesRiesgo_Estudio FOREIGN KEY (IdEstudio) REFERENCES [fab].[EstudiosCredito](IdEstudio),
+        CONSTRAINT FK_EvaluacionesRiesgo_Paso FOREIGN KEY (IdPaso) REFERENCES [cfg].[PasosEstudio](IdPaso),
         -- G-DB-03: Ampliado para incluir ANTECEDENTES y UBICA
         CONSTRAINT CK_EvaluacionesRiesgo_Tipo CHECK (TipoEvaluacion IN ('LISTAS','BURO','PRESELECTA','FOSYGA','ANTECEDENTES','UBICA')),
         CONSTRAINT CK_EvaluacionesRiesgo_Resultado CHECK (Resultado IN ('APROBADO','RECHAZADO','PENDIENTE','ERROR'))
     );
     
-    CREATE INDEX IX_EvaluacionesRiesgo_Estudio ON EvaluacionesRiesgo(IdEstudio);
-    CREATE INDEX IX_EvaluacionesRiesgo_Tipo ON EvaluacionesRiesgo(TipoEvaluacion, Resultado);
+    CREATE INDEX IX_EvaluacionesRiesgo_Estudio ON [fab].[EvaluacionesRiesgo](IdEstudio);
+    CREATE INDEX IX_EvaluacionesRiesgo_Tipo ON [fab].[EvaluacionesRiesgo](TipoEvaluacion, Resultado);
     
     PRINT '✓ Tabla EvaluacionesRiesgo creada';
 END
@@ -534,9 +543,9 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 3.4 RegistrosBiometria: Biometría facial, OCR, prueba de vida
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'RegistrosBiometria') AND type in (N'U'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'fab.RegistrosBiometria') AND type in (N'U'))
 BEGIN
-    CREATE TABLE RegistrosBiometria (
+    CREATE TABLE [fab].[RegistrosBiometria] (
         IdBiometria             BIGINT IDENTITY(1,1) NOT NULL,
         IdEstudio               BIGINT              NOT NULL,
         IdTransaccionProveedor  VARCHAR(100)        NULL,
@@ -566,17 +575,17 @@ BEGIN
         IdFotografiaSelfie      BIGINT              NULL,   -- FK → FotografiasEstudio (SELFIE usada en CompareFaces/DetectFaces)
         
         CONSTRAINT PK_RegistrosBiometria PRIMARY KEY (IdBiometria),
-        CONSTRAINT FK_RegistrosBiometria_Estudio FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio),
+        CONSTRAINT FK_RegistrosBiometria_Estudio FOREIGN KEY (IdEstudio) REFERENCES [fab].[EstudiosCredito](IdEstudio),
         CONSTRAINT CK_RegistrosBiometria_Tipo CHECK (TipoVerificacion IN ('ONBOARDING','AUTENTICACION','PRUEBA_VIDA_HANDOFF')),  -- GAP-13: añadido PRUEBA_VIDA_HANDOFF
         CONSTRAINT CK_RegistrosBiometria_Estado CHECK (EstadoProceso IN ('EXITOSO','FALLIDO','REVISION_MANUAL'))
     );
     
-    CREATE INDEX IX_RegistrosBiometria_Estudio ON RegistrosBiometria(IdEstudio);
-    CREATE INDEX IX_RegistrosBiometria_FotoFrontal ON RegistrosBiometria(IdFotografiaFrontal)
+    CREATE INDEX IX_RegistrosBiometria_Estudio ON [fab].[RegistrosBiometria](IdEstudio);
+    CREATE INDEX IX_RegistrosBiometria_FotoFrontal ON [fab].[RegistrosBiometria](IdFotografiaFrontal)
         WHERE IdFotografiaFrontal IS NOT NULL;   -- PH-07
-    CREATE INDEX IX_RegistrosBiometria_FotoReverso ON RegistrosBiometria(IdFotografiaReverso)
+    CREATE INDEX IX_RegistrosBiometria_FotoReverso ON [fab].[RegistrosBiometria](IdFotografiaReverso)
         WHERE IdFotografiaReverso IS NOT NULL;   -- PH-07
-    CREATE INDEX IX_RegistrosBiometria_FotoSelfie ON RegistrosBiometria(IdFotografiaSelfie)
+    CREATE INDEX IX_RegistrosBiometria_FotoSelfie ON [fab].[RegistrosBiometria](IdFotografiaSelfie)
         WHERE IdFotografiaSelfie IS NOT NULL;    -- PH-07
     
     PRINT '✓ Tabla RegistrosBiometria creada';
@@ -586,9 +595,9 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 3.5 ValidacionesContactabilidad: UBICA y gestión manual
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'ValidacionesContactabilidad') AND type in (N'U'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'fab.ValidacionesContactabilidad') AND type in (N'U'))
 BEGIN
-    CREATE TABLE ValidacionesContactabilidad (
+    CREATE TABLE [fab].[ValidacionesContactabilidad] (
         IdValidacion              BIGINT IDENTITY(1,1) NOT NULL,
         IdEstudio                 BIGINT              NOT NULL,
         ScoreUbica                VARCHAR(30)         NULL,
@@ -608,7 +617,7 @@ BEGIN
         FechaVerificacion         DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
         
         CONSTRAINT PK_ValidacionesContactabilidad PRIMARY KEY (IdValidacion),
-        CONSTRAINT FK_ValidContact_Estudio FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio),
+        CONSTRAINT FK_ValidContact_Estudio FOREIGN KEY (IdEstudio) REFERENCES [fab].[EstudiosCredito](IdEstudio),
         CONSTRAINT CK_ValidContact_EstadoManual CHECK (
             EstadoVerificacionManual IS NULL OR 
             EstadoVerificacionManual IN ('PENDIENTE','CONFIRMADO','RECHAZADO')
@@ -620,12 +629,12 @@ BEGIN
         )
     );
     
-    CREATE INDEX IX_ValidContact_Estudio ON ValidacionesContactabilidad(IdEstudio);
-    CREATE INDEX IX_ValidContact_Pendientes ON ValidacionesContactabilidad(EstadoVerificacionManual) 
+    CREATE INDEX IX_ValidContact_Estudio ON [fab].[ValidacionesContactabilidad](IdEstudio);
+    CREATE INDEX IX_ValidContact_Pendientes ON [fab].[ValidacionesContactabilidad](EstadoVerificacionManual) 
         WHERE EstadoVerificacionManual = 'PENDIENTE';
-    CREATE INDEX IX_ValidContact_EstadoUbica ON ValidacionesContactabilidad(EstadoUbica)  -- G-DB-04
+    CREATE INDEX IX_ValidContact_EstadoUbica ON [fab].[ValidacionesContactabilidad](EstadoUbica)  -- G-DB-04
         WHERE EstadoUbica IS NOT NULL;
-    CREATE INDEX IX_ValidContact_AlertaFraude ON ValidacionesContactabilidad(IdAlertaFraude)  -- SA-10
+    CREATE INDEX IX_ValidContact_AlertaFraude ON [fab].[ValidacionesContactabilidad](IdAlertaFraude)  -- SA-10
         WHERE IdAlertaFraude IS NOT NULL;
     
     PRINT '✓ Tabla ValidacionesContactabilidad creada';
@@ -634,9 +643,9 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 3.6 ConsentimientosLegales: Trazabilidad de aceptaciones
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'ConsentimientosLegales') AND type in (N'U'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'fab.ConsentimientosLegales') AND type in (N'U'))
 BEGIN
-    CREATE TABLE ConsentimientosLegales (
+    CREATE TABLE [fab].[ConsentimientosLegales] (
         IdConsentimiento      BIGINT IDENTITY(1,1) NOT NULL,
         IdEstudio            BIGINT              NOT NULL,
         NitTercero           VARCHAR(20)         NOT NULL,
@@ -652,15 +661,15 @@ BEGIN
         FechaAceptacion     DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
         
         CONSTRAINT PK_ConsentimientosLegales PRIMARY KEY (IdConsentimiento),
-        CONSTRAINT FK_Consentimientos_Estudio FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio),
+        CONSTRAINT FK_Consentimientos_Estudio FOREIGN KEY (IdEstudio) REFERENCES [fab].[EstudiosCredito](IdEstudio),
         -- G-DB-09: Tipos de firma admitidos
         CONSTRAINT CK_Consentimientos_TipoFirma CHECK (
             TipoFirma IN ('OTP_SMS','OTP_EMAIL','OTP_WHATSAPP','CHECKBOX','FIRMA_DIGITAL')
         )
     );
     
-    CREATE INDEX IX_Consentimientos_Estudio ON ConsentimientosLegales(IdEstudio);
-    CREATE INDEX IX_Consentimientos_Cliente ON ConsentimientosLegales(NitTercero);
+    CREATE INDEX IX_Consentimientos_Estudio ON [fab].[ConsentimientosLegales](IdEstudio);
+    CREATE INDEX IX_Consentimientos_Cliente ON [fab].[ConsentimientosLegales](NitTercero);
     
     PRINT '✓ Tabla ConsentimientosLegales creada';
 END
@@ -669,9 +678,9 @@ END
 -- 3.7 EvidenciasFabrica: Archivos adjuntos y evidencias para revisión manual
 --     GT-08: Tabla de evidencias/adjuntos para el proceso de revisión en fábrica
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'EvidenciasFabrica') AND type in (N'U'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'fab.EvidenciasFabrica') AND type in (N'U'))
 BEGIN
-    CREATE TABLE EvidenciasFabrica (
+    CREATE TABLE [fab].[EvidenciasFabrica] (
         IdEvidencia         BIGINT IDENTITY(1,1)    NOT NULL,
         IdEstudioCredito    BIGINT                  NOT NULL,   -- FK al estudio de crédito asociado
         
@@ -691,18 +700,18 @@ BEGIN
         FechaCreacion       DATETIME2(3)            NOT NULL DEFAULT GETDATE(),  -- GAP-11: GETDATE() estándar
         
         CONSTRAINT PK_EvidenciasFabrica PRIMARY KEY (IdEvidencia),
-        CONSTRAINT FK_EvidenciasFabrica_Estudio FOREIGN KEY (IdEstudioCredito) REFERENCES EstudiosCredito(IdEstudio),
+        CONSTRAINT FK_EvidenciasFabrica_Estudio FOREIGN KEY (IdEstudioCredito) REFERENCES [fab].[EstudiosCredito](IdEstudio),
         CONSTRAINT CK_EvidenciasFabrica_Tipo CHECK (
             TipoEvidencia IN ('COMPROBANTE','NOTA_ASESOR','DOCUMENTO_SOPORTE','OTRO')  -- GAP-07: FOTO_DOCUMENTO y SELFIE eliminados; fotos van a FotografiasEstudio
         )
     );
     
     -- Índice principal para consultas por estudio
-    CREATE INDEX IX_EvidenciasFabrica_Estudio ON EvidenciasFabrica(IdEstudioCredito);
+    CREATE INDEX IX_EvidenciasFabrica_Estudio ON [fab].[EvidenciasFabrica](IdEstudioCredito);
     -- Índice para filtrar por tipo de evidencia dentro de un estudio
-    CREATE INDEX IX_EvidenciasFabrica_EstudioTipo ON EvidenciasFabrica(IdEstudioCredito, TipoEvidencia);
+    CREATE INDEX IX_EvidenciasFabrica_EstudioTipo ON [fab].[EvidenciasFabrica](IdEstudioCredito, TipoEvidencia);
     -- Índice para auditoría por usuario que subió el archivo
-    CREATE INDEX IX_EvidenciasFabrica_SubidoPor ON EvidenciasFabrica(SubidoPor, FechaCreacion);
+    CREATE INDEX IX_EvidenciasFabrica_SubidoPor ON [fab].[EvidenciasFabrica](SubidoPor, FechaCreacion);
     
     PRINT '✓ Tabla EvidenciasFabrica creada';
 END
@@ -719,9 +728,9 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 4.1 HistorialEstados: Máquina de estados inmutable
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'HistorialEstados') AND type in (N'U'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'aud.HistorialEstados') AND type in (N'U'))
 BEGIN
-    CREATE TABLE HistorialEstados (
+    CREATE TABLE [aud].[HistorialEstados] (
         IdHistorial         BIGINT IDENTITY(1,1) NOT NULL,
         IdEstudio           BIGINT              NOT NULL,
         IdEstadoAnterior    INT                 NULL,
@@ -739,15 +748,15 @@ BEGIN
         FechaTransicion     DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
         
         CONSTRAINT PK_HistorialEstados PRIMARY KEY (IdHistorial),
-        CONSTRAINT FK_Hist_Request FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio),
-        CONSTRAINT FK_Hist_EstAnterior FOREIGN KEY (IdEstadoAnterior) REFERENCES CatalogoEstados(IdEstado),
-        CONSTRAINT FK_Hist_EstNuevo FOREIGN KEY (IdEstadoNuevo) REFERENCES CatalogoEstados(IdEstado),
-        CONSTRAINT FK_Hist_Paso FOREIGN KEY (IdPasoRelacionado) REFERENCES PasosEstudio(IdPaso),
+        CONSTRAINT FK_Hist_Request FOREIGN KEY (IdEstudio) REFERENCES [fab].[EstudiosCredito](IdEstudio),
+        CONSTRAINT FK_Hist_EstAnterior FOREIGN KEY (IdEstadoAnterior) REFERENCES [cfg].[CatalogoEstados](IdEstado),
+        CONSTRAINT FK_Hist_EstNuevo FOREIGN KEY (IdEstadoNuevo) REFERENCES [cfg].[CatalogoEstados](IdEstado),
+        CONSTRAINT FK_Hist_Paso FOREIGN KEY (IdPasoRelacionado) REFERENCES [cfg].[PasosEstudio](IdPaso),
         CONSTRAINT CK_HistorialEstados_TipoUsr CHECK (TipoUsuario IN ('SISTEMA','ASESOR','CALL_CENTER','CLIENTE','ADMINISTRADOR'))  -- GAP-02: añadidos CLIENTE y ADMINISTRADOR
     );
     
-    CREATE INDEX IX_HistorialEstados_Estudio ON HistorialEstados(IdEstudio, FechaTransicion);
-    CREATE INDEX IX_HistorialEstados_EstadoFecha ON HistorialEstados(IdEstadoNuevo, FechaTransicion);
+    CREATE INDEX IX_HistorialEstados_Estudio ON [aud].[HistorialEstados](IdEstudio, FechaTransicion);
+    CREATE INDEX IX_HistorialEstados_EstadoFecha ON [aud].[HistorialEstados](IdEstadoNuevo, FechaTransicion);
     
     PRINT '✓ Tabla HistorialEstados creada';
 END
@@ -756,9 +765,9 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 4.2 AuditoriaCambiosDatos: Registro de cambios en datos mutables
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'AuditoriaCambiosDatos') AND type in (N'U'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'aud.AuditoriaCambiosDatos') AND type in (N'U'))
 BEGIN
-    CREATE TABLE AuditoriaCambiosDatos (
+    CREATE TABLE [aud].[AuditoriaCambiosDatos] (
         IdAuditoria         BIGINT IDENTITY(1,1) NOT NULL,
         IdEstudio           BIGINT              NULL,
         NitTercero          VARCHAR(20)         NOT NULL,
@@ -772,12 +781,12 @@ BEGIN
         FechaCambio         DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
         
         CONSTRAINT PK_AuditoriaCambiosDatos PRIMARY KEY (IdAuditoria),
-        CONSTRAINT FK_Audit_Request FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio),
+        CONSTRAINT FK_Audit_Request FOREIGN KEY (IdEstudio) REFERENCES [fab].[EstudiosCredito](IdEstudio),
         CONSTRAINT CK_AuditoriaCambiosDatos_TipoUsuario CHECK (TipoUsuario IN ('SISTEMA','ASESOR','CLIENTE','ADMINISTRADOR'))  -- GAP-08
     );
     
-    CREATE INDEX IX_AuditoriaCambiosDatos_Cliente ON AuditoriaCambiosDatos(NitTercero, FechaCambio);
-    CREATE INDEX IX_AuditoriaCambiosDatos_Estudio ON AuditoriaCambiosDatos(IdEstudio) WHERE IdEstudio IS NOT NULL;
+    CREATE INDEX IX_AuditoriaCambiosDatos_Cliente ON [aud].[AuditoriaCambiosDatos](NitTercero, FechaCambio);
+    CREATE INDEX IX_AuditoriaCambiosDatos_Estudio ON [aud].[AuditoriaCambiosDatos](IdEstudio) WHERE IdEstudio IS NOT NULL;
     
     PRINT '✓ Tabla AuditoriaCambiosDatos creada';
 END
@@ -786,9 +795,9 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 4.3 RegistroServiciosExternos: Logging de invocaciones a servicios
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'RegistroServiciosExternos') AND type in (N'U'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'aud.RegistroServiciosExternos') AND type in (N'U'))
 BEGIN
-    CREATE TABLE RegistroServiciosExternos (
+    CREATE TABLE [aud].[RegistroServiciosExternos] (
         IdRegistro              BIGINT IDENTITY(1,1) NOT NULL,
         IdEstudio               BIGINT              NOT NULL,
         IdPaso                  INT                 NULL,
@@ -811,14 +820,14 @@ BEGIN
         FechaRespuesta          DATETIME2(3)        NULL,
         
         CONSTRAINT PK_RegistroServiciosExternos PRIMARY KEY (IdRegistro),
-        CONSTRAINT FK_RegServ_Request FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio),
-        CONSTRAINT FK_RegServ_Paso FOREIGN KEY (IdPaso) REFERENCES PasosEstudio(IdPaso),
+        CONSTRAINT FK_RegServ_Request FOREIGN KEY (IdEstudio) REFERENCES [fab].[EstudiosCredito](IdEstudio),
+        CONSTRAINT FK_RegServ_Paso FOREIGN KEY (IdPaso) REFERENCES [cfg].[PasosEstudio](IdPaso),
         CONSTRAINT CK_RegServExt_Resultado CHECK (ResultadoInterpretado IN ('EXITOSO','FALLIDO','TIMEOUT','ERROR'))
     );
     
-    CREATE INDEX IX_RegServExt_Estudio ON RegistroServiciosExternos(IdEstudio, FechaInvocacion);
-    CREATE INDEX IX_RegServExt_Servicio ON RegistroServiciosExternos(NombreServicio, ResultadoInterpretado, FechaInvocacion);
-    CREATE INDEX IX_RegServExt_Duracion ON RegistroServiciosExternos(NombreServicio, DuracionMs) WHERE DuracionMs IS NOT NULL;
+    CREATE INDEX IX_RegServExt_Estudio ON [aud].[RegistroServiciosExternos](IdEstudio, FechaInvocacion);
+    CREATE INDEX IX_RegServExt_Servicio ON [aud].[RegistroServiciosExternos](NombreServicio, ResultadoInterpretado, FechaInvocacion);
+    CREATE INDEX IX_RegServExt_Duracion ON [aud].[RegistroServiciosExternos](NombreServicio, DuracionMs) WHERE DuracionMs IS NOT NULL;
     
     PRINT '✓ Tabla RegistroServiciosExternos creada';
 END
@@ -856,9 +865,9 @@ END
 --      tocar código. Con este catálogo se pueden activar/desactivar reglas sin
 --      deploy y el asesor ve la descripción enriquecida de por qué llegó el caso.
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'CatalogoReglasFraude') AND type = N'U')
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'cat.CatalogoReglasFraude') AND type = N'U')
 BEGIN
-    CREATE TABLE CatalogoReglasFraude (
+    CREATE TABLE [cat].[CatalogoReglasFraude] (
         IdReglaFraude       INT IDENTITY(1,1)   NOT NULL,
         Codigo              VARCHAR(50)         NOT NULL,   -- Clave única usable desde código (ej. EMAIL_CHANGE_POST_OTP_FAIL)
         Nombre              NVARCHAR(150)       NOT NULL,   -- Nombre legible para el asesor
@@ -887,9 +896,9 @@ END
 --      sistema puede disparar reglas sobre texto libre. Este catálogo permite
 --      dashboards de volumen por motivo y SLA diferenciados por tipo.
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'CatalogoMotivosEscalamiento') AND type = N'U')
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'cat.CatalogoMotivosEscalamiento') AND type = N'U')
 BEGIN
-    CREATE TABLE CatalogoMotivosEscalamiento (
+    CREATE TABLE [cat].[CatalogoMotivosEscalamiento] (
         IdMotivo            INT IDENTITY(1,1)   NOT NULL,
         Codigo              VARCHAR(50)         NOT NULL,   -- Ej. OTP_FAIL_EMAIL_CHANGE, BIOMETRIA_REINTENTO_MAX
         Nombre              NVARCHAR(150)       NOT NULL,
@@ -915,9 +924,9 @@ END
 --      Permite al asesor ver: CUÁNTAS alertas disparó este estudio, CUÁL regla
 --      las generó, CUÁNDO, y QUÉ datos contextuales dispararon la alerta.
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'AlertasFraude') AND type = N'U')
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'aud.AlertasFraude') AND type = N'U')
 BEGIN
-    CREATE TABLE AlertasFraude (
+    CREATE TABLE [aud].[AlertasFraude] (
         IdAlerta            BIGINT IDENTITY(1,1) NOT NULL,
         IdEstudio           BIGINT              NOT NULL,   -- FK → EstudiosCredito
         IdReglaFraude       INT                 NOT NULL,   -- FK → CatalogoReglasFraude
@@ -940,16 +949,16 @@ BEGIN
         -- NUNCA UPDATE ni DELETE — tabla de solo INSERT
 
         CONSTRAINT PK_AlertasFraude PRIMARY KEY (IdAlerta),
-        CONSTRAINT FK_AlertasFraude_Estudio FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio),
-        CONSTRAINT FK_AlertasFraude_Regla FOREIGN KEY (IdReglaFraude) REFERENCES CatalogoReglasFraude(IdReglaFraude),
+        CONSTRAINT FK_AlertasFraude_Estudio FOREIGN KEY (IdEstudio) REFERENCES [fab].[EstudiosCredito](IdEstudio),
+        CONSTRAINT FK_AlertasFraude_Regla FOREIGN KEY (IdReglaFraude) REFERENCES [cat].[CatalogoReglasFraude](IdReglaFraude),
         CONSTRAINT CK_AlertasFraude_Accion CHECK (AccionTomada IN ('PENDIENTE','ESCALADO','BLOQUEADO','DESCARTADO'))
     );
 
-    CREATE INDEX IX_AlertasFraude_Estudio ON AlertasFraude(IdEstudio, FechaAlerta);
-    CREATE INDEX IX_AlertasFraude_Cliente ON AlertasFraude(NitTercero, FechaAlerta);
-    CREATE INDEX IX_AlertasFraude_Pendientes ON AlertasFraude(AccionTomada, IdReglaFraude)
+    CREATE INDEX IX_AlertasFraude_Estudio ON [aud].[AlertasFraude](IdEstudio, FechaAlerta);
+    CREATE INDEX IX_AlertasFraude_Cliente ON [aud].[AlertasFraude](NitTercero, FechaAlerta);
+    CREATE INDEX IX_AlertasFraude_Pendientes ON [aud].[AlertasFraude](AccionTomada, IdReglaFraude)
         WHERE AccionTomada = 'PENDIENTE';
-    CREATE INDEX IX_AlertasFraude_Regla ON AlertasFraude(IdReglaFraude, FechaAlerta);
+    CREATE INDEX IX_AlertasFraude_Regla ON [aud].[AlertasFraude](IdReglaFraude, FechaAlerta);
 
     PRINT '✓ Tabla AlertasFraude creada';
 END
@@ -967,9 +976,9 @@ END
 --        - Quién escaló y cuándo
 --        - Si fue resuelto, por quién y cuándo
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'EscalamientosFabrica') AND type = N'U')
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'fab.EscalamientosFabrica') AND type = N'U')
 BEGIN
-    CREATE TABLE EscalamientosFabrica (
+    CREATE TABLE [fab].[EscalamientosFabrica] (
         IdEscalamiento          BIGINT IDENTITY(1,1)    NOT NULL,
         IdEstudio               BIGINT                  NOT NULL,   -- FK → EstudiosCredito
         IdMotivoEscalamiento    INT                     NOT NULL,   -- FK → CatalogoMotivosEscalamiento
@@ -997,19 +1006,19 @@ BEGIN
         FechaActualizacion      DATETIME2(3)            NOT NULL DEFAULT GETDATE(),
 
         CONSTRAINT PK_EscalamientosFabrica PRIMARY KEY (IdEscalamiento),
-        CONSTRAINT FK_EscalamientosFabrica_Estudio FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio),
-        CONSTRAINT FK_EscalamientosFabrica_Motivo FOREIGN KEY (IdMotivoEscalamiento) REFERENCES CatalogoMotivosEscalamiento(IdMotivo),
-        CONSTRAINT FK_EscalamientosFabrica_Alerta FOREIGN KEY (IdAlertaOrigen) REFERENCES AlertasFraude(IdAlerta),
-        CONSTRAINT FK_EscalamientosFabrica_EstadoAlEscalar FOREIGN KEY (IdEstadoAlEscalar) REFERENCES CatalogoEstados(IdEstado),
+        CONSTRAINT FK_EscalamientosFabrica_Estudio FOREIGN KEY (IdEstudio) REFERENCES [fab].[EstudiosCredito](IdEstudio),
+        CONSTRAINT FK_EscalamientosFabrica_Motivo FOREIGN KEY (IdMotivoEscalamiento) REFERENCES [cat].[CatalogoMotivosEscalamiento](IdMotivo),
+        CONSTRAINT FK_EscalamientosFabrica_Alerta FOREIGN KEY (IdAlertaOrigen) REFERENCES [aud].[AlertasFraude](IdAlerta),
+        CONSTRAINT FK_EscalamientosFabrica_EstadoAlEscalar FOREIGN KEY (IdEstadoAlEscalar) REFERENCES [cfg].[CatalogoEstados](IdEstado),
         CONSTRAINT CK_EscalamientosFabrica_Estado CHECK (EstadoEscalamiento IN ('ABIERTO','EN_GESTION','RESUELTO','CERRADO_SIN_RESOLUCION')),
         CONSTRAINT CK_EscalamientosFabrica_Resultado CHECK (ResultadoGestion IS NULL OR ResultadoGestion IN ('APROBADO','RECHAZADO','DEVUELTO_FLUJO'))
     );
 
-    CREATE INDEX IX_Escalamientos_Estudio ON EscalamientosFabrica(IdEstudio, FechaCreacion);
-    CREATE INDEX IX_Escalamientos_AbiertosAsesor ON EscalamientosFabrica(IdAsesorAsignado, EstadoEscalamiento)
+    CREATE INDEX IX_Escalamientos_Estudio ON [fab].[EscalamientosFabrica](IdEstudio, FechaCreacion);
+    CREATE INDEX IX_Escalamientos_AbiertosAsesor ON [fab].[EscalamientosFabrica](IdAsesorAsignado, EstadoEscalamiento)
         WHERE EstadoEscalamiento IN ('ABIERTO','EN_GESTION');
-    CREATE INDEX IX_Escalamientos_Motivo ON EscalamientosFabrica(IdMotivoEscalamiento, FechaCreacion);
-    CREATE INDEX IX_Escalamientos_Alerta ON EscalamientosFabrica(IdAlertaOrigen)
+    CREATE INDEX IX_Escalamientos_Motivo ON [fab].[EscalamientosFabrica](IdMotivoEscalamiento, FechaCreacion);
+    CREATE INDEX IX_Escalamientos_Alerta ON [fab].[EscalamientosFabrica](IdAlertaOrigen)
         WHERE IdAlertaOrigen IS NOT NULL;
 
     PRINT '✓ Tabla EscalamientosFabrica creada';
@@ -1025,9 +1034,9 @@ END
 --      No permite reconstruir "intento 1 falló a las 10:01, intento 2 expiró a las 10:06"
 --      ni vincular un intento fallido específico con el cambio de email subsiguiente.
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'LogValidacionesOTP') AND type = N'U')
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'aud.LogValidacionesOTP') AND type = N'U')
 BEGIN
-    CREATE TABLE LogValidacionesOTP (
+    CREATE TABLE [aud].[LogValidacionesOTP] (
         IdLogOTP            BIGINT IDENTITY(1,1) NOT NULL,
         IdReto              BIGINT              NOT NULL,   -- FK → RetosSeguridad
         IdEstudio           BIGINT              NOT NULL,   -- Redundancia para consultas directas por estudio
@@ -1042,14 +1051,14 @@ BEGIN
         -- NUNCA UPDATE ni DELETE — tabla de solo INSERT
 
         CONSTRAINT PK_LogValidacionesOTP PRIMARY KEY (IdLogOTP),
-        CONSTRAINT FK_LogOTP_Reto FOREIGN KEY (IdReto) REFERENCES RetosSeguridad(IdReto),
-        CONSTRAINT FK_LogOTP_Estudio FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio),
+        CONSTRAINT FK_LogOTP_Reto FOREIGN KEY (IdReto) REFERENCES [fab].[RetosSeguridad](IdReto),
+        CONSTRAINT FK_LogOTP_Estudio FOREIGN KEY (IdEstudio) REFERENCES [fab].[EstudiosCredito](IdEstudio),
         CONSTRAINT CK_LogOTP_Resultado CHECK (ResultadoIntento IN ('EXITOSO','FALLIDO_HASH','EXPIRADO','CANCELADO'))
     );
 
-    CREATE INDEX IX_LogOTP_Reto ON LogValidacionesOTP(IdReto, NumeroIntento);
-    CREATE INDEX IX_LogOTP_Estudio ON LogValidacionesOTP(IdEstudio, FechaIntento);
-    CREATE INDEX IX_LogOTP_Cliente ON LogValidacionesOTP(NitTercero, FechaIntento);
+    CREATE INDEX IX_LogOTP_Reto ON [aud].[LogValidacionesOTP](IdReto, NumeroIntento);
+    CREATE INDEX IX_LogOTP_Estudio ON [aud].[LogValidacionesOTP](IdEstudio, FechaIntento);
+    CREATE INDEX IX_LogOTP_Cliente ON [aud].[LogValidacionesOTP](NitTercero, FechaIntento);
 
     PRINT '✓ Tabla LogValidacionesOTP creada';
 END
@@ -1065,9 +1074,9 @@ END
 --      Diseño: INSERT-ONLY, con FK al reto de seguridad activo al momento del cambio
 --              para poder correlacionar "cambio de email mientras había un reto OTP abierto".
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'HistorialDatosSensibles') AND type = N'U')
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'aud.HistorialDatosSensibles') AND type = N'U')
 BEGIN
-    CREATE TABLE HistorialDatosSensibles (
+    CREATE TABLE [aud].[HistorialDatosSensibles] (
         IdHistorialDato     BIGINT IDENTITY(1,1) NOT NULL,
         IdEstudio           BIGINT              NOT NULL,   -- FK → EstudiosCredito
         NitTercero          VARCHAR(20)         NOT NULL,
@@ -1084,14 +1093,14 @@ BEGIN
         -- NUNCA UPDATE ni DELETE — tabla de solo INSERT
 
         CONSTRAINT PK_HistorialDatosSensibles PRIMARY KEY (IdHistorialDato),
-        CONSTRAINT FK_HistDatosSensibles_Estudio FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio),
-        CONSTRAINT FK_HistDatosSensibles_Reto FOREIGN KEY (IdRetoActivoAlCambio) REFERENCES RetosSeguridad(IdReto),
+        CONSTRAINT FK_HistDatosSensibles_Estudio FOREIGN KEY (IdEstudio) REFERENCES [fab].[EstudiosCredito](IdEstudio),
+        CONSTRAINT FK_HistDatosSensibles_Reto FOREIGN KEY (IdRetoActivoAlCambio) REFERENCES [fab].[RetosSeguridad](IdReto),
         CONSTRAINT CK_HistDatosSensibles_Actor CHECK (TipoActor IN ('CLIENTE','ASESOR','SISTEMA'))
     );
 
-    CREATE INDEX IX_HistDatosSensibles_Estudio ON HistorialDatosSensibles(IdEstudio, FechaCambio);
-    CREATE INDEX IX_HistDatosSensibles_Cliente ON HistorialDatosSensibles(NitTercero, FechaCambio);
-    CREATE INDEX IX_HistDatosSensibles_PostOTP ON HistorialDatosSensibles(IdEstudio, EsPostFalloOTP)
+    CREATE INDEX IX_HistDatosSensibles_Estudio ON [aud].[HistorialDatosSensibles](IdEstudio, FechaCambio);
+    CREATE INDEX IX_HistDatosSensibles_Cliente ON [aud].[HistorialDatosSensibles](NitTercero, FechaCambio);
+    CREATE INDEX IX_HistDatosSensibles_PostOTP ON [aud].[HistorialDatosSensibles](IdEstudio, EsPostFalloOTP)
         WHERE EsPostFalloOTP = 1;   -- Índice filtrado para detección rápida de patrón de fraude
 
     PRINT '✓ Tabla HistorialDatosSensibles creada';
@@ -1135,13 +1144,13 @@ END
 -- Añadir FK para IdAlertaFraude (AlertasFraude ya existe a este punto)
 IF NOT EXISTS (
     SELECT * FROM sys.foreign_keys
-    WHERE parent_object_id = OBJECT_ID(N'ValidacionesContactabilidad')
+    WHERE parent_object_id = OBJECT_ID(N'fab.ValidacionesContactabilidad')
       AND name = 'FK_ValidContact_AlertaFraude'
 )
 BEGIN
     ALTER TABLE ValidacionesContactabilidad
         ADD CONSTRAINT FK_ValidContact_AlertaFraude
-        FOREIGN KEY (IdAlertaFraude) REFERENCES AlertasFraude(IdAlerta);
+        FOREIGN KEY (IdAlertaFraude) REFERENCES [aud].[AlertasFraude](IdAlerta);
     PRINT '✓ ValidacionesContactabilidad: FK FK_ValidContact_AlertaFraude añadida';
 END
 
@@ -1154,7 +1163,7 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 IF NOT EXISTS (SELECT * FROM CatalogoEstados WHERE Codigo = 'REVISION_FABRICA')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('REVISION_FABRICA', 'En Revisión Manual — Fábrica de Crédito', 'PROCESO', 0, 0,
             'Estudio derivado a revisión manual por asesor de fábrica de crédito, usualmente por alerta de fraude o anomalía en el flujo');
     PRINT '✓ Estado REVISION_FABRICA insertado en CatalogoEstados';
@@ -1168,7 +1177,7 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 IF NOT EXISTS (SELECT * FROM CatalogoEstados WHERE Codigo = 'BLOQUEADO_FRAUDE')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('BLOQUEADO_FRAUDE', 'Bloqueado por Sospecha de Fraude', 'TERMINAL', 1, 0,
             'Solicitud bloqueada por detección de patrón de fraude. Requiere investigación por área de seguridad.');
     PRINT '✓ Estado BLOQUEADO_FRAUDE insertado en CatalogoEstados';
@@ -1187,7 +1196,7 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 IF NOT EXISTS (SELECT * FROM FasesEstudio)
 BEGIN
-    INSERT INTO FasesEstudio (Codigo, Nombre, OrdenEjecucion, Descripcion) VALUES
+    INSERT INTO [cfg].[FasesEstudio] (Codigo, Nombre, OrdenEjecucion, Descripcion) VALUES
     ('IDENTIFICACION',          'Identificación del Cliente',       1, 'Ingreso de documento, validación de existencia, verificación de cupo activo/bloqueado'),
     ('DATOS_CLIENTE',           'Datos del Cliente',                2, 'Captura o actualización de datos personales y de contacto'),
     ('CONSENTIMIENTO_LEGAL',    'Consentimiento Legal',             3, 'Aceptación de términos, autorización de tratamiento de datos, tokenización'),
@@ -1224,7 +1233,7 @@ END
  -- INICIAL: Borrador (validación previa)
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'BORRADOR')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('BORRADOR', 'En Validación Previa', 'INICIAL', 0, 0,
      'El cliente se encuentra en pasos iniciales: identificación, creación, validacion de cupo o preparacion para estudio.');
     PRINT '✓ Estado BORRADOR insertado';
@@ -1233,7 +1242,7 @@ END
  -- INICIAL: Pendiente Cliente Previo
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_CLIENTE_PREVIO')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('PENDIENTE_CLIENTE_PREVIO', 'Pendiente Cliente — Previo', 'INICIAL', 0, 1,
      'Se requiere una accion del cliente antes de crear la solicitud formal: completar datos, corregir correo, recibir token, validar identidad, etc.');
     PRINT '✓ Estado PENDIENTE_CLIENTE_PREVIO insertado';
@@ -1242,7 +1251,7 @@ END
  -- INICIAL: Expirado Previo
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'EXPIRADO_PREVIO')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('EXPIRADO_PREVIO', 'Expirada — Previo', 'INICIAL', 1, 0,
      'El proceso previo no continuo dentro del tiempo permitido o agoto intentos criticos antes de solicitud formal.');
     PRINT '✓ Estado EXPIRADO_PREVIO insertado';
@@ -1251,7 +1260,7 @@ END
  -- BLOQUEO: Cupo Ya Activo
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'CUPO_YA_ACTIVO')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('CUPO_YA_ACTIVO', 'Cupo Ya Activo', 'BLOQUEO', 1, 0,
      'El cliente ya cuenta con cupo disponible y no requiere nuevo estudio.');
     PRINT '✓ Estado CUPO_YA_ACTIVO insertado';
@@ -1260,7 +1269,7 @@ END
  -- BLOQUEO: No Aplica Por Mora
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'NO_APLICA_MORA')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('NO_APLICA_MORA', 'No Aplica — Por Mora', 'BLOQUEO', 1, 0,
      'No puede continuar por cartera en mora u otra restriccion previa.');
     PRINT '✓ Estado NO_APLICA_MORA insertado';
@@ -1269,7 +1278,7 @@ END
  -- REACTIVACION: Desbloqueado
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'DESBLOQUEADO')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('DESBLOQUEADO', 'Desbloqueado', 'REACTIVACION', 0, 0,
      'Se rehabilito un cupo bloqueado sin iniciar una nueva solicitud formal.');
     PRINT '✓ Estado DESBLOQUEADO insertado';
@@ -1278,7 +1287,7 @@ END
  -- REACTIVACION: Reactivado
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'REACTIVADO')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('REACTIVADO', 'Reactivado', 'REACTIVACION', 0, 0,
      'Se reactivo un cupo eliminado previamente bajo reglas definidas.');
     PRINT '✓ Estado REACTIVADO insertado';
@@ -1287,7 +1296,7 @@ END
  -- PROCESO: En Progreso
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'EN_PROGRESO')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('EN_PROGRESO', 'En Proceso', 'PROCESO', 0, 1,
      'La solicitud avanza normalmente entre validaciones, reglas y bloques del flujo.');
     PRINT '✓ Estado EN_PROGRESO insertado';
@@ -1296,7 +1305,7 @@ END
  -- PROCESO: Pausado
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'PAUSADO')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('PAUSADO', 'Pausado', 'PROCESO', 0, 0,
      'El cliente se retiro de la tienda o del portal; estudio en espera de reanudacion.');
     PRINT '✓ Estado PAUSADO insertado';
@@ -1305,7 +1314,7 @@ END
  -- PROCESO: Pendiente Cliente
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_CLIENTE')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('PENDIENTE_CLIENTE', 'Pendiente Cliente', 'PROCESO', 0, 1,
      'Se requiere accion del cliente para continuar: direccion, captura documental, biometria, token final, etc.');
     PRINT '✓ Estado PENDIENTE_CLIENTE insertado';
@@ -1314,7 +1323,7 @@ END
  -- PROCESO: Pendiente OTP
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_OTP')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('PENDIENTE_OTP', 'Pendiente Validacion OTP', 'PROCESO', 0, 1,
      'Esperando que el cliente valide el token de seguridad.');
     PRINT '✓ Estado PENDIENTE_OTP insertado';
@@ -1323,7 +1332,7 @@ END
  -- PROCESO: Pendiente Biometria
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_BIOMETRIA')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('PENDIENTE_BIOMETRIA', 'Pendiente Biometria', 'PROCESO', 0, 1,
      'Esperando captura y validacion biometrica.');
     PRINT '✓ Estado PENDIENTE_BIOMETRIA insertado';
@@ -1332,7 +1341,7 @@ END
  -- PROCESO: Pendiente Fotos
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_FOTOS')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('PENDIENTE_FOTOS', 'Pendiente Envio de Fotos', 'PROCESO', 0, 1,
      'Esperando que el cliente envie fotos para validacion manual.');
     PRINT '✓ Estado PENDIENTE_FOTOS insertado';
@@ -1341,7 +1350,7 @@ END
  -- PROCESO: Fotos en Revision
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'FOTOS_EN_REVISION')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('FOTOS_EN_REVISION', 'Fotos en Revision Manual', 'PROCESO', 0, 0,
      'Fotos recibidas, en revision manual por el equipo de credito.');
     PRINT '✓ Estado FOTOS_EN_REVISION insertado';
@@ -1350,7 +1359,7 @@ END
  -- PROCESO: Pendiente Validacion Automatica
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('PENDIENTE_VALIDACION_AUTOMATICA', 'Pendiente Validacion Automatica', 'PROCESO', 0, 1,
      'La solicitud esta esperando respuesta de motores, integraciones o procesos automaticos externos.');
     PRINT '✓ Estado PENDIENTE_VALIDACION_AUTOMATICA insertado';
@@ -1359,7 +1368,7 @@ END
  -- PROCESO: En Fabrica
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'EN_FABRICA')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('EN_FABRICA', 'En Fabrica de Soporte', 'PROCESO', 0, 0,
      'Caso enviado a gestion manual por excepcion, novedad o validacion no concluyente.');
     PRINT '✓ Estado EN_FABRICA insertado';
@@ -1368,7 +1377,7 @@ END
  -- PROCESO: Cupo Preaprobado
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'CUPO_PREAPROBADO')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('CUPO_PREAPROBADO', 'Cupo Preaprobado', 'PROCESO', 0, 1,
      'Cupo calculado exitosamente, pendiente verificacion de identidad.');
     PRINT '✓ Estado CUPO_PREAPROBADO insertado';
@@ -1380,7 +1389,7 @@ END
  -- TERMINAL: Aprobado
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'APROBADO')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('APROBADO', 'Cupo Activado', 'TERMINAL', 1, 0,
      'Solicitud aprobada y cupo activado exitosamente.');
     PRINT '✓ Estado APROBADO insertado';
@@ -1389,7 +1398,7 @@ END
  -- TERMINAL: Rechazado
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'RECHAZADO')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
     VALUES ('RECHAZADO','Rechazado','TERMINAL',1,0,'Solicitud rechazada por alguna validacion.');
     PRINT '✓ Estado RECHAZADO insertado';
 END
@@ -1397,7 +1406,7 @@ END
  -- TERMINAL: No Viable Antecedentes Previo
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'NO_VIABLE_ANTECEDENTES_PREVIO')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
     VALUES ('NO_VIABLE_ANTECEDENTES_PREVIO','No Viable — Antecedentes (Previo)','TERMINAL',1,0,
      'Rechazo en validaciones previas por antecedentes o reportes negativos.');
     PRINT '✓ Estado NO_VIABLE_ANTECEDENTES_PREVIO insertado';
@@ -1406,7 +1415,7 @@ END
  -- TERMINAL: No Viable Antecedentes
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'NO_VIABLE_ANTECEDENTES')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
     VALUES ('NO_VIABLE_ANTECEDENTES','No Viable — Antecedentes','TERMINAL',1,0,
      'Rechazo por antecedentes negativos en solicitud formal.');
     PRINT '✓ Estado NO_VIABLE_ANTECEDENTES insertado';
@@ -1415,7 +1424,7 @@ END
  -- TERMINAL: No Viable Centrales
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'NO_VIABLE_CENTRALES')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
     VALUES ('NO_VIABLE_CENTRALES','No Viable — Centrales','TERMINAL',1,0,
      'Rechazo por modelo de viabilidad, centrales o preselecta.');
     PRINT '✓ Estado NO_VIABLE_CENTRALES insertado';
@@ -1424,7 +1433,7 @@ END
  -- TERMINAL: No Aplica Para Cupo
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'NO_APLICA_CUPO')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
     VALUES ('NO_APLICA_CUPO','No Aplica — Para Cupo','TERMINAL',1,0,
      'Cumple viabilidad base, pero no supera reglas complementarias definidas para otorgamiento.');
     PRINT '✓ Estado NO_APLICA_CUPO insertado';
@@ -1435,7 +1444,7 @@ END
  -- TERMINAL: Expirado
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'EXPIRADO')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
     VALUES ('EXPIRADO','Expirada','TERMINAL',1,0,'No retomo dentro del tiempo permitido.');
     PRINT '✓ Estado EXPIRADO insertado';
 END
@@ -1443,7 +1452,7 @@ END
  -- TERMINAL: Cancelado Cliente
 IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'CANCELADO_CLIENTE')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
     VALUES ('CANCELADO_CLIENTE','Cancelada por Cliente','TERMINAL',1,0,
      'El cliente desistio voluntariamente durante la solicitud formal.');
     PRINT '✓ Estado CANCELADO_CLIENTE insertado';
@@ -1457,7 +1466,7 @@ PRINT '✓ Seeds v2.6 insertados en CatalogoEstados (23 estados)';
 -- ─────────────────────────────────────────────────────────────────────────────
 IF NOT EXISTS (SELECT * FROM PasosEstudio)
 BEGIN
-    INSERT INTO PasosEstudio (IdFase, Codigo, Nombre, OrdenEnFase, OrdenGlobal, Actor, ServicioExterno, EsAutomatico, RequiereIntervencion, TiempoTimeoutSeg, Descripcion) VALUES
+    INSERT INTO [cfg].[PasosEstudio] (IdFase, Codigo, Nombre, OrdenEnFase, OrdenGlobal, Actor, ServicioExterno, EsAutomatico, RequiereIntervencion, TiempoTimeoutSeg, Descripcion) VALUES
     (1, 'INGRESO_DOCUMENTO',        'Ingreso de Documento',             1,  1,  'ASESOR',       NULL,                   0, 0, NULL,   'El asesor digita el número de documento del cliente'),
     (1, 'VALIDAR_EXISTENCIA',       'Validar Existencia del Cliente',   2,  2,  'SISTEMA',      'ERP_QUAC',             1, 0, 30,     'Verifica si el cliente existe en el sistema ERP'),
     (1, 'VALIDAR_CUPO_BLOQUEO',     'Validar Cupo Activo / Bloqueo',   3,  3,  'SISTEMA',      'CORE_CREDITO',         1, 0, 30,     'Verifica cupo activo, bloqueos, mora'),
@@ -1483,197 +1492,197 @@ END
 IF NOT EXISTS (SELECT * FROM TransicionesEstado)
 BEGIN
     -- Transiciones desde BORRADOR (validación previa)
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Iniciar procesamiento del estudio'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'BORRADOR' AND eDestino.Codigo = 'EN_PROGRESO';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cancelación voluntaria antes de iniciar'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'BORRADOR' AND eDestino.Codigo = 'CANCELADO_CLIENTE';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cliente se retracta en validación previa'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'BORRADOR' AND eDestino.Codigo = 'PENDIENTE_CLIENTE_PREVIO';
     
     -- Transiciones desde PENDIENTE_CLIENTE_PREVIO
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cliente completa datos pendientes'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'PENDIENTE_CLIENTE_PREVIO' AND eDestino.Codigo = 'BORRADOR';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cancelación voluntaria en previo'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'PENDIENTE_CLIENTE_PREVIO' AND eDestino.Codigo = 'CANCELADO_CLIENTE';
     
     -- Transiciones desde EN_PROGRESO (estudio activo)
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cliente se retira, pausar estudio'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'PAUSADO';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Esperando validación OTP'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'PENDIENTE_OTP';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Esperando biométrica'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'PENDIENTE_BIOMETRIA';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Esperando fotos del cliente'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'PENDIENTE_FOTOS';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Esperando respuesta de servicio externo'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cupo preaprobado confirmado'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'CUPO_PREAPROBADO';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Todas las validaciones aprobadas'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'APROBADO';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Rechazado por validación de riesgo'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'RECHAZADO';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Rechazo por antecedentes'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'NO_VIABLE_ANTECEDENTES';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Rechazo por centrales/preselecta'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'NO_VIABLE_CENTRALES';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'No aplica para cupo: no supera reglas complementarias'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'NO_APLICA_CUPO';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Derivar a fábrica de soporte'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'EN_FABRICA';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Fraude detectado'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'BLOQUEADO_FRAUDE';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cancelación voluntaria durante el proceso'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'CANCELADO_CLIENTE';
     
     -- Transiciones desde PAUSADO
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cliente regresa, reanudar estudio'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'PAUSADO' AND eDestino.Codigo = 'EN_PROGRESO';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Estudio expiró por inactividad'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'PAUSADO' AND eDestino.Codigo = 'EXPIRADO';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cancelación voluntaria mientras pausado'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'PAUSADO' AND eDestino.Codigo = 'CANCELADO_CLIENTE';
     
     -- Transiciones desde PENDIENTE_OTP
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'OTP validado exitosamente'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'PENDIENTE_OTP' AND eDestino.Codigo = 'EN_PROGRESO';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cliente se retira, pausar'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'PENDIENTE_OTP' AND eDestino.Codigo = 'PAUSADO';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'OTP fallido, intentos agotados'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'PENDIENTE_OTP' AND eDestino.Codigo = 'RECHAZADO';
     
     -- Transiciones desde PENDIENTE_BIOMETRIA
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Biometría validada exitosamente'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'PENDIENTE_BIOMETRIA' AND eDestino.Codigo = 'EN_PROGRESO';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cliente se retira, pausar'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'PENDIENTE_BIOMETRIA' AND eDestino.Codigo = 'PAUSADO';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Biometría fallida, derivar a fábrica'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'PENDIENTE_BIOMETRIA' AND eDestino.Codigo = 'EN_FABRICA';
     
     -- Transiciones desde PENDIENTE_FOTOS
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Fotos recibidas, en revisión'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'PENDIENTE_FOTOS' AND eDestino.Codigo = 'FOTOS_EN_REVISION';
     
     -- Transiciones desde FOTOS_EN_REVISION
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Asesor aprueba fotos: proceso se reanuda'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'FOTOS_EN_REVISION' AND eDestino.Codigo = 'EN_PROGRESO';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Asesor rechaza fotos: nueva solicitud'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'FOTOS_EN_REVISION' AND eDestino.Codigo = 'PENDIENTE_FOTOS';
     
     -- Transiciones desde EN_FABRICA
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Fábrica resuelve: reanudar flujo'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'EN_FABRICA' AND eDestino.Codigo = 'EN_PROGRESO';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Fábrica determina rechazo'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'EN_FABRICA' AND eDestino.Codigo = 'RECHAZADO';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Fábrica detecta fraude'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'EN_FABRICA' AND eDestino.Codigo = 'BLOQUEADO_FRAUDE';
     
     -- Transiciones desde PENDIENTE_VALIDACION_AUTOMATICA
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Validación automática exitosa'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA' AND eDestino.Codigo = 'EN_PROGRESO';
     
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Validación automática fallida'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA' AND eDestino.Codigo = 'EN_FABRICA';
     
     -- Transiciones especiales de rechazos específicos
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Preselecta rechaza por antecedentes'
     FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'NO_VIABLE_ANTECEDENTES_PREVIO';
@@ -1687,7 +1696,7 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 IF NOT EXISTS (SELECT * FROM ConfiguracionReglasNegocio)
 BEGIN
-    INSERT INTO ConfiguracionReglasNegocio (Codigo, Nombre, Valor, TipoDato, Categoria, Descripcion) VALUES
+    INSERT INTO [cfg].[ConfiguracionReglasNegocio] (Codigo, Nombre, Valor, TipoDato, Categoria, Descripcion) VALUES
     ('DIAS_ENFRIAMIENTO',           'Días de Enfriamiento por Rechazo',         '90',       'INT',      'ENFRIAMIENTO', 'Días que un cliente rechazado debe esperar'),
     ('DIAS_EXPIRACION_ESTUDIO',     'Días de Expiración del Estudio',           '90',       'INT',      'GENERAL',      'Días de inactividad antes de expirar'),
     ('INTENTOS_OTP_MAX',            'Intentos Máximos de OTP',                  '3',        'INT',      'OTP',          'Número máximo de intentos OTP'),
@@ -1707,7 +1716,7 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 IF NOT EXISTS (SELECT * FROM CatalogoCanalesOrigen)
 BEGIN
-    INSERT INTO CatalogoCanalesOrigen (Codigo, Nombre, Descripcion, Activo) VALUES
+    INSERT INTO [cat].[CatalogoCanalesOrigen] (Codigo, Nombre, Descripcion, Activo) VALUES
     ('WEB',      'Canal Web',      'Originación a través del portal web o app del cliente',              1),
     ('TIENDA',   'Canal Tienda',   'Originación presencial en punto de venta asistida por asesor',       1),
     ('EXTERNO',  'Canal Externo',  'Originación por fuerza de ventas externas o aliados comerciales',    1);
@@ -1723,7 +1732,7 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 IF NOT EXISTS (SELECT * FROM CatalogoReglasFraude)
 BEGIN
-    INSERT INTO CatalogoReglasFraude (Codigo, Nombre, Descripcion, NivelRiesgo, AccionAutomatica) VALUES
+    INSERT INTO [cat].[CatalogoReglasFraude] (Codigo, Nombre, Descripcion, NivelRiesgo, AccionAutomatica) VALUES
     ('EMAIL_CHANGE_POST_OTP_FAIL',
         'Cambio de email después de fallo OTP',
         'El cliente intenta cambiar su email después de que falló la validación OTP. Patrón típico de suplantación: el suplantador no tiene acceso al email real del titular y lo cambia para recibir el OTP.',
@@ -1767,7 +1776,7 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 IF NOT EXISTS (SELECT * FROM CatalogoMotivosEscalamiento)
 BEGIN
-    INSERT INTO CatalogoMotivosEscalamiento (Codigo, Nombre, Descripcion, Origen) VALUES
+    INSERT INTO [cat].[CatalogoMotivosEscalamiento] (Codigo, Nombre, Descripcion, Origen) VALUES
     ('OTP_FAIL_EMAIL_CHANGE',
         'Cambio de email tras fallo OTP — posible suplantación',
         'El cliente falló la validación OTP y a continuación intentó cambiar su email. Activó regla de fraude EMAIL_CHANGE_POST_OTP_FAIL.',
@@ -1826,7 +1835,7 @@ SELECT @IdPendCall   = IdEstado FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_C
 IF @IdEnProgreso IS NOT NULL AND @IdRevFabrica IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM TransicionesEstado WHERE IdEstadoOrigen = @IdEnProgreso AND IdEstadoDestino = @IdRevFabrica)
 BEGIN
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     VALUES (@IdEnProgreso, @IdRevFabrica, 1, 'Anomalía detectada: derivar a revisión manual por fábrica de crédito');
 END
 
@@ -1834,7 +1843,7 @@ END
 IF @IdPendCall IS NOT NULL AND @IdRevFabrica IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM TransicionesEstado WHERE IdEstadoOrigen = @IdPendCall AND IdEstadoDestino = @IdRevFabrica)
 BEGIN
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     VALUES (@IdPendCall, @IdRevFabrica, 1, 'Call center no puede resolver: escala a revisión fábrica');
 END
 
@@ -1842,7 +1851,7 @@ END
 IF @IdRevFabrica IS NOT NULL AND @IdEnProgreso IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM TransicionesEstado WHERE IdEstadoOrigen = @IdRevFabrica AND IdEstadoDestino = @IdEnProgreso)
 BEGIN
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     VALUES (@IdRevFabrica, @IdEnProgreso, 1, 'Asesor de fábrica resuelve: devolver al flujo automático');
 END
 
@@ -1850,7 +1859,7 @@ END
 IF @IdRevFabrica IS NOT NULL AND @IdRechazado IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM TransicionesEstado WHERE IdEstadoOrigen = @IdRevFabrica AND IdEstadoDestino = @IdRechazado)
 BEGIN
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     VALUES (@IdRevFabrica, @IdRechazado, 1, 'Asesor de fábrica determina rechazo definitivo');
 END
 
@@ -1858,7 +1867,7 @@ END
 IF @IdRevFabrica IS NOT NULL AND @IdBloqFraude IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM TransicionesEstado WHERE IdEstadoOrigen = @IdRevFabrica AND IdEstadoDestino = @IdBloqFraude)
 BEGIN
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     VALUES (@IdRevFabrica, @IdBloqFraude, 1, 'Asesor de fábrica confirma sospecha de fraude');
 END
 
@@ -1866,7 +1875,7 @@ END
 IF @IdEnProgreso IS NOT NULL AND @IdBloqFraude IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM TransicionesEstado WHERE IdEstadoOrigen = @IdEnProgreso AND IdEstadoDestino = @IdBloqFraude)
 BEGIN
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     VALUES (@IdEnProgreso, @IdBloqFraude, 1, 'Regla de fraude crítica: bloqueo automático inmediato');
 END
 
@@ -1879,7 +1888,7 @@ PRINT '✓ Transiciones para REVISION_FABRICA y BLOQUEADO_FRAUDE insertadas';
 -- ─────────────────────────────────────────────────────────────────────────────
 IF NOT EXISTS (SELECT * FROM ConfiguracionReglasNegocio WHERE Codigo = 'VENTANA_FRAUDE_OTP_MIN')
 BEGIN
-    INSERT INTO ConfiguracionReglasNegocio (Codigo, Nombre, Valor, TipoDato, Categoria, Descripcion) VALUES
+    INSERT INTO [cfg].[ConfiguracionReglasNegocio] (Codigo, Nombre, Valor, TipoDato, Categoria, Descripcion) VALUES
     ('VENTANA_FRAUDE_OTP_MIN',
         'Ventana de tiempo para detección de fraude post-OTP (minutos)',
         '10', 'INT', 'RIESGO',
@@ -1957,9 +1966,9 @@ END
 --      este catálogo, no desde código, para poder agregar tipos opcionales
 --      en el futuro sin tocar el schema (ej. FOTO_RECIBO_SERVICIOS).
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'CatalogoTiposFotografia') AND type = N'U')
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'cat.CatalogoTiposFotografia') AND type = N'U')
 BEGIN
-    CREATE TABLE CatalogoTiposFotografia (
+    CREATE TABLE [cat].[CatalogoTiposFotografia] (
         IdTipoFoto          INT IDENTITY(1,1)   NOT NULL,
         Codigo              VARCHAR(30)         NOT NULL,   -- FOTO_FRONTAL_DOC, FOTO_TRASERA_DOC, SELFIE
         Nombre              NVARCHAR(100)       NOT NULL,   -- Nombre legible para el asesor/UI
@@ -1998,9 +2007,9 @@ END
 --
 --      BIGINT IDENTITY: alta cardinalidad (estudios × 3 tipos × versiones × reintentos)
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'FotografiasEstudio') AND type = N'U')
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'fab.FotografiasEstudio') AND type = N'U')
 BEGIN
-    CREATE TABLE FotografiasEstudio (
+    CREATE TABLE [fab].[FotografiasEstudio] (
         IdFotografia            BIGINT IDENTITY(1,1)    NOT NULL,
         IdEstudio               BIGINT                  NOT NULL,   -- FK → EstudiosCredito
         TipoFotografia          VARCHAR(30)             NOT NULL,   -- SELFIE, DOCUMENTO_FRONTAL, DOCUMENTO_TRASERO
@@ -2027,7 +2036,7 @@ BEGIN
         CreadoPor               VARCHAR(50)             NULL,       -- SISTEMA, ASESOR, CLIENTE
 
         CONSTRAINT PK_FotografiasEstudio PRIMARY KEY (IdFotografia),
-        CONSTRAINT FK_FotografiasEstudio_Estudio FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio),
+        CONSTRAINT FK_FotografiasEstudio_Estudio FOREIGN KEY (IdEstudio) REFERENCES [fab].[EstudiosCredito](IdEstudio),
         CONSTRAINT CK_FotografiasEstudio_Tipo CHECK (
             TipoFotografia IN ('SELFIE','DOCUMENTO_FRONTAL','DOCUMENTO_TRASERO')
         ),
@@ -2041,16 +2050,16 @@ BEGIN
 
     -- Índice principal: fotos activas por estudio (módulo de revisión)
     CREATE INDEX IX_FotografiasEstudio_Estudio
-        ON FotografiasEstudio(IdEstudio, TipoFotografia, EsVigente);
+        ON [fab].[FotografiasEstudio](IdEstudio, TipoFotografia, EsVigente);
 
     -- Cola de revisión pendiente
     CREATE INDEX IX_FotografiasEstudio_Revision
-        ON FotografiasEstudio(EstadoRevision)
+        ON [fab].[FotografiasEstudio](EstadoRevision)
         WHERE EstadoRevision = 'PENDIENTE';
 
     -- Garantiza UNA sola foto vigente por tipo por estudio (integridad del gate de aprobación)
     CREATE UNIQUE INDEX UQ_FotografiasEstudio_Vigente
-        ON FotografiasEstudio(IdEstudio, TipoFotografia)
+        ON [fab].[FotografiasEstudio](IdEstudio, TipoFotografia)
         WHERE EsVigente = 1;
 
     PRINT '✓ Tabla FotografiasEstudio creada (GAP-07: diseño unificado biométrico)';
@@ -2068,9 +2077,9 @@ END
 --      "quién aprobó primero, quién rechazó después, quién aprobó al final".
 --      Un UPDATE borraría esa cadena. INSERT-ONLY garantiza el trail completo.
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'RevisionesFotografia') AND type = N'U')
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'aud.RevisionesFotografia') AND type = N'U')
 BEGIN
-    CREATE TABLE RevisionesFotografia (
+    CREATE TABLE [aud].[RevisionesFotografia] (
         IdRevision          BIGINT IDENTITY(1,1)    NOT NULL,
         IdFotografia        BIGINT                  NOT NULL,   -- FK → FotografiasEstudio
         IdEstudio           BIGINT                  NOT NULL,   -- Redundancia para consultas directas
@@ -2089,8 +2098,8 @@ BEGIN
         -- NUNCA UPDATE ni DELETE — tabla de solo INSERT
 
         CONSTRAINT PK_RevisionesFotografia  PRIMARY KEY (IdRevision),
-        CONSTRAINT FK_RevisionesFotografia_Foto FOREIGN KEY (IdFotografia) REFERENCES FotografiasEstudio(IdFotografia),
-        CONSTRAINT FK_RevisionesFotografia_Estudio FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio),
+        CONSTRAINT FK_RevisionesFotografia_Foto FOREIGN KEY (IdFotografia) REFERENCES [fab].[FotografiasEstudio](IdFotografia),
+        CONSTRAINT FK_RevisionesFotografia_Estudio FOREIGN KEY (IdEstudio) REFERENCES [fab].[EstudiosCredito](IdEstudio),
         CONSTRAINT CK_RevisionesFotografia_Decision CHECK (DecisionRevision IN ('APROBADA','RECHAZADA')),
         CONSTRAINT CK_RevisionesFotografia_MotivoRechazo CHECK (
             CodigoMotivoRechazo IS NULL OR CodigoMotivoRechazo IN (
@@ -2111,19 +2120,19 @@ BEGIN
 
     -- Índice para el módulo de revisión: todas las decisiones sobre una foto
     CREATE INDEX IX_RevisionesFotografia_Foto
-        ON RevisionesFotografia(IdFotografia, FechaRevision);
+        ON [aud].[RevisionesFotografia](IdFotografia, FechaRevision);
 
     -- Índice para dashboard de revisiones por estudio
     CREATE INDEX IX_RevisionesFotografia_Estudio
-        ON RevisionesFotografia(IdEstudio, FechaRevision);
+        ON [aud].[RevisionesFotografia](IdEstudio, FechaRevision);
 
     -- Índice para métricas de rendimiento del revisor
     CREATE INDEX IX_RevisionesFotografia_Revisor
-        ON RevisionesFotografia(IdRevisor, FechaRevision);
+        ON [aud].[RevisionesFotografia](IdRevisor, FechaRevision);
 
     -- Índice para filtrado rápido de rechazos (seguimiento de calidad)
     CREATE INDEX IX_RevisionesFotografia_Rechazos
-        ON RevisionesFotografia(CodigoMotivoRechazo, FechaRevision)
+        ON [aud].[RevisionesFotografia](CodigoMotivoRechazo, FechaRevision)
         WHERE DecisionRevision = 'RECHAZADA';
 
     PRINT '✓ Tabla RevisionesFotografia creada';
@@ -2148,9 +2157,9 @@ END
 --      se actualiza FotografiasEstudio.EstadoFoto → CARGADA y se puede
 --      retomar el flujo si todas las fotos pendientes están cargadas.
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'SolicitudesRecarga') AND type = N'U')
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'fab.SolicitudesRecarga') AND type = N'U')
 BEGIN
-    CREATE TABLE SolicitudesRecarga (
+    CREATE TABLE [fab].[SolicitudesRecarga] (
         IdSolicitudRecarga  BIGINT IDENTITY(1,1)    NOT NULL,
         IdEstudio           BIGINT                  NOT NULL,   -- FK → EstudiosCredito
         IdTipoFoto          INT                     NULL,       -- FK → CatalogoTiposFotografia (qué foto se pide)
@@ -2184,9 +2193,9 @@ BEGIN
         FechaActualizacion  DATETIME2(3)            NOT NULL DEFAULT GETDATE(),
 
         CONSTRAINT PK_SolicitudesRecarga PRIMARY KEY (IdSolicitudRecarga),
-        CONSTRAINT FK_SolicitudesRecarga_Estudio  FOREIGN KEY (IdEstudio)  REFERENCES EstudiosCredito(IdEstudio),
-        CONSTRAINT FK_SolicitudesRecarga_TipoFoto FOREIGN KEY (IdTipoFoto) REFERENCES CatalogoTiposFotografia(IdTipoFoto),  -- NULL permitido (GAP-01)
-        CONSTRAINT FK_SolicitudesRecarga_FotoAnterior FOREIGN KEY (IdFotografiaAnterior) REFERENCES FotografiasEstudio(IdFotografia),
+        CONSTRAINT FK_SolicitudesRecarga_Estudio  FOREIGN KEY (IdEstudio)  REFERENCES [fab].[EstudiosCredito](IdEstudio),
+        CONSTRAINT FK_SolicitudesRecarga_TipoFoto FOREIGN KEY (IdTipoFoto) REFERENCES [cat].[CatalogoTiposFotografia](IdTipoFoto),  -- NULL permitido (GAP-01)
+        CONSTRAINT FK_SolicitudesRecarga_FotoAnterior FOREIGN KEY (IdFotografiaAnterior) REFERENCES [fab].[FotografiasEstudio](IdFotografia),
         CONSTRAINT UQ_SolicitudesRecarga_Token    UNIQUE (TokenRecarga),
         CONSTRAINT CK_SolicitudesRecarga_Canal    CHECK (CanalEnvio IN ('EMAIL','SMS','WHATSAPP')),
         CONSTRAINT CK_SolicitudesRecarga_Estado   CHECK (EstadoSolicitud IN ('GENERADO','ENVIADO','USADO','EXPIRADO','CANCELADO'))
@@ -2194,22 +2203,22 @@ BEGIN
 
     -- Índice para lookup rápido del token (validación cuando el cliente accede al link)
     CREATE UNIQUE INDEX IX_SolicitudesRecarga_Token
-        ON SolicitudesRecarga(TokenRecarga);
+        ON [fab].[SolicitudesRecarga](TokenRecarga);
 
     -- Índice para consultar todas las solicitudes de un estudio
     -- GAP-16: IdTipoFoto puede ser NULL (handoff), se usa como INCLUDE no en clave
     CREATE INDEX IX_SolicitudesRecarga_Estudio
-        ON SolicitudesRecarga(IdEstudio, FechaCreacion)
+        ON [fab].[SolicitudesRecarga](IdEstudio, FechaCreacion)
         INCLUDE (IdTipoFoto);
 
     -- Índice para expiración batch (job nocturno que marca links expirados)
     CREATE INDEX IX_SolicitudesRecarga_Expiracion
-        ON SolicitudesRecarga(FechaExpiracion, EstadoSolicitud)
+        ON [fab].[SolicitudesRecarga](FechaExpiracion, EstadoSolicitud)
         WHERE EstadoSolicitud IN ('GENERADO','ENVIADO');
 
     -- Índice para analíticas de canal de envío
     CREATE INDEX IX_SolicitudesRecarga_Canal
-        ON SolicitudesRecarga(CanalEnvio, EstadoSolicitud, FechaCreacion);
+        ON [fab].[SolicitudesRecarga](CanalEnvio, EstadoSolicitud, FechaCreacion);
 
     PRINT '✓ Tabla SolicitudesRecarga creada';
 END
@@ -2232,9 +2241,9 @@ END
 --        EstadoAnterior=APROBADA,   EstadoNuevo=RECHAZADA,      Actor=ASESOR   → Revisión rechazatoria
 --        EstadoAnterior=RECHAZADA,  EstadoNuevo=REEMPLAZADA,    Actor=SISTEMA  → Nueva versión sube
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'HistorialFotografias') AND type = N'U')
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'aud.HistorialFotografias') AND type = N'U')
 BEGIN
-    CREATE TABLE HistorialFotografias (
+    CREATE TABLE [aud].[HistorialFotografias] (
         IdHistorialFoto     BIGINT IDENTITY(1,1)    NOT NULL,
         IdFotografia        BIGINT                  NOT NULL,   -- FK → FotografiasEstudio
         IdEstudio           BIGINT                  NOT NULL,   -- Redundancia para consultas directas
@@ -2256,11 +2265,11 @@ BEGIN
         -- NUNCA UPDATE ni DELETE — tabla de solo INSERT
 
         CONSTRAINT PK_HistorialFotografias PRIMARY KEY (IdHistorialFoto),
-        CONSTRAINT FK_HistFotos_Fotografia  FOREIGN KEY (IdFotografia) REFERENCES FotografiasEstudio(IdFotografia),
-        CONSTRAINT FK_HistFotos_Estudio     FOREIGN KEY (IdEstudio) REFERENCES EstudiosCredito(IdEstudio),
-        CONSTRAINT FK_HistFotos_TipoFoto    FOREIGN KEY (IdTipoFoto) REFERENCES CatalogoTiposFotografia(IdTipoFoto),
-        CONSTRAINT FK_HistFotos_Revision    FOREIGN KEY (IdRevisionRelacionada) REFERENCES RevisionesFotografia(IdRevision),
-        CONSTRAINT FK_HistFotos_Solicitud   FOREIGN KEY (IdSolicitudRelacionada) REFERENCES SolicitudesRecarga(IdSolicitudRecarga),
+        CONSTRAINT FK_HistFotos_Fotografia  FOREIGN KEY (IdFotografia) REFERENCES [fab].[FotografiasEstudio](IdFotografia),
+        CONSTRAINT FK_HistFotos_Estudio     FOREIGN KEY (IdEstudio) REFERENCES [fab].[EstudiosCredito](IdEstudio),
+        CONSTRAINT FK_HistFotos_TipoFoto    FOREIGN KEY (IdTipoFoto) REFERENCES [cat].[CatalogoTiposFotografia](IdTipoFoto),
+        CONSTRAINT FK_HistFotos_Revision    FOREIGN KEY (IdRevisionRelacionada) REFERENCES [aud].[RevisionesFotografia](IdRevision),
+        CONSTRAINT FK_HistFotos_Solicitud   FOREIGN KEY (IdSolicitudRelacionada) REFERENCES [fab].[SolicitudesRecarga](IdSolicitudRecarga),
         CONSTRAINT CK_HistFotos_Actor       CHECK (TipoActor IN ('SISTEMA','CLIENTE','ASESOR')),
         CONSTRAINT CK_HistFotos_EstNuevo    CHECK (EstadoNuevo IN (
             'PENDIENTE_CARGA','CARGADA','EN_REVISION','APROBADA','RECHAZADA','REEMPLAZADA','EXPIRADA'
@@ -2269,15 +2278,15 @@ BEGIN
 
     -- Línea de tiempo completa para una foto específica
     CREATE INDEX IX_HistFotos_Fotografia
-        ON HistorialFotografias(IdFotografia, FechaTransicion);
+        ON [aud].[HistorialFotografias](IdFotografia, FechaTransicion);
 
     -- Línea de tiempo completa para un estudio (módulo de revisión / auditoría)
     CREATE INDEX IX_HistFotos_Estudio
-        ON HistorialFotografias(IdEstudio, FechaTransicion);
+        ON [aud].[HistorialFotografias](IdEstudio, FechaTransicion);
 
     -- Índice para filtrar por tipo de foto (ej. todas las transiciones de SELFIEs)
     CREATE INDEX IX_HistFotos_TipoFoto
-        ON HistorialFotografias(IdTipoFoto, EstadoNuevo, FechaTransicion);
+        ON [aud].[HistorialFotografias](IdTipoFoto, EstadoNuevo, FechaTransicion);
 
     PRINT '✓ Tabla HistorialFotografias creada';
 END
@@ -2305,39 +2314,39 @@ END
 -- Añadir FKs físicas (FotografiasEstudio ya existe a este punto)
 IF NOT EXISTS (
     SELECT * FROM sys.foreign_keys
-    WHERE parent_object_id = OBJECT_ID(N'RegistrosBiometria')
+    WHERE parent_object_id = OBJECT_ID(N'fab.RegistrosBiometria')
       AND name = 'FK_RegistrosBiometria_FotoFrontal'
 )
 BEGIN
     ALTER TABLE RegistrosBiometria
         ADD CONSTRAINT FK_RegistrosBiometria_FotoFrontal
-        FOREIGN KEY (IdFotografiaFrontal) REFERENCES FotografiasEstudio(IdFotografia);
+        FOREIGN KEY (IdFotografiaFrontal) REFERENCES [fab].[FotografiasEstudio](IdFotografia);
     PRINT '✓ RegistrosBiometria: FK FK_RegistrosBiometria_FotoFrontal añadida';
 END
 
 
 IF NOT EXISTS (
     SELECT * FROM sys.foreign_keys
-    WHERE parent_object_id = OBJECT_ID(N'RegistrosBiometria')
+    WHERE parent_object_id = OBJECT_ID(N'fab.RegistrosBiometria')
       AND name = 'FK_RegistrosBiometria_FotoReverso'
 )
 BEGIN
     ALTER TABLE RegistrosBiometria
         ADD CONSTRAINT FK_RegistrosBiometria_FotoReverso
-        FOREIGN KEY (IdFotografiaReverso) REFERENCES FotografiasEstudio(IdFotografia);
+        FOREIGN KEY (IdFotografiaReverso) REFERENCES [fab].[FotografiasEstudio](IdFotografia);
     PRINT '✓ RegistrosBiometria: FK FK_RegistrosBiometria_FotoReverso añadida';
 END
 
 
 IF NOT EXISTS (
     SELECT * FROM sys.foreign_keys
-    WHERE parent_object_id = OBJECT_ID(N'RegistrosBiometria')
+    WHERE parent_object_id = OBJECT_ID(N'fab.RegistrosBiometria')
       AND name = 'FK_RegistrosBiometria_FotoSelfie'
 )
 BEGIN
     ALTER TABLE RegistrosBiometria
         ADD CONSTRAINT FK_RegistrosBiometria_FotoSelfie
-        FOREIGN KEY (IdFotografiaSelfie) REFERENCES FotografiasEstudio(IdFotografia);
+        FOREIGN KEY (IdFotografiaSelfie) REFERENCES [fab].[FotografiasEstudio](IdFotografia);
     PRINT '✓ RegistrosBiometria: FK FK_RegistrosBiometria_FotoSelfie añadida';
 END
 
@@ -2364,7 +2373,7 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 IF NOT EXISTS (SELECT * FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_FOTOS')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES (
         'PENDIENTE_FOTOS',
         'Pendiente Carga de Fotografías',
@@ -2378,7 +2387,7 @@ END
 
 IF NOT EXISTS (SELECT * FROM CatalogoEstados WHERE Codigo = 'FOTOS_EN_REVISION')
 BEGIN
-    INSERT INTO CatalogoEstados (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES (
         'FOTOS_EN_REVISION',
         'Fotografías en Revisión Manual',
@@ -2411,7 +2420,7 @@ SELECT @IdRechazado2 = IdEstado FROM CatalogoEstados WHERE Codigo = 'RECHAZADO';
 IF @IdEnProgreso2 IS NOT NULL AND @IdPendFotos IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM TransicionesEstado WHERE IdEstadoOrigen = @IdEnProgreso2 AND IdEstadoDestino = @IdPendFotos)
 BEGIN
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     VALUES (@IdEnProgreso2, @IdPendFotos, 1,
             'Foto obligatoria faltante o rechazada: sistema envía link de re-carga al cliente');
 END
@@ -2420,7 +2429,7 @@ END
 IF @IdPendBiom IS NOT NULL AND @IdPendFotos IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM TransicionesEstado WHERE IdEstadoOrigen = @IdPendBiom AND IdEstadoDestino = @IdPendFotos)
 BEGIN
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     VALUES (@IdPendBiom, @IdPendFotos, 1,
             'Desde paso biométrico: foto rechazada o de calidad insuficiente para Rekognition');
 END
@@ -2429,7 +2438,7 @@ END
 IF @IdPendFotos IS NOT NULL AND @IdFotosRev IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM TransicionesEstado WHERE IdEstadoOrigen = @IdPendFotos AND IdEstadoDestino = @IdFotosRev)
 BEGIN
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     VALUES (@IdPendFotos, @IdFotosRev, 0,
             'Cliente subió todas las fotos pendientes: pasan a revisión del asesor');
 END
@@ -2441,7 +2450,7 @@ END
 IF @IdFotosRev IS NOT NULL AND @IdEnProgreso2 IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM TransicionesEstado WHERE IdEstadoOrigen = @IdFotosRev AND IdEstadoDestino = @IdEnProgreso2)
 BEGIN
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     VALUES (@IdFotosRev, @IdEnProgreso2, 0,
             'Asesor aprobó todas las fotografías: proceso de crédito se reanuda automáticamente');
 END
@@ -2450,7 +2459,7 @@ END
 IF @IdFotosRev IS NOT NULL AND @IdPendFotos IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM TransicionesEstado WHERE IdEstadoOrigen = @IdFotosRev AND IdEstadoDestino = @IdPendFotos)
 BEGIN
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     VALUES (@IdFotosRev, @IdPendFotos, 1,
             'Asesor rechazó una o más fotografías: se genera nuevo link de re-carga al cliente');
 END
@@ -2459,7 +2468,7 @@ END
 IF @IdFotosRev IS NOT NULL AND @IdRechazado2 IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM TransicionesEstado WHERE IdEstadoOrigen = @IdFotosRev AND IdEstadoDestino = @IdRechazado2)
 BEGIN
-    INSERT INTO TransicionesEstado (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     VALUES (@IdFotosRev, @IdRechazado2, 1,
             'Asesor determina rechazo definitivo por fotografías: suplantación, documento falso, etc.');
 END
@@ -2475,8 +2484,7 @@ PRINT '✓ Transiciones PENDIENTE_FOTOS y FOTOS_EN_REVISION insertadas';
 -- ─────────────────────────────────────────────────────────────────────────────
 IF NOT EXISTS (SELECT * FROM CatalogoTiposFotografia)
 BEGIN
-    INSERT INTO CatalogoTiposFotografia
-        (Codigo, Nombre, Descripcion, EsObligatoria, OrdenRevision, ServicioAWS)
+    INSERT INTO [cat].[CatalogoTiposFotografia] (Codigo, Nombre, Descripcion, EsObligatoria, OrdenRevision, ServicioAWS)
     VALUES
     (
         'FOTO_FRONTAL_DOC',
@@ -2516,8 +2524,7 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 IF NOT EXISTS (SELECT * FROM ConfiguracionReglasNegocio WHERE Codigo = 'VIGENCIA_LINK_RECARGA_HORAS')
 BEGIN
-    INSERT INTO ConfiguracionReglasNegocio
-        (Codigo, Nombre, Valor, TipoDato, Categoria, Descripcion)
+    INSERT INTO [cfg].[ConfiguracionReglasNegocio] (Codigo, Nombre, Valor, TipoDato, Categoria, Descripcion)
     VALUES
     (
         'VIGENCIA_LINK_RECARGA_HORAS',
@@ -2574,8 +2581,7 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 IF NOT EXISTS (SELECT * FROM CatalogoReglasFraude WHERE Codigo = 'FOTO_RECHAZADA_MULTIPLE_VECES')
 BEGIN
-    INSERT INTO CatalogoReglasFraude
-        (Codigo, Nombre, Descripcion, NivelRiesgo, AccionAutomatica)
+    INSERT INTO [cat].[CatalogoReglasFraude] (Codigo, Nombre, Descripcion, NivelRiesgo, AccionAutomatica)
     VALUES
     (
         'FOTO_RECHAZADA_MULTIPLE_VECES',
@@ -2617,8 +2623,7 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 IF NOT EXISTS (SELECT * FROM CatalogoMotivosEscalamiento WHERE Codigo = 'FOTO_MAX_REINTENTOS_SUPERADO')
 BEGIN
-    INSERT INTO CatalogoMotivosEscalamiento
-        (Codigo, Nombre, Descripcion, Origen)
+    INSERT INTO [cat].[CatalogoMotivosEscalamiento] (Codigo, Nombre, Descripcion, Origen)
     VALUES
     (
         'FOTO_MAX_REINTENTOS_SUPERADO',
@@ -2685,9 +2690,9 @@ END
 --      INSERT-ONLY para los registros exitosos (auditoría inmutable).
 --      Registros FALLIDA/ERROR_SERVICIO también son inmutables.
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'ValidacionesAsesor') AND type = N'U')
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'fab.ValidacionesAsesor') AND type = N'U')
 BEGIN
-    CREATE TABLE ValidacionesAsesor (
+    CREATE TABLE [fab].[ValidacionesAsesor] (
         IdValidacion            BIGINT IDENTITY(1,1)    NOT NULL,
         IdAsesor                INT                     NOT NULL,   -- FK → QUAC.dbo.BERP_FABRICASOperadores.idOperadorFabrica
         CodigoAsesor            VARCHAR(20)             NOT NULL,   -- Badge/código ingresado por el asesor en la PC
@@ -2726,19 +2731,19 @@ BEGIN
 
     -- Índice para consultar las validaciones de un asesor por fecha (timeline del asesor)
     CREATE INDEX IX_ValidacionesAsesor_Asesor
-        ON ValidacionesAsesor(IdAsesor, FechaValidacion DESC);
+        ON [fab].[ValidacionesAsesor](IdAsesor, FechaValidacion DESC);
 
     -- Índice para consultar las validaciones desde una bodega (auditoría por punto de venta)
     CREATE INDEX IX_ValidacionesAsesor_Bodega
-        ON ValidacionesAsesor(IdBodega, FechaValidacion DESC);
+        ON [fab].[ValidacionesAsesor](IdBodega, FechaValidacion DESC);
 
     -- Índice para búsqueda por código de asesor (deduplicación, lookups rápidos)
     CREATE INDEX IX_ValidacionesAsesor_Codigo
-        ON ValidacionesAsesor(CodigoAsesor);
+        ON [fab].[ValidacionesAsesor](CodigoAsesor);
 
     -- GAP-14: Índice filtrado para el hot-path: validaciones exitosas por asesor
     CREATE INDEX IX_ValidacionesAsesor_Exitosas
-        ON ValidacionesAsesor(IdAsesor, FechaValidacion DESC)
+        ON [fab].[ValidacionesAsesor](IdAsesor, FechaValidacion DESC)
         WHERE ResultadoValidacion = 'EXITOSA';
 
     PRINT '✓ Tabla ValidacionesAsesor creada';
@@ -2756,13 +2761,13 @@ END
 -- FK física para IdValidacionAsesor (ValidacionesAsesor ya existe a este punto)
 IF NOT EXISTS (
     SELECT * FROM sys.foreign_keys
-    WHERE parent_object_id = OBJECT_ID(N'EstudiosCredito')
+    WHERE parent_object_id = OBJECT_ID(N'fab.EstudiosCredito')
       AND name = 'FK_EstudiosCredito_ValidacionAsesor'
 )
 BEGIN
     ALTER TABLE EstudiosCredito
         ADD CONSTRAINT FK_EstudiosCredito_ValidacionAsesor
-        FOREIGN KEY (IdValidacionAsesor) REFERENCES ValidacionesAsesor(IdValidacion);
+        FOREIGN KEY (IdValidacionAsesor) REFERENCES [fab].[ValidacionesAsesor](IdValidacion);
     PRINT '✓ EstudiosCredito: FK FK_EstudiosCredito_ValidacionAsesor añadida';
 END
 
@@ -2776,7 +2781,7 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 IF NOT EXISTS (SELECT * FROM ConfiguracionReglasNegocio WHERE Codigo = 'JWT_ORIGEN_WEB')
 BEGIN
-    INSERT INTO ConfiguracionReglasNegocio (Codigo, Nombre, Valor, TipoDato, Categoria, Descripcion) VALUES
+    INSERT INTO [cfg].[ConfiguracionReglasNegocio] (Codigo, Nombre, Valor, TipoDato, Categoria, Descripcion) VALUES
     (
         'JWT_ORIGEN_WEB',
         'Valor del claim ''origen'' en el JWT para el canal de autoservicio web',
@@ -2813,9 +2818,9 @@ END
 --      INSERT-ONLY: no se actualiza ni elimina. Reemplaza logs dispersos en aplicación.
 --      OrigenLogin discrimina si el acceso fue web (cliente) o tienda (asesor).
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'AuditoriaLogins') AND type in (N'U'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'aud.AuditoriaLogins') AND type in (N'U'))
 BEGIN
-    CREATE TABLE AuditoriaLogins (
+    CREATE TABLE [aud].[AuditoriaLogins] (
         IdLogin             BIGINT IDENTITY(1,1)    NOT NULL,
         OrigenLogin         VARCHAR(20)             NOT NULL,  -- 'LoginWeb' | 'LoginTienda'
         IdUsuario           VARCHAR(50)             NOT NULL,  -- cédula o ID del usuario
@@ -2836,11 +2841,11 @@ BEGIN
 
     -- Índice hot-path: consultas por usuario en rango de fecha (detección de fuerza bruta)
     CREATE INDEX IX_AuditoriaLogins_Usuario
-        ON AuditoriaLogins (IdUsuario, FechaLogin DESC);
+        ON [aud].[AuditoriaLogins](IdUsuario, FechaLogin DESC);
 
     -- Índice hot-path: consultas por canal de origen y fecha (reportería por canal)
     CREATE INDEX IX_AuditoriaLogins_Origen
-        ON AuditoriaLogins (OrigenLogin, FechaLogin DESC);
+        ON [aud].[AuditoriaLogins](OrigenLogin, FechaLogin DESC);
 
     PRINT '✓ Tabla AuditoriaLogins creada (GAP-15)';
 END
