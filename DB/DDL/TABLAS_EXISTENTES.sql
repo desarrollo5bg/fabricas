@@ -297,6 +297,18 @@ CREATE TABLE QUAC.dbo.BERP_FABRICASOperadores (
 	CONSTRAINT PK_BERP_FABRICASOperadores PRIMARY KEY (idOperadorFabrica)
 );
 
+-- tabla con el estado de los operadores del call center, para saber si están conectados o desconectados, y a qué hora se conectan o desconectan
+
+CREATE TABLE QUAC.dbo.BERP_FABRICASOperadorEstados (
+	idOperadorEstadoFabrica int IDENTITY(1,1) NOT NULL,
+	idOperadorFabrica int NULL,
+	fechaHoraDesconecta smalldatetime NULL,
+	fechaHoraConecta smalldatetime NULL,
+	idStatus int NULL,
+	nit decimal(18,0) NULL,
+	CONSTRAINT PK_BERP_FABRICASOperadorEstados PRIMARY KEY (idOperadorEstadoFabrica)
+);
+
 
 -- QUAC.dbo.KCRM_CadenaCreditos definition
 
