@@ -673,7 +673,7 @@
         <tr><td><code>EstadoRevision</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>DEFAULT 'PENDIENTE'. CHECK: PENDIENTE, APROBADA_AUTO, APROBADA_ASESOR, RECHAZADA, REEMPLAZADA</td></tr>
         <tr><td><code>EsVigente</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 1. 1 = foto activa; UQ filtrado garantiza una sola vigente por tipo</td></tr>
         <tr><td><code>MetodoRevision</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>CHECK: AUTOMATICO, MANUAL_ASESOR</td></tr>
-        <tr><td><code>IdAsesorRevisor</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → BERP_FABRICASOperadores (NULL si automático)</td></tr>
+         <tr><td><code>IdAsesorRevisor</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → fab.OperadoresFabrica.IdOperador (NULL si automático) (GAP-19)</td></tr>
         <tr><td><code>FechaRevision</code></td><td>DATETIME2(3)</td><td class="null-yes">NULL</td><td>Momento de la revisión</td></tr>
         <tr><td><code>MotivoRechazo</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Razón si EstadoRevision = RECHAZADA</td></tr>
         <tr><td><code>PorcentajeCoincidencia</code></td><td>DECIMAL(5,2)</td><td class="null-yes">NULL</td><td>% coincidencia facial (selfie vs doc frontal)</td></tr>
@@ -720,7 +720,7 @@
         <tr><td><code>IdRevision</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
         <tr><td><code>IdFotografia</code></td><td>BIGINT</td><td class="null-no">NOT NULL</td><td>FK → FotografiasEstudio</td></tr>
         <tr><td><code>IdEstudio</code></td><td>BIGINT</td><td class="null-no">NOT NULL</td><td>Redundancia para consultas directas</td></tr>
-        <tr><td><code>IdRevisor</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>FK → BERP_FABRICASOperadores</td></tr>
+         <tr><td><code>IdRevisor</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>FK → fab.OperadoresFabrica.IdOperador (GAP-19)</td></tr>
         <tr><td><code>NombreRevisor</code></td><td>NVARCHAR(150)</td><td class="null-yes">NULL</td><td>Snapshot del nombre en el momento de la revisión</td></tr>
         <tr><td><code>DecisionRevision</code></td><td>VARCHAR(10)</td><td class="null-no">NOT NULL</td><td>CHECK: APROBADA, RECHAZADA</td></tr>
         <tr><td><code>MotivoRechazo</code></td><td>NVARCHAR(300)</td><td class="null-yes">NULL</td><td>Obligatorio si DecisionRevision = RECHAZADA</td></tr>
@@ -760,7 +760,7 @@
       <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
       <tbody>
         <tr><td><code>IdValidacion</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK</td></tr>
-        <tr><td><code>IdAsesor</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>FK → QUAC.dbo.BERP_FABRICASOperadores.idOperadorFabrica</td></tr>
+         <tr><td><code>IdAsesor</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>FK → fab.OperadoresFabrica.IdOperador (GAP-19)</td></tr>
         <tr><td><code>CodigoAsesor</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>Badge/código ingresado por el asesor en la PC</td></tr>
         <tr><td><code>IdBodega</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>FK → QUAC.dbo.bodegas.id — PC/punto de venta donde se valida</td></tr>
         <tr><td><code>FechaValidacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>

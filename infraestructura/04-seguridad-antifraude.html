@@ -88,7 +88,7 @@
       <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
       <tbody>
         <tr><td><code>IdValidacion</code></td><td>BIGINT IDENTITY PK</td><td>No</td><td>Clave primaria</td></tr>
-        <tr><td><code>IdAsesor</code></td><td>INT FK</td><td>No</td><td>FK → QUAC.dbo.BERP_FABRICASOperadores.idOperadorFabrica</td></tr>
+         <tr><td><code>IdAsesor</code></td><td>INT FK</td><td>No</td><td>FK → fab.OperadoresFabrica.IdOperador (GAP-19: reemplaza referencias a BERP_FABRICASOperadores)</td></tr>
         <tr><td><code>CodigoAsesor</code></td><td>VARCHAR(20)</td><td>No</td><td>Badge/código ingresado en la PC</td></tr>
         <tr><td><code>IdBodega</code></td><td>INT FK</td><td>No</td><td>FK → QUAC.dbo.bodegas.id — punto de venta donde se valida</td></tr>
         <tr><td><code>FechaValidacion</code></td><td>DATETIME2(3)</td><td>No</td><td>Timestamp de la validación</td></tr>
@@ -123,7 +123,7 @@
         <tr><td><code>ResultadoLogin</code></td><td>VARCHAR(20) CHECK</td><td>No</td><td><code>EXITOSO</code> | <code>FALLIDO</code> | <code>BLOQUEADO</code></td></tr>
         <tr><td><code>DireccionIP</code></td><td>VARCHAR(45)</td><td>Sí</td><td>IPv4 (15) o IPv6 (45)</td></tr>
         <tr><td><code>UserAgent</code></td><td>NVARCHAR(500)</td><td>Sí</td><td>Cabecera User-Agent del cliente HTTP</td></tr>
-        <tr><td><code>IdBodega</code></td><td>INT</td><td>Sí</td><td>FK blanda → QUAC.dbo.BERP_FABRICASOperadores (solo LoginTienda)</td></tr>
+         <tr><td><code>IdBodega</code></td><td>INT</td><td>Sí</td><td>FK blanda → QUAC.dbo.bodegas (solo LoginTienda). GAP-19: punto de venta donde ingresó el asesor</td></tr>
         <tr><td><code>MensajeError</code></td><td>NVARCHAR(500)</td><td>Sí</td><td>Detalle si ResultadoLogin ≠ EXITOSO</td></tr>
         <tr><td><code>FechaCreacion</code></td><td>DATETIME2(3)</td><td>No</td><td>DEFAULT GETDATE()</td></tr>
       </tbody>

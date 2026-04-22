@@ -117,15 +117,15 @@
       <div class="meta-item"><strong>DDL fuente</strong> FABRICASv2.sql v2.5</div>
     </div>
 
-    <h2 id="metricas">Métricas del sistema</h2>
-    <p>El modelo de datos del LOS (Loan Origination System) de Fábricas de Crédito QUAC comprende las siguientes magnitudes en su versión 2.5 del DDL (documentación v2.6):</p>
+     <h2 id="metricas">Métricas del sistema</h2>
+     <p>El modelo de datos del LOS (Loan Origination System) de Fábricas de Crédito QUAC comprende las siguientes magnitudes en su versión 2.6 del DDL (con GAP-19 integrado):</p>
 
-    <div class="card-grid">
-      <div class="card">
-        <h4>Tablas propias</h4>
-        <div class="metric">29</div>
-        <p>Creadas por este proyecto</p>
-      </div>
+     <div class="card-grid">
+       <div class="card">
+         <h4>Tablas propias</h4>
+         <div class="metric">31</div>
+         <p>Creadas por este proyecto</p>
+       </div>
       <div class="card card--violet">
         <h4>Grupos funcionales</h4>
         <div class="metric">6</div>
@@ -153,9 +153,9 @@
       </div>
     </div>
 
-    <div class="callout callout--info">
-      <p><strong>Nota:</strong> Las tablas <code>QUAC.dbo.KCRM_CadenaCreditos</code> y <code>QUAC.dbo.BERP_FABRICASOperadores</code> ya existen en producción y se modifican con ALTER TABLE. <code>QUAC.dbo.terceros</code> no se modifica.</p>
-    </div>
+     <div class="callout callout--info">
+       <p><strong>Nota:</strong> Las tablas <code>QUAC.dbo.KCRM_CadenaCreditos</code> ya existen en producción y se modifican con ALTER TABLE. <code>QUAC.dbo.terceros</code> no se modifica. <strong>GAP-19:</strong> La gestión de operadores/asesores se realiza ahora mediante <code>fab.OperadoresFabrica</code> (nueva tabla propia), reemplazando la necesidad de modificar <code>BERP_FABRICASOperadores</code>. La trazabilidad inmutable se logra mediante columnas <code>NitAsesor</code> en las tablas transaccionales.</p>
+     </div>
 
     <h2 id="archivos">Archivos de esta documentación</h2>
     <p>La documentación está dividida en 9 archivos HTML temáticos. Todos se encuentran en el directorio <code>infraestructura/</code> y están sincronizados con el DDL v2.5.</p>
@@ -174,11 +174,11 @@
           <td>Índice y resumen ejecutivo</td>
           <td>Métricas, tabla de archivos, historial de versiones, decisiones PO</td>
         </tr>
-        <tr>
-          <td><a href="01-vision-general.html"><code>01-vision-general.html</code></a></td>
-          <td>Visión general y arquitectura</td>
-          <td>Descripción LOS, canales, arquitectura en capas, grupos funcionales, 29 tablas</td>
-        </tr>
+         <tr>
+           <td><a href="01-vision-general.html"><code>01-vision-general.html</code></a></td>
+           <td>Visión general y arquitectura</td>
+           <td>Descripción LOS, canales, arquitectura en capas, grupos funcionales, 31 tablas</td>
+         </tr>
         <tr>
           <td><a href="02-diccionario-datos.html"><code>02-diccionario-datos.html</code></a></td>
           <td>Diccionario completo de datos</td>

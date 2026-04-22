@@ -108,7 +108,7 @@
         <tr><td><code>EstadoRevision</code></td><td>VARCHAR(20) CHECK</td><td>No</td><td><code>PENDIENTE</code> | <code>APROBADA_AUTO</code> | <code>APROBADA_ASESOR</code> | <code>RECHAZADA</code> | <code>REEMPLAZADA</code></td></tr>
         <tr><td><code>EsVigente</code></td><td>BIT</td><td>No</td><td>1 = foto activa para este tipo; 0 = reemplazada o rechazada</td></tr>
         <tr><td><code>MetodoRevision</code></td><td>VARCHAR(20) CHECK</td><td>Sí</td><td><code>AUTOMATICO</code> | <code>MANUAL_ASESOR</code></td></tr>
-        <tr><td><code>IdAsesorRevisor</code></td><td>INT</td><td>Sí</td><td>FK → QUAC.dbo.BERP_FABRICASOperadores (NULL si automático)</td></tr>
+         <tr><td><code>IdAsesorRevisor</code></td><td>INT</td><td>Sí</td><td>FK → fab.OperadoresFabrica.IdOperador (NULL si automático) (GAP-19)</td></tr>
         <tr><td><code>FechaRevision</code></td><td>DATETIME2(3)</td><td>Sí</td><td>Cuándo fue revisada</td></tr>
         <tr><td><code>MotivoRechazo</code></td><td>NVARCHAR(500)</td><td>Sí</td><td>Razón si EstadoRevision = RECHAZADA</td></tr>
         <tr><td><code>PorcentajeCoincidencia</code></td><td>DECIMAL(5,2)</td><td>Sí</td><td>% coincidencia facial selfie vs doc frontal</td></tr>
@@ -135,7 +135,7 @@
         <tr><td><code>IdRevision</code></td><td>BIGINT IDENTITY PK</td><td>No</td><td>Clave primaria</td></tr>
         <tr><td><code>IdFotografia</code></td><td>BIGINT FK</td><td>No</td><td>FK → FotografiasEstudio</td></tr>
         <tr><td><code>IdEstudio</code></td><td>BIGINT FK</td><td>No</td><td>Redundancia para consultas por estudio</td></tr>
-        <tr><td><code>IdRevisor</code></td><td>INT</td><td>No</td><td>FK lógica → BERP_FABRICASOperadores.idOperadorFabrica</td></tr>
+         <tr><td><code>IdRevisor</code></td><td>INT</td><td>No</td><td>FK lógica → fab.OperadoresFabrica.IdOperador (GAP-19)</td></tr>
         <tr><td><code>NombreRevisor</code></td><td>NVARCHAR(150)</td><td>Sí</td><td>Snapshot del nombre en el momento de la revisión</td></tr>
         <tr><td><code>DecisionRevision</code></td><td>VARCHAR(10) CHECK</td><td>No</td><td><code>APROBADA</code> | <code>RECHAZADA</code></td></tr>
         <tr><td><code>MotivoRechazo</code></td><td>NVARCHAR(300)</td><td>Sí</td><td>Obligatorio si DecisionRevision = RECHAZADA</td></tr>

@@ -576,8 +576,8 @@
           <span class="meta-item"
             ><strong>Fecha:</strong> 15 de abril de 2026</span
           >
-          <span class="meta-item"><strong>Tablas Nuevas:</strong> 28</span>
-          <span class="meta-item"><strong>Tablas Modificadas:</strong> 8</span>
+          <span class="meta-item"><strong>Tablas Nuevas:</strong> 31</span>
+          <span class="meta-item"><strong>Tablas Modificadas:</strong> 1</span>
         </p>
 
         <p>
@@ -634,12 +634,12 @@
               externos.
             </p>
           </div>
-          <div class="card card--amber">
-            <h4>2 Tablas Extendidas</h4>
-            <p>
-              KCRM_CadenaCreditos y BERP_FABRICASOperadores con columnas de fábricas.
-            </p>
-          </div>
+           <div class="card card--amber">
+             <h4>1 Tabla Extendida</h4>
+             <p>
+               KCRM_CadenaCreditos con columnas de fábricas. <strong>GAP-19:</strong> BERP_FABRICASOperadores ya no se modifica; operadores gestionados vía <code>fab.OperadoresFabrica</code>.
+             </p>
+           </div>
           <div class="card card--blue">
             <h4>1 Tabla Propia (terceros)</h4>
             <p>
@@ -701,17 +701,17 @@
         </p>
 
         <div class="flow-diagram">
-          <div class="flow-phase">
-            <div class="flow-num">1</div>
-            <div class="flow-content">
-              <h4>Tablas Existentes del ERP (Extendidas + Tabla Propia)</h4>
-              <p>
-                QUAC.dbo.bodegas, QUAC.dbo.KCRM_CadenaCreditos, BERP_FABRICASOperadores
-                (extendidas). <code>TercerosFabricas</code> es tabla propia que lee
-                de terceros mediante FK por NIT sin modificar la tabla de producción.
-              </p>
-            </div>
-          </div>
+           <div class="flow-phase">
+             <div class="flow-num">1</div>
+             <div class="flow-content">
+               <h4>Tablas Existentes del ERP (Extendidas + Tabla Propia)</h4>
+               <p>
+                 QUAC.dbo.bodegas, QUAC.dbo.KCRM_CadenaCreditos
+                 (extendidas). <code>TercerosFabricas</code> es tabla propia que lee
+                 de terceros mediante FK por NIT sin modificar la tabla de producción. <strong>GAP-19:</strong> <code>fab.OperadoresFabrica</code> y <code>fab.DisponibilidadOperadores</code> reemplazan la necesidad de modificar BERP_FABRICASOperadores.
+               </p>
+             </div>
+           </div>
           <div class="flow-phase">
             <div class="flow-num flow-num--config">2</div>
             <div class="flow-content">
@@ -1244,12 +1244,12 @@
               <td>Vendedores de tiendas</td>
               <td>Sin cambios</td>
             </tr>
-            <tr>
-              <td>Operadores (Call Center)</td>
-              <td><code>QUAC.dbo.BERP_FABRICASOperadores</code></td>
-              <td>Operadores de fábricas</td>
-              <td><span class="badge badge--cyan">+1 columna</span></td>
-            </tr>
+             <tr>
+               <td>Operadores (Fábricas)</td>
+               <td><code>fab.OperadoresFabrica</code> + <code>fab.DisponibilidadOperadores</code> (nuevas)</td>
+               <td>Maestro de asesores/operadores con trazabilidad inmutable por NIT (GAP-19)</td>
+               <td><span class="badge badge--green">NUEVA</span></td>
+             </tr>
           </tbody>
         </table>
 
@@ -1658,11 +1658,11 @@ CREATE TABLE dbo.TercerosFabricas (
               <td>INT FK</td>
               <td>FK a QUAC.dbo.bodegas — bodega donde se origina el estudio (renombrado desde <code>IdTienda</code> en v2.6 para alinearse con nomenclatura del ERP)</td>
             </tr>
-            <tr>
-              <td><code>IdAsesor</code></td>
-              <td>INT FK</td>
-              <td>FK a BERP_FABRICASOperadores</td>
-            </tr>
+             <tr>
+               <td><code>IdAsesor</code></td>
+               <td>INT FK</td>
+               <td>FK a fab.OperadoresFabrica.IdOperador (GAP-19: reemplaza referencias a BERP_FABRICASOperadores)</td>
+             </tr>
             <tr>
               <td><code>IdCanal</code></td>
               <td>INT FK</td>
@@ -5532,7 +5532,7 @@ PC del asesor continúa el flujo ✓</pre>
           </thead>
           <tbody>
             <tr><td><strong>Auth WEB</strong></td><td>JWT anónimo temporal (P1) → JWT firmado con NIT tras OTP exitoso</td></tr>
-            <tr><td><strong>Auth TIENDA</strong></td><td>JWT del asesor (rol <code>ASESOR_FABRICAS</code>, fuente: <code>BERP_FABRICASOperadores</code>)</td></tr>
+             <tr><td><strong>Auth TIENDA</strong></td><td>JWT del asesor (rol <code>ASESOR_FABRICAS</code>, fuente: <code>fab.OperadoresFabrica</code> - GAP-19)</td></tr>
             <tr><td><strong>Auth HANDOFF</strong></td><td>Token UUID en path, TTL 15 min, scoped a 1 estudio</td></tr>
             <tr><td><strong>Auth CORE/EXT</strong></td><td>mTLS o API Key interna — jamás expuesto al exterior</td></tr>
             <tr><td><strong>Idempotencia</strong></td><td>Header <code>X-Idempotency-Key</code> → HTTP 409 + <code>ERROR_IDEMPOTENCY</code> si duplicado</td></tr>
@@ -5670,13 +5670,13 @@ PC del asesor continúa el flujo ✓</pre>
               <td><code>nit</code>, <code>canal: WEB</code>, <code>idEstudio</code></td>
               <td><code>TercerosFabricas</code></td>
             </tr>
-            <tr>
-              <td><strong>LoginBodega</strong></td>
-              <td>JWT emitido tras autenticación biométrica del asesor</td>
-              <td><span class="badge badge--violet">Flujo Asistido</span></td>
-              <td><code>idAsesor</code>, <code>idBodega</code>, <code>rol: ASESOR_FABRICAS</code>, <code>canal: TIENDA</code></td>
-              <td><code>BERP_FABRICASOperadores</code></td>
-            </tr>
+             <tr>
+               <td><strong>LoginBodega</strong></td>
+               <td>JWT emitido tras autenticación biométrica del asesor</td>
+               <td><span class="badge badge--violet">Flujo Asistido</span></td>
+               <td><code>idAsesor</code>, <code>idBodega</code>, <code>rol: ASESOR_FABRICAS</code>, <code>canal: TIENDA</code></td>
+               <td><code>fab.OperadoresFabrica</code> (GAP-19)</td>
+             </tr>
           </tbody>
         </table>
 
@@ -5710,9 +5710,9 @@ PC del asesor continúa el flujo ✓</pre>
           <div class="flow-phase">
             <div class="flow-num">1</div>
             <div class="flow-content">
-              <h4>Ingreso del Código de Asesor</h4>
-              <p>El asesor ingresa su código (ej: <code>ASE-00157</code>) en la pantalla de inicio del PC de bodega.
-              Este código es el identificador único en <code>BERP_FABRICASOperadores</code>.</p>
+               <h4>Ingreso del Código de Asesor</h4>
+               <p>El asesor ingresa su código (ej: <code>ASE-00157</code>) en la pantalla de inicio del PC de bodega.
+               Este código es el identificador único en <code>fab.OperadoresFabrica</code> (GAP-19: reemplaza BERP_FABRICASOperadores).</p>
             </div>
           </div>
           <div class="flow-phase">
@@ -5776,11 +5776,11 @@ API LOS → [PC Bodega]          → HTTP 403 { autenticado: false, mensaje: "Va
               <td>BIGINT PK IDENTITY</td>
               <td>Identificador único del registro de validación</td>
             </tr>
-            <tr>
-              <td><code>IdAsesor</code></td>
-              <td>INT FK</td>
-              <td>FK a <code>BERP_FABRICASOperadores</code> — el asesor que intentó autenticarse</td>
-            </tr>
+             <tr>
+               <td><code>IdAsesor</code></td>
+               <td>INT FK</td>
+               <td>FK a <code>fab.OperadoresFabrica</code> (GAP-19: reemplaza BERP_FABRICASOperadores) — el asesor que intentó autenticarse</td>
+             </tr>
             <tr>
               <td><code>CodigoAsesor</code></td>
               <td>VARCHAR(20) NOT NULL</td>

@@ -65,7 +65,7 @@
       <a href="#canales" class="indent">Canales de origen</a>
       <a href="#arquitectura" class="indent">Arquitectura en capas</a>
       <a href="#grupos" class="indent">Grupos funcionales</a>
-      <a href="#tablas" class="indent">Las 29 tablas</a>
+       <a href="#tablas" class="indent">Las 31 tablas</a>
       <div class="sidebar-section">Documentación General</div>
       <a href="../documentacion-arquitectura-v2.html" target="_blank">📋 Arquitectura General</a>
     </nav>
@@ -131,14 +131,14 @@
         <div><h4>Microservicios de dominio</h4><p>Servicios de: Originación, Biometría (AWS Rekognition), Riesgo (Buró, Preselecta, FOSYGA), OTP (WhatsApp/SMS/Email), Contactabilidad (UBICA), Antifraude</p></div>
       </div>
       <div style="text-align:center;color:var(--text-secondary);font-size:13px;padding:4px 0">↕ Dapper + Stored Procedures</div>
-      <div class="layer">
-        <div class="layer-num layer-num--g">4</div>
-        <div><h4>Base de datos — SQL Server 2019+</h4><p>29 tablas propias + tablas existentes QUAC (terceros, bodegas, KCRM_CadenaCreditos, BERP_FABRICASOperadores). Máquina de estados + auditoría inmutable.</p></div>
-      </div>
+       <div class="layer">
+         <div class="layer-num layer-num--g">4</div>
+         <div><h4>Base de datos — SQL Server 2019+</h4><p>31 tablas propias + tablas existentes QUAC (terceros, bodegas, KCRM_CadenaCreditos). Máquina de estados + auditoría inmutable. <strong>GAP-19:</strong> operadores gestionados vía <code>fab.OperadoresFabrica</code> y <code>fab.DisponibilidadOperadores</code>.</p></div>
+       </div>
     </div>
 
-    <h2 id="grupos">Grupos funcionales</h2>
-    <p>Las 29 tablas del proyecto se organizan en 6 grupos funcionales:</p>
+     <h2 id="grupos">Grupos funcionales</h2>
+     <p>Las 31 tablas del proyecto se organizan en 6 grupos funcionales:</p>
 
     <table>
       <thead>
@@ -147,13 +147,13 @@
       <tbody>
         <tr>
           <td><span class="badge badge--violet">Configuración</span></td>
-          <td>6</td>
-          <td>Parametrizan el flujo: estados, transiciones, fases, pasos, canales, reglas de negocio</td>
+          <td>7</td>
+          <td>Parametrizan el flujo: estados, transiciones, fases, pasos, canales, reglas de negocio, operadores</td>
         </tr>
         <tr>
           <td><span class="badge badge--cyan">Transaccional</span></td>
-          <td>9</td>
-          <td>Registran operaciones del proceso: estudios, retos OTP, biometría, contactabilidad, consentimientos, evidencias, escalamientos, validación asesor, fotografías, solicitudes recarga</td>
+          <td>10</td>
+          <td>Registran operaciones del proceso: estudios, retos OTP, biometría, contactabilidad, consentimientos, evidencias, escalamientos, validación asesor, fotografías, solicitudes recarga, disponibilidad operadores</td>
         </tr>
         <tr>
           <td><span class="badge badge--green">Auditoría</span></td>
@@ -178,8 +178,8 @@
       </tbody>
     </table>
 
-    <h2 id="tablas">Las 29 tablas del proyecto</h2>
-    <p>Referencia completa de todas las tablas creadas por este proyecto. Las tablas de producción modificadas (<code>KCRM_CadenaCreditos</code>, <code>BERP_FABRICASOperadores</code>) se modifican vía ALTER TABLE y no se listan aquí como tablas propias.</p>
+     <h2 id="tablas">Las 31 tablas del proyecto</h2>
+     <p>Referencia completa de todas las tablas creadas por este proyecto. Las tablas de producción modificadas (<code>KCRM_CadenaCreditos</code>) se modifican vía ALTER TABLE y no se listan aquí como tablas propias. <strong>GAP-19:</strong> <code>fab.OperadoresFabrica</code> y <code>fab.DisponibilidadOperadores</code> reemplazan la necesidad de modificar <code>BERP_FABRICASOperadores</code>.</p>
 
     <table>
       <thead>
@@ -192,7 +192,9 @@
         <tr><td><code>TransicionesEstado</code></td><td>INT IDENTITY</td><td><span class="badge badge--violet">Config</span></td><td>~40 transiciones válidas entre estados</td><td>v2.0</td></tr>
         <tr><td><code>ConfiguracionReglasNegocio</code></td><td>INT IDENTITY</td><td><span class="badge badge--violet">Config</span></td><td>Parámetros configurables: OTP, biometría, fotos, JWT, riesgo</td><td>v2.0</td></tr>
         <tr><td><code>CatalogoCanalesOrigen</code></td><td>INT IDENTITY</td><td><span class="badge badge--violet">Config</span></td><td>WEB, TIENDA, EXTERNO</td><td>v2.1</td></tr>
-        <tr><td><code>TercerosFabricas</code></td><td>INT IDENTITY</td><td><span class="badge badge--amber">Integración</span></td><td>Fuente de verdad de clientes, sincroniza con QUAC.dbo.terceros</td><td>v2.0</td></tr>
+         <tr><td><code>TercerosFabricas</code></td><td>INT IDENTITY</td><td><span class="badge badge--amber">Integración</span></td><td>Fuente de verdad de clientes, sincroniza con QUAC.dbo.terceros</td><td>v2.0</td></tr>
+         <tr><td><code>OperadoresFabrica</code></td><td>INT IDENTITY</td><td><span class="badge badge--violet">Config</span></td><td>Maestro de operadores/asesores con trazabilidad inmutable por NIT (GAP-19)</td><td>v2.6</td></tr>
+         <tr><td><code>DisponibilidadOperadores</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>Snapshots de conexión/desconexión de operadores con trazabilidad de NIT (GAP-19)</td><td>v2.6</td></tr>
         <tr><td><code>EstudiosCredito</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>Tabla central: orquesta el flujo completo del estudio</td><td>v2.0</td></tr>
         <tr><td><code>RetosSeguridad</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>Tokens OTP: hash, canal, intentos, reenvíos, dirección de envío</td><td>v2.0</td></tr>
         <tr><td><code>EvaluacionesRiesgo</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>LISTAS, BURO, PRESELECTA, FOSYGA, ANTECEDENTES, UBICA</td><td>v2.0</td></tr>
