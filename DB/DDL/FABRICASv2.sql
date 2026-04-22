@@ -6,23 +6,25 @@
   Fecha:    2026-04-15
   Autor:    Arquitectura de Datos — QUAC FinTech
   
-  ESTRUCTURA DEL SCRIPT:
-  ─────────────────────────────────────────────────────────────────────────────
-  1. TABLAS DE CONFIGURACIÓN (6 tablas)      → Parametrización del flujo
-  2. MODIFICACIÓN DE TABLAS EXISTENTES        → ALTER TABLE a tablas prod.
-  3. TABLAS TRANSACCIONALES (7 tablas)        → Operaciones del proceso
-  4. TABLAS DE AUDITORÍA (3 tablas)           → Trazabilidad inmutable
-  5. PARCHES V2.2 — Architect Audit    → Tablas y columnas de fraude/escalamiento
-  6. DATOS SEMILLA (SEEDS)                    → Catálogos iniciales
-   7. PARCHES V2.3 — GESTIÓN DE FOTOGRAFÍAS    → Ciclo de vida de fotos, revisión, re-carga
-   8. PARCHES V2.4 — CORRECCIONES ARQUITECTURA → ValidacionesAsesor, IdBodega, reglas OTP/JWT
-   9. PARCHES V2.5 — 18 AUDIT GAPS            → Correcciones de auditoría v2.5
+   ESTRUCTURA DEL SCRIPT:
+   ─────────────────────────────────────────────────────────────────────────────
+   1. TABLAS DE CONFIGURACIÓN (6 tablas)      → Parametrización del flujo
+   2. MODIFICACIÓN DE TABLAS EXISTENTES        → ALTER TABLE a tablas prod.
+      2.1 NUEVAS TABLAS DE OPERADORES (GAP-19) → OperadoresFabrica, DisponibilidadOperadores
+   3. TABLAS TRANSACCIONALES (9 tablas)        → Operaciones del proceso
+   4. TABLAS DE AUDITORÍA (3 tablas)           → Trazabilidad inmutable
+   5. PARCHES V2.2 — Architect Audit    → Tablas y columnas de fraude/escalamiento
+   6. DATOS SEMILLA (SEEDS)                    → Catálogos iniciales
+    7. PARCHES V2.3 — GESTIÓN DE FOTOGRAFÍAS    → Ciclo de vida de fotos, revisión, re-carga
+    8. PARCHES V2.4 — CORRECCIONES ARQUITECTURA → ValidacionesAsesor, IdBodega, reglas OTP/JWT
+     9. PARCHES V2.5 — 18 AUDIT GAPS            → Correcciones de auditoría v2.5
+   10. PARCHES V2.6 — TRAZABILIDAD OPERADORES → Consolidación de NITs, nuevas tablas de operadores (GAP-19)
   
-  NOTAS:
-  - Las tablas QUAC.dbo.terceros, QUAC.dbo.bodegas, PRUEBASBD.dbo.kcrm_VendedoresExternos,
-    QUAC.dbo.BERP_FABRICASOperadores y QUAC.dbo.KCRM_CadenaCreditos YA EXISTEN
-  - Solo se les añaden columnas necesarias mediante ALTER TABLE
-  - Las nuevas tablas mantienen coherencia de tipos con las existentes
+   NOTAS:
+   - Las tablas QUAC.dbo.terceros, QUAC.dbo.bodegas, PRUEBASBD.dbo.kcrm_VendedoresExternos,
+     QUAC.dbo.KCRM_CadenaCreditos YA EXISTEN
+   - QUAC.dbo.BERP_FABRICASOperadores YA NO ES MODIFICADA — reemplazado por fab.OperadoresFabrica
+   - Las nuevas tablas mantienen coherencia de tipos con las existentes
   
   CAMBIOS v2.1:
   - G-DB-01: Nueva tabla CatalogoCanalesOrigen + FK desde EstudiosCredito.IdCanal
@@ -90,6 +92,13 @@
   - PH-08: Estados PENDIENTE_FOTOS + FOTOS_EN_REVISION + transiciones
   - PH-09: ConfiguracionReglasNegocio: parámetros de foto (vigencia link, reintentos)
   - PH-10: Seeds para todos los catálogos de fotografía
+   CAMBIOS v2.6 — Trazabilidad Inmutable de Operadores (GAP-19):
+   - GAP-19: Consolidación de columnas NIT de operadores a un naming estándar (NitAsesor).
+     Todas las referencias a operadores/asesores usan NitAsesor para consistencia.
+     Adición de nuevas tablas fab.OperadoresFabrica y fab.DisponibilidadOperadores.
+     Esto permite mantener una trazabilidad inmutable de la cédula del operador que realiza una acción, 
+     incluso si el IdOperador/usuario interno cambia de dueño en el ERP.
+
 ================================================================================
 */
 
@@ -309,6 +318,76 @@ END
 
 
 -- ─────────────────────────────────────────────────────────────────────────────
+-- 2.1b OperadoresFabrica — Registro maestro de operadores/asesores de la fábrica
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Objetivo: Tabla propia que reemplaza/complementa BERP_FABRICASOperadores con
+-- información sobre los operadores/asesores que trabajan en la fábrica de crédito.
+-- La trazabilidad immutable se logra mediante NitAsesor en las tablas transaccionales.
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'fab.OperadoresFabrica') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [fab].[OperadoresFabrica] (
+        IdOperador              INT IDENTITY(1,1)   NOT NULL,
+        NitOperador             VARCHAR(20)         NOT NULL,   -- Cédula única del operador (trazabilidad principal)
+        NombreOperador          NVARCHAR(200)       NOT NULL,
+        CorreoOperador          NVARCHAR(100)       NULL,
+        TelefonoOperador        VARCHAR(20)         NULL,
+        TipoOperador            VARCHAR(20)         NOT NULL,   -- ASESOR, SUPERVISOR, GERENTE, REVISOR_FOTOS, CALL_CENTER
+        Activo                  BIT                 NOT NULL DEFAULT 1,
+        FechaCreacion           DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
+        FechaActualizacion      DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
+        
+        CONSTRAINT PK_OperadoresFabrica PRIMARY KEY (IdOperador),
+        CONSTRAINT UQ_OperadoresFabrica_Nit UNIQUE (NitOperador),
+        CONSTRAINT CK_OperadoresFabrica_Tipo CHECK (
+            TipoOperador IN ('ASESOR','SUPERVISOR','GERENTE','REVISOR_FOTOS','CALL_CENTER','ADMINISTRADOR')
+        )
+    );
+    
+    CREATE NONCLUSTERED INDEX IX_OperadoresFabrica_Nit ON [fab].[OperadoresFabrica](NitOperador);
+    CREATE NONCLUSTERED INDEX IX_OperadoresFabrica_Tipo ON [fab].[OperadoresFabrica](TipoOperador, Activo);
+    
+    PRINT '✓ Tabla OperadoresFabrica creada';
+END
+
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 2.1c DisponibilidadOperadores — Registro de disponibilidad/conexiones de operadores
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Objetivo: Reemplaza BERP_FABRICASOperadorEstados. Registra cuándo un operador
+-- se conecta y se desconecta del sistema para tomar tickets/casos.
+-- Nota: activarse y desactivarse es una acción que realiza solo 1-2 veces en su jornada,
+-- por lo que no requiere logging granular sino snapshots de estado actual.
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'fab.DisponibilidadOperadores') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [fab].[DisponibilidadOperadores] (
+        IdDisponibilidad        BIGINT IDENTITY(1,1) NOT NULL,
+        IdOperador              INT                 NOT NULL,   -- FK a OperadoresFabrica
+        NitOperador             VARCHAR(20)         NOT NULL,   -- Trazabilidad inmutable
+        EstadoDisponibilidad    VARCHAR(20)         NOT NULL,   -- CONECTADO, DESCONECTADO, EN_PAUSA, NO_DISPONIBLE
+        FechaConexion           DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
+        FechaDesconexion        DATETIME2(3)        NULL,
+        DireccionIP             VARCHAR(45)         NULL,       -- IP de conexión para auditoría
+        Observaciones           NVARCHAR(500)       NULL,
+        
+        CONSTRAINT PK_DisponibilidadOperadores PRIMARY KEY (IdDisponibilidad),
+        CONSTRAINT FK_Disponibilidad_Operador FOREIGN KEY (IdOperador) 
+            REFERENCES [fab].[OperadoresFabrica](IdOperador),
+        CONSTRAINT CK_Disponibilidad_Estado CHECK (
+            EstadoDisponibilidad IN ('CONECTADO','DESCONECTADO','EN_PAUSA','NO_DISPONIBLE')
+        )
+    );
+    
+    CREATE NONCLUSTERED INDEX IX_DisponibilidadOperadores_Operador ON [fab].[DisponibilidadOperadores](IdOperador, FechaConexion);
+    CREATE NONCLUSTERED INDEX IX_DisponibilidadOperadores_Estado ON [fab].[DisponibilidadOperadores](EstadoDisponibilidad, FechaConexion)
+        WHERE EstadoDisponibilidad IN ('CONECTADO','EN_PAUSA');
+    
+    PRINT '✓ Tabla DisponibilidadOperadores creada';
+END
+
+
+-- ─────────────────────────────────────────────────────────────────────────────
 -- 2.2 Modificar QUAC.dbo.KCRM_CadenaCreditos: Añadir estados de fábricas
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Objetivo: Agregar campos de estado, motivo de bloqueo y fecha de cancelación
@@ -343,15 +422,10 @@ END
 
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- 2.3 Modificar QUAC.dbo.BERP_FABRICASOperadores: Añadir campos de control
+-- 2.3 NOTA: BERP_FABRICASOperadores ya no es modificada
 -- ─────────────────────────────────────────────────────────────────────────────
--- Objetivo: Agregar campos para control de estados y trazabilidad.
-
-IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'QUAC.dbo.BERP_FABRICASOperadores') AND name = 'Activo')
-BEGIN
-    ALTER TABLE QUAC.dbo.BERP_FABRICASOperadores ADD Activo BIT NOT NULL DEFAULT 1;
-    PRINT '✓ Columna Activo añadida a BERP_FABRICASOperadores';
-END
+-- Se han creado nuevas tablas fab.OperadoresFabrica y fab.DisponibilidadOperadores
+-- para reemplazar el modelo anterior. Ver Sección 3.8 (nuevas tablas de operadores).
 
 
 
@@ -377,7 +451,8 @@ BEGIN
         
         -- Referencias a entidades existentes
         IdBodega               INT                 NULL,       -- FK a QUAC.dbo.bodegas.id
-        IdAsesor               INT                 NULL,       -- FK a BERP_FABRICASOperadores.idOperadorFabrica
+        IdAsesor               INT                 NULL,       -- FK a fab.OperadoresFabrica.IdOperador
+        NitAsesor              VARCHAR(20)         NULL,       -- GAP-19: CC inmutable del asesor en el momento del estudio
         IdCanal                INT                 NULL,       -- FK a CatalogoCanalesOrigen.IdCanal (G-DB-01)
         
         -- Estado de la máquina de estados
@@ -608,7 +683,8 @@ BEGIN
         
         -- Gestión manual
         EstadoVerificacionManual  VARCHAR(20)         NULL,
-        IdAsesorCallCenter       INT                 NULL,
+        IdAsesor                 INT                 NULL,
+        NitAsesor                VARCHAR(20)         NULL,       -- GAP-19: CC inmutable del asesor en el momento de la verificación
         ComentariosAgente         NVARCHAR(500)       NULL,
         
         -- SA-10: Vínculo con alerta de fraude (FK física añadida tras crear AlertasFraude en Sección 5)
@@ -695,6 +771,7 @@ BEGIN
         
         -- Trazabilidad de quien subió el archivo
         SubidoPor           NVARCHAR(100)           NOT NULL,   -- Usuario o sistema que cargó el archivo
+        NitSubidoPor        VARCHAR(20)             NULL,       -- GAP-19: CC inmutable del usuario que subió la evidencia
         Observaciones       NVARCHAR(500)           NULL,       -- Notas adicionales del asesor o sistema
         
         FechaCreacion       DATETIME2(3)            NOT NULL DEFAULT GETDATE(),  -- GAP-11: GETDATE() estándar
@@ -739,6 +816,7 @@ BEGIN
         
         -- Quién y por qué
         IdUsuarioAccion     INT                 NULL,
+        NitAsesor           VARCHAR(20)         NULL,       -- GAP-19: CC inmutable del operador que realizó la transición
         TipoUsuario         VARCHAR(20)         NOT NULL DEFAULT 'SISTEMA',
         MotivoTransicion    NVARCHAR(500)       NULL,
         
@@ -777,6 +855,7 @@ BEGIN
         ValorNuevo          NVARCHAR(500)       NULL,
         
         IdUsuarioAccion     INT                 NULL,
+        NitAsesor           VARCHAR(20)         NULL,       -- GAP-19: CC inmutable del operador que realizó el cambio
         TipoUsuario         VARCHAR(20)         NOT NULL DEFAULT 'SISTEMA',
         FechaCambio         DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
         
@@ -941,7 +1020,8 @@ BEGIN
 
         -- Resultado
         AccionTomada        VARCHAR(20)         NOT NULL DEFAULT 'PENDIENTE',  -- PENDIENTE, ESCALADO, BLOQUEADO, DESCARTADO
-        IdUsuarioResolucion INT                 NULL,       -- FK lógica a BERP_FABRICASOperadores.idOperadorFabrica
+        IdAsesor            INT                 NULL,       -- FK lógica a fab.OperadoresFabrica.IdOperador
+        NitAsesor           VARCHAR(20)         NULL,       -- GAP-19: CC inmutable del operador que resolvió la alerta
         NotasResolucion     NVARCHAR(500)       NULL,
         FechaResolucion     DATETIME2(3)        NULL,
 
@@ -992,10 +1072,12 @@ BEGIN
 
         -- Quién escaló
         EscaladoPorSistema      BIT                     NOT NULL DEFAULT 1,  -- 1=automático, 0=manual por asesor
-        IdUsuarioEscala         INT                     NULL,       -- FK lógica a BERP_FABRICASOperadores (si fue manual)
-
+        IdAsesor                INT                     NULL,       -- FK lógica a fab.OperadoresFabrica.IdOperador (si fue manual)
+        NitAsesor               VARCHAR(20)             NULL,       -- GAP-19: CC inmutable del operador que escaló
+        
         -- Resolución
-        IdAsesorAsignado        INT                     NULL,       -- FK lógica a BERP_FABRICASOperadores
+        IdAsesorAsignado        INT                     NULL,       -- FK lógica a fab.OperadoresFabrica.IdOperador
+        NitAsesorAsignado       VARCHAR(20)             NULL,       -- GAP-19: CC inmutable del asesor asignado
         FechaAsignacion         DATETIME2(3)            NULL,
         EstadoEscalamiento      VARCHAR(20)             NOT NULL DEFAULT 'ABIERTO',  -- ABIERTO, EN_GESTION, RESUELTO, CERRADO_SIN_RESOLUCION
         ResultadoGestion        VARCHAR(20)             NULL,       -- APROBADO, RECHAZADO, DEVUELTO_FLUJO
@@ -2023,7 +2105,7 @@ BEGIN
 
         -- Quién revisó
         MetodoRevision          VARCHAR(20)             NULL,       -- AUTOMATICO, MANUAL_ASESOR
-        IdAsesorRevisor         INT                     NULL,       -- FK → QUAC.dbo.BERP_FABRICASOperadores (NULL si automático)
+        IdAsesorRevisor         INT                     NULL,       -- FK → fab.OperadoresFabrica (NULL si automático)
         FechaRevision           DATETIME2(3)            NULL,
         MotivoRechazo           NVARCHAR(500)           NULL,       -- Razón si EstadoRevision = 'RECHAZADA'
 
@@ -2085,7 +2167,7 @@ BEGIN
         IdEstudio           BIGINT                  NOT NULL,   -- Redundancia para consultas directas
 
         -- Quién revisó
-        IdRevisor           INT                     NOT NULL,   -- FK lógica → BERP_FABRICASOperadores.idOperadorFabrica
+        IdRevisor           INT                     NOT NULL,   -- FK lógica → fab.OperadoresFabrica.IdOperador
         NombreRevisor       NVARCHAR(150)           NULL,       -- Snapshot del nombre en el momento de la revisión
 
         -- Decisión
@@ -2187,7 +2269,7 @@ BEGIN
 
         -- Quién generó la solicitud
         GeneradaPorSistema  BIT                     NOT NULL DEFAULT 1,  -- 1=automático, 0=manual por asesor
-        IdAsesorGenerador   INT                     NULL,       -- FK lógica → BERP_FABRICASOperadores (si fue manual)
+        IdAsesorGenerador   INT                     NULL,       -- FK lógica → fab.OperadoresFabrica.IdOperador (si fue manual)
 
         FechaCreacion       DATETIME2(3)            NOT NULL DEFAULT GETDATE(),
         FechaActualizacion  DATETIME2(3)            NOT NULL DEFAULT GETDATE(),
@@ -2255,7 +2337,7 @@ BEGIN
 
         -- Contexto de la transición
         TipoActor           VARCHAR(15)             NOT NULL DEFAULT 'SISTEMA',  -- SISTEMA, CLIENTE, ASESOR
-        IdActorUsuario      INT                     NULL,       -- FK lógica si es ASESOR (BERP_FABRICASOperadores)
+        IdActorUsuario      INT                     NULL,       -- FK lógica si es ASESOR (fab.OperadoresFabrica)
         IdentificadorActor  NVARCHAR(100)           NULL,       -- NitTercero si CLIENTE, login si ASESOR, 'SISTEMA' si automático
         MotivoTransicion    NVARCHAR(300)           NULL,       -- Descripción del motivo (por ej. motivo de rechazo)
         IdRevisionRelacionada BIGINT                NULL,       -- FK → RevisionesFotografia (si la transición fue por revisión)
@@ -2694,7 +2776,7 @@ IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'fab.Valid
 BEGIN
     CREATE TABLE [fab].[ValidacionesAsesor] (
         IdValidacion            BIGINT IDENTITY(1,1)    NOT NULL,
-        IdAsesor                INT                     NOT NULL,   -- FK → QUAC.dbo.BERP_FABRICASOperadores.idOperadorFabrica
+        IdAsesor                INT                     NOT NULL,   -- FK → fab.OperadoresFabrica.IdOperador
         CodigoAsesor            VARCHAR(20)             NOT NULL,   -- Badge/código ingresado por el asesor en la PC
         IdBodega                INT                     NOT NULL,   -- FK → QUAC.dbo.bodegas.id — PC/punto de venta donde se valida
         FechaValidacion         DATETIME2(3)            NOT NULL DEFAULT GETDATE(),
@@ -2717,10 +2799,10 @@ BEGIN
         CONSTRAINT CK_ValidacionesAsesor_Resultado CHECK (
             ResultadoValidacion IN ('EXITOSA', 'FALLIDA', 'ERROR_SERVICIO')
         ),
-        -- FK física al operador en BERP (mismo servidor SQL)
+        -- FK física al operador en fab schema
         CONSTRAINT FK_ValidacionesAsesor_Asesor
             FOREIGN KEY (IdAsesor)
-            REFERENCES QUAC.dbo.BERP_FABRICASOperadores (idOperadorFabrica)
+            REFERENCES [fab].[OperadoresFabrica] (IdOperador)
             ON UPDATE NO ACTION ON DELETE NO ACTION,
         -- FK física a la bodega en QUAC (mismo servidor SQL)
         CONSTRAINT FK_ValidacionesAsesor_Bodega
@@ -2829,7 +2911,8 @@ BEGIN
         ResultadoLogin      VARCHAR(20)             NOT NULL,  -- 'EXITOSO' | 'FALLIDO' | 'BLOQUEADO'
         DireccionIP         VARCHAR(45)                 NULL,  -- IPv4 (15) o IPv6 (45)
         UserAgent           NVARCHAR(500)               NULL,
-        IdBodega            INT                         NULL,  -- FK blanda a QUAC.dbo.BERP_FABRICASOperadores
+        IdBodega            INT                         NULL,  -- FK blanda a QUAC.dbo.bodegas
+        NitUsuario          VARCHAR(20)                 NULL,  -- GAP-19: CC inmutable del usuario autenticado
         MensajeError        NVARCHAR(500)               NULL,  -- detalle si ResultadoLogin != 'EXITOSO'
         FechaCreacion       DATETIME2(3)            NOT NULL   CONSTRAINT DF_AuditoriaLogins_FechaCreacion  DEFAULT GETDATE(),
 
