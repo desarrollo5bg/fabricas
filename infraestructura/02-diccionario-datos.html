@@ -88,8 +88,8 @@
     </div>
 
     <!-- ═══════════════════════════════════════════════════════════ -->
-    <h2 id="config">Grupo 1 — Configuración (6 tablas)</h2>
-    <p>Definen el flujo, estados y reglas de negocio. Son relativamente estables; se modifican vía seeds o migraciones controladas.</p>
+     <h2 id="config">Grupo 1 — Configuración (8 tablas)</h2>
+     <p>Definen el flujo, estados y reglas de negocio, operadores y disponibilidad. Son relativamente estables; se modifican vía seeds o migraciones controladas.</p>
 
     <h3>FasesEstudio</h3>
     <p>Las 7 fases macro del proceso de otorgamiento de crédito. Cada fase agrupa uno o más pasos del flujo. Catálogo estable: se espera que no cambie en producción.</p>
@@ -200,6 +200,45 @@
       </tbody>
     </table>
 
+    <h3>OperadoresFabrica</h3>
+    <p>Registro maestro de operadores/asesores que trabajan en la fábrica de crédito. Reemplaza/complementa <code>BERP_FABRICASOperadores</code>. Cada operador está identificado unívocamente por su NIT (trazabilidad inmutable), y puede tener múltiples roles en el sistema.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdOperador</code></td><td>INT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK autoincremental</td></tr>
+        <tr><td><code>NitOperador</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>Cédula única del operador (trazabilidad principal). UQ constraint.</td></tr>
+        <tr><td><code>NombreOperador</code></td><td>NVARCHAR(200)</td><td class="null-no">NOT NULL</td><td>Nombre completo del operador</td></tr>
+        <tr><td><code>CorreoOperador</code></td><td>NVARCHAR(100)</td><td class="null-yes">NULL</td><td>Email corporativo del operador</td></tr>
+        <tr><td><code>TelefonoOperador</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>Teléfono de contacto del operador</td></tr>
+        <tr><td><code>TipoOperador</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>CHECK: ASESOR, SUPERVISOR, GERENTE, REVISOR_FOTOS, CALL_CENTER, ADMINISTRADOR</td></tr>
+        <tr><td><code>Activo</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 1. 0 para desactivar sin borrar el historial</td></tr>
+        <tr><td><code>FechaCreacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+        <tr><td><code>FechaActualizacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout--info">
+      <p><strong>Índices:</strong> IX_OperadoresFabrica_Nit (NitOperador), IX_OperadoresFabrica_Tipo (TipoOperador, Activo). <strong>GAP-19:</strong> La trazabilidad inmutable de operadores se logra mediante NitOperador en las tablas transaccionales.</p>
+    </div>
+
+    <h3>DisponibilidadOperadores</h3>
+    <p>Registro de disponibilidad/conexiones de operadores. Reemplaza <code>BERP_FABRICASOperadorEstados</code>. Snapshots de estado actual de cada operador: cuándo se conecta, se desconecta, entra en pausa. Una fila por cambio de estado.</p>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdDisponibilidad</code></td><td>BIGINT IDENTITY</td><td class="null-no">NOT NULL</td><td>PK autoincremental</td></tr>
+        <tr><td><code>IdOperador</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>FK → OperadoresFabrica.IdOperador</td></tr>
+        <tr><td><code>NitOperador</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>GAP-19: Trazabilidad inmutable del NIT al momento del cambio de estado</td></tr>
+        <tr><td><code>EstadoDisponibilidad</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>CHECK: CONECTADO, DESCONECTADO, EN_PAUSA, NO_DISPONIBLE</td></tr>
+        <tr><td><code>FechaConexion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE(). Momento en que entra en este estado</td></tr>
+        <tr><td><code>FechaDesconexion</code></td><td>DATETIME2(3)</td><td class="null-yes">NULL</td><td>Momento de desconexión si aplica</td></tr>
+        <tr><td><code>DireccionIP</code></td><td>VARCHAR(45)</td><td class="null-yes">NULL</td><td>IP de conexión para auditoría</td></tr>
+        <tr><td><code>Observaciones</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Notas adicionales (ej. motivo de pausa)</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout--info">
+      <p><strong>Índices:</strong> IX_DisponibilidadOperadores_Operador (IdOperador, FechaConexion), IX_DisponibilidadOperadores_Estado (EstadoDisponibilidad, FechaConexion) filtrando CONECTADO/EN_PAUSA.</p>
+    </div>
+
     <!-- ═══════════════════════════════════════════════════════════ -->
     <h2 id="transac">Grupo 2 — Transaccionales (8 tablas)</h2>
     <p>Registran las operaciones del proceso de originación. Alta cardinalidad; dependen de las tablas de configuración.</p>
@@ -241,7 +280,8 @@
         <tr><td><code>NitComercio</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>NIT del comercio donde se origina el cupo (C-05)</td></tr>
         <tr><td><code>CelularCliente</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>GAP-03: celular del cliente para envío de OTP</td></tr>
         <tr><td><code>IdBodega</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → QUAC.dbo.bodegas.id (C-02: renombrado de IdTienda)</td></tr>
-        <tr><td><code>IdAsesor</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → BERP_FABRICASOperadores.idOperadorFabrica</td></tr>
+         <tr><td><code>IdAsesor</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → fab.OperadoresFabrica.IdOperador (GAP-19)</td></tr>
+         <tr><td><code>NitAsesor</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>GAP-19: CC inmutable del asesor en el momento del estudio</td></tr>
         <tr><td><code>IdCanal</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → CatalogoCanalesOrigen.IdCanal</td></tr>
         <tr><td><code>IdEstadoActual</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>FK → CatalogoEstados.IdEstado</td></tr>
         <tr><td><code>IdPasoActual</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → PasosEstudio.IdPaso — cursor de reanudación</td></tr>
@@ -356,7 +396,8 @@
         <tr><td><code>EsActivacionAutomatica</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0. TRUE si UBICA permite activación sin call center</td></tr>
         <tr><td><code>EstadoUbica</code></td><td>VARCHAR(30)</td><td class="null-yes">NULL</td><td>CHECK: OK_CEL_CORREO, OK_CEL, GESTION_MANUAL_CALL, GESTION_MANUAL_FABRICA, NO_CONTACTABLE, PENDIENTE (G-DB-04)</td></tr>
         <tr><td><code>EstadoVerificacionManual</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>CHECK: PENDIENTE, CONFIRMADO, RECHAZADO</td></tr>
-        <tr><td><code>IdAsesorCallCenter</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → BERP_FABRICASOperadores</td></tr>
+         <tr><td><code>IdAsesorCallCenter</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → fab.OperadoresFabrica.IdOperador (GAP-19)</td></tr>
+         <tr><td><code>NitAsesorCallCenter</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>GAP-19: CC inmutable del asesor de call center en el momento de la verificación</td></tr>
         <tr><td><code>ComentariosAgente</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Notas del agente de call center</td></tr>
         <tr><td><code>IdAlertaFraude</code></td><td>BIGINT</td><td class="null-yes">NULL</td><td>FK → AlertasFraude (SA-10). Alerta asociada a esta validación</td></tr>
         <tr><td><code>FechaVerificacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
@@ -416,7 +457,8 @@
         <tr><td><code>IdEstadoAnterior</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → CatalogoEstados. NULL en la primera transición</td></tr>
         <tr><td><code>IdEstadoNuevo</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>FK → CatalogoEstados</td></tr>
         <tr><td><code>IdPasoRelacionado</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → PasosEstudio — paso que disparó la transición</td></tr>
-        <tr><td><code>IdUsuarioAccion</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → BERP_FABRICASOperadores (si fue un humano)</td></tr>
+         <tr><td><code>IdUsuarioAccion</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → fab.OperadoresFabrica.IdOperador (GAP-19). Si fue un humano</td></tr>
+         <tr><td><code>NitUsuarioAccion</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>GAP-19: CC inmutable del operador que realizó la transición</td></tr>
         <tr><td><code>TipoUsuario</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>DEFAULT 'SISTEMA'. CHECK: SISTEMA, ASESOR, CALL_CENTER, CLIENTE, ADMINISTRADOR (GAP-02)</td></tr>
         <tr><td><code>MotivoTransicion</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Motivo de la transición (obligatorio cuando RequiereMotivo=1)</td></tr>
         <tr><td><code>IdCorrelacion</code></td><td>VARCHAR(64)</td><td class="null-yes">NULL</td><td>Correlation-ID del request HTTP para trazabilidad distribuida (SA-08)</td></tr>
@@ -436,7 +478,8 @@
         <tr><td><code>NombreCampo</code></td><td>VARCHAR(50)</td><td class="null-no">NOT NULL</td><td>Columna específica que fue modificada</td></tr>
         <tr><td><code>ValorAnterior</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Valor antes del cambio</td></tr>
         <tr><td><code>ValorNuevo</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Valor después del cambio</td></tr>
-        <tr><td><code>IdUsuarioAccion</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → operador que realizó el cambio</td></tr>
+         <tr><td><code>IdUsuarioAccion</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → fab.OperadoresFabrica.IdOperador (GAP-19). Operador que realizó el cambio</td></tr>
+         <tr><td><code>NitUsuarioAccion</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>GAP-19: CC inmutable del operador que realizó el cambio</td></tr>
         <tr><td><code>TipoUsuario</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>DEFAULT 'SISTEMA'. CHECK: SISTEMA, ASESOR, CLIENTE, ADMINISTRADOR (GAP-08)</td></tr>
         <tr><td><code>FechaCambio</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
       </tbody>
@@ -516,7 +559,8 @@
         <tr><td><code>CampoAfectado</code></td><td>VARCHAR(50)</td><td class="null-yes">NULL</td><td>Ej. EmailCliente, CelularCliente</td></tr>
         <tr><td><code>ContextoJSON</code></td><td>NVARCHAR(MAX)</td><td class="null-yes">NULL</td><td>Payload completo de contexto (IP, UserAgent, etc.)</td></tr>
         <tr><td><code>AccionTomada</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>DEFAULT 'PENDIENTE'. CHECK: PENDIENTE, ESCALADO, BLOQUEADO, DESCARTADO</td></tr>
-        <tr><td><code>IdUsuarioResolucion</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → operador que resolvió la alerta</td></tr>
+         <tr><td><code>IdUsuarioResolucion</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → fab.OperadoresFabrica.IdOperador (GAP-19). Operador que resolvió la alerta</td></tr>
+         <tr><td><code>NitUsuarioResolucion</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>GAP-19: CC inmutable del operador que resolvió la alerta</td></tr>
         <tr><td><code>NotasResolucion</code></td><td>NVARCHAR(500)</td><td class="null-yes">NULL</td><td>Notas del revisor</td></tr>
         <tr><td><code>FechaResolucion</code></td><td>DATETIME2(3)</td><td class="null-yes">NULL</td><td>Momento de resolución</td></tr>
         <tr><td><code>FechaAlerta</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
@@ -537,8 +581,10 @@
         <tr><td><code>IdEstadoAlEscalar</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>FK → CatalogoEstados — estado en el momento de escalar</td></tr>
         <tr><td><code>SnapshotDatosCliente</code></td><td>NVARCHAR(MAX)</td><td class="null-yes">NULL</td><td>JSON snapshot de datos clave del cliente en ese momento</td></tr>
         <tr><td><code>EscaladoPorSistema</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td>DEFAULT 1. 0 = escalamiento manual por asesor</td></tr>
-        <tr><td><code>IdUsuarioEscala</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → operador que escaló manualmente</td></tr>
-        <tr><td><code>IdAsesorAsignado</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → operador asignado para resolver</td></tr>
+         <tr><td><code>IdUsuarioEscala</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → fab.OperadoresFabrica.IdOperador (GAP-19). Operador que escaló manualmente</td></tr>
+         <tr><td><code>NitUsuarioEscala</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>GAP-19: CC inmutable del operador que escaló</td></tr>
+         <tr><td><code>IdAsesorAsignado</code></td><td>INT</td><td class="null-yes">NULL</td><td>FK → fab.OperadoresFabrica.IdOperador (GAP-19). Operador asignado para resolver</td></tr>
+         <tr><td><code>NitAsesorAsignado</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>GAP-19: CC inmutable del asesor asignado</td></tr>
         <tr><td><code>FechaAsignacion</code></td><td>DATETIME2(3)</td><td class="null-yes">NULL</td><td>Momento de asignación al asesor</td></tr>
         <tr><td><code>EstadoEscalamiento</code></td><td>VARCHAR(20)</td><td class="null-no">NOT NULL</td><td>DEFAULT 'ABIERTO'. CHECK: ABIERTO, EN_GESTION, RESUELTO, CERRADO_SIN_RESOLUCION</td></tr>
         <tr><td><code>ResultadoGestion</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>CHECK: APROBADO, RECHAZADO, DEVUELTO_FLUJO</td></tr>

@@ -123,12 +123,24 @@
           <td><span class="badge badge--cyan">C-06</span></td>
           <td>Columna eliminada — control de concurrencia manejado por la lógica de negocio</td>
         </tr>
-        <tr>
-          <td>JWT_ORIGEN_BODEGA → JWT_ORIGEN_TIENDA</td>
-          <td><code>CatalogoCanalesOrigen</code></td>
-          <td><span class="badge badge--green">GAP-04</span></td>
-          <td>Valor del catálogo renombrado para consistencia con terminología de asesor</td>
-        </tr>
+         <tr>
+           <td>JWT_ORIGEN_BODEGA → JWT_ORIGEN_TIENDA</td>
+           <td><code>CatalogoCanalesOrigen</code></td>
+           <td><span class="badge badge--green">GAP-04</span></td>
+           <td>Valor del catálogo renombrado para consistencia con terminología de asesor</td>
+         </tr>
+         <tr>
+           <td>Nuevas tablas fab.OperadoresFabrica y fab.DisponibilidadOperadores</td>
+           <td><code>fab.OperadoresFabrica</code>, <code>fab.DisponibilidadOperadores</code></td>
+           <td><span class="badge badge--green">GAP-19</span></td>
+           <td>Reemplazan <code>BERP_FABRICASOperadores</code> y <code>BERP_FABRICASOperadorEstados</code>. Registro maestro de operadores (IdOperador + NitOperador) y snapshots de disponibilidad (conexión/desconexión/pausa). Cada operador tiene un NIT único que garantiza trazabilidad inmutable incluso si el IdOperador cambia de persona.</td>
+         </tr>
+         <tr>
+           <td>Columnas NitAsesor, NitUsuarioAccion, etc. en tablas transaccionales</td>
+           <td>EstudiosCredito, HistorialEstados, AuditoriaCambiosDatos, AlertasFraude, EscalamientosFabrica, ValidacionesContactabilidad y otros</td>
+           <td><span class="badge badge--green">GAP-19</span></td>
+           <td>Trazabilidad inmutable del NIT del operador al momento de la acción. Complementa el IdOperador (que es FK) y garantiza auditoría precisa incluso si el registro del operador es modificado o desactivado en producción.</td>
+         </tr>
         <tr>
           <td>FotografiasEstudio unificada biométrica</td>
           <td><code>FotografiasEstudio</code></td>
@@ -265,6 +277,7 @@
         <tr><td><span class="gap-id">GAP-16</span></td><td>Historial</td><td>HistorialFotografias sin referencia al operador que aplicó el cambio</td><td>Campo IdOperador INT NULL agregado</td></tr>
         <tr><td><span class="gap-id">GAP-17</span></td><td>Recargas</td><td>SolicitudesRecarga sin estado de la solicitud</td><td>Campo EstadoSolicitud CHECK (PENDIENTE, APROBADA, RECHAZADA) agregado</td></tr>
         <tr><td><span class="gap-id">GAP-18</span></td><td>Técnico</td><td>Faltan índices en columnas de búsqueda frecuente</td><td>Índices creados: IX_Estudios_IdTercero, IX_AlertasFraude_IdEstudio, IX_HistorialEstados_IdEstudio</td></tr>
+         <tr><td><span class="gap-id">GAP-19</span></td><td>Operadores y Trazabilidad</td><td>Trazabilidad inmutable de operadores. Nuevas tablas fab.OperadoresFabrica y fab.DisponibilidadOperadores.</td><td>Creadas <code>fab.OperadoresFabrica</code> (registro maestro) y <code>fab.DisponibilidadOperadores</code> (disponibilidad/conexiones). Se añadieron columnas de NIT del operador a todas las tablas transaccionales: <code>NitAsesor</code>, <code>NitUsuarioAccion</code>, <code>NitAsesorCallCenter</code>, <code>NitUsuarioResolucion</code>, <code>NitAsesorAsignado</code>, <code>NitOperador</code> para inmutabilidad de trazabilidad si el ID del ERP cambia de persona.</td></tr>
       </tbody>
     </table>
 
