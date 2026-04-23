@@ -53,7 +53,7 @@
       <a href="07-consentimientos-contactabilidad.html">07 · Consentimientos</a>
       <a href="08-gaps-historial-cambios.html">08 · Gaps e Historial</a>
       <div class="sidebar-section">Este archivo</div>
-      <a href="#estados" class="active">15 Estados</a>
+      <a href="#estados" class="active">27 Estados</a>
       <a href="#fases" class="indent">7 Fases</a>
       <a href="#pasos" class="indent">13 Pasos</a>
       <a href="#transiciones" class="indent">Transiciones válidas</a>
@@ -66,44 +66,98 @@
 
   <main class="main">
     <h1>Máquina de Estados</h1>
-    <p style="font-size:17px;color:var(--text);font-weight:500;">15 estados · 7 fases · 13 pasos — DDL v2.5</p>
+    <p style="font-size:17px;color:var(--text);font-weight:500;">27 estados · 7 fases · 13 pasos — DDL v2.6</p>
     <div class="meta">
       <div class="meta-item"><strong>Versión</strong> v2.6</div>
-      <div class="meta-item"><strong>Fecha</strong> 2026-04-16</div>
-      <div class="meta-item"><strong>Fuente</strong> FABRICASv2.sql v2.5</div>
-      <div class="meta-item"><strong>Estados</strong> 15</div>
+      <div class="meta-item"><strong>Fecha</strong> 2026-04-22</div>
+      <div class="meta-item"><strong>Fuente</strong> FABRICASv2.sql v2.6</div>
+      <div class="meta-item"><strong>Estados</strong> 27</div>
       <div class="meta-item"><strong>Tablas</strong> CatalogoEstados · TransicionesEstado · FasesEstudio · PasosEstudio</div>
     </div>
 
     <!-- ── ESTADOS ─────────────────────────────────────────────────────── -->
-    <h2 id="estados">Los 15 Estados del Sistema</h2>
-    <p>Definidos en <code>CatalogoEstados</code>. El campo <code>Grupo</code> tiene CHECK: <code>INICIAL | PROCESO | TERMINAL</code>.</p>
+    <h2 id="estados">Los 27 Estados del Sistema</h2>
+    <p>Definidos en <code>CatalogoEstados</code>. El campo <code>Grupo</code> tiene CHECK: <code>INICIAL | PROCESO | TERMINAL | BLOQUEO | REACTIVACION</code>.</p>
 
+    <h3>GRUPO: INICIAL (3 estados)</h3>
+    <p>Validación previa antes de crear la solicitud formal.</p>
     <table>
       <thead>
-        <tr><th>Código</th><th>Nombre</th><th>Grupo</th><th>Terminal</th><th>PermitePausa</th></tr>
+        <tr><th>Código</th><th>Nombre</th><th>Terminal</th><th>Permite Pausa</th><th>Descripción</th></tr>
       </thead>
       <tbody>
-        <tr><td><code>BORRADOR</code></td><td>Borrador</td><td><span class="badge badge--accent">INICIAL</span></td><td>No</td><td>No</td></tr>
-        <tr><td><code>EN_PROGRESO</code></td><td>En Progreso</td><td><span class="badge badge--violet">PROCESO</span></td><td>No</td><td>Sí</td></tr>
-        <tr><td><code>PAUSADO</code></td><td>Pausado</td><td><span class="badge badge--violet">PROCESO</span></td><td>No</td><td>No</td></tr>
-        <tr><td><code>PENDIENTE_OTP</code></td><td>Pendiente Validación OTP</td><td><span class="badge badge--violet">PROCESO</span></td><td>No</td><td>Sí</td></tr>
-        <tr><td><code>PENDIENTE_BIOMETRIA</code></td><td>Pendiente Biometría</td><td><span class="badge badge--violet">PROCESO</span></td><td>No</td><td>Sí</td></tr>
-        <tr><td><code>PENDIENTE_CALL</code></td><td>Pendiente Gestión Call Center</td><td><span class="badge badge--violet">PROCESO</span></td><td>No</td><td>No</td></tr>
-        <tr><td><code>PENDIENTE_FOTOS</code></td><td>Pendiente Envío de Fotos</td><td><span class="badge badge--violet">PROCESO</span></td><td>No</td><td>Sí</td></tr>
-        <tr><td><code>FOTOS_EN_REVISION</code></td><td>Fotografías en Revisión Manual</td><td><span class="badge badge--violet">PROCESO</span></td><td>No</td><td>No</td></tr>
-        <tr><td><code>CUPO_PREAPROBADO</code></td><td>Cupo Preaprobado</td><td><span class="badge badge--violet">PROCESO</span></td><td>No</td><td>Sí</td></tr>
-        <tr><td><code>REVISION_FABRICA</code></td><td>En Revisión Manual — Fábrica</td><td><span class="badge badge--violet">PROCESO</span></td><td>No</td><td>No</td></tr>
-        <tr><td><code>APROBADO</code></td><td>Aprobado y Activado</td><td><span class="badge badge--green">TERMINAL</span></td><td>Sí</td><td>No</td></tr>
-        <tr><td><code>RECHAZADO</code></td><td>Rechazado</td><td><span class="badge badge--red">TERMINAL</span></td><td>Sí</td><td>No</td></tr>
-        <tr><td><code>EXPIRADO</code></td><td>Expirado</td><td><span class="badge badge--red">TERMINAL</span></td><td>Sí</td><td>No</td></tr>
-        <tr><td><code>CANCELADO_CLIENTE</code></td><td>Cancelado por el Cliente</td><td><span class="badge badge--red">TERMINAL</span></td><td>Sí</td><td>No</td></tr>
-        <tr><td><code>BLOQUEADO_FRAUDE</code></td><td>Bloqueado por Sospecha de Fraude</td><td><span class="badge badge--red">TERMINAL</span></td><td>Sí</td><td>No</td></tr>
+        <tr><td><code>BORRADOR</code></td><td>En Validación Previa</td><td>No</td><td>No</td><td>Pasos iniciales: identificación, creación, validación de cupo</td></tr>
+        <tr><td><code>PENDIENTE_CLIENTE_PREVIO</code></td><td>Pendiente Cliente — Previo</td><td>No</td><td>Sí</td><td>Se requiere acción del cliente antes de solicitud formal</td></tr>
+        <tr><td><code>EXPIRADO_PREVIO</code></td><td>Expirada — Previo</td><td>Sí</td><td>No</td><td>Proceso previo no continuó o agotó intentos antes de solicitud formal</td></tr>
+      </tbody>
+    </table>
+
+    <h3>GRUPO: BLOQUEO (2 estados)</h3>
+    <p>El cliente ya tiene cupo activo o está bloqueado por mora.</p>
+    <table>
+      <thead>
+        <tr><th>Código</th><th>Nombre</th><th>Terminal</th><th>Permite Pausa</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>CUPO_YA_ACTIVO</code></td><td>Cupo Ya Activo</td><td>Sí</td><td>No</td><td>El cliente ya tiene cupo disponible, no requiere nuevo estudio</td></tr>
+        <tr><td><code>NO_APLICA_MORA</code></td><td>No Aplica — Por Mora</td><td>Sí</td><td>No</td><td>Bloqueado por cartera en mora u otra restricción previa</td></tr>
+      </tbody>
+    </table>
+
+    <h3>GRUPO: REACTIVACION (2 estados)</h3>
+    <p>Estados para reactivación o desbloqueao de cupos cancelados.</p>
+    <table>
+      <thead>
+        <tr><th>Código</th><th>Nombre</th><th>Terminal</th><th>Permite Pausa</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>DESBLOQUEADO</code></td><td>Desbloqueado</td><td>No</td><td>No</td><td>Se rehabilitó un cupo bloqueado sin solicitud formal</td></tr>
+        <tr><td><code>REACTIVADO</code></td><td>Reactivado</td><td>No</td><td>No</td><td>Se reactivó un cupo eliminado previamente bajo reglas definidas</td></tr>
+      </tbody>
+    </table>
+
+    <h3>GRUPO: PROCESO (11 estados)</h3>
+    <p>Flujo activo de estudio de crédito. Transaccionales mientras está vigente.</p>
+    <table>
+      <thead>
+        <tr><th>Código</th><th>Nombre</th><th>Terminal</th><th>Permite Pausa</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>EN_PROGRESO</code></td><td>En Proceso</td><td>No</td><td>Sí</td><td>Solicitud avanza normalmente entre validaciones y bloques del flujo</td></tr>
+        <tr><td><code>PAUSADO</code></td><td>Pausado</td><td>No</td><td>No</td><td>Cliente se retiró; estudio en espera de reanudación</td></tr>
+        <tr><td><code>PENDIENTE_CLIENTE</code></td><td>Pendiente Cliente</td><td>No</td><td>Sí</td><td>Se requiere acción del cliente para continuar (dirección, documentos, biometría, token final)</td></tr>
+        <tr><td><code>PENDIENTE_OTP</code></td><td>Pendiente Validación OTP</td><td>No</td><td>Sí</td><td>Esperando validación del token de seguridad por cliente</td></tr>
+        <tr><td><code>PENDIENTE_BIOMETRIA</code></td><td>Pendiente Biometría</td><td>No</td><td>Sí</td><td>Esperando captura y validación biométrica del cliente</td></tr>
+        <tr><td><code>PENDIENTE_FOTOS</code></td><td>Pendiente Envío de Fotos</td><td>No</td><td>Sí</td><td>Esperando que cliente envíe fotos para validación manual</td></tr>
+        <tr><td><code>FOTOS_EN_REVISION</code></td><td>Fotos en Revisión Manual</td><td>No</td><td>No</td><td>Fotos recibidas, en revisión manual por equipo de crédito</td></tr>
+        <tr><td><code>PENDIENTE_VALIDACION_AUTOMATICA</code></td><td>Pendiente Validación Automática</td><td>No</td><td>Sí</td><td>Esperando respuesta de motores, integraciones o procesos automaticos externos</td></tr>
+        <tr><td><code>CUPO_PREAPROBADO</code></td><td>Cupo Preaprobado</td><td>No</td><td>Sí</td><td>Cupo calculado exitosamente, pendiente verificación de identidad</td></tr>
+        <tr><td><code>EN_FABRICA</code></td><td>En Fábrica de Soporte</td><td>No</td><td>No</td><td>Caso enviado a gestión manual por excepción, novedad o validación no concluyente</td></tr>
+        <tr><td><code>REVISION_FABRICA</code></td><td>En Revisión Manual — Fábrica de Crédito</td><td>No</td><td>No</td><td>Derivado a revisión manual por asesor de fábrica, usualmente por alerta de fraude</td></tr>
+      </tbody>
+    </table>
+
+    <h3>GRUPO: TERMINAL (9 estados)</h3>
+    <p>Cierre del estudio. Son estados finales sin reanudación posible.</p>
+    <table>
+      <thead>
+        <tr><th>Código</th><th>Nombre</th><th>Terminal</th><th>Permite Pausa</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>APROBADO</code></td><td>Cupo Activado</td><td>Sí</td><td>No</td><td>Solicitud aprobada y cupo activado exitosamente</td></tr>
+        <tr><td><code>RECHAZADO</code></td><td>Rechazado</td><td>Sí</td><td>No</td><td>Solicitud rechazada por validación de riesgo crediticio</td></tr>
+        <tr><td><code>NO_VIABLE_ANTECEDENTES_PREVIO</code></td><td>No Viable — Antecedentes (Previo)</td><td>Sí</td><td>No</td><td>Rechazo en validaciones previas por antecedentes negativos</td></tr>
+        <tr><td><code>NO_VIABLE_ANTECEDENTES</code></td><td>No Viable — Antecedentes</td><td>Sí</td><td>No</td><td>Rechazo por antecedentes negativos en solicitud formal</td></tr>
+        <tr><td><code>NO_VIABLE_CENTRALES</code></td><td>No Viable — Centrales</td><td>Sí</td><td>No</td><td>Rechazo por modelo de viabilidad, centrales o preselecta</td></tr>
+        <tr><td><code>NO_APLICA_CUPO</code></td><td>No Aplica — Para Cupo</td><td>Sí</td><td>No</td><td>Cumple viabilidad base pero no supera reglas complementarias para otorgamiento</td></tr>
+        <tr><td><code>EXPIRADO</code></td><td>Expirada</td><td>Sí</td><td>No</td><td>No hubo retomo dentro del tiempo permitido</td></tr>
+        <tr><td><code>CANCELADO_CLIENTE</code></td><td>Cancelada por Cliente</td><td>Sí</td><td>No</td><td>El cliente desistió voluntariamente durante la solicitud</td></tr>
+        <tr><td><code>BLOQUEADO_FRAUDE</code></td><td>Bloqueado por Sospecha de Fraude</td><td>Sí</td><td>No</td><td>Solicitud bloqueada por detección de patrón de fraude. Requiere investigación de seguridad</td></tr>
       </tbody>
     </table>
 
     <div class="callout callout--info">
-      <p><strong>Nota v2.5:</strong> <code>REVISION_FABRICA</code> y <code>BLOQUEADO_FRAUDE</code> fueron añadidos en v2.2 (SA-11). <code>PENDIENTE_FOTOS</code> y <code>FOTOS_EN_REVISION</code> en v2.3 (PH-08).</p>
+      <p><strong>Nota v2.6:</strong> Se ampliaron a 27 estados totales (5 grupos). Se agregaron estados de reactivación, bloqueo y nuevas validaciones específicas (antecedentes previo, centrales, cupo). <code>PENDIENTE_CLIENTE</code>, <code>PENDIENTE_VALIDACION_AUTOMATICA</code>, <code>EN_FABRICA</code> fueron añadidos en v2.6 para precisión en flujos complejos. <code>REVISION_FABRICA</code> y <code>BLOQUEADO_FRAUDE</code> fueron añadidos en v2.2 (SA-11). <code>PENDIENTE_FOTOS</code> y <code>FOTOS_EN_REVISION</code> en v2.3 (PH-08).</p>
     </div>
 
     <!-- ── FASES ──────────────────────────────────────────────────────── -->
@@ -154,116 +208,169 @@
     <h2 id="transiciones">Transiciones Válidas</h2>
     <p>Definidas en <code>TransicionesEstado</code>. <code>UQ_Transiciones_OrigenDestino</code> garantiza unicidad. <code>RequiereMotivo = 1</code> implica que <code>HistorialEstados.MotivoTransicion</code> es obligatorio.</p>
 
-    <h3>Transiciones base (seeds iniciales)</h3>
+    <h3>Transiciones v2.6 — Validación Previa</h3>
     <table>
       <thead>
         <tr><th>Origen</th><th>Destino</th><th>Req. Motivo</th><th>Descripción</th></tr>
       </thead>
       <tbody>
-        <tr><td><code>BORRADOR</code></td><td><code>EN_PROGRESO</code></td><td>No</td><td>Iniciar procesamiento del estudio</td></tr>
+        <tr><td><code>BORRADOR</code></td><td><code>EN_PROGRESO</code></td><td>No</td><td>Iniciar procesamiento del estudio formal</td></tr>
+        <tr><td><code>BORRADOR</code></td><td><code>PENDIENTE_CLIENTE_PREVIO</code></td><td>No</td><td>Cliente se retracta en validación previa</td></tr>
         <tr><td><code>BORRADOR</code></td><td><code>CANCELADO_CLIENTE</code></td><td>No</td><td>Cancelación voluntaria antes de iniciar</td></tr>
+        <tr><td><code>PENDIENTE_CLIENTE_PREVIO</code></td><td><code>BORRADOR</code></td><td>No</td><td>Cliente completa datos pendientes</td></tr>
+        <tr><td><code>PENDIENTE_CLIENTE_PREVIO</code></td><td><code>CANCELADO_CLIENTE</code></td><td>No</td><td>Cancelación voluntaria en previo</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Transiciones v2.6 — Flujo Principal (EN_PROGRESO)</h3>
+    <table>
+      <thead>
+        <tr><th>Origen</th><th>Destino</th><th>Req. Motivo</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
         <tr><td><code>EN_PROGRESO</code></td><td><code>PAUSADO</code></td><td>No</td><td>Cliente se retira, pausar estudio</td></tr>
-        <tr><td><code>EN_PROGRESO</code></td><td><code>PENDIENTE_OTP</code></td><td>No</td><td>Paso de tokenización: esperar OTP</td></tr>
-        <tr><td><code>EN_PROGRESO</code></td><td><code>PENDIENTE_BIOMETRIA</code></td><td>No</td><td>Paso biométrico: esperar captura</td></tr>
-        <tr><td><code>EN_PROGRESO</code></td><td><code>PENDIENTE_CALL</code></td><td>Sí</td><td>Fallo automático: derivar a call center</td></tr>
-        <tr><td><code>EN_PROGRESO</code></td><td><code>CUPO_PREAPROBADO</code></td><td>No</td><td>Cupo calculado exitosamente</td></tr>
-        <tr><td><code>EN_PROGRESO</code></td><td><code>APROBADO</code></td><td>No</td><td>Todas las validaciones aprobadas, cupo activado</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>PENDIENTE_OTP</code></td><td>No</td><td>Esperando validación OTP</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>PENDIENTE_BIOMETRIA</code></td><td>No</td><td>Esperando biométrica</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>PENDIENTE_FOTOS</code></td><td>No</td><td>Esperando fotos del cliente</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>PENDIENTE_VALIDACION_AUTOMATICA</code></td><td>No</td><td>Esperando respuesta de servicio externo</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>CUPO_PREAPROBADO</code></td><td>No</td><td>Cupo preaprobado confirmado</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>APROBADO</code></td><td>No</td><td>Todas las validaciones aprobadas</td></tr>
         <tr><td><code>EN_PROGRESO</code></td><td><code>RECHAZADO</code></td><td>Sí</td><td>Rechazado por validación de riesgo</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>NO_VIABLE_ANTECEDENTES</code></td><td>Sí</td><td>Rechazo por antecedentes</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>NO_VIABLE_CENTRALES</code></td><td>Sí</td><td>Rechazo por centrales/preselecta</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>NO_APLICA_CUPO</code></td><td>Sí</td><td>No aplica para cupo: no supera reglas complementarias</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>NO_VIABLE_ANTECEDENTES_PREVIO</code></td><td>Sí</td><td>Preselecta rechaza por antecedentes</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>EN_FABRICA</code></td><td>Sí</td><td>Derivar a fábrica de soporte</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>BLOQUEADO_FRAUDE</code></td><td>Sí</td><td>Fraude detectado automáticamente</td></tr>
+        <tr><td><code>EN_PROGRESO</code></td><td><code>REVISION_FABRICA</code></td><td>Sí</td><td>Anomalía detectada: derivar a revisión manual</td></tr>
         <tr><td><code>EN_PROGRESO</code></td><td><code>CANCELADO_CLIENTE</code></td><td>No</td><td>Cancelación voluntaria durante el proceso</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Transiciones v2.6 — Pausado y Reanudación</h3>
+    <table>
+      <thead>
+        <tr><th>Origen</th><th>Destino</th><th>Req. Motivo</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
         <tr><td><code>PAUSADO</code></td><td><code>EN_PROGRESO</code></td><td>No</td><td>Cliente regresa, reanudar estudio</td></tr>
         <tr><td><code>PAUSADO</code></td><td><code>EXPIRADO</code></td><td>No</td><td>Estudio expiró por inactividad</td></tr>
         <tr><td><code>PAUSADO</code></td><td><code>CANCELADO_CLIENTE</code></td><td>No</td><td>Cancelación voluntaria mientras pausado</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Transiciones v2.6 — Validaciones por Pasos</h3>
+    <table>
+      <thead>
+        <tr><th>Origen</th><th>Destino</th><th>Req. Motivo</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
         <tr><td><code>PENDIENTE_OTP</code></td><td><code>EN_PROGRESO</code></td><td>No</td><td>OTP validado exitosamente</td></tr>
         <tr><td><code>PENDIENTE_OTP</code></td><td><code>PAUSADO</code></td><td>No</td><td>Cliente se retira, pausar</td></tr>
         <tr><td><code>PENDIENTE_OTP</code></td><td><code>RECHAZADO</code></td><td>Sí</td><td>OTP fallido, intentos agotados</td></tr>
         <tr><td><code>PENDIENTE_BIOMETRIA</code></td><td><code>EN_PROGRESO</code></td><td>No</td><td>Biometría validada exitosamente</td></tr>
         <tr><td><code>PENDIENTE_BIOMETRIA</code></td><td><code>PAUSADO</code></td><td>No</td><td>Cliente se retira, pausar</td></tr>
-        <tr><td><code>PENDIENTE_BIOMETRIA</code></td><td><code>PENDIENTE_CALL</code></td><td>Sí</td><td>Biometría fallida, derivar a call center</td></tr>
-        <tr><td><code>PENDIENTE_BIOMETRIA</code></td><td><code>RECHAZADO</code></td><td>Sí</td><td>Biometría rechazada definitivamente</td></tr>
-        <tr><td><code>PENDIENTE_CALL</code></td><td><code>EN_PROGRESO</code></td><td>No</td><td>Call center resuelve exitosamente</td></tr>
-        <tr><td><code>PENDIENTE_CALL</code></td><td><code>APROBADO</code></td><td>No</td><td>Call center aprueba y activa directamente</td></tr>
-        <tr><td><code>PENDIENTE_CALL</code></td><td><code>RECHAZADO</code></td><td>Sí</td><td>Call center rechaza la solicitud</td></tr>
+        <tr><td><code>PENDIENTE_BIOMETRIA</code></td><td><code>EN_FABRICA</code></td><td>Sí</td><td>Biometría fallida, derivar a fábrica</td></tr>
+        <tr><td><code>PENDIENTE_FOTOS</code></td><td><code>FOTOS_EN_REVISION</code></td><td>No</td><td>Fotos recibidas, en revisión</td></tr>
+        <tr><td><code>FOTOS_EN_REVISION</code></td><td><code>EN_PROGRESO</code></td><td>No</td><td>Asesor aprueba fotos: proceso se reanuda</td></tr>
+        <tr><td><code>FOTOS_EN_REVISION</code></td><td><code>PENDIENTE_FOTOS</code></td><td>Sí</td><td>Asesor rechaza fotos: nueva solicitud</td></tr>
+        <tr><td><code>PENDIENTE_VALIDACION_AUTOMATICA</code></td><td><code>EN_PROGRESO</code></td><td>No</td><td>Validación automática exitosa</td></tr>
+        <tr><td><code>PENDIENTE_VALIDACION_AUTOMATICA</code></td><td><code>EN_FABRICA</code></td><td>Sí</td><td>Validación automática fallida</td></tr>
         <tr><td><code>CUPO_PREAPROBADO</code></td><td><code>EN_PROGRESO</code></td><td>No</td><td>Continuar a verificación de identidad</td></tr>
         <tr><td><code>CUPO_PREAPROBADO</code></td><td><code>PAUSADO</code></td><td>No</td><td>Cliente se retira, pausar</td></tr>
         <tr><td><code>CUPO_PREAPROBADO</code></td><td><code>CANCELADO_CLIENTE</code></td><td>No</td><td>Cancelación voluntaria con cupo preaprobado</td></tr>
       </tbody>
     </table>
 
-    <h3>Transiciones v2.2 — Fraude y Escalamiento (SA-11)</h3>
+    <h3>Transiciones v2.6 — Fábrica (EN_FABRICA y REVISION_FABRICA)</h3>
     <table>
       <thead>
         <tr><th>Origen</th><th>Destino</th><th>Req. Motivo</th><th>Descripción</th></tr>
       </thead>
       <tbody>
-        <tr><td><code>EN_PROGRESO</code></td><td><code>REVISION_FABRICA</code></td><td>Sí</td><td>Anomalía detectada: derivar a revisión manual por fábrica de crédito</td></tr>
-        <tr><td><code>PENDIENTE_CALL</code></td><td><code>REVISION_FABRICA</code></td><td>Sí</td><td>Call center no puede resolver: escala a revisión fábrica</td></tr>
-        <tr><td><code>REVISION_FABRICA</code></td><td><code>EN_PROGRESO</code></td><td>Sí</td><td>Asesor de fábrica resuelve: devolver al flujo automático</td></tr>
+        <tr><td><code>EN_FABRICA</code></td><td><code>EN_PROGRESO</code></td><td>No</td><td>Fábrica resuelve: reanudar flujo</td></tr>
+        <tr><td><code>EN_FABRICA</code></td><td><code>RECHAZADO</code></td><td>Sí</td><td>Fábrica determina rechazo</td></tr>
+        <tr><td><code>EN_FABRICA</code></td><td><code>BLOQUEADO_FRAUDE</code></td><td>Sí</td><td>Fábrica detecta fraude</td></tr>
+        <tr><td><code>REVISION_FABRICA</code></td><td><code>EN_PROGRESO</code></td><td>Sí</td><td>Asesor de fábrica resuelve: devolver al flujo</td></tr>
         <tr><td><code>REVISION_FABRICA</code></td><td><code>RECHAZADO</code></td><td>Sí</td><td>Asesor de fábrica determina rechazo definitivo</td></tr>
         <tr><td><code>REVISION_FABRICA</code></td><td><code>BLOQUEADO_FRAUDE</code></td><td>Sí</td><td>Asesor de fábrica confirma sospecha de fraude</td></tr>
-        <tr><td><code>EN_PROGRESO</code></td><td><code>BLOQUEADO_FRAUDE</code></td><td>Sí</td><td>Regla de fraude crítica: bloqueo automático inmediato</td></tr>
       </tbody>
     </table>
 
-    <h3>Transiciones v2.3 — Ciclo de Fotografías (PH-08)</h3>
-    <table>
-      <thead>
-        <tr><th>Origen</th><th>Destino</th><th>Req. Motivo</th><th>Descripción</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><code>EN_PROGRESO</code></td><td><code>PENDIENTE_FOTOS</code></td><td>Sí</td><td>Foto obligatoria faltante o rechazada: sistema envía link de re-carga al cliente</td></tr>
-        <tr><td><code>PENDIENTE_BIOMETRIA</code></td><td><code>PENDIENTE_FOTOS</code></td><td>Sí</td><td>Desde paso biométrico: foto rechazada o de calidad insuficiente para Rekognition</td></tr>
-        <tr><td><code>PENDIENTE_FOTOS</code></td><td><code>FOTOS_EN_REVISION</code></td><td>No</td><td>Cliente subió todas las fotos pendientes: pasan a revisión del asesor</td></tr>
-        <tr><td><code>FOTOS_EN_REVISION</code></td><td><code>EN_PROGRESO</code></td><td>No</td><td>Asesor aprobó todas las fotografías: proceso de crédito se reanuda automáticamente</td></tr>
-        <tr><td><code>FOTOS_EN_REVISION</code></td><td><code>PENDIENTE_FOTOS</code></td><td>Sí</td><td>Asesor rechazó una o más fotografías: se genera nuevo link de re-carga al cliente</td></tr>
-        <tr><td><code>FOTOS_EN_REVISION</code></td><td><code>RECHAZADO</code></td><td>Sí</td><td>Asesor determina rechazo definitivo por fotografías: suplantación, documento falso, etc.</td></tr>
-      </tbody>
-    </table>
+
 
     <!-- ── DIAGRAMA ASCII ─────────────────────────────────────────────── -->
     <h2 id="diagrama">Diagrama de Flujo (ASCII)</h2>
-    <p>Vista simplificada del camino feliz y los principales desvíos. Los estados terminales están marcados con <code>[T]</code>.</p>
+    <p>Vista simplificada del camino feliz y los principales desvíos. Los estados terminales están marcados con <code>[T]</code>. Los grupos de color: INICIAL (azul), PROCESO (verde), BLOQUEO/REACTIVACION (naranja), TERMINAL (rojo).</p>
     <pre><code>
- BORRADOR
-    │
-    ▼
- EN_PROGRESO ──────────────────────────────────────────────────────────────────┐
-    │                                                                           │
-    ├──► PAUSADO ◄──────────────────────────────────────────────────────────── │
-    │       │ (cliente regresa)                                                 │
-    │       ▼                                                                   │
-    ├──► PENDIENTE_OTP                                                          │
-    │       │ (OTP ok)                                                          │
-    │       ▼                                                                   │
-    │   EN_PROGRESO ──────────────────────────────────────────────────────── ──┤
-    │                                                                           │
-    ├──► PENDIENTE_BIOMETRIA                                                    │
-    │       │ (biometría ok)         ┌──► PENDIENTE_FOTOS                      │
-    │       ▼                        │         │ (fotos ok)                     │
-    │   EN_PROGRESO ─────────────────┘         ▼                               │
-    │                                     FOTOS_EN_REVISION                    │
-    │                                          │ (asesor aprueba)              │
-    │                                          ▼                               │
-    ├──► CUPO_PREAPROBADO                  EN_PROGRESO ──────────────────── ───┤
-    │       │                                                                   │
-    │       ▼                                                                   │
-    │   EN_PROGRESO                                                             │
-    │                                                                           │
-    ├──► PENDIENTE_CALL                                                         │
-    │       │ (resuelto)                                                        │
-    │       ▼                                                                   │
-    │   EN_PROGRESO / APROBADO [T]                                              │
-    │                                                                           │
-    ├──► REVISION_FABRICA                                                       │
-    │       ├──► EN_PROGRESO (devuelto al flujo)                                │
-    │       ├──► RECHAZADO [T]                                                  │
-    │       └──► BLOQUEADO_FRAUDE [T]                                           │
-    │                                                                           │
-    ├──► RECHAZADO [T] ◄────────────────────────────────────────────────────── ┘
-    ├──► APROBADO [T]
-    ├──► CANCELADO_CLIENTE [T]
-    ├──► EXPIRADO [T]
-    └──► BLOQUEADO_FRAUDE [T]
-    </code></pre>
+ ┌─ VALIDACIÓN PREVIA (GRUPO: INICIAL) ──────────────────────────────┐
+ │                                                                     │
+ ├─► BORRADOR                                                         │
+ │      ├──► PENDIENTE_CLIENTE_PREVIO ◄──┐ (cliente retracta)        │
+ │      │      └──► CANCELADO_CLIENTE [T] │                          │
+ │      └──► CANCELADO_CLIENTE [T] ◄─────┘                           │
+ │                                                                     │
+ │                                                                     │
+ ├─ VALIDACIÓN PREVIA: BLOQUEOS Y REACTIVACION                       │
+ │                                                                     │
+ ├──► CUPO_YA_ACTIVO [T] (cliente ya tiene cupo)                     │
+ ├──► NO_APLICA_MORA [T] (bloqueado por mora)                        │
+ ├──► DESBLOQUEADO (se rehabilitó cupo)                              │
+ ├──► REACTIVADO (se reactivó cupo)                                  │
+ └─────────────────────────────────────────────────────────────────────┘
+        │
+        ▼
+ ┌─ FLUJO FORMAL (GRUPO: PROCESO)  ──────────────────────────────────┐
+ │                                                                     │
+ ├──► EN_PROGRESO                                                     │
+ │    ├──► PENDIENTE_OTP ──► EN_PROGRESO (OTP ok)                    │
+ │    │    └──► RECHAZADO [T] (OTP falló)                            │
+ │    │                                                               │
+ │    ├──► PENDIENTE_BIOMETRIA                                       │
+ │    │    ├──► EN_PROGRESO (biometría ok)                           │
+ │    │    └──► EN_FABRICA (biometría falló)                         │
+ │    │                                                               │
+ │    ├──► PENDIENTE_FOTOS ──► FOTOS_EN_REVISION                     │
+ │    │                           ├──► EN_PROGRESO (aprobado)        │
+ │    │                           └──► PENDIENTE_FOTOS (rechazado)   │
+ │    │                                                               │
+ │    ├──► PENDIENTE_VALIDACION_AUTOMATICA                           │
+ │    │    ├──► EN_PROGRESO (exitosa)                                │
+ │    │    └──► EN_FABRICA (fallida)                                 │
+ │    │                                                               │
+ │    ├──► CUPO_PREAPROBADO ──► EN_PROGRESO (continua)               │
+ │    │                   └──► CANCELADO_CLIENTE [T]                 │
+ │    │                                                               │
+ │    ├──► APROBADO [T] (cupo activado) ◄──┐                         │
+ │    │                                      │                        │
+ │    ├──► RECHAZADO [T] ◄──────────────────┤ (rechazo riesgo)       │
+ │    │                                      │                        │
+ │    ├──► NO_VIABLE_ANTECEDENTES [T] ◄────┤ (antecedentes)         │
+ │    ├──► NO_VIABLE_ANTECEDENTES_PREVIO [T] (antecedentes previo)   │
+ │    ├──► NO_VIABLE_CENTRALES [T] ◄───────┤ (centrales/preselecta) │
+ │    ├──► NO_APLICA_CUPO [T] ◄────────────┤ (reglas complementarias)
+ │    │                                      │                        │
+ │    ├──► EN_FABRICA ─────────────────────┐                         │
+ │    │    ├──► EN_PROGRESO (resuelto) ────┘                         │
+ │    │    ├──► RECHAZADO [T]                                        │
+ │    │    └──► BLOQUEADO_FRAUDE [T]                                 │
+ │    │                                                               │
+ │    ├──► REVISION_FABRICA (escalamiento por fraude/anomalía)       │
+ │    │    ├──► EN_PROGRESO (resuelto)                               │
+ │    │    ├──► RECHAZADO [T]                                        │
+ │    │    └──► BLOQUEADO_FRAUDE [T]                                 │
+ │    │                                                               │
+ │    ├──► BLOQUEADO_FRAUDE [T] (regla crítica automática)           │
+ │    │                                                               │
+ │    ├──► PAUSADO ───────► EN_PROGRESO (cliente regresa)            │
+ │    │              └──► EXPIRADO [T] (inactividad)                 │
+ │    │              └──► CANCELADO_CLIENTE [T]                      │
+ │    │                                                               │
+ │    └──► CANCELADO_CLIENTE [T] (desistimiento)                     │
+ │                                                                     │
+ │ [T] = Estado Terminal (sin reanudación)                            │
+ └─────────────────────────────────────────────────────────────────────┘
+</code></pre>
 
     <!-- ── CANALES ─────────────────────────────────────────────────────── -->
     <h2 id="canales">Diferencias WEB vs TIENDA</h2>

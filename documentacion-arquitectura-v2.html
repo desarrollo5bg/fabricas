@@ -3715,7 +3715,7 @@ Si REEMPLAZADA → foto anterior EsVigente = 0   → nueva foto EsVigente = 1</c
           tablas <code>CatalogoEstados</code> y <code>TransicionesEstado</code>.
         </p>
 
-        <h3>Los 15 Estados <span class="badge badge--red">+2 nuevos en v2.2</span> <span class="badge" style="background:#10b981;color:#fff;">+2 nuevos en v2.3</span></h3>
+        <h3>Los 27 Estados <span class="badge badge--red">+8 nuevos en v2.6</span></h3>
         <table>
           <thead>
             <tr>
@@ -3727,128 +3727,229 @@ Si REEMPLAZADA → foto anterior EsVigente = 0   → nueva foto EsVigente = 1</c
               <th>Pausable</th>
             </tr>
           </thead>
-          <tbody>
+           <tbody>
+            <!-- GRUPO: INICIAL (3 estados) -->
             <tr>
               <td>1</td>
-              <td><code>BORRADOR</code></td>
-              <td>Borrador</td>
+              <td><code>BORRADOR</code> <span class="badge" style="background:#3b82f6;color:#fff;">INICIAL</span></td>
+              <td>En Validación Previa</td>
               <td>INICIAL</td>
               <td>No</td>
               <td>No</td>
             </tr>
             <tr>
               <td>2</td>
-              <td><code>EN_PROGRESO</code></td>
-              <td>En Progreso</td>
-              <td>PROCESO</td>
+              <td><code>PENDIENTE_CLIENTE_PREVIO</code> <span class="badge" style="background:#3b82f6;color:#fff;">INICIAL</span></td>
+              <td>Pendiente Cliente — Previo</td>
+              <td>INICIAL</td>
               <td>No</td>
               <td>Sí</td>
             </tr>
             <tr>
               <td>3</td>
-              <td><code>PAUSADO</code></td>
+              <td><code>EXPIRADO_PREVIO</code> <span class="badge" style="background:#3b82f6;color:#fff;">INICIAL</span></td>
+              <td>Expirada — Previo</td>
+              <td>INICIAL</td>
+              <td>Sí</td>
+              <td>No</td>
+            </tr>
+            <!-- GRUPO: BLOQUEO (2 estados) -->
+            <tr>
+              <td>4</td>
+              <td><code>CUPO_YA_ACTIVO</code> <span class="badge" style="background:#f59e0b;color:#fff;">BLOQUEO</span></td>
+              <td>Cupo Ya Activo</td>
+              <td>BLOQUEO</td>
+              <td>Sí</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td><code>NO_APLICA_MORA</code> <span class="badge" style="background:#f59e0b;color:#fff;">BLOQUEO</span></td>
+              <td>No Aplica — Por Mora</td>
+              <td>BLOQUEO</td>
+              <td>Sí</td>
+              <td>No</td>
+            </tr>
+            <!-- GRUPO: REACTIVACION (2 estados) -->
+            <tr>
+              <td>6</td>
+              <td><code>DESBLOQUEADO</code> <span class="badge" style="background:#8b5cf6;color:#fff;">REACTIV</span></td>
+              <td>Desbloqueado</td>
+              <td>REACTIVACION</td>
+              <td>No</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td><code>REACTIVADO</code> <span class="badge" style="background:#8b5cf6;color:#fff;">REACTIV</span></td>
+              <td>Reactivado</td>
+              <td>REACTIVACION</td>
+              <td>No</td>
+              <td>No</td>
+            </tr>
+            <!-- GRUPO: PROCESO (9 estados) -->
+            <tr>
+              <td>8</td>
+              <td><code>EN_PROGRESO</code> <span class="badge badge--violet">PROCESO</span></td>
+              <td>En Proceso</td>
+              <td>PROCESO</td>
+              <td>No</td>
+              <td>Sí</td>
+            </tr>
+            <tr>
+              <td>9</td>
+              <td><code>PAUSADO</code> <span class="badge badge--violet">PROCESO</span></td>
               <td>Pausado</td>
               <td>PROCESO</td>
               <td>No</td>
-              <td>—</td>
+              <td>No</td>
             </tr>
             <tr>
-              <td>4</td>
-              <td><code>PENDIENTE_OTP</code></td>
+              <td>10</td>
+              <td><code>PENDIENTE_CLIENTE</code> <span class="badge badge--violet">PROCESO</span></td>
+              <td>Pendiente Cliente</td>
+              <td>PROCESO</td>
+              <td>No</td>
+              <td>Sí</td>
+            </tr>
+            <tr>
+              <td>11</td>
+              <td><code>PENDIENTE_OTP</code> <span class="badge badge--violet">PROCESO</span></td>
               <td>Pendiente OTP</td>
               <td>PROCESO</td>
               <td>No</td>
               <td>Sí</td>
             </tr>
             <tr>
-              <td>5</td>
-              <td><code>PENDIENTE_BIOMETRIA</code></td>
+              <td>12</td>
+              <td><code>PENDIENTE_BIOMETRIA</code> <span class="badge badge--violet">PROCESO</span></td>
               <td>Pendiente Biometría</td>
               <td>PROCESO</td>
               <td>No</td>
               <td>Sí</td>
             </tr>
             <tr>
-              <td>6</td>
-              <td><code>PENDIENTE_CALL</code></td>
-              <td>Pendiente Call Center</td>
+              <td>13</td>
+              <td><code>PENDIENTE_FOTOS</code> <span class="badge badge--violet">PROCESO</span></td>
+              <td>Pendiente Envío de Fotos</td>
+              <td>PROCESO</td>
+              <td>No</td>
+              <td>Sí</td>
+            </tr>
+            <tr>
+              <td>14</td>
+              <td><code>FOTOS_EN_REVISION</code> <span class="badge badge--violet">PROCESO</span></td>
+              <td>Fotos en Revisión Manual</td>
               <td>PROCESO</td>
               <td>No</td>
               <td>No</td>
             </tr>
             <tr>
-              <td>7</td>
-              <td><code>CUPO_PREAPROBADO</code></td>
+              <td>15</td>
+              <td><code>PENDIENTE_VALIDACION_AUTOMATICA</code> <span class="badge badge--violet">PROCESO</span></td>
+              <td>Pendiente Validación Automática</td>
+              <td>PROCESO</td>
+              <td>No</td>
+              <td>Sí</td>
+            </tr>
+            <tr>
+              <td>16</td>
+              <td><code>CUPO_PREAPROBADO</code> <span class="badge badge--violet">PROCESO</span></td>
               <td>Cupo Preaprobado</td>
               <td>PROCESO</td>
               <td>No</td>
               <td>Sí</td>
             </tr>
             <tr>
-              <td>8</td>
-              <td><code>APROBADO</code></td>
-              <td>Aprobado y Activado</td>
-              <td>TERMINAL</td>
-              <td>Sí</td>
-              <td>—</td>
+              <td>17</td>
+              <td><code>EN_FABRICA</code> <span class="badge badge--violet">PROCESO</span></td>
+              <td>En Fábrica de Soporte</td>
+              <td>PROCESO</td>
+              <td>No</td>
+              <td>No</td>
             </tr>
             <tr>
-              <td>9</td>
-              <td><code>RECHAZADO</code></td>
+              <td>18</td>
+              <td><code>REVISION_FABRICA</code> <span class="badge badge--violet">PROCESO</span></td>
+              <td>En Revisión Manual — Fábrica</td>
+              <td>PROCESO</td>
+              <td>No</td>
+              <td>No</td>
+            </tr>
+            <!-- GRUPO: TERMINAL (7 estados) -->
+            <tr>
+              <td>19</td>
+              <td><code>APROBADO</code> <span class="badge badge--green">TERMINAL</span></td>
+              <td>Cupo Activado</td>
+              <td>TERMINAL</td>
+              <td>Sí</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>20</td>
+              <td><code>RECHAZADO</code> <span class="badge badge--red">TERMINAL</span></td>
               <td>Rechazado</td>
               <td>TERMINAL</td>
               <td>Sí</td>
-              <td>—</td>
+              <td>No</td>
             </tr>
             <tr>
-              <td>10</td>
-              <td><code>EXPIRADO</code></td>
-              <td>Expirado</td>
+              <td>21</td>
+              <td><code>NO_VIABLE_ANTECEDENTES_PREVIO</code> <span class="badge badge--red">TERMINAL</span></td>
+              <td>No Viable — Antecedentes (Previo)</td>
               <td>TERMINAL</td>
               <td>Sí</td>
-              <td>—</td>
+              <td>No</td>
             </tr>
             <tr>
-              <td>11</td>
-              <td><code>CANCELADO_CLIENTE</code></td>
-              <td>Cancelado por el Cliente</td>
+              <td>22</td>
+              <td><code>NO_VIABLE_ANTECEDENTES</code> <span class="badge badge--red">TERMINAL</span></td>
+              <td>No Viable — Antecedentes</td>
               <td>TERMINAL</td>
               <td>Sí</td>
-              <td>—</td>
-            </tr>
-            <tr>
-              <td>12</td>
-              <td><code>REVISION_FABRICA</code></td>
-              <td>En Revisión Fábrica</td>
-              <td>PROCESO</td>
-              <td>No</td>
               <td>No</td>
             </tr>
             <tr>
-              <td>13</td>
-              <td><code>BLOQUEADO_FRAUDE</code></td>
-              <td>Bloqueado por Fraude</td>
+              <td>23</td>
+              <td><code>NO_VIABLE_CENTRALES</code> <span class="badge badge--red">TERMINAL</span></td>
+              <td>No Viable — Centrales</td>
               <td>TERMINAL</td>
               <td>Sí</td>
-              <td>—</td>
+              <td>No</td>
             </tr>
             <tr>
-              <td>14</td>
-              <td><code>PENDIENTE_FOTOS</code> <span class="badge" style="background:#10b981;color:#fff;">v2.3</span></td>
-              <td>Pendiente de Fotografías</td>
-              <td>PROCESO</td>
-              <td>No</td>
+              <td>24</td>
+              <td><code>NO_APLICA_CUPO</code> <span class="badge badge--red">TERMINAL</span></td>
+              <td>No Aplica — Para Cupo</td>
+              <td>TERMINAL</td>
               <td>Sí</td>
+              <td>No</td>
             </tr>
             <tr>
-              <td>15</td>
-              <td><code>FOTOS_EN_REVISION</code> <span class="badge" style="background:#10b981;color:#fff;">v2.3</span></td>
-              <td>Fotos en Revisión</td>
-              <td>PROCESO</td>
-              <td>No</td>
+              <td>25</td>
+              <td><code>EXPIRADO</code> <span class="badge badge--red">TERMINAL</span></td>
+              <td>Expirada</td>
+              <td>TERMINAL</td>
+              <td>Sí</td>
               <td>No</td>
             </tr>
-          </tbody>
+            <tr>
+              <td>26</td>
+              <td><code>CANCELADO_CLIENTE</code> <span class="badge badge--red">TERMINAL</span></td>
+              <td>Cancelada por Cliente</td>
+              <td>TERMINAL</td>
+              <td>Sí</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>27</td>
+              <td><code>BLOQUEADO_FRAUDE</code> <span class="badge badge--red">TERMINAL</span></td>
+              <td>Bloqueado por Sospecha de Fraude</td>
+              <td>TERMINAL</td>
+              <td>Sí</td>
+              <td>No</td>
+            </tr>
+           </tbody>
         </table>
 
         <h3>Transiciones Válidas</h3>
