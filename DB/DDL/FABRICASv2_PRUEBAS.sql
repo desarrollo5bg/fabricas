@@ -13,10 +13,10 @@
   TABLAS EXTERNAS REPLICADAS LOCALMENTE:
   - dbo.terceros      (solo columnas necesarias para FK)
   - dbo.bodegas      (solo columnas necesarias para FK)
-  - dbo.BERP_FABRICASOperadores (copia completa)
   - dbo.KCRM_CadenaCreditos (solo columnas necesarias para ALTER TABLE)
-  
-  Las FKs ahora referencian tablas LOCALES en lugar de QUAC.dbo.*
+
+  NOTA: En v2.5+, BERP_FABRICASOperadores fue REEMPLAZADA por fab.OperadoresFabrica (GAP-19).
+  Las FKs ahora referencian fab.OperadoresFabrica en lugar de dbo.BERP_FABRICASOperadores.
 ================================================================================
 */
 
@@ -73,25 +73,7 @@ END
 
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- 0.3 BERP_FABRICASOperadores (REPLICA local para pruebas)
--- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'dbo.BERP_FABRICASOperadores') AND type in (N'U'))
-BEGIN
-    CREATE TABLE [dbo].[BERP_FABRICASOperadores] (
-        idOperadorFabrica INT IDENTITY(1,1) NOT NULL,
-        idTipoFabrica INT NULL,
-        usuario VARCHAR(100) NULL,
-        nit DECIMAL(18,0) NULL,
-        activo BIT NOT NULL DEFAULT 1,  -- Columna añadida por FÁBRICAS
-        
-        CONSTRAINT PK_BERP_FABRICASOperadores PRIMARY KEY (idOperadorFabrica)
-    );
-    PRINT '✓ Tabla dbo.BERP_FABRICASOperadores (réplica local) creada';
-END
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 0.4 KCRM_CadenaCreditos (REPLICA local para pruebas)
+-- 0.3 KCRM_CadenaCreditos (REPLICA local para pruebas)
 -- ─────────────────────────────────────────────────────────────────────────────
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'dbo.KCRM_CadenaCreditos') AND type in (N'U'))
 BEGIN
@@ -331,14 +313,6 @@ BEGIN
 END
 
 
--- 2.3 Modificar dbo.BERP_FABRICASOperadores (ya existe localmente)
-IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.BERP_FABRICASOperadores') AND name = 'Activo')
-BEGIN
-    ALTER TABLE [dbo].[BERP_FABRICASOperadores] ADD Activo BIT NOT NULL DEFAULT 1;
-    PRINT '✓ Columna Activo añadida a BERP_FABRICASOperadores';
-END
-
-
 -- ==============================================================================
 -- SECCIÓN 3: TABLAS TRANSACCIONALES
 -- ==============================================================================
@@ -356,7 +330,8 @@ BEGIN
         
         -- Referencias a entidades existentes (CON FK LOCALES)
         IdBodega               INT                 NULL,       -- FK a dbo.bodegas.id
-        IdAsesor               INT                 NULL,       -- FK a dbo.BERP_FABRICASOperadores.idOperadorFabrica
+        IdAsesor               INT                 NULL,       -- FK a fab.OperadoresFabrica.IdOperador (GAP-19)
+        NitAsesor              VARCHAR(20)         NULL,       -- CC inmutable del asesor (GAP-19)
         IdCanal                INT                 NULL,       -- FK a CatalogoCanalesOrigen
         
         -- Estado de la máquina de estados
@@ -419,8 +394,8 @@ BEGIN
         CONSTRAINT FK_EstudiosCredito_Tercero FOREIGN KEY (NitTercero) REFERENCES [fab].[TercerosFabricas](NitTercero),
         -- FK local a bodegas (en lugar de QUAC.dbo.bodegas)
         CONSTRAINT FK_EstudiosCredito_Bodega FOREIGN KEY (IdBodega) REFERENCES dbo.bodegas(id),
-        -- FK local a operadores (en lugar de QUAC.dbo.BERP_FABRICASOperadores)
-        CONSTRAINT FK_EstudiosCredito_Asesor FOREIGN KEY (IdAsesor) REFERENCES dbo.BERP_FABRICASOperadores(idOperadorFabrica),
+        -- FK a operadores propios (GAP-19: reemplaza BERP_FABRICASOperadores)
+        CONSTRAINT FK_EstudiosCredito_Asesor FOREIGN KEY (IdAsesor) REFERENCES [fab].[OperadoresFabrica](IdOperador),
         CONSTRAINT CK_EstudiosCredito_TipoCierre CHECK (TipoCierre IS NULL OR TipoCierre IN ('EXPRESS','NORMAL','FABRICA')),
         CONSTRAINT CK_EstudiosCredito_EstadoRevisionFotos CHECK (EstadoRevisionFotos IN ('PENDIENTE','EN_REVISION','APROBADO','CON_RECHAZOS'))
     );
@@ -953,7 +928,7 @@ IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'fab.Valid
 BEGIN
     CREATE TABLE [fab].[ValidacionesAsesor] (
         IdValidacion            BIGINT IDENTITY(1,1)    NOT NULL,
-        IdAsesor                INT                     NOT NULL,   -- FK → dbo.BERP_FABRICASOperadores
+        IdAsesor                INT                     NOT NULL,   -- FK → fab.OperadoresFabrica (GAP-19)
         CodigoAsesor            VARCHAR(20)             NOT NULL,
         IdBodega                INT                     NOT NULL,   -- FK → dbo.bodegas
         FechaValidacion         DATETIME2(3)            NOT NULL DEFAULT GETDATE(),
@@ -969,10 +944,10 @@ BEGIN
         CONSTRAINT CK_ValidacionesAsesor_Resultado CHECK (
             ResultadoValidacion IN ('EXITOSA', 'FALLIDA', 'ERROR_SERVICIO')
         ),
-        -- FK local al operador (en lugar de QUAC.dbo.BERP_FABRICASOperadores)
+        -- FK a operadores propios (GAP-19: reemplaza BERP_FABRICASOperadores)
         CONSTRAINT FK_ValidacionesAsesor_Asesor
             FOREIGN KEY (IdAsesor)
-            REFERENCES dbo.BERP_FABRICASOperadores (idOperadorFabrica)
+            REFERENCES [fab].[OperadoresFabrica] (IdOperador)
             ON UPDATE NO ACTION ON DELETE NO ACTION,
         -- FK local a la bodega (en lugar de QUAC.dbo.bodegas)
         CONSTRAINT FK_ValidacionesAsesor_Bodega

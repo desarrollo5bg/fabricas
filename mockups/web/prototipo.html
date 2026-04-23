@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QUAC — Prototipo Flujo Solicitud Crédito Web (preaprobado.quac.co)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --accent: #802EFF;
+  --accent-light: #F3EEFF;
+  --accent-hover: #6B1FE0;
+  --accent-dark: #4B1299;
+  --bg: #FFFFFF;
+  --bg-secondary: #F8F7FC;
+  --bg-phone: #FAF9FD;
+  --text-primary: #1A1A2E;
+  --text-secondary: #64648C;
+  --text-muted: #9D9DB8;
+  --border: #E8E5F0;
+  --border-strong: #D4CFE3;
+  --success: #22C55E;
+  --success-bg: #F0FDF4;
+  --error: #EF4444;
+  --error-bg: #FEF2F2;
+  --warning: #F59E0B;
+  --warning-bg: #FFFBEB;
+  --info: #3B82F6;
+  --info-bg: #EFF6FF;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 1px 3px rgba(0,0,0,.06);
+  --shadow-lg: 0 10px 40px rgba(80,30,200,.12);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  font-family: 'Nunito Sans', sans-serif;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+h1,h2,h3,h4,h5,h6 { font-family: 'Poppins', sans-serif; font-weight: 600; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+input, select, textarea { font-family: inherit; }
+
+/* ─── Layout general ─── */
+.app {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  min-height: 100vh;
+}
+
+/* ─── Sidebar (índice de pantallas) ─── */
+.sidebar {
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+  padding: 24px 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.sidebar-header {
+  padding: 0 24px 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.sidebar-brand-logo {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+}
+.sidebar-brand h1 {
+  font-size: 14px;
+  line-height: 1.2;
+}
+.sidebar-brand p {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.sidebar-badge {
+  display: inline-block;
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
+/* ─── Scenario selector ─── */
+.scenario-box {
+  margin: 0 18px 18px;
+  padding: 14px;
+  background: linear-gradient(135deg, #FFF7ED 0%, #FEF3C7 100%);
+  border: 1px solid #FCD34D;
+  border-radius: 12px;
+}
+.scenario-box h4 {
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  color: #92400E;
+  font-weight: 700;
+  margin-bottom: 4px;
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.scenario-box h4::before {
+  content: '⚡';
+  font-size: 12px;
+}
+.scenario-box p {
+  font-size: 10.5px;
+  color: #78350F;
+  font-weight: 600;
+  line-height: 1.35;
+  margin-bottom: 10px;
+}
+.scenario-opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #78350F;
+  transition: all .15s;
+  background: rgba(255,255,255,.5);
+  margin-bottom: 5px;
+  border: 1.5px solid transparent;
+}
+.scenario-opt:last-child { margin-bottom: 0; }
+.scenario-opt:hover { background: #fff; }
+.scenario-opt.active {
+  background: #fff;
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+.scenario-opt .radio {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 2px solid #D97706;
+  flex-shrink: 0;
+  margin-top: 2px;
+  position: relative;
+}
+.scenario-opt.active .radio { border-color: var(--accent); }
+.scenario-opt.active .radio::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+.scenario-opt strong {
+  display: block;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  font-size: 11.5px;
+  margin-bottom: 1px;
+}
+.scenario-opt span {
+  font-size: 10px;
+  color: #92400E;
+  line-height: 1.3;
+  font-weight: 600;
+}
+.scenario-opt.active span { color: var(--text-muted); }
+
+.sidebar-group {
+  margin-bottom: 18px;
+}
+.sidebar-group-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: var(--text-muted);
+  font-weight: 700;
+  padding: 0 24px 6px;
+  font-family: 'Poppins', sans-serif;
+}
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 24px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  border-left: 3px solid transparent;
+}
+.sidebar-item:hover {
+  background: var(--bg-secondary);
+  color: var(--accent);
+}
+.sidebar-item.active {
+  background: var(--accent-light);
+  color: var(--accent);
+  border-left-color: var(--accent);
+}
+.sidebar-item-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px; height: 20px;
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+  font-family: 'Poppins', sans-serif;
+}
+.sidebar-item.active .sidebar-item-num {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ─── Canvas (marco de celular) ─── */
+.canvas {
+  padding: 40px 24px 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.canvas-header {
+  max-width: 720px;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.canvas-header h2 {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+.canvas-header p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+.canvas-meta {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.canvas-meta .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+  font-family: 'Poppins', sans-serif;
+}
+.chip.phase { background: var(--accent-light); color: var(--accent); }
+.chip.state { background: var(--info-bg); color: var(--info); }
+.chip.canal { background: #FFF3E0; color: #D97706; }
+
+/* ─── Phone frame ─── */
+.phone {
+  width: 380px;
+  height: 780px;
+  background: #1a1a2e;
+  border-radius: 44px;
+  padding: 12px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  flex-shrink: 0;
+}
+.phone::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 26px;
+  background: #1a1a2e;
+  border-radius: 0 0 18px 18px;
+  z-index: 10;
+}
+.phone-screen {
+  width: 100%;
+  height: 100%;
+  background: var(--bg-phone);
+  border-radius: 32px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* ─── Botón flotante de ayuda (WhatsApp) ─── */
+.help-btn {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  background: var(--bg);
+  color: var(--text-primary);
+  padding: 7px 14px 7px 12px;
+  border-radius: 22px 0 0 22px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  box-shadow: -3px 3px 12px rgba(0,0,0,.08);
+  border: 1px solid var(--border);
+  border-right: none;
+  z-index: 20;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all .15s;
+}
+.help-btn:hover {
+  padding-right: 16px;
+  background: var(--bg-secondary);
+}
+.help-btn .wa-icon {
+  width: 18px;
+  height: 18px;
+  color: #25D366;
+  flex-shrink: 0;
+}
+.status-bar {
+  height: 38px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 28px 6px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+.status-bar-right {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+.screen-scroll {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.screen-scroll::-webkit-scrollbar { width: 3px; }
+.screen-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+/* ─── Top nav del screen ─── */
+.app-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 20px 4px;
+}
+.back-btn {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  background: transparent;
+}
+.back-btn:hover { background: var(--bg-secondary); }
+.app-top-logo {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--accent);
+  letter-spacing: -.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.app-top-logo img {
+  height: 26px;
+  width: auto;
+  display: block;
+}
+.progress-chip {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: var(--accent-light);
+  color: var(--accent);
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: .3px;
+}
+
+/* ─── Step progress bar ─── */
+.step-bar {
+  display: flex;
+  gap: 4px;
+  padding: 4px 20px 16px;
+}
+.step-bar .step-dot {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border);
+}
+.step-bar .step-dot.done { background: var(--accent); }
+.step-bar .step-dot.current {
+  background: var(--accent);
+  box-shadow: 0 0 0 2px rgba(128,46,255,.2);
+}
+
+/* ─── Screen body ─── */
+.screen-body {
+  padding: 4px 22px 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.screen-title {
+  font-size: 22px;
+  line-height: 1.2;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+.screen-subtitle {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+/* ─── Form ─── */
+.field {
+  margin-bottom: 14px;
+}
+.field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  font-family: 'Poppins', sans-serif;
+}
+.field .control {
+  width: 100%;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 600;
+  transition: all .15s;
+}
+.field .control:focus { outline: none; border-color: var(--accent); }
+.field .control::placeholder { color: var(--text-muted); font-weight: 500; }
+.field-row {
+  display: flex;
+  gap: 10px;
+}
+.field-row .field { flex: 1; }
+.doc-row {
+  display: flex;
+  gap: 8px;
+}
+.doc-row select {
+  flex: 0 0 90px;
+}
+.doc-row input { flex: 1; }
+
+/* ─── Bloque read-only del documento ─── */
+.doc-fixed {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+}
+.doc-fixed .doc-icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.doc-fixed .doc-info {
+  flex: 1;
+  min-width: 0;
+}
+.doc-fixed .doc-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  font-family: 'Poppins', sans-serif;
+  margin-bottom: 2px;
+}
+.doc-fixed .doc-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: .3px;
+}
+.doc-fixed .doc-lock {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* ─── Button ─── */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 15px 20px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  transition: all .15s;
+  letter-spacing: .2px;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-primary:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
+.btn-secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1.5px solid var(--border);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--accent);
+}
+.btn-link {
+  background: none;
+  color: var(--accent);
+  padding: 10px;
+  font-size: 13px;
+}
+
+.cta-stack {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 16px;
+}
+
+/* ─── Hero blocks ─── */
+.hero-illus {
+  width: 96px; height: 96px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, var(--accent-light) 0%, #E8DBFF 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 12px auto 20px;
+  color: var(--accent);
+}
+.hero-illus.success { background: linear-gradient(135deg, #DCFCE7 0%, #BBF7D0 100%); color: #16A34A; }
+.hero-illus.error { background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%); color: #DC2626; }
+.hero-illus.warning { background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); color: #D97706; }
+.hero-illus.info { background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%); color: #2563EB; }
+
+/* ─── Cards ─── */
+.card {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.card-accent {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  padding: 6px 0;
+}
+.card-row .label { color: var(--text-muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; }
+.card-row .value { color: var(--text-primary); font-weight: 700; font-family: 'Poppins', sans-serif; }
+
+.callout {
+  background: var(--info-bg);
+  border-left: 3px solid var(--info);
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+.callout.warn { background: var(--warning-bg); border-color: var(--warning); }
+.callout.error { background: var(--error-bg); border-color: var(--error); }
+.callout strong { color: var(--text-primary); font-family: 'Poppins', sans-serif; }
+
+/* ─── OTP inputs ─── */
+.otp-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 24px 0 20px;
+}
+.otp-cell {
+  width: 46px;
+  height: 56px;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  border-radius: 12px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: 'Poppins', sans-serif;
+}
+.otp-cell.filled { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+.otp-help {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.otp-help a { color: var(--accent); font-weight: 700; text-decoration: none; }
+
+/* ─── Checkbox rows ─── */
+.check-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 0;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+.check-row .box {
+  flex-shrink: 0;
+  width: 20px; height: 20px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 6px;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.check-row.checked .box { background: var(--accent); border-color: var(--accent); color: #fff; }
+.check-row a { color: var(--accent); font-weight: 700; text-decoration: underline; }
+
+/* ─── Loader / progress ─── */
+.loader-rings {
+  width: 120px;
+  height: 120px;
+  border: 6px solid var(--accent-light);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  margin: 20px auto;
+  animation: spin 1.1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.progress-list {
+  margin: 12px 0 20px;
+}
+.progress-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  border-bottom: 1px dashed var(--border);
+}
+.progress-item:last-child { border-bottom: none; }
+.progress-item .tick {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--success-bg);
+  color: var(--success);
+}
+.progress-item .tick.pending { background: var(--bg-secondary); color: var(--text-muted); }
+.progress-item .tick.loading { background: var(--accent-light); color: var(--accent); }
+.progress-item.done { color: var(--text-primary); }
+
+/* ─── Camera preview (prueba de vida / fotos doc) ─── */
+.camera-frame {
+  width: 100%;
+  aspect-ratio: 4/5;
+  background: #1A1A2E;
+  border-radius: 20px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.camera-frame .guide {
+  position: absolute;
+  inset: 24px 28px;
+  border: 2px dashed rgba(255,255,255,.45);
+  border-radius: 16px;
+}
+.camera-frame.selfie .guide {
+  border-radius: 50%;
+  inset: 40px 48px;
+}
+.camera-hint {
+  position: absolute;
+  bottom: 14px; left: 14px; right: 14px;
+  background: rgba(0,0,0,.5);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  backdrop-filter: blur(8px);
+}
+.shutter-row {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 10px;
+}
+.shutter {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 4px solid var(--bg);
+  box-shadow: 0 0 0 3px var(--accent);
+}
+
+/* ─── Estado/tareas (mi estudio) ─── */
+.status-card {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+  color: #fff;
+  padding: 20px;
+  border-radius: 18px;
+  margin-bottom: 14px;
+}
+.status-card h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .8px; opacity: .8; margin-bottom: 4px; font-weight: 700; }
+.status-card .big { font-size: 22px; font-weight: 700; font-family: 'Poppins', sans-serif; margin-bottom: 12px; }
+.status-card .meta { display: flex; gap: 12px; font-size: 11px; opacity: .85; }
+.status-card .phase-line {
+  margin-top: 14px;
+  display: flex;
+  gap: 4px;
+}
+.status-card .phase-dot {
+  flex: 1;
+  height: 4px;
+  background: rgba(255,255,255,.25);
+  border-radius: 4px;
+}
+.status-card .phase-dot.done { background: #fff; }
+.status-card .phase-dot.current { background: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,.4); }
+
+.task-card {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-left: 3px solid var(--warning);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.task-card .icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: var(--warning-bg);
+  color: var(--warning);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.task-card.done { border-left-color: var(--success); }
+.task-card.done .icon { background: var(--success-bg); color: var(--success); }
+.task-card h4 { font-size: 13px; margin-bottom: 2px; }
+.task-card p { font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+.task-card .chev { margin-left: auto; color: var(--text-muted); }
+
+/* ─── Resumen de cupo aprobado ─── */
+.cupo-card {
+  background: linear-gradient(135deg, #22C55E 0%, #15803D 100%);
+  color: #fff;
+  padding: 22px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.cupo-card::before {
+  content: '';
+  position: absolute;
+  right: -40px; top: -40px;
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.08);
+}
+.cupo-card .label { font-size: 11px; opacity: .85; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; }
+.cupo-card .amount { font-size: 34px; font-weight: 700; font-family: 'Poppins', sans-serif; margin: 6px 0 4px; letter-spacing: -.5px; }
+.cupo-card .foot { font-size: 12px; opacity: .9; font-weight: 600; }
+
+/* ─── Screen switcher ─── */
+.screen { display: none; }
+.screen.active { display: flex; flex-direction: column; height: 100%; }
+
+/* ─── Responsive ─── */
+@media (max-width: 960px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; }
+  .phone { transform: scale(.9); transform-origin: top center; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ═════ SIDEBAR ═════ -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-logo">Q</div>
+        <div>
+          <h1>Prototipo Web</h1>
+          <p>preaprobado.quac.co</p>
+        </div>
+      </div>
+      <span class="sidebar-badge">Canal web · Autogestión</span>
+    </div>
+
+    <div class="scenario-box">
+      <h4>Simulador de escenario</h4>
+      <p>Elige qué responde el backend cuando el cliente digite el documento en la pantalla 01.</p>
+      <div class="scenario-opt active" data-scenario="nuevo" onclick="setScenario('nuevo')">
+        <div class="radio"></div>
+        <div>
+          <strong>Primera vez</strong>
+          <span>Sin historia en QUAC, o tercero no consolidado → 05 (captura vacía)</span>
+        </div>
+      </div>
+      <div class="scenario-opt" data-scenario="conocido" onclick="setScenario('conocido')">
+        <div class="radio"></div>
+        <div>
+          <strong>Conocido con estudios cerrados</strong>
+          <span>Celular ya verificado antes → 03b → 04 → 05b pre-llenado</span>
+        </div>
+      </div>
+      <div class="scenario-opt" data-scenario="cooldown" onclick="setScenario('cooldown')">
+        <div class="radio"></div>
+        <div>
+          <strong>En cooldown (rechazo reciente)</strong>
+          <span>Último estudio no viable, debe esperar N días → 03b → 04 → 02b</span>
+        </div>
+      </div>
+      <div class="scenario-opt" data-scenario="activo" onclick="setScenario('activo')">
+        <div class="radio"></div>
+        <div>
+          <strong>Con estudio activo</strong>
+          <span>Mensaje genérico + OTP → 03 → 04 → 19 dashboard</span>
+        </div>
+      </div>
+      <div class="scenario-opt" data-scenario="cupo" onclick="setScenario('cupo')">
+        <div class="radio"></div>
+        <div>
+          <strong>Ya tiene cupo activo</strong>
+          <span>Cierre temprano → 02</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-title">F1 · Identificación</div>
+      <div class="sidebar-item active" data-screen="01"><span class="sidebar-item-num">01</span>Landing + documento</div>
+      <div class="sidebar-item" data-screen="02"><span class="sidebar-item-num">02</span>Ya tienes cupo</div>
+      <div class="sidebar-item" data-screen="02b"><span class="sidebar-item-num">02b</span>En cooldown (rechazo)</div>
+      <div class="sidebar-item" data-screen="03"><span class="sidebar-item-num">03</span>Estudio en curso</div>
+      <div class="sidebar-item" data-screen="03b"><span class="sidebar-item-num">03b</span>Verifica que eres tú (conocido)</div>
+      <div class="sidebar-item" data-screen="04"><span class="sidebar-item-num">04</span>OTP</div>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-title">F3 + F2 · Datos y consentimiento</div>
+      <div class="sidebar-item" data-screen="05"><span class="sidebar-item-num">05</span>Datos básicos</div>
+      <div class="sidebar-item" data-screen="05b"><span class="sidebar-item-num">05b</span>Confirmar datos (pre-llenado)</div>
+      <div class="sidebar-item" data-screen="06"><span class="sidebar-item-num">06</span>T&amp;C + OTP celular</div>
+      <div class="sidebar-item" data-screen="07"><span class="sidebar-item-num">07</span>F3b · Datos del documento</div>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-title">F4 · Estudio de crédito</div>
+      <div class="sidebar-item" data-screen="08"><span class="sidebar-item-num">08</span>Analizando solicitud</div>
+      <div class="sidebar-item" data-screen="09"><span class="sidebar-item-num">09</span>Rechazo (no viable)</div>
+      <div class="sidebar-item" data-screen="10"><span class="sidebar-item-num">10</span>Cupo preaprobado</div>
+      <div class="sidebar-item" data-screen="11"><span class="sidebar-item-num">11</span>Dirección</div>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-title">F5 · Identidad documental</div>
+      <div class="sidebar-item" data-screen="12"><span class="sidebar-item-num">12</span>Intro prueba de vida</div>
+      <div class="sidebar-item" data-screen="13"><span class="sidebar-item-num">13</span>Foto documento frontal</div>
+      <div class="sidebar-item" data-screen="14"><span class="sidebar-item-num">14</span>Foto documento posterior</div>
+      <div class="sidebar-item" data-screen="15"><span class="sidebar-item-num">15</span>Selfie (faceliveness)</div>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-title">F6 + F7 · UBICA y activación</div>
+      <div class="sidebar-item" data-screen="16"><span class="sidebar-item-num">16</span>Verificando identidad</div>
+      <div class="sidebar-item" data-screen="17"><span class="sidebar-item-num">17</span>Token al correo</div>
+      <div class="sidebar-item" data-screen="18"><span class="sidebar-item-num">18</span>Cupo activado</div>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-title">Portal · Estudio en curso</div>
+      <div class="sidebar-item" data-screen="19"><span class="sidebar-item-num">19</span>Mi estudio (dashboard)</div>
+      <div class="sidebar-item" data-screen="20"><span class="sidebar-item-num">20</span>Tarea pendiente (fábrica)</div>
+    </div>
+  </aside>
+
+  <!-- ═════ CANVAS ═════ -->
+  <main class="canvas">
+
+    <!-- ──────── SCREEN 01 · Landing + documento ──────── -->
+    <div class="canvas-header" data-head="01">
+      <h2>01 · Identificación del cliente</h2>
+      <p>Landing del portal. Pocas palabras, confianza y un único campo obligatorio: el documento. Aquí es donde el sistema decide si crea un estudio nuevo o envía a retomar uno existente.</p>
+      <div class="canvas-meta">
+        <span class="chip phase">Fase F1</span>
+        <span class="chip state">BORRADOR</span>
+        <span class="chip canal">Canal web</span>
+      </div>
+    </div>
+
+    <div class="phone">
+      <div class="phone-screen">
+
+        <!-- ═ Botón flotante de ayuda (aparece en todas las pantallas) ═ -->
+        <a class="help-btn" href="https://wa.me/573001234567" target="_blank" title="Habla con un asesor QUAC">
+          <svg class="wa-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.768.967-.94 1.164-.174.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+          </svg>
+          Ayuda
+        </a>
+
+        <!-- ── 01 ── -->
+        <div class="screen active" data-screen-body="01">
+          <div class="status-bar">
+            <span>9:41</span>
+            <div class="status-bar-right">
+              <svg width="15" height="10" viewBox="0 0 15 10" fill="currentColor"><path d="M1 5 Q7.5 0 14 5"/><circle cx="7.5" cy="8" r="1"/></svg>
+              <svg width="15" height="11" viewBox="0 0 15 11" fill="currentColor"><rect x="1" y="3" width="12" height="6" rx="1"/></svg>
+            </div>
+          </div>
+          <div class="app-top">
+            <div class="back-btn"></div>
+            <div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div>
+            <div></div>
+          </div>
+          <div class="screen-body">
+            <div class="hero-illus">
+              <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><circle cx="9" cy="12" r="2.5"/><path d="M14 10h5M14 14h5"/></svg>
+            </div>
+            <h1 class="screen-title">Estrena tu cupo QUAC</h1>
+            <p class="screen-subtitle">Solicítalo en pocos pasos desde tu celular. Vamos a empezar con tu documento de identidad.</p>
+
+            <div class="field">
+              <label>Tipo y número de documento</label>
+              <div class="doc-row">
+                <select class="control"><option>C.C.</option><option>C.E.</option><option>PPT</option></select>
+                <input class="control" placeholder="1.023.456.789" value="1.023.456.789">
+              </div>
+            </div>
+
+            <div class="callout">
+              Tu información está protegida. Solo la usamos para validar tu identidad y hacer el estudio de crédito.
+            </div>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary" onclick="continuarDesdeIdentificacion()">Continuar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 02 · Ya tiene cupo ── -->
+        <div class="screen" data-screen-body="02">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top"><div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><div></div></div>
+          <div class="screen-body">
+            <div class="hero-illus success">
+              <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+            </div>
+            <h1 class="screen-title">¡Ya tienes un cupo QUAC activo!</h1>
+            <p class="screen-subtitle">No es necesario abrir un estudio nuevo. Entra a tu cuenta para ver tu saldo y usarlo en las tiendas aliadas.</p>
+
+            <div class="card">
+              <div class="card-row"><span class="label">Documento</span><span class="value">CC 1.023.***.789</span></div>
+              <div class="card-row"><span class="label">Estado del cupo</span><span class="value" style="color: var(--success)">● Activo</span></div>
+            </div>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary">Entrar a mi cuenta</button>
+              <button class="btn btn-ghost">Tengo otra duda</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 02b · En cooldown por rechazo reciente (post-OTP, terminal) ── -->
+        <div class="screen" data-screen-body="02b">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top"><div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><div></div></div>
+          <div class="screen-body">
+            <div class="hero-illus warning">
+              <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            </div>
+            <h1 class="screen-title">Vuelve más adelante</h1>
+            <p class="screen-subtitle">Tu última solicitud no fue aprobada. Por políticas de QUAC debes esperar un tiempo antes de hacer una nueva.</p>
+
+            <div class="card card-accent">
+              <div class="card-row"><span class="label">Última solicitud</span><span class="value">08 abr 2026</span></div>
+              <div class="card-row"><span class="label">Podrás volver a intentar</span><span class="value" style="color: var(--accent)">07 jul 2026</span></div>
+              <div class="card-row"><span class="label">Faltan</span><span class="value">89 días</span></div>
+            </div>
+
+            <div class="callout">
+              Te enviaremos un SMS cuando puedas volver a solicitar tu cupo. No necesitas hacer nada más por ahora.
+            </div>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary">Entendido</button>
+              <button class="btn btn-link">Hablar con un asesor</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 03 · Ya tiene estudio en curso ── -->
+        <div class="screen" data-screen-body="03">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top"><div class="back-btn" onclick="go('01')">←</div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><div></div></div>
+          <div class="screen-body">
+            <div class="hero-illus info">
+              <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            </div>
+            <h1 class="screen-title">Tienes un estudio activo</h1>
+            <p class="screen-subtitle">Para continuar necesitamos verificar que eres tú. Te enviaremos un código al celular que registraste.</p>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary" onclick="go('04')">Enviar código</button>
+              <button class="btn btn-link">No soy yo · Contactar soporte</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 03b · Verifica que eres tú (cliente conocido sin estudio activo) ── -->
+        <div class="screen" data-screen-body="03b">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top"><div class="back-btn" onclick="go('01')">←</div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><div></div></div>
+          <div class="screen-body">
+            <div class="hero-illus info">
+              <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+            </div>
+            <h1 class="screen-title">Verifica que eres tú</h1>
+            <p class="screen-subtitle">Tenemos información tuya de antes en QUAC. Te enviaremos un código al celular que tenemos registrado para confirmar que eres tú.</p>
+
+            <div class="callout">
+              Es un paso rápido para proteger tu información. No podemos mostrarte detalles de tu historia sin verificar tu identidad.
+            </div>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary" onclick="go('04')">Enviar código</button>
+              <button class="btn btn-link">No soy yo · Contactar soporte</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 04 · OTP retomar ── -->
+        <div class="screen" data-screen-body="04">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top"><div class="back-btn" onclick="go('03')">←</div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><div></div></div>
+          <div class="screen-body">
+            <h1 class="screen-title">Verifica que eres tú</h1>
+            <p class="screen-subtitle">Enviamos un código de 6 dígitos al celular que registraste. Escríbelo aquí para continuar.</p>
+
+            <div class="otp-row">
+              <input class="otp-cell filled" value="4" maxlength="1">
+              <input class="otp-cell filled" value="2" maxlength="1">
+              <input class="otp-cell filled" value="9" maxlength="1">
+              <input class="otp-cell filled" value="1" maxlength="1">
+              <input class="otp-cell" maxlength="1">
+              <input class="otp-cell" maxlength="1">
+            </div>
+
+            <div class="otp-help">El código expira en <strong style="color:var(--text-primary)">04:32</strong></div>
+            <div class="otp-help"><a href="#">Reenviar por SMS</a> · <a href="#">Enviar por WhatsApp</a></div>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary" onclick="continuarDespuesOtp()">Validar código</button>
+              <button class="btn btn-link">¿Ya no tengo acceso a este número?</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 05 · Datos básicos ── -->
+        <div class="screen" data-screen-body="05">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top">
+            <div class="back-btn" onclick="go('01')">←</div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div>
+            <span class="progress-chip">1 / 6</span>
+          </div>
+          <div class="step-bar">
+            <div class="step-dot current"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div>
+          </div>
+          <div class="screen-body">
+            <h1 class="screen-title">Cuéntanos quién eres</h1>
+            <p class="screen-subtitle">Por favor, ingresa tus datos de contacto para continuar con la solicitud.</p>
+
+            <div class="field-row">
+              <div class="field"><label>Nombres</label><input class="control" placeholder="Ej. Laura" value="Laura"></div>
+              <div class="field"><label>Apellidos</label><input class="control" placeholder="Ej. Rodríguez" value="Rodríguez"></div>
+            </div>
+            <div class="field"><label>Correo electrónico</label><input class="control" type="email" placeholder="tucorreo@gmail.com" value="laura.r@gmail.com"></div>
+            <div class="field"><label>Celular</label><input class="control" placeholder="300 123 45 67" value="310 784 12 98"></div>
+
+            <div class="callout">
+              Vamos a enviarte un código por SMS a este número para firmar los términos. Asegúrate de tenerlo a la mano.
+            </div>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary" onclick="go('06')">Continuar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 05b · Confirmar datos pre-llenados (cliente conocido post-OTP) ── -->
+        <div class="screen" data-screen-body="05b">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top">
+            <div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div>
+            <span class="progress-chip">1 / 6</span>
+          </div>
+          <div class="step-bar">
+            <div class="step-dot current"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div>
+          </div>
+          <div class="screen-body">
+            <h1 class="screen-title">Confirma tus datos</h1>
+            <p class="screen-subtitle">Ya te teníamos registrado. Revisa que tu información siga correcta y actualiza lo que haya cambiado.</p>
+
+            <div class="callout" style="background: var(--success-bg); border-left-color: var(--success); color: var(--text-secondary)">
+              <strong style="color: var(--success)">Datos verificados</strong> — Estos datos vienen de tu última solicitud en QUAC. Si alguno cambió, edítalo ahora.
+            </div>
+
+            <div class="field-row">
+              <div class="field"><label>Nombres</label><input class="control" value="Laura"></div>
+              <div class="field"><label>Apellidos</label><input class="control" value="Rodríguez"></div>
+            </div>
+            <div class="field"><label>Correo electrónico</label><input class="control" type="email" value="laura.r@gmail.com"></div>
+            <div class="field"><label>Celular</label><input class="control" value="310 784 12 98"></div>
+
+            <div class="callout">
+              Si cambiaste el celular, al continuar enviaremos un nuevo código para verificarlo. Es la única forma de proteger tu cuenta.
+            </div>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary" onclick="go('06')">Continuar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 06 · T&C + OTP celular (F2) ── -->
+        <div class="screen" data-screen-body="06">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top">
+            <div class="back-btn" onclick="go('05')">←</div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div>
+            <span class="progress-chip">2 / 6</span>
+          </div>
+          <div class="step-bar">
+            <div class="step-dot done"></div><div class="step-dot current"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div>
+          </div>
+          <div class="screen-body">
+            <h1 class="screen-title">Autorizaciones</h1>
+            <p class="screen-subtitle">Necesitamos tu visto bueno antes de consultar tu información en centrales de riesgo. Tu código por SMS funciona como firma.</p>
+
+            <div class="check-row checked">
+              <div class="box">✓</div>
+              <div>Acepto los <a href="#">Términos y condiciones</a> del crédito QUAC.</div>
+            </div>
+            <div class="check-row checked">
+              <div class="box">✓</div>
+              <div>Acepto la <a href="#">Política de tratamiento de datos</a>.</div>
+            </div>
+            <div class="check-row checked">
+              <div class="box">✓</div>
+              <div>Autorizo a QUAC a consultar mi información en centrales de riesgo y sistemas de verificación.</div>
+            </div>
+
+            <div style="border-top:1px dashed var(--border); margin:16px 0 10px"></div>
+
+            <div class="field">
+              <label>Código recibido en *** *** 12 98</label>
+              <div class="otp-row" style="margin: 10px 0 6px">
+                <input class="otp-cell filled" value="8">
+                <input class="otp-cell filled" value="3">
+                <input class="otp-cell filled" value="5">
+                <input class="otp-cell" value="">
+                <input class="otp-cell" value="">
+                <input class="otp-cell" value="">
+              </div>
+              <div class="otp-help"><a href="#">Reenviar código</a> · <strong style="color:var(--text-primary)">04:48</strong></div>
+            </div>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary" onclick="go('07')">Firmar y continuar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 07 · F3b datos del documento ── -->
+        <div class="screen" data-screen-body="07">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top">
+            <div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div>
+            <span class="progress-chip">3 / 6</span>
+          </div>
+          <div class="step-bar">
+            <div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot current"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div>
+          </div>
+          <div class="screen-body">
+            <h1 class="screen-title">Confirma los datos de tu documento</h1>
+            <p class="screen-subtitle">Estos son los últimos datos básicos. En un momento vamos a comparar contra la foto que nos vas a tomar.</p>
+
+            <div class="doc-fixed">
+              <div class="doc-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><circle cx="9" cy="12" r="2.5"/><path d="M14 10h5M14 14h5"/></svg>
+              </div>
+              <div class="doc-info">
+                <div class="doc-label">Cédula de ciudadanía</div>
+                <div class="doc-value">1023456789</div>
+              </div>
+              <div class="doc-lock" title="Dato confirmado al identificarte">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Fecha de expedición</label>
+              <input class="control" type="date" value="2012-09-03">
+            </div>
+            <div class="field">
+              <label>Género</label>
+              <select class="control"><option>Femenino</option><option>Masculino</option><option>Otro</option></select>
+            </div>
+            <div class="field">
+              <label>Fecha de nacimiento</label>
+              <input class="control" type="date" value="1994-08-17">
+            </div>
+            <div class="field">
+              <label>Ciudad de nacimiento</label>
+              <input class="control" value="Bogotá">
+            </div>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary" onclick="go('08')">Continuar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 08 · Analizando (F4 loader) ── -->
+        <div class="screen" data-screen-body="08">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top"><div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><div></div></div>
+          <div class="screen-body" style="text-align:center">
+            <div class="loader-rings"></div>
+            <h1 class="screen-title">Estamos estudiando tu solicitud</h1>
+            <p class="screen-subtitle">Esto suele tardar menos de un minuto. No cierres esta pantalla, Laura.</p>
+
+            <div class="progress-list" style="text-align:left">
+              <div class="progress-item done"><div class="tick">✓</div>Consultando antecedentes</div>
+              <div class="progress-item done"><div class="tick">✓</div>Validando viabilidad (Preselecta)</div>
+              <div class="progress-item"><div class="tick loading">●</div>Calculando tu cupo preaprobado</div>
+              <div class="progress-item"><div class="tick pending">○</div>Preparando verificación de identidad</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 09 · Rechazo ── -->
+        <div class="screen" data-screen-body="09">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top"><div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><div></div></div>
+          <div class="screen-body">
+            <div class="hero-illus error">
+              <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+            </div>
+            <h1 class="screen-title">Por ahora no podemos aprobarte</h1>
+            <p class="screen-subtitle">No cumples los criterios actuales de QUAC. Esto puede cambiar con el tiempo, vuelve a intentarlo más adelante.</p>
+
+            <div class="card">
+              <div class="card-row"><span class="label">Estudio</span><span class="value">#EST-2026-00873</span></div>
+              <div class="card-row"><span class="label">Estado</span><span class="value" style="color:var(--error)">Cerrado · No viable</span></div>
+              <div class="card-row"><span class="label">Fecha</span><span class="value">09 abr 2026</span></div>
+            </div>
+
+            <div class="callout">
+              Te enviamos el resumen a <strong>laura.r@gmail.com</strong>. Si tienes dudas, escríbenos por WhatsApp.
+            </div>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary">Entendido</button>
+              <button class="btn btn-link">Hablar con un asesor</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 10 · Cupo preaprobado ── -->
+        <div class="screen" data-screen-body="10">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top"><div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><span class="progress-chip">4 / 6</span></div>
+          <div class="step-bar">
+            <div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot current"></div><div class="step-dot"></div><div class="step-dot"></div>
+          </div>
+          <div class="screen-body">
+            <h1 class="screen-title">¡Tienes un cupo preaprobado! 🎉</h1>
+            <p class="screen-subtitle">Solo faltan los pasos de verificación de identidad para activarlo.</p>
+
+            <div class="cupo-card">
+              <div class="label">Cupo preaprobado</div>
+              <div class="amount">$ 1.200.000</div>
+              <div class="foot">Sujeto a verificación de identidad</div>
+            </div>
+
+            <div class="card">
+              <div class="card-row"><span class="label">Pago mínimo estimado</span><span class="value">$ 78.000 / quincena</span></div>
+              <div class="card-row"><span class="label">Plazo máximo</span><span class="value">12 quincenas</span></div>
+            </div>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary" onclick="go('11')">Continuar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 11 · Dirección ── -->
+        <div class="screen" data-screen-body="11">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top"><div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><span class="progress-chip">4 / 6</span></div>
+          <div class="step-bar">
+            <div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot current"></div><div class="step-dot"></div><div class="step-dot"></div>
+          </div>
+          <div class="screen-body">
+            <h1 class="screen-title">¿Dónde vives?</h1>
+            <p class="screen-subtitle">Usamos tu dirección solo para el registro del crédito. Nadie va a tocarte la puerta.</p>
+
+            <div class="field">
+              <label>Ciudad</label>
+              <select class="control"><option>Bogotá D.C.</option><option>Medellín</option><option>Cali</option></select>
+            </div>
+            <div class="field">
+              <label>Dirección</label>
+              <input class="control" placeholder="Ej. Cra 9 # 123-45 apto 502" value="Cra 9 # 123-45 apto 502">
+            </div>
+            <div class="field">
+              <label>Barrio</label>
+              <input class="control" placeholder="Ej. Chicó" value="Chicó">
+            </div>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary" onclick="go('12')">Continuar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 12 · Intro prueba de vida ── -->
+        <div class="screen" data-screen-body="12">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top"><div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><span class="progress-chip">5 / 6</span></div>
+          <div class="step-bar">
+            <div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot current"></div><div class="step-dot"></div>
+          </div>
+          <div class="screen-body">
+            <div class="hero-illus">
+              <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="3"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 7l1.5-2h5L16 7"/></svg>
+            </div>
+            <h1 class="screen-title">Verifiquemos que eres tú</h1>
+            <p class="screen-subtitle">Necesitamos dos fotos de tu cédula y una selfie. Te guiamos en cada paso y no toma más de 2 minutos.</p>
+
+            <div class="progress-list" style="text-align:left">
+              <div class="progress-item"><div class="tick pending">1</div>Foto frontal de tu cédula</div>
+              <div class="progress-item"><div class="tick pending">2</div>Foto posterior de tu cédula</div>
+              <div class="progress-item"><div class="tick pending">3</div>Selfie con movimiento</div>
+            </div>
+
+            <div class="callout">
+              <strong>Tip</strong> — Busca un lugar bien iluminado y ten tu cédula a la mano.
+            </div>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary" onclick="go('13')">Estoy listo</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 13 · Foto frontal ── -->
+        <div class="screen" data-screen-body="13">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top"><div class="back-btn" onclick="go('12')">←</div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><span class="progress-chip">1 / 3</span></div>
+          <div class="screen-body">
+            <h1 class="screen-title" style="font-size:18px">Foto frontal de tu cédula</h1>
+            <p class="screen-subtitle" style="margin-bottom:12px">Encuadra tu cédula dentro del marco. Evita reflejos y sombras.</p>
+
+            <div class="camera-frame">
+              <div class="guide"></div>
+              <div class="camera-hint">Centra la cédula dentro del marco</div>
+            </div>
+
+            <div class="shutter-row">
+              <button class="btn btn-secondary" style="width:auto">Galería</button>
+              <div class="shutter"></div>
+              <button class="btn btn-ghost" style="width:auto">Girar</button>
+            </div>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary" onclick="go('14')">Usar esta foto</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 14 · Foto posterior ── -->
+        <div class="screen" data-screen-body="14">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top"><div class="back-btn" onclick="go('13')">←</div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><span class="progress-chip">2 / 3</span></div>
+          <div class="screen-body">
+            <h1 class="screen-title" style="font-size:18px">Ahora la parte de atrás</h1>
+            <p class="screen-subtitle" style="margin-bottom:12px">Voltea tu cédula y toma otra foto enfocada.</p>
+
+            <div class="camera-frame">
+              <div class="guide"></div>
+              <div class="camera-hint">Voltea la cédula y vuelve a encuadrar</div>
+            </div>
+
+            <div class="shutter-row">
+              <button class="btn btn-secondary" style="width:auto">Galería</button>
+              <div class="shutter"></div>
+              <button class="btn btn-ghost" style="width:auto">Girar</button>
+            </div>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary" onclick="go('15')">Usar esta foto</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 15 · Selfie ── -->
+        <div class="screen" data-screen-body="15">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top"><div class="back-btn" onclick="go('14')">←</div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><span class="progress-chip">3 / 3</span></div>
+          <div class="screen-body">
+            <h1 class="screen-title" style="font-size:18px">Selfie con movimiento</h1>
+            <p class="screen-subtitle" style="margin-bottom:12px">Sigue las instrucciones en pantalla. Es rápido y seguro.</p>
+
+            <div class="camera-frame selfie">
+              <div class="guide"></div>
+              <div class="camera-hint">Centra tu rostro y sigue la guía</div>
+            </div>
+
+            <div class="callout">
+              <strong>Instrucción actual</strong> — Mira al frente, luego gira lentamente la cabeza a la derecha.
+            </div>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary" onclick="go('16')">Iniciar verificación</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 16 · UBICA verificando ── -->
+        <div class="screen" data-screen-body="16">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top"><div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><span class="progress-chip">5 / 6</span></div>
+          <div class="screen-body" style="text-align:center">
+            <div class="loader-rings"></div>
+            <h1 class="screen-title">Verificando tu identidad</h1>
+            <p class="screen-subtitle">Esto toma solo unos segundos. No cierres la aplicación.</p>
+
+            <div class="progress-list" style="text-align:left">
+              <div class="progress-item done"><div class="tick">✓</div>Foto frontal validada</div>
+              <div class="progress-item done"><div class="tick">✓</div>Foto posterior validada</div>
+              <div class="progress-item done"><div class="tick">✓</div>Selfie · coincidencia 96%</div>
+              <div class="progress-item"><div class="tick loading">●</div>Confirmando tus datos de contacto</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 17 · Token correo ── -->
+        <div class="screen" data-screen-body="17">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top"><div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><span class="progress-chip">6 / 6</span></div>
+          <div class="step-bar">
+            <div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot current"></div>
+          </div>
+          <div class="screen-body">
+            <div class="hero-illus">
+              <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 7 9-7"/></svg>
+            </div>
+            <h1 class="screen-title">Confirma tu correo</h1>
+            <p class="screen-subtitle">Enviamos un código a <strong>laura.r@gmail.com</strong>. Este es el último paso.</p>
+
+            <div class="otp-row">
+              <input class="otp-cell filled" value="7">
+              <input class="otp-cell filled" value="2">
+              <input class="otp-cell filled" value="4">
+              <input class="otp-cell filled" value="1">
+              <input class="otp-cell" value="">
+              <input class="otp-cell" value="">
+            </div>
+
+            <div class="otp-help"><a href="#">Reenviar código</a> · <strong style="color:var(--text-primary)">03:12</strong></div>
+            <div class="otp-help"><a href="#">¿No llegó? Cambiar correo</a></div>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary" onclick="go('18')">Activar mi cupo</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 18 · Cupo activado ── -->
+        <div class="screen" data-screen-body="18">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top"><div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><div></div></div>
+          <div class="screen-body">
+            <div class="hero-illus success">
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+            </div>
+            <h1 class="screen-title">¡Listo, Laura! Tu cupo está activo 🎉</h1>
+            <p class="screen-subtitle">Ya puedes usarlo en cualquiera de nuestras tiendas aliadas. Bienvenida a QUAC.</p>
+
+            <div class="cupo-card">
+              <div class="label">Tu cupo disponible</div>
+              <div class="amount">$ 1.200.000</div>
+              <div class="foot">Válido desde hoy, 09 abr 2026</div>
+            </div>
+
+            <div class="card">
+              <div class="card-row"><span class="label">Estudio</span><span class="value">#EST-2026-00873</span></div>
+              <div class="card-row"><span class="label">Estado</span><span class="value" style="color:var(--success)">Cerrado exitoso</span></div>
+              <div class="card-row"><span class="label">Activado en</span><span class="value">~ 6 minutos</span></div>
+            </div>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary">Entrar a mi cuenta</button>
+              <button class="btn btn-ghost">Ver tiendas aliadas</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 19 · Mi estudio (dashboard retomar) ── -->
+        <div class="screen" data-screen-body="19">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top">
+            <div></div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div>
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Poppins';font-weight:700;font-size:12px">LR</div>
+          </div>
+          <div class="screen-body">
+            <h1 class="screen-title" style="font-size:18px">Hola, Laura 👋</h1>
+            <p class="screen-subtitle" style="margin-bottom:14px">Estás a mitad de camino. Retomamos donde quedaste.</p>
+
+            <div class="status-card">
+              <h3>Estudio en curso</h3>
+              <div class="big">F5 · Identidad documental</div>
+              <div class="meta">
+                <span>#EST-2026-00873</span>
+                <span>·</span>
+                <span>Inició 05 abr</span>
+              </div>
+              <div class="phase-line">
+                <div class="phase-dot done" title="F1"></div>
+                <div class="phase-dot done" title="F2"></div>
+                <div class="phase-dot done" title="F3"></div>
+                <div class="phase-dot done" title="F4"></div>
+                <div class="phase-dot current" title="F5"></div>
+                <div class="phase-dot" title="F6"></div>
+                <div class="phase-dot" title="F7"></div>
+              </div>
+            </div>
+
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);margin:14px 0 6px;font-family:'Poppins'">Pendiente por ti</div>
+
+            <div class="task-card" onclick="go('20')">
+              <div class="icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/></svg>
+              </div>
+              <div>
+                <h4>Vuelve a subir la foto frontal de tu cédula</h4>
+                <p>Nuestro equipo revisó la foto y no se ve bien. Te toma 1 minuto.</p>
+              </div>
+              <div class="chev">›</div>
+            </div>
+
+            <div class="task-card done">
+              <div class="icon">✓</div>
+              <div>
+                <h4>Firmaste los términos</h4>
+                <p>Completado el 05 abr</p>
+              </div>
+            </div>
+
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);margin:18px 0 6px;font-family:'Poppins'">Historial</div>
+
+            <div class="card">
+              <div class="card-row"><span class="label">Estudio anterior</span><span class="value">#EST-2025-09421</span></div>
+              <div class="card-row"><span class="label">Estado</span><span class="value" style="color:var(--text-muted)">Abandono · 2025-10-14</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 20 · Tarea pendiente ── -->
+        <div class="screen" data-screen-body="20">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-top"><div class="back-btn" onclick="go('19')">←</div><div class="app-top-logo"><img src="assets/logo-quac-morado.svg" alt="QUAC"></div><div></div></div>
+          <div class="screen-body">
+            <div class="callout warn">
+              <strong>Equipo QUAC</strong> — Revisamos tu foto y no podemos leer bien los datos. Por favor vuelve a tomarla en un lugar con buena luz y sin reflejos.
+            </div>
+
+            <h1 class="screen-title" style="font-size:18px">Vuelve a subir tu foto frontal</h1>
+            <p class="screen-subtitle" style="margin-bottom:12px">Tu estudio se queda en pausa hasta que resuelvas este pendiente.</p>
+
+            <div class="card">
+              <div class="card-row"><span class="label">Foto anterior</span><span class="value" style="color:var(--error)">Rechazada</span></div>
+              <div class="card-row"><span class="label">Motivo</span><span class="value" style="font-size:11px">Texto ilegible</span></div>
+              <div class="card-row"><span class="label">Solicitado por</span><span class="value">Fábrica de créditos</span></div>
+              <div class="card-row"><span class="label">Hace</span><span class="value">2 horas</span></div>
+            </div>
+
+            <div class="camera-frame" style="aspect-ratio:4/3">
+              <div class="guide"></div>
+              <div class="camera-hint">Toca para abrir la cámara</div>
+            </div>
+
+            <div class="cta-stack">
+              <button class="btn btn-primary" onclick="go('13')">Tomar nueva foto</button>
+              <button class="btn btn-ghost">Subir desde galería</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ─── Navegación entre pantallas ───
+const items = document.querySelectorAll('.sidebar-item');
+const screens = document.querySelectorAll('.screen');
+const canvasHeader = document.querySelector('.canvas-header');
+
+const headerMap = {
+  '01': { title: '01 · Identificación del cliente', desc: 'Landing del portal. Pocas palabras, confianza y un único campo obligatorio: el documento. Aquí es donde el sistema decide si crea un estudio nuevo o envía a retomar uno existente.', phase: 'Fase F1', state: 'BORRADOR' },
+  '02': { title: '02 · El cliente ya tiene cupo activo', desc: 'Cierre temprano. El sistema detecta que el documento ya está asociado a un cupo y lo redirige al portal del cliente.', phase: 'Fase F1', state: 'NO APLICA' },
+  '02b': { title: '02b · En cooldown por rechazo reciente', desc: 'Terminal post-OTP. El cliente tuvo un estudio no viable recientemente y debe esperar N días antes de volver a solicitar. Esta pantalla expone PII (fecha del último rechazo + fecha de re-habilitación), por eso solo se muestra después de validar OTP.', phase: 'Fase F1', state: 'CERRADO · cooldown' },
+  '03': { title: '03 · Tiene un estudio en curso', desc: 'Regla de unicidad en acción. Mensaje genérico sin filtrar PII. Para continuar, OTP obligatorio.', phase: 'Fase F1', state: 'EN_PAUSA' },
+  '03b': { title: '03b · Puerta de verificación (cliente conocido)', desc: 'Mensaje neutro que sirve para 2 casos: (a) conocido con estudios cerrados fuera de cooldown, y (b) en cooldown por rechazo reciente. No revela cuál es la situación hasta después del OTP. Protege PII desde la entrada.', phase: 'Fase F1', state: 'BORRADOR' },
+  '04': { title: '04 · OTP', desc: 'Única forma de autenticarse en el canal web. Tras validar, el destino depende del escenario: activo → dashboard (19); conocido → datos pre-llenados (05b); cooldown → pantalla terminal con fecha de re-habilitación (02b).', phase: 'Fase F1', state: 'BORRADOR' },
+  '05': { title: '05 · Captura mínima de datos', desc: 'F3 reducido del canal web. Solo nombres, apellidos, correo y celular. Los datos del documento se difieren a F3b.', phase: 'Fase F3', state: 'BORRADOR' },
+  '05b': { title: '05b · Confirmar datos (cliente conocido)', desc: 'Variante de 05 para clientes conocidos. Viene post-OTP con los datos del tercero pre-llenados. Si el cliente cambió el celular, se envía un nuevo OTP en F2 (pantalla 06).', phase: 'Fase F3', state: 'BORRADOR' },
+  '06': { title: '06 · Consentimiento legal + OTP celular', desc: 'F2 del canal web. Aceptación de T&C + PTD, firmados electrónicamente con el código SMS.', phase: 'Fase F2', state: 'ACTIVO' },
+  '07': { title: '07 · Confirmación de datos del documento (F3b)', desc: 'Pantalla exclusiva del canal web. Captura los campos que tienda pide al inicio pero que en web se difieren para reducir fricción.', phase: 'Fase F3', state: 'ACTIVO' },
+  '08': { title: '08 · Analizando tu solicitud (F4)', desc: 'Loader que muestra las consultas automáticas: antecedentes, Preselecta, FOSYGA y cálculo de cupo. Sin intervención humana.', phase: 'Fase F4', state: 'ACTIVO' },
+  '09': { title: '09 · Cierre no exitoso', desc: 'El motor de decisión rechazó. Mensaje honesto, sin fricción adicional, con salida a canal de soporte.', phase: 'Fase F4', state: 'CERRADO_NO_EXITOSO' },
+  '10': { title: '10 · Cupo preaprobado', desc: 'Resultado positivo de F4. Muestra el cupo calculado con advertencia de que falta verificar identidad.', phase: 'Fase F4', state: 'ACTIVO' },
+  '11': { title: '11 · Dirección de residencia', desc: 'Último dato del tercero. Lo pedimos después del preaprobado porque sirve como motivador para que el cliente continúe.', phase: 'Fase F3', state: 'ACTIVO' },
+  '12': { title: '12 · Intro a prueba de vida', desc: 'Antes de abrir la cámara, explicamos los 3 pasos (frontal, posterior, selfie) y damos tips.', phase: 'Fase F5', state: 'ACTIVO' },
+  '13': { title: '13 · Cámara · foto frontal', desc: 'Apertura de cámara con guía visual. Primera foto del documento.', phase: 'Fase F5', state: 'ACTIVO' },
+  '14': { title: '14 · Cámara · foto posterior', desc: 'Segunda foto del documento. Mismo patrón visual que la frontal.', phase: 'Fase F5', state: 'ACTIVO' },
+  '15': { title: '15 · Selfie con faceliveness', desc: 'Marco circular, instrucciones dinámicas. Esta foto se compara contra la frontal (match ≥ 85%).', phase: 'Fase F5', state: 'ACTIVO' },
+  '16': { title: '16 · Verificación automática', desc: 'Loader de F5→F6. Muestra el match documental y la consulta UBICA. Si algo falla acá, el estudio pasa a EN_REVISIÓN (fábrica).', phase: 'Fase F6', state: 'ACTIVO' },
+  '17': { title: '17 · Token al correo (F7)', desc: 'Último paso. El celular ya se tokenizó en F2, solo falta el correo para activar el cupo.', phase: 'Fase F7', state: 'ACTIVO' },
+  '18': { title: '18 · Cupo activado · Cierre exitoso', desc: 'Estado final CERRADO_EXITOSO. Celebración, monto visible y CTA al portal del cliente.', phase: 'Fase F7', state: 'CERRADO_EXITOSO' },
+  '19': { title: '19 · Dashboard · Mi estudio en curso', desc: 'Lo que ve un cliente que ya autenticó con OTP y tiene un estudio EN_PAUSA o EN_REVISIÓN. Muestra la fase actual, tareas pendientes e historial.', phase: 'Portal', state: 'EN_PAUSA' },
+  '20': { title: '20 · Tarea pendiente de fábrica', desc: 'La fábrica rechazó una foto. El portal muestra el motivo, permite tomar de nuevo y desbloquea el avance del estudio.', phase: 'Portal', state: 'EN_REVISIÓN' }
+};
+
+function go(screenId) {
+  // Activar item
+  items.forEach(i => i.classList.toggle('active', i.dataset.screen === screenId));
+  // Activar pantalla
+  screens.forEach(s => s.classList.toggle('active', s.dataset.screenBody === screenId));
+  // Actualizar header
+  const info = headerMap[screenId];
+  if (info) {
+    canvasHeader.innerHTML = `
+      <h2>${info.title}</h2>
+      <p>${info.desc}</p>
+      <div class="canvas-meta">
+        <span class="chip phase">${info.phase}</span>
+        <span class="chip state">${info.state}</span>
+        <span class="chip canal">Canal web</span>
+      </div>`;
+  }
+  // Scroll top
+  document.querySelector('.phone-screen .screen-scroll, .phone-screen');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+items.forEach(item => {
+  item.addEventListener('click', () => go(item.dataset.screen));
+});
+
+// ─── Simulador de escenarios del backend en F1 ───
+let currentScenario = 'nuevo';
+
+function setScenario(name) {
+  currentScenario = name;
+  document.querySelectorAll('.scenario-opt').forEach(opt => {
+    opt.classList.toggle('active', opt.dataset.scenario === name);
+  });
+}
+
+function continuarDesdeIdentificacion() {
+  // Simula lo que haría el backend tras consultar el documento:
+  //  - nuevo    → primera vez o tercero no consolidado → captura vacía (05)
+  //  - conocido → tercero con estudios cerrados (fuera de cooldown) → verifica identidad (03b → 04 → 05b)
+  //  - cooldown → tercero con rechazo reciente → verifica identidad (03b → 04 → 02b terminal)
+  //  - activo   → estudio activo → verifica identidad (03 → 04 → 19 dashboard)
+  //  - cupo     → ya tiene cupo activo → cierre temprano (02)
+  const destino = {
+    nuevo: '05',
+    conocido: '03b',
+    cooldown: '03b',
+    activo: '03',
+    cupo: '02'
+  }[currentScenario];
+  go(destino);
+}
+
+function continuarDespuesOtp() {
+  // Tras validar OTP, el destino depende del escenario:
+  //  - activo   → dashboard con el estudio en curso (19)
+  //  - conocido → captura pre-llenada (05b) para iniciar un nuevo estudio
+  //  - cooldown → pantalla terminal con la fecha en que podrá volver (02b)
+  const destino = {
+    activo: '19',
+    conocido: '05b',
+    cooldown: '02b'
+  }[currentScenario] || '19';
+  go(destino);
+}
+</script>
+
+</body>
+</html>
