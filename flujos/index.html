@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flujos de Aplicación — Fabricas de Credito QUAC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --bg: #FAFBFC;
+      --white: #FFFFFF;
+      --text: #1a1a2e;
+      --text-secondary: #555770;
+      --border: #E2E5EA;
+      --border-light: #F0F1F4;
+      --accent: #7633FF;
+      --accent-bg: #F3EEFF;
+      --red: #DC2626;
+      --green: #16A34A;
+      --amber: #D97706;
+      --violet: #7C3AED;
+      --code-bg: #F4F5F7;
+      --sidebar-w: 260px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--white);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 24px 0;
+      z-index: 50;
+    }
+    .sidebar-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+      padding: 0 20px;
+      margin-bottom: 20px;
+      letter-spacing: -0.01em;
+    }
+    .sidebar nav a {
+      display: block;
+      padding: 6px 20px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+    }
+    .sidebar nav a:hover {
+      color: var(--accent);
+      background: var(--accent-bg);
+      border-left-color: var(--accent);
+    }
+    .sidebar nav a.indent { padding-left: 36px; font-size: 12px; }
+    .sidebar nav a.active {
+      color: var(--accent);
+      font-weight: 600;
+      border-left-color: var(--accent);
+      background: var(--accent-bg);
+    }
+    .main {
+      margin-left: var(--sidebar-w);
+      max-width: 900px;
+      padding: 32px 40px 80px;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-top: 40px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--border);
+    }
+    p { margin-bottom: 12px; color: var(--text-secondary); font-size: 15px; }
+    .meta {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .meta-item { font-size: 13px; color: var(--text-secondary); }
+    .meta-item strong { font-weight: 600; color: var(--text); }
+
+    /* Diagramas */
+    .diagram-container {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin: 20px 0;
+      overflow-x: auto;
+    }
+    .diagram-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 10;
+      padding-top: 8px;
+    }
+    .tab {
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: none;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tab:hover { color: var(--accent); }
+    .tab.active {
+      color: var(--accent);
+      background: var(--accent-bg);
+    }
+
+    /* Ocultar/Mostrar diagramas */
+    .diagram-card { display: none; }
+    .diagram-card.active { display: block; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-title">Flujos — Fabricas QUAC</div>
+    <nav>
+      <a href="#flujos-tienda">Flujo Tienda</a>
+      <a href="#flujo-bloque1" class="indent">Bloque 1: Ingreso</a>
+      <a href="#flujo-bloque2" class="indent">Bloque 2: Captura Datos</a>
+      <a href="#flujo-bloque3" class="indent">Bloque 3: Validaciones</a>
+      <a href="#flujo-bloque4" class="indent">Bloque 4: Resultado</a>
+      <a href="#flujo-web" class="indent">Flujo Web</a>
+      <a href="#flujo-externo" class="indent">Flujo Externo</a>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <h1>Flujos de Aplicación</h1>
+    <div class="meta">
+      <span class="meta-item"><strong>Proyecto:</strong> Fabricas de Credito</span>
+      <span class="meta-item"><strong>Version:</strong> v2.5</span>
+      <span class="meta-item"><strong>Fecha:</strong> 2026-04-23</span>
+    </div>
+
+    <p>Diagramas Mermaid que representan los flujos de aplicacion del modulo Fabricas de Credito. Estos diagramas son la fuente de verdad para los flujos del sistema.</p>
+
+    <!-- ==================== FLUJO TIENDA ==================== -->
+    <h2 id="flujos-tienda">Flujo Tienda</h2>
+
+    <div class="tabs">
+      <button class="tab active" onclick="showDiagram('bloque1', this)">Bloque 1</button>
+      <button class="tab" onclick="showDiagram('bloque2', this)">Bloque 2</button>
+      <button class="tab" onclick="showDiagram('bloque3', this)">Bloque 3</button>
+      <button class="tab" onclick="showDiagram('bloque4', this)">Bloque 4</button>
+    </div>
+
+    <div class="diagram-card active" id="bloque1">
+      <div class="diagram-container">
+        <div class="diagram-title">Bloque 1: Ingreso del Cliente</div>
+        <div class="mermaid">
+        graph TD
+          A[Cliente llega a tienda] --> B{Cupo Activo?}
+          B -->|Si| C[Cupo disponible?]
+          B -->|No| D[Iniciar estudio]
+          C -->|Si| E[Mostrar cupos activos]
+          C -->|No| D
+          E --> F{Continuar?}
+          F -->|Si| D
+          F -->|No| G[Fin - Usar cupo actual]
+          D --> H[Asesor captura documento]
+          H --> I[Validar documento en listas]
+          I --> J{Aprobado?}
+          J -->|Si| K[Continuar flujo]
+          J -->|No| L[Mostrar motivo rech]
+          L --> M[Fin - No viable]
+          K --> N[Bloque 2]
+        </div>
+      </div>
+    </div>
+
+    <div class="diagram-card" id="bloque2">
+      <div class="diagram-container">
+        <div class="diagram-title">Bloque 2: Captura de Datos</div>
+        <div class="mermaid">
+        graph TD
+          A[Bloque 2: Captura] --> B[Capturar datos cliente]
+          B --> C[Validar telefono]
+          C --> D{Valido?}
+          D -->|Si| E[Capturar email]
+          D -->|No| F[Pedir telefono valido]
+          F --> C
+          E --> G[Capturar direccion]
+          G --> H[Tokenizar consentimientos]
+          H --> I{Completo?}
+          I -->|Si| J[Continuar]
+          I -->|No| K[Mostrar errores]
+          K --> H
+          J --> L[Bloque 3]
+        </div>
+      </div>
+    </div>
+
+    <div class="diagram-card" id="bloque3">
+      <div class="diagram-container">
+        <div class="diagram-title">Bloque 3: Validaciones</div>
+        <div class="mermaid">
+        graph TD
+          A[Bloque 3: Validaciones] --> B[Consultar listas restrictivas]
+          B --> C[Consultar buró de crédito]
+          C --> D[Evaluación Preselecta]
+          D --> E[Validar FOSYGA / ADRES]
+          E --> F{Todas aprobadas?}
+          F -->|Si| G[Calcular cupo]
+          F -->|No| H[Determinar rech]
+          H --> I[Mostrar resultado]
+          I --> J[Fin - Rechazado]
+          G --> K[Bloque 4]
+        </div>
+      </div>
+    </div>
+
+    <div class="diagram-card" id="bloque4">
+      <div class="diagram-container">
+        <div class="diagram-title">Bloque 4: Resultado y Activación</div>
+        <div class="mermaid">
+        graph TD
+          A[Bloque 4: Resultado] --> B{Studio aprobado?}
+          B -->|Si| C[Mostrar cupo preaprobado]
+          C --> D[Validar identidad biometrics]
+          D --> E{Aprobado?}
+          E -->|Si| F[Enviar a UBICA]
+          E -->|No| G[Derivar a Fabrica]
+          B -->|No| H[Mostrar motivo]
+          H --> I[Fin - No aprobado]
+          F --> J[Activar cupo]
+          J --> K[Fin - Cupo activado]
+          G --> L[Fin - Requiere revision]
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== FLUJO WEB ==================== -->
+    <h2 id="flujo-web">Flujo Web (Autoservicio)</h2>
+    <div class="diagram-container">
+      <div class="diagram-title">FlujoCanalWeb</div>
+      <div class="mermaid">
+        graph TD
+          A[Cliente entra a web] --> B[Ingresa documento]
+          B --> C{Cupo activo?}
+          C -->|Si| D[Mostrar opciones]
+          C -->|No| E[Crear estudio]
+          D --> E
+          E --> F[Captura datos]
+          F --> G[Tokeniza consentimiento]
+          G --> H[Validaciones autom]
+          H --> I{APROBADO?}
+          I -->|Si| J[Verifica identidad]
+          I -->|No| K[Motivo rechazo]
+          J --> L{Identidad OK?}
+          L -->|Si| M[Activar cupo]
+          L -->|No| N[Derivar Fabrica]
+          M --> O[Fin - Listo]
+          K --> P[Fin]
+          N --> Q[Fin]
+      </div>
+    </div>
+
+    <!-- ==================== FLUJO EXTERNO ==================== -->
+    <h2 id="flujo-externo">Flujo Externo (Asesor Campo)</h2>
+    <div class="diagram-container">
+      <div class="diagram-title">FlujoCanalExterno</div>
+      <div class="mermaid">
+        graph TD
+          A[Asesor busca cliente] --> B[Autenticar asesor]
+          B --> C[Abrir link studio]
+          C --> D[Ingresa documento cliente]
+          D --> E[Captura datos + fotos]
+          E --> F[Tokeniza consentimiento]
+          F --> G[Validaciones automaticas]
+          G --> H{APROBADO?}
+          H -->|Si| I[Asesor valida biometric]
+          I --> J{Aprobada?}
+          J -->|Si| K[Mostrar resultado]
+          J -->|No| L[Derivar Fabrica]
+          H -->|No| M[Mostrar rechazo]
+          K --> N[Activar si viable]
+          N --> O[Fin - Completado]
+          M --> P[Fin - No viable]
+          L --> Q[Fin - Revision]
+      </div>
+    </div>
+
+    <p style="margin-top: 40px; font-size: 13px; color: var(--text-secondary);">
+      <strong>Nota:</strong> Estos flujos son la fuente de verdad para el diseno del sistema.
+      Cualquier diferencia entre la documentacion y estos diagramas debe resolverse actualizando los diagrams.
+    </p>
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#F3EEFF',
+        primaryTextColor: '#1a1a2e',
+        primaryBorderColor: '#7633FF',
+        lineColor: '#7633FF',
+        secondaryColor: '#f5f3ff',
+        tertiaryColor: '#fffbeb'
+      }
+    });
+
+    function showDiagram(id, btn) {
+      // Ocultar todos los diagramas
+      document.querySelectorAll('.diagram-card').forEach(el => {
+        el.classList.remove('active');
+      });
+      // Mostrar el diagrama seleccionado
+      document.getElementById(id).classList.add('active');
+      
+      // Actualizar tabs
+      document.querySelectorAll('.tab').forEach(el => {
+        el.classList.remove('active');
+      });
+      btn.classList.add('active');
+      
+      // Re-renderizar mermaid después del cambio
+      setTimeout(() => {
+        mermaid.run();
+      }, 100);
+    }
+  </script>
+</body>
+</html>

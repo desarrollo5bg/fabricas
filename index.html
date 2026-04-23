@@ -475,32 +475,32 @@ hr {
 <aside class="sidebar">
   <div class="sidebar-title">QUAC — Fabricas de Credito</div>
   <nav>
-    <a href="#generalidades">Generalidades</a>
-    <a href="#origenes" class="indent">Origenes de solicitud</a>
-    <a href="#s1">Flujo canal web</a>
-    <a href="#flujo-actual" class="indent">Flujo actual</a>
-    <a href="#s1-2" class="indent">Embudo de solicitudes</a>
-    <a href="#opciones">Opciones de flujo evaluadas</a>
-    <a href="#s2" class="indent">Opcion A: Descartar primero</a>
-    <a href="#s2-diagram" class="indent">Diagrama detallado Opcion A</a>
-    <a href="#s2-mockups" class="indent">Pantallas Opcion A</a>
-    <a href="#s3-1" class="indent">Opcion B: Fotos tempranas</a>
-    <a href="#s3-2" class="indent">Opcion C: TyC combinado</a>
-    <a href="#s3-3" class="indent">Opcion D: OCR frontal (Recomendado)</a>
-    <a href="#s3-3-mockups" class="indent">Pantallas Opcion D</a>
-    <a href="#s3-4" class="indent">Opcion E: Flujo sugerido</a>
-    <a href="#s3-4-mockups" class="indent">Pantallas Opcion E</a>
-    <a href="#s4">Preguntas clave</a>
-    <a href="#p1" class="indent">Timeout FOSIGA</a>
-    <a href="#p2" class="indent">Email Ubica</a>
-    <a href="#p3" class="indent">Retomar proceso</a>
-    <a href="#s5">Que sigue</a>
-    <a href="#s5-servicios" class="indent">El problema</a>
-    <a href="#s5-pendiente" class="indent">Flujos y escenarios</a>
-    <a href="#s5-preguntas" class="indent">Servicios y datos</a>
+    <a href="#presentacion">Presentacion</a>
+    <a href="#estructura">Estructura del proyecto</a>
     <hr style="margin: 12px 20px; border: none; border-top: 1px solid var(--border-light);">
-    <a href="documentacion-arquitectura-v2.html" target="_blank">Arquitectura de Datos v2</a>
-    <a href="documentacion-arquitectura-v2.html#overview" class="indent" target="_blank">Ver documentación técnica</a>
+    <a href="mockups/index.html" target="_blank">Mockups</a>
+    <a href="mockups/web/index.html" class="indent" target="_blank">Canal Web</a>
+    <a href="mockups/web/prototipo.html" class="indent" target="_blank">Prototipo Web</a>
+    <a href="mockups/tienda/index.html" class="indent" target="_blank">Canal Tienda</a>
+    <a href="mockups/tienda/prototipo.html" class="indent" target="_blank">Prototipo Tienda</a>
+    <a href="mockups/fabricacredito/index.html" class="indent" target="_blank">Fabrica de Credito</a>
+    <a href="mockups/fabricacredito/prototipo.html" class="indent" target="_blank">Prototipo Fabrica</a>
+    <hr style="margin: 12px 20px; border: none; border-top: 1px solid var(--border-light);">
+    <a href="infraestructura/index.html" target="_blank">Documentacion</a>
+    <a href="infraestructura/01-vision-general.html" class="indent" target="_blank">Vision General</a>
+    <a href="infraestructura/02-diccionario-datos.html" class="indent" target="_blank">Diccionario de Datos</a>
+    <a href="infraestructura/03-maquina-estados.html" class="indent" target="_blank">Maquina de Estados</a>
+    <a href="infraestructura/04-seguridad-antifraude.html" class="indent" target="_blank">Seguridad y Antifraude</a>
+    <a href="infraestructura/05-fotografias-biometria.html" class="indent" target="_blank">Fotos y Biometria</a>
+    <a href="infraestructura/06-servicios-backend.html" class="indent" target="_blank">Servicios Backend</a>
+    <a href="infraestructura/07-consentimientos-contactabilidad.html" class="indent" target="_blank">Consentimientos</a>
+    <a href="infraestructura/08-gaps-historial-cambios.html" class="indent" target="_blank">GAPS y Historial</a>
+    <hr style="margin: 12px 20px; border: none; border-top: 1px solid var(--border-light);">
+    <a href="flujos/index.html" target="_blank">Flujos (Mermaid)</a>
+    <hr style="margin: 12px 20px; border: none; border-top: 1px solid var(--border-light);">
+    <a href="DB/DDL/FABRICASv2.sql" target="_blank">DDL Produccion</a>
+    <a href="DB/DDL/FABRICASv2_PRUEBAS.sql" target="_blank">DDL Pruebas</a>
+    <a href="DB/DDL/FABRICASv2_SEEDS.sql" target="_blank">Seeds</a>
   </nav>
 </aside>
 
@@ -510,11 +510,66 @@ hr {
 <h1>Fabricas de Credito QUAC</h1>
 <div class="meta">
   <span class="meta-item"><strong>Proyecto:</strong> Fabricas de Credito</span>
-  <span class="meta-item"><strong>Fecha:</strong> 2026-02-09</span>
+  <span class="meta-item"><strong>Version:</strong> 2.5</span>
+  <span class="meta-item"><strong>Fecha:</strong> 2026-04-23</span>
 </div>
 
-<!-- ==================== GENERALIDADES ==================== -->
-<h2 id="generalidades">Generalidades</h2>
+<h2 id="presentacion">Presentacion</h2>
+
+<p>Este proyecto contiene la documentacion tecnica y los mockups del modulo <strong>Fabricas de Credito</strong> de QUAC. El modulo manejatodo el proceso de solicitud de cupo de credito: validacion de identidad, consulta de centrales de riesgo, calculo de cupoy activacion.</p>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:20px;margin:24px 0 32px;">
+
+  <a href="mockups/index.html" target="_blank" style="display:block;background:var(--accent-bg);border-radius:12px;padding:24px;border-left:4px solid var(--accent);text-decoration:none;transition:all 0.2s;">
+    <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">Seccion 1</div>
+    <div style="font-size:20px;font-weight:700;margin-bottom:8px;color:var(--text);">Mockups</div>
+    <p style="font-size:14px;margin:0;color:var(--text-secondary);">Prototipos visuales de todas las pantallas por canal (Web, Tienda, Fabrica).</p>
+    <div style="margin-top:12px;font-weight:600;color:var(--accent);">Ver mocks →</div>
+  </a>
+
+  <a href="infraestructura/index.html" target="_blank" style="display:block;background:var(--violet-bg);border-radius:12px;padding:24px;border-left:4px solid var(--violet);text-decoration:none;transition:all 0.2s;">
+    <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--violet);margin-bottom:8px;">Seccion 2</div>
+    <div style="font-size:20px;font-weight:700;margin-bottom:8px;color:var(--text);">Documentacion</div>
+    <p style="font-size:14px;margin:0;color:var(--text-secondary);">Arquitectura, modelo de datos, flujos de aplicacion (mermaids), dictionary y servicios.</p>
+    <div style="margin-top:12px;font-weight:600;color:var(--violet);">Ver docs →</div>
+  </a>
+
+</div>
+
+<h2 id="estructura">Estructura del proyecto</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Carpet</th>
+      <th>Descripcion</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>/mockups</code></td>
+      <td>Prototipos HTML interactivos por canal</td>
+    </tr>
+    <tr>
+      <td><code>/infraestructura</code></td>
+      <td>Documentacion tecnica (diccionario, estados, servicios)</td>
+    </tr>
+    <tr>
+      <td><code>/flujos-aplicacion</code></td>
+      <td>Diagramas mermaid de los flujos</td>
+    </tr>
+    <tr>
+      <td><code>/DB/DDL</code></td>
+      <td>Scripts SQL del modelo de datos</td>
+    </tr>
+    <tr>
+      <td><code>/fases-estudio-credito</code></td>
+      <td>Documentacion de las 7 fases del estudio</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="margin-top:24px;color:var(--text-secondary);font-size:13px;">Ultima actualizacion: 2026-04-23</p>
 
 <p>QUAC maneja todo el proceso de solicitud de cupo de credito a traves de un modulo llamado <strong>Fabricas</strong>, que hoy corre dentro del sistema Quac One. Este modulo se encarga de recibir la solicitud del cliente, validar su identidad, consultar centrales de riesgo y decidir si se le asigna cupo o no.</p>
 
