@@ -1191,9 +1191,344 @@ END
 
 
 -- ==============================================================================
+-- SECCIÓN 9: PARCHES V2.6 — Trazabilidad Operadores (GAP-19)
+-- ==============================================================================
+
+-- 9.1 OperadoresFabrica (CON FK LOCAL)
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'fab.OperadoresFabrica') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [fab].[OperadoresFabrica] (
+        IdOperador              INT IDENTITY(1,1)   NOT NULL,
+        NitOperador             VARCHAR(20)         NOT NULL,
+        NombreOperador          NVARCHAR(200)       NOT NULL,
+        CorreoOperador          NVARCHAR(100)       NULL,
+        TelefonoOperador        VARCHAR(20)         NULL,
+        TipoOperador            VARCHAR(20)         NOT NULL DEFAULT 'ASESOR',
+        Activo                  BIT                 NOT NULL DEFAULT 1,
+        FechaCreacion           DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
+        FechaActualizacion      DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
+
+        CONSTRAINT PK_OperadoresFabrica PRIMARY KEY (IdOperador),
+        CONSTRAINT UQ_OperadoresFabrica_Nit UNIQUE (NitOperador),
+        CONSTRAINT CK_OperadoresFabrica_Tipo CHECK (
+            TipoOperador IN ('ASESOR','SUPERVISOR','GERENTE','REVISOR_FOTOS','CALL_CENTER','ADMINISTRADOR')
+        )
+    );
+
+    CREATE NONCLUSTERED INDEX IX_OperadoresFabrica_Nit ON [fab].[OperadoresFabrica](NitOperador);
+    CREATE NONCLUSTERED INDEX IX_OperadoresFabrica_Tipo ON [fab].[OperadoresFabrica](TipoOperador, Activo);
+
+    PRINT '✓ Tabla OperadoresFabrica creada';
+END
+
+
+-- 9.2 DisponibilidadOperadores (CON FK LOCAL)
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'fab.DisponibilidadOperadores') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [fab].[DisponibilidadOperadores] (
+        IdDisponibilidad        BIGINT IDENTITY(1,1) NOT NULL,
+        IdOperador              INT                 NOT NULL,
+        NitOperador             VARCHAR(20)         NOT NULL,
+        EstadoDisponibilidad  VARCHAR(20)         NOT NULL DEFAULT 'DESCONECTADO',
+        FechaConexion           DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
+        FechaDesconexion        DATETIME2(3)        NULL,
+        DireccionIP             VARCHAR(45)         NULL,
+        Observaciones           NVARCHAR(500)       NULL,
+
+        CONSTRAINT PK_DisponibilidadOperadores PRIMARY KEY (IdDisponibilidad),
+        CONSTRAINT FK_Disponibilidad_Operador FOREIGN KEY (IdOperador) 
+            REFERENCES [fab].[OperadoresFabrica](IdOperador),
+        CONSTRAINT CK_Disponibilidad_Estado CHECK (
+            EstadoDisponibilidad IN ('CONECTADO','DESCONECTADO','EN_PAUSA','NO_DISPONIBLE')
+        )
+    );
+
+    CREATE NONCLUSTERED INDEX IX_DisponibilidadOperadores_Operador 
+        ON [fab].[DisponibilidadOperadores](IdOperador, FechaConexion);
+    CREATE NONCLUSTERED INDEX IX_DisponibilidadOperadores_Estado 
+        ON [fab].[DisponibilidadOperadores](EstadoDisponibilidad, FechaConexion)
+        WHERE EstadoDisponibilidad IN ('CONECTADO','EN_PAUSA');
+
+    PRINT '✓ Tabla DisponibilidadOperadores creada';
+END
+
+
+-- ==============================================================================
+-- SECCIÓN 10: DATOS SEMILLA (SEEDS) — Complete sync con FABRICASv2.sql
+-- ==============================================================================
+
+-- 10.1 FasesEstudio (7 fases)
+IF NOT EXISTS (SELECT * FROM [cfg].[FasesEstudio])
+BEGIN
+    INSERT INTO [cfg].[FasesEstudio] (Codigo, Nombre, OrdenEjecucion, Descripcion) VALUES
+    ('IDENTIFICACION',        'Identificación del Cliente',      1, 'Ingreso de documento, validación de existencia, verificación de cupo activo/bloqueado'),
+    ('DATOS_CLIENTE',         'Datos del Cliente',               2, 'Captura o actualización de datos personales y de contacto'),
+    ('CONSENTIMIENTO_LEGAL',  'Consentimiento Legal',           3, 'Aceptación de términos, autorización de tratamiento de datos, tokenización'),
+    ('VALIDACIONES_RIESGO',   'Validaciones de Riesgo',         4, 'Listas restrictivas, buró de crédito, Preselecta, FOSYGA'),
+    ('LIMITE_CREDITO',        'Límite de Crédito',            5, 'Cálculo y presentación del cupo preaprobado'),
+    ('VERIFICACION_IDENTIDAD','Verificación de Identidad',     6, 'Biometría facial, OCR de documento, prueba de vida'),
+    ('ACTIVACION',           'Activación del Cupo',          7, 'Validación UBICA, activación automática o gestión manual');
+
+    PRINT '✓ Seeds insertados en FasesEstudio';
+END
+
+
+-- 10.2 Estados del Proceso (23 estados) — sync completo con v2.6
+IF NOT EXISTS (SELECT 1 FROM [cfg].[CatalogoEstados] WHERE Codigo = 'BORRADOR')
+BEGIN
+    -- INICIAL
+    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion) VALUES
+    ('BORRADOR', 'En Validación Previa', 'INICIAL', 0, 0, 'El cliente se encuentra en pasos iniciales.'),
+    ('PENDIENTE_CLIENTE_PREVIO', 'Pendiente Cliente — Previo', 'INICIAL', 0, 1, 'Se requiere acción del cliente antes de crear solicitud formal.'),
+    ('EXPIRADO_PREVIO', 'Expirada — Previo', 'INICIAL', 1, 0, 'El proceso previo no continuó dentro del tiempo permitido.'),
+    ('CUPO_YA_ACTIVO', 'Cupo Ya Activo', 'BLOQUEO', 1, 0, 'El cliente ya cuenta con cupo disponible.'),
+    ('NO_APLICA_MORA', 'No Aplica — Por Mora', 'BLOQUEO', 1, 0, 'No puede continuar por cartera en mora.'),
+    -- REACTIVACION
+    ('DESBLOQUEADO', 'Desbloqueado', 'REACTIVACION', 0, 0, 'Se rehabilitó un cupo bloqueado.'),
+    ('REACTIVADO', 'Reactivado', 'REACTIVACION', 0, 0, 'Se reactiva un cupo eliminado previamente.'),
+    -- PROCESO
+    ('EN_PROGRESO', 'En Proceso', 'PROCESO', 0, 1, 'La solicitud avanza normalmente.'),
+    ('PAUSADO', 'Pausado', 'PROCESO', 0, 0, 'El cliente se retiró; estudio en espera.'),
+    ('PENDIENTE_CLIENTE', 'Pendiente Cliente', 'PROCESO', 0, 1, 'Se requiere acción del cliente.'),
+    ('PENDIENTE_OTP', 'Pendiente Validación OTP', 'PROCESO', 0, 1, 'Esperando validación del token.'),
+    ('PENDIENTE_BIOMETRIA', 'Pendiente Biometría', 'PROCESO', 0, 1, 'Esperando captura biométrica.'),
+    ('PENDIENTE_FOTOS', 'Pendiente Envío de Fotos', 'PROCESO', 0, 1, 'Esperando fotos del cliente.'),
+    ('FOTOS_EN_REVISION', 'Fotos en Revisión', 'PROCESO', 0, 0, 'Fotos en revisión manual.'),
+    ('PENDIENTE_VALIDACION_AUTOMATICA', 'Pendiente Validación Automática', 'PROCESO', 0, 1, 'Esperando respuesta de motores externos.'),
+    ('EN_FABRICA', 'En Fábrica de Soporte', 'PROCESO', 0, 0, 'Caso enviado a gestión manual.'),
+    ('CUPO_PREAPROBADO', 'Cupo Preaprobado', 'PROCESO', 0, 1, 'Cupo calculado exitosamente.'),
+    ('REVISION_FABRICA', 'En Revisión Manual — Fábrica', 'PROCESO', 0, 0, 'Derivado a revisión por fábrica.'),
+    -- TERMINAL
+    ('APROBADO', 'Cupo Activado', 'TERMINAL', 1, 0, 'Solicitud aprobada.'),
+    ('RECHAZADO', 'Rechazado', 'TERMINAL', 1, 0, 'Solicitud rechazada.'),
+    ('NO_VIABLE_ANTECEDENTES_PREVIO', 'No Viable — Antecedentes (Previo)', 'TERMINAL', 1, 0, 'Rechazo en validaciones previas.'),
+    ('NO_VIABLE_ANTECEDENTES', 'No Viable — Antecedentes', 'TERMINAL', 1, 0, 'Rechazo por antecedentes.'),
+    ('NO_VIABLE_CENTRALES', 'No Viable — Centrales', 'TERMINAL', 1, 0, 'Rechazo por modelo de viabilidad.'),
+    ('NO_APLICA_CUPO', 'No Aplica — Para Cupo', 'TERMINAL', 1, 0, 'No supera reglas complementarias.'),
+    ('BLOQUEADO_FRAUDE', 'Bloqueado por Sospecha de Fraude', 'TERMINAL', 1, 0, 'Bloqueado por patrón de fraude.'),
+    ('EXPIRADO', 'Expirada', 'TERMINAL', 1, 0, 'No retomó dentro del tiempo.'),
+    ('CANCELADO_CLIENTE', 'Cancelada por Cliente', 'TERMINAL', 1, 0, 'El cliente desistió.');
+
+    PRINT '✓ Seeds insertados en CatalogoEstados (26 estados)';
+END
+
+
+-- 10.3 PasosEstudio (13 pasos)
+IF NOT EXISTS (SELECT * FROM [cfg].[PasosEstudio])
+BEGIN
+    INSERT INTO [cfg].[PasosEstudio] (IdFase, Codigo, Nombre, OrdenEnFase, OrdenGlobal, Actor, ServicioExterno, EsAutomatico, RequiereIntervencion, TiempoTimeoutSeg, Descripcion) VALUES
+    (1, 'INGRESO_DOCUMENTO',       'Ingreso de Documento',              1, 1,  'ASESOR',    NULL,                0, 0, NULL,  'El asesor digita el número de documento'),
+    (1, 'VALIDAR_EXISTENCIA',     'Validar Existencia del Cliente',    2, 2,  'SISTEMA',  'ERP_QUAC',           1, 0, 30,   'Verifica si el cliente existe'),
+    (1, 'VALIDAR_CUPO_BLOQUEO', 'Validar Cupo Activo / Bloqueo',    3, 3,  'SISTEMA',  'CORE_CREDITO',        1, 0, 30,   'Verifica cupo activo, bloqueos'),
+    (2, 'CAPTURA_DATOS',         'Captura de Datos Personales',        1, 4,  'ASESOR',    NULL,                0, 0, NULL,  'Captura de datos personales'),
+    (3, 'CONSENTIMIENTO_DATOS',  'Autorización Tratamiento Datos',  1, 5,  'CLIENTE',  NULL,                0, 0, NULL,  'Aceptación de términos'),
+    (3, 'TOKENIZACION',          'Envío y Validación de Token OTP',  2, 6,  'SISTEMA',  'OTP_PROVIDER',        1, 0, 120,  'Envío y validación de OTP'),
+    (4, 'VALIDAR_LISTAS',        'Validar Listas Restrictivas',           1, 7,  'SISTEMA',  'LISTAS_RESTRICTIVAS', 1, 0, 30,   'Consulta listas restrictivas'),
+    (4, 'CONSULTAR_BURO',       'Consultar Buró de Crédito',        2, 8,  'SISTEMA',  'BURO_CREDITO',        1, 0, 60,   'Consulta historial crediticio'),
+    (4, 'EVALUAR_PRESELECTA',   'Evaluación Preselecta',          3, 9,  'SISTEMA',  'PRESELECTA',         1, 0, 60,   'Motor de decisión Preselecta'),
+    (4, 'VALIDAR_FOSYGA',       'Validar FOSYGA / ADRES',         4, 10, 'SISTEMA',  'FOSYGA',             1, 0, 30,   'Verificación seguridad social'),
+    (5, 'CALCULAR_CUPO',        'Cálculo del Cupo Preaprobado',   1, 11, 'SISTEMA',  'MOTOR_CUPO',         1, 0, 30,   'Cálculo del límite de crédito'),
+    (6, 'VERIFICACION_BIOMETRICA','Verificación Biométrica',         1, 12, 'SISTEMA',  'BIOMETRIA',          1, 1, 120,  'Captura y verificación biométrica'),
+    (7, 'ACTIVACION_CUPO',        'Activación del Cupo',             1, 13, 'SISTEMA',  'UBICA',              1, 1, 60,   'Validación UBICA y activación');
+
+    PRINT '✓ Seeds insertados en PasosEstudio';
+END
+
+
+-- 10.4 TransicionesEstado
+IF NOT EXISTS (SELECT * FROM [cfg].[TransicionesEstado])
+BEGIN
+    -- Transiciones desde BORRADOR
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Iniciar estudio'
+    FROM [cfg].[CatalogoEstados] eOrigen, [cfg].[CatalogoEstados] eDestino
+    WHERE eOrigen.Codigo = 'BORRADOR' AND eDestino.Codigo = 'EN_PROGRESO';
+
+    -- Transiciones desde EN_PROGRESO
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Pausar estudio'
+    FROM [cfg].[CatalogoEstados] eOrigen, [cfg].[CatalogoEstados] eDestino
+    WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'PAUSADO';
+
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Esperando OTP'
+    FROM [cfg].[CatalogoEstados] eOrigen, [cfg].[CatalogoEstados] eDestino
+    WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'PENDIENTE_OTP';
+
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cupo preaprobado'
+    FROM [cfg].[CatalogoEstados] eOrigen, [cfg].[CatalogoEstados] eDestino
+    WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'CUPO_PREAPROBADO';
+
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Aprobar estudio'
+    FROM [cfg].[CatalogoEstados] eOrigen, [cfg].[CatalogoEstados] eDestino
+    WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'APROBADO';
+
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Rechazar estudio'
+    FROM [cfg].[CatalogoEstados] eOrigen, [cfg].[CatalogoEstados] eDestino
+    WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'RECHAZADO';
+
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Derivar a fábrica'
+    FROM [cfg].[CatalogoEstados] eOrigen, [cfg].[CatalogoEstados] eDestino
+    WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'EN_FABRICA';
+
+    -- Transiciones desde PAUSADO
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Reanudar estudio'
+    FROM [cfg].[CatalogoEstados] eOrigen, [cfg].[CatalogoEstados] eDestino
+    WHERE eOrigen.Codigo = 'PAUSADO' AND eDestino.Codigo = 'EN_PROGRESO';
+
+    -- Transiciones desde PENDIENTE_OTP
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'OTP validado'
+    FROM [cfg].[CatalogoEstados] eOrigen, [cfg].[CatalogoEstados] eDestino
+    WHERE eOrigen.Codigo = 'PENDIENTE_OTP' AND eDestino.Codigo = 'EN_PROGRESO';
+
+    -- Transiciones desde PENDIENTE_BIOMETRIA
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Biometría exitosa'
+    FROM [cfg].[CatalogoEstados] eOrigen, [cfg].[CatalogoEstados] eDestino
+    WHERE eOrigen.Codigo = 'PENDIENTE_BIOMETRIA' AND eDestino.Codigo = 'EN_PROGRESO';
+
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Biometría fallida'
+    FROM [cfg].[CatalogoEstados] eOrigen, [cfg].[CatalogoEstados] eDestino
+    WHERE eOrigen.Codigo = 'PENDIENTE_BIOMETRIA' AND eDestino.Codigo = 'EN_FABRICA';
+
+    -- Transiciones desde FOTOS_EN_REVISION
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Fotos aprobadas'
+    FROM [cfg].[CatalogoEstados] eOrigen, [cfg].[CatalogoEstados] eDestino
+    WHERE eOrigen.Codigo = 'FOTOS_EN_REVISION' AND eDestino.Codigo = 'EN_PROGRESO';
+
+    -- Transiciones desde EN_FABRICA
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Resolver y reanudar'
+    FROM [cfg].[CatalogoEstados] eOrigen, [cfg].[CatalogoEstados] eDestino
+    WHERE eOrigen.Codigo = 'EN_FABRICA' AND eDestino.Codigo = 'EN_PROGRESO';
+
+    INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
+    SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Fábrica rechaza'
+    FROM [cfg].[CatalogoEstados] eOrigen, [cfg].[CatalogoEstados] eDestino
+    WHERE eOrigen.Codigo = 'EN_FABRICA' AND eDestino.Codigo = 'RECHAZADO';
+
+    PRINT '✓ Seeds insertados en TransicionesEstado';
+END
+
+
+-- 10.5 ConfiguracionReglasNegocio
+IF NOT EXISTS (SELECT * FROM [cfg].[ConfiguracionReglasNegocio])
+BEGIN
+    INSERT INTO [cfg].[ConfiguracionReglasNegocio] (Codigo, Nombre, Valor, TipoDato, Categoria, Descripcion) VALUES
+    ('DIAS_ENFRIAMIENTO',       'Días de Enfriamiento por Rechazo',       '90',    'INT', 'ENFRIAMIENTO', 'Días que un rechazado debe esperar'),
+    ('DIAS_EXPIRACION_ESTUDIO', 'Días de Expiración del Estudio',        '90',    'INT', 'GENERAL',      'Días de inactividad antes de expirar'),
+    ('INTENTOS_OTP_MAX',        'Intentos Máximos de OTP',               '3',     'INT', 'OTP',          'Número máximo de intentos OTP'),
+    ('VIGENCIA_OTP_SEG',       'Vigencia del Token OTP (segundos)',    '300',   'INT', 'OTP',          'Tiempo de vida del token OTP'),
+    ('BLOQUEO_OTP_HORAS',      'Horas de Bloqueo por OTP Fallidos',   '24',    'INT', 'OTP',          'Horas de bloqueo tras intentos fallidos'),
+    ('INTENTOS_BIOMETRIA_MAX',  'Intentos Máximos de Biometría',      '3',     'INT', 'BIOMETRIA',    'Número máximo de intentos biométricos'),
+    ('UMBRAL_MATCH_FACIAL',     'Umbral de Coincidencia Facial (%)',      '85.00','DECIMAL','BIOMETRIA',    'Porcentaje mínimo de coincidencia'),
+    ('VENTANA_FRAUDE_OTP_MIN',  'Ventana de tiempo fraude post-OTP',    '10',    'INT', 'RIESGO',       'Minutos después de fallo OTP para regla fraude'),
+    ('MAX_ESTUDIOS_POR_IP_HORA','Máximo estudios por IP por hora',     '3',     'INT', 'RIESGO',       'Máximo estudios simultáneos por IP'),
+    ('SLA_REVISION_FABRICA_HORAS','SLA revisión fábrica (horas)', '24',    'INT', 'RIESGO',       'Tiempo máximo para resolver escalamiento'),
+    ('REENVIOS_OTP_MAX',      'Máximo reenvíos OTP permitidos',    '2',     'INT', 'OTP',          'Reenvíos sin cancelar reto');
+
+    PRINT '✓ Seeds insertados en ConfiguracionReglasNegocio';
+END
+
+
+-- 10.6 CatalogoCanalesOrigen
+IF NOT EXISTS (SELECT * FROM [cat].[CatalogoCanalesOrigen])
+BEGIN
+    INSERT INTO [cat].[CatalogoCanalesOrigen] (Codigo, Nombre, Descripcion, Activo) VALUES
+    ('WEB',     'Canal Web',     'Originación a través del portal web o app',        1),
+    ('TIENDA',  'Canal Tienda','Originación presencial en punto de venta',         1),
+    ('EXTERNO', 'Canal Externo','Originación por fuerza de ventas externas',        1);
+
+    PRINT '✓ Seeds insertados en CatalogoCanalesOrigen';
+END
+
+
+-- 10.7 CatalogoReglasFraude
+IF NOT EXISTS (SELECT * FROM [cat].[CatalogoReglasFraude])
+BEGIN
+    INSERT INTO [cat].[CatalogoReglasFraude] (Codigo, Nombre, Descripcion, NivelRiesgo, AccionAutomatica) VALUES
+    ('EMAIL_CHANGE_POST_OTP_FAIL', 'Cambio de email después de fallo OTP',
+        'El cliente intenta cambiar su email después de fallar OTP. Patrón típico de suplantación.',
+        'ALTO', 'ESCALAR'),
+    ('CEL_CHANGE_POST_OTP_FAIL', 'Cambio de celular después de fallo OTP',
+        'El cliente intenta cambiar su número después de fallar OTP.',
+        'ALTO', 'ESCALAR'),
+    ('CONTACTO_CHANGE_DURANTE_RETO_ACTIVO', 'Cambio dato contacto con reto activo',
+        'Intento de modificar datos mientras hay token OTP vigente.',
+        'CRITICO', 'BLOQUEAR'),
+    ('MULTIPLES_FALLOS_OTP_MISMA_SESION', 'Múltiples fallos OTP misma sesión',
+        'Se agotaron los intentos máximos de OTP en una misma sesión.',
+        'MEDIO', 'ESCALAR'),
+    ('UBICA_EMAIL_DISCREPANCIA', 'Discrepancia email declarado vs UBICA',
+        'El email declarada no coincide con el de UBICA.',
+        'MEDIO', 'ESCALAR'),
+    ('REINTENTO_RAPIDO_OTRO_EMAIL', 'Reintento rápido con otro email',
+        'Solicita nuevo OTP a dirección diferente en poco tiempo.',
+        'ALTO', 'ESCALAR'),
+    ('IP_MULTIPLES_ESTUDIOS', 'Misma IP en múltiples estudios',
+        'La misma IP para varios clientes en período corto.',
+        'CRITICO', 'BLOQUEAR'),
+    ('DOCUMENTO_OCR_DISCREPANCIA', 'OCR no coincide con datos declarados',
+        'Datos extraídos del documento no coinciden con declarados.',
+        'MEDIO', 'ESCALAR');
+
+    PRINT '✓ Seeds insertados en CatalogoReglasFraude';
+END
+
+
+-- 10.8 CatalogoMotivosEscalamiento
+IF NOT EXISTS (SELECT * FROM [cat].[CatalogoMotivosEscalamiento])
+BEGIN
+    INSERT INTO [cat].[CatalogoMotivosEscalamiento] (Codigo, Nombre, Descripcion, Origen) VALUES
+    ('OTP_FAIL_EMAIL_CHANGE', 'Cambio email tras fallo OTP', 'Falló OTP y cambió email.', 'FRAUDE'),
+    ('OTP_INTENTOS_AGOTADOS', 'Intentos OTP agotados', 'Sin validación exitosa.', 'SISTEMA'),
+    ('BIOMETRIA_MAX_REINTENTOS', 'Biometría máximos reintentos', 'Reintentos biométricos agotados.', 'SISTEMA'),
+    ('UBICA_GESTION_MANUAL_FABRICA', 'Gestión manual UBICA', 'Resultado UBICA requiere revisión.', 'SISTEMA'),
+    ('ALERTA_FRAUDE_CRITICA', 'Alerta fraude nivel crítico', 'Regla de fraude CRÍTICO.', 'FRAUDE'),
+    ('DISCREPANCIA_DATOS_UBICA', 'Discrepancia datos UBICA', 'Datos no coinciden con UBICA.', 'SISTEMA'),
+    ('ESCALAMIENTO_MANUAL_ASESOR', 'Escalamiento manual', 'Asesor escala manualmente.', 'ASESOR'),
+    ('DATO_CONTACTO_MODIFICADO_EN_FLUJO', 'Dato modificado en flujo', 'Modificó dato durante originación.', 'FRAUDE');
+
+    PRINT '✓ Seeds insertados en CatalogoMotivosEscalamiento';
+END
+
+
+-- 10.9 CatalogoTiposFotografia
+IF NOT EXISTS (SELECT * FROM [cat].[CatalogoTiposFotografia] WHERE Codigo = 'SELFIE')
+BEGIN
+    INSERT INTO [cat].[CatalogoTiposFotografia] (Codigo, Nombre, Descripcion, EsObligatorio, OrdenSecuencia, Activo) VALUES
+    ('SELFIE', 'Selfie', 'Foto del rostro del cliente para prueba de vida', 1, 1, 1),
+    ('DOCUMENTO_FRONTAL', 'Documento Frontal', 'Frente del documento de identidad', 1, 2, 1),
+    ('DOCUMENTO_TRASERO', 'Documento Trasero', 'Reverso del documento de identidad', 1, 3, 1);
+
+    PRINT '✓ Seeds insertados en CatalogoTiposFotografia';
+END
+
+
+-- 10.10 OperadoresFabrica — Seed de prueba
+IF NOT EXISTS (SELECT * FROM [fab].[OperadoresFabrica])
+BEGIN
+    INSERT INTO [fab].[OperadoresFabrica] (NitOperador, NombreOperador, CorreoOperador, TelefonoOperador, TipoOperador, Activo) VALUES
+    ('12345678', 'Juan Pérez Asesor', 'juan.perez@quac.com', '3001234567', 'ASESOR', 1),
+    ('87654321', 'María Supervisora', 'maria.supervisor@quac.com', '3007654321', 'SUPERVISOR', 1),
+    ('11223344', 'Carlos Revisor Fotos', 'carlos.revisor@quac.com', '3001122334', 'REVISOR_FOTOS', 1);
+
+    PRINT '✓ Seeds insertados en OperadoresFabrica';
+END
+
+
+-- ==============================================================================
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- RESUMEN DE EJECUCIÓN
--- ==============================================================================
+-- ═══════════════════════════════════════════════════════════════════════════════
 PRINT '';
 PRINT '============================================================';
 PRINT '  FABRICAS v2.5-PRUEBAS - EJECUCIÓN COMPLETA';
