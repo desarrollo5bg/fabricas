@@ -1,0 +1,37 @@
+flowchart TB
+    A["Inicio Bloque 6<br>Definición UBICA"] --> B["Consultar fuentes externas"]
+    B --> C{"¿Existe información en UBICA?"}
+    C -- Sí --> D["Validación automática"]
+    C -- No --> E["Llamada IA inicial"]
+    E --> F{"¿Cliente confirma información?"}
+    F -- Sí --> Z1(["Resultado:<br>Sin información UBICA"])
+    F -- No --> S["Estado:<br>En fábrica de soporte"]
+    D --> G{"¿Celular y correo > 4 meses?"}
+    G -- Sí --> H{"¿Última actualización ≤ 4 meses?"}
+    G -- No --> I{"¿Celular > 4 meses?"}
+    H -- Sí --> Z2(["Resultado:<br>OK UBICA celular y correo"])
+    H -- No --> K{"¿Última actualización celular ≤ 4 meses?"}
+    I -- Sí --> K
+    I -- No --> J["Validación adicional - Llamadas con IA"]
+    K -- Sí --> Z3(["Resultado:<br>OK UBICA celular"])
+    K -- No --> J
+    J --> L{"¿Alguna línea contestada?"}
+    L -- Sí --> M{"¿Posible suplantación?"}
+    L -- No --> N["Llamada IA final"]
+    M -- Sí --> S
+    M -- No --> N
+    N --> O{"¿Cliente confirma información?"}
+    O -- Sí --> Z4(["Resultado:<br>No es OK UBICA"])
+    O -- No --> S
+    S --> Z5(["Salida:<br>Fábrica de soporte"])
+
+     A:::bloque
+     Z1:::finok
+     S:::soporte
+     Z2:::finok
+     Z3:::finok
+     Z4:::finok
+     Z5:::soporte
+    classDef bloque fill:#E3F2FD,stroke:#1E88E5,color:#000,stroke-width:2px
+    classDef soporte fill:#FFF3E0,stroke:#FB8C00,color:#000,stroke-width:1.5px
+    classDef finok fill:#E0F2F1,stroke:#00897B,color:#000,stroke-width:2px

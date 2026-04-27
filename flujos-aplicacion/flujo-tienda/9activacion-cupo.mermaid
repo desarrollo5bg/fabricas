@@ -1,0 +1,40 @@
+flowchart TD
+
+classDef bloque fill:#E3F2FD,stroke:#1E88E5,color:#000,stroke-width:2px;
+classDef estado fill:#F3E5F5,stroke:#8E24AA,color:#000,stroke-width:1.5px;
+classDef soporte fill:#FFF3E0,stroke:#FB8C00,color:#000,stroke-width:1.5px;
+classDef finok fill:#E0F2F1,stroke:#00897B,color:#000,stroke-width:2px;
+classDef finno fill:#FFEBEE,stroke:#E53935,color:#000,stroke-width:2px;
+
+A[Inicio Bloque 9<br/>Activación de Cupo]:::bloque --> B[Generar y enviar token al correo]
+
+B --> C{¿Cliente recibió token?}
+
+C -->|Sí| D[Registro de token]
+C -->|No| E{¿Correo registrado correcto?}
+
+E -->|Sí| B
+E -->|No| F[Solicitar nuevo correo]
+
+F --> G{¿Reemplaza correo validado OK UBICA?}
+
+G -->|Sí| H[Estado:<br/>En fábrica de soporte]:::soporte
+G -->|No| I[Actualizar correo]
+
+I --> J([Salida:<br/>Retorna Bloque 6]):::finok
+
+D --> K{¿Token dentro del tiempo permitido?}
+
+K -->|Sí| M{¿Token válido?}
+K -->|No| L[Estado:<br/>Pendiente cliente]:::estado
+
+L --> N{¿Retoma antes de 90 días?}
+
+N -->|Sí| D
+N -->|No| Z1([Estado final:<br/>Expirada]):::finno
+
+M -->|Sí| Z2([Estado final:<br/>Cupo activado]):::finok
+M -->|No| O{¿Reintento o soporte?}
+
+O -->|Reintento| D
+O -->|Soporte| H

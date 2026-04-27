@@ -1,0 +1,14 @@
+flowchart TD
+
+classDef bloque fill:#E3F2FD,stroke:#1E88E5,color:#000,stroke-width:2px;
+classDef finok fill:#E0F2F1,stroke:#00897B,color:#000,stroke-width:2px;
+
+A[Inicio Bloque 8<br/>Validación de Cotización]:::bloque --> B[Consultar fuente autorizada]
+
+B --> C{¿Existe información de cotización?}
+
+C -->|Sí| D{¿Cotizó últimos 4 meses consecutivos?}
+C -->|No| Z1([Resultado:<br/>No cotiza]):::finok
+
+D -->|Sí| Z2([Resultado:<br/>Cotizante]):::finok
+D -->|No| Z3([Resultado:<br/>No cotiza]):::finok

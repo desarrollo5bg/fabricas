@@ -1,0 +1,22 @@
+flowchart TD
+
+classDef bloque fill:#E3F2FD,stroke:#1E88E5,color:#000,stroke-width:2px;
+classDef soporte fill:#FFF3E0,stroke:#FB8C00,color:#000,stroke-width:1.5px;
+classDef finok fill:#E0F2F1,stroke:#00897B,color:#000,stroke-width:2px;
+classDef finno fill:#FFEBEE,stroke:#E53935,color:#000,stroke-width:2px;
+
+A[Inicio Bloque 7<br/>Fábrica de Soporte]:::bloque --> B[Recepción y clasificación del caso]
+
+B --> C[Registrar:<br/>Motivo / Bloque origen / Fecha / Canal / Prioridad]
+
+C --> D[Asignación a operador]
+
+D --> E[Gestión asistida]
+
+E --> F{¿Novedad resuelta?}
+
+F -->|Sí| G([Salida:<br/>Retorna al punto exacto]):::finok
+F -->|No| H{¿Requiere más gestión?}
+
+H -->|Sí| I[Estado:<br/>En fábrica de soporte]:::soporte
+H -->|No| J([Estado final:<br/>Según causal]):::finno

@@ -1,0 +1,38 @@
+flowchart TD
+
+classDef bloque fill:#E3F2FD,stroke:#1E88E5,color:#000,stroke-width:2px;
+classDef estado fill:#F3E5F5,stroke:#8E24AA,color:#000,stroke-width:1.5px;
+classDef finok fill:#E0F2F1,stroke:#00897B,color:#000,stroke-width:2px;
+classDef finno fill:#FFEBEE,stroke:#E53935,color:#000,stroke-width:2px;
+classDef auxiliar fill:#FFF8E1,stroke:#F9A825,color:#000,stroke-width:1.5px;
+
+A[Inicio Bloque 4<br/>Evaluación Inicial de Viabilidad]:::bloque --> B[Ejecutar Preselecta]
+
+B --> C{¿Cliente viable?}
+
+C -->|Sí| D[Continúa validaciones posteriores]
+C -->|No| Z1([Estado final:<br/>No viable centrales]):::finno
+
+D --> E{¿Caso especial?<br/>PPT / CE / CC > 75}
+
+E -->|Sí| F[Consultar variables:<br/>Cotización / Historial]:::auxiliar
+E -->|No| H[Definir estado preaprobado<br/>Estado: En proceso]:::estado
+
+F --> G{¿Es cotizante o tiene historial?}
+
+G -->|Sí| H
+G -->|No| Z2([Estado final:<br/>No aplica para cupo]):::finno
+
+H --> I[Calcular cupo preliminar]
+
+I --> J[Registrar dirección<br/>Departamento / Ciudad]
+
+J --> K{¿Dirección registrada?}
+
+K -->|Sí| L([Salida:<br/>Bloque 5]):::finok
+K -->|No| M[Estado:<br/>Pendiente cliente]:::estado
+
+M --> N{¿Retoma antes de 90 días?}
+
+N -->|Sí| J
+N -->|No| Z3([Estado final:<br/>Expirada]):::finno

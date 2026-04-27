@@ -1,0 +1,62 @@
+flowchart TD
+
+classDef inicio fill:#E3F2FD,stroke:#1E88E5,color:#000,stroke-width:2px;
+classDef bloque fill:#F5F5F5,stroke:#757575,color:#000,stroke-width:1.5px;
+classDef modulo fill:#FFF8E1,stroke:#F9A825,color:#000,stroke-width:1.5px;
+classDef estado fill:#F3E5F5,stroke:#8E24AA,color:#000,stroke-width:1.5px;
+classDef soporte fill:#FFF3E0,stroke:#FB8C00,color:#000,stroke-width:1.5px;
+classDef exito fill:#E0F2F1,stroke:#00897B,color:#000,stroke-width:2px;
+classDef cierre fill:#FFEBEE,stroke:#E53935,color:#000,stroke-width:2px;
+
+A[Inicio atención en tienda]:::inicio --> B[Bloque 1<br/>Creación / Validación Cliente]:::bloque
+
+B --> C{¿Cliente existe?}
+
+C -->|Sí| D[Bloque 2<br/>Validación de Cupo]:::bloque
+C -->|No| B1[Crear cliente]
+
+B1 --> B2{¿Autogestión?}
+B2 -->|Sí| W[Flujo Web]
+B2 -->|No| E[Bloque 3<br/>Inicio de Estudio]:::bloque
+
+D --> D1{Resultado cupo}
+
+D1 -->|Activo / Desbloqueado / Reactivado| X1[Conversión inmediata]:::exito
+D1 -->|Requiere estudio| E
+D1 -->|No viable| Y1[Cierre previo]:::cierre
+
+E --> E1[Solicitud formal]:::estado
+E --> F[Bloque 4<br/>Preselecta]:::bloque
+
+F --> F1{¿Viable?}
+
+F1 -->|No| Y2[No viable centrales]:::cierre
+F1 -->|Sí| G[Bloque 5<br/>Validación de Identidad]:::modulo
+
+G --> G1{Resultado}
+
+G1 -->|Validado| H[Bloque 6<br/>UBICA]:::modulo
+G1 -->|Soporte| S[Bloque 7<br/>Fábrica de Soporte]:::soporte
+G1 -->|Fraude| Y3[Fraude / inconsistencia]:::cierre
+
+F -. Consulta .-> T[Bloque 8<br/>Cotización]:::modulo
+
+H --> H1{Resultado UBICA}
+
+H1 -->|Automático| I[Bloque 9<br/>Activación Cupo]:::bloque
+H1 -->|Soporte| S
+
+I --> I1{Resultado final}
+
+I1 -->|Cupo activado| X2[Cupo Activado]:::exito
+I1 -->|Pendiente cliente| P[Pendiente cliente]:::estado
+I1 -->|Soporte| S
+I1 -->|Expirada| Y4[Expirada]:::cierre
+
+P --> I
+
+S --> S1{¿Caso resuelto?}
+
+S1 -->|Sí| R[Retorna punto exacto]:::estado
+R --> I
+S1 -->|No| Y5[Cierre según causal]:::cierre

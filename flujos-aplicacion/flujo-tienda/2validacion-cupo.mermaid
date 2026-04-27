@@ -1,0 +1,55 @@
+flowchart TD
+
+classDef bloque fill:#E3F2FD,stroke:#1E88E5,color:#000,stroke-width:2px;
+classDef estado fill:#F3E5F5,stroke:#8E24AA,color:#000,stroke-width:1.5px;
+classDef finok fill:#E0F2F1,stroke:#00897B,color:#000,stroke-width:2px;
+classDef finno fill:#FFEBEE,stroke:#E53935,color:#000,stroke-width:2px;
+
+A[Inicio Bloque 2<br/>Validación de Cupo]:::bloque --> B{¿Cliente tiene cupo?}
+
+B -->|Sí| C{¿Cupo bloqueado?}
+B -->|No| D{¿Cupo eliminado por solicitud?}
+
+C -->|No| Z1([Estado final:<br/>Cupo ya activo]):::finok
+C -->|Sí| E{¿Tiene mora vigente?}
+
+E -->|Sí| Z2([Estado final:<br/>No aplica por mora]):::finno
+E -->|No| F{¿Compró en últimos X días?}
+
+F -->|Sí| G{¿Tiene documentos y selfie?}
+F -->|No| V[Validar estudio vigente]
+
+G -->|Sí| H{¿Cambió correo o celular?}
+G -->|No| V
+
+H -->|No| I[Validación simplificada<br/>Antecedentes + Reportes]
+H -->|Sí| V
+
+I --> J{¿Supera validación?}
+
+J -->|Sí| Z3([Estado final:<br/>Desbloqueado]):::finok
+J -->|No| Z4([Estado final:<br/>No viable antecedentes]):::finno
+
+D -->|Sí| K{¿Eliminado en últimos X días?}
+D -->|No| V
+
+K -->|Sí| L{¿Datos cambiaron?}
+K -->|No| V
+
+L -->|No| M[Enviar token identidad]
+L -->|Sí| V
+
+M --> N{¿Token válido?}
+
+N -->|Sí| Z5([Estado final:<br/>Reactivado]):::finok
+N -->|No| O[Estado:<br/>Pendiente cliente previo]:::estado
+
+O --> M
+
+V --> P{¿Existe estudio en últimos 90 días?}
+
+P -->|No| S([Salida:<br/>Bloque 3]):::finok
+P -->|Sí| Q{¿Permite retomar?}
+
+Q -->|Sí| R([Salida:<br/>Retorna punto exacto]):::finok
+Q -->|No| Z6([Finaliza proceso con el estado final<br/>registrado en la solicitud previa]):::finno

@@ -1,0 +1,80 @@
+flowchart TD
+
+classDef bloque fill:#E3F2FD,stroke:#1E88E5,color:#000,stroke-width:2px;
+classDef estado fill:#F3E5F5,stroke:#8E24AA,color:#000,stroke-width:1.5px;
+classDef soporte fill:#FFF3E0,stroke:#FB8C00,color:#000,stroke-width:1.5px;
+classDef finok fill:#E0F2F1,stroke:#00897B,color:#000,stroke-width:2px;
+classDef finno fill:#FFEBEE,stroke:#E53935,color:#000,stroke-width:2px;
+
+A[Inicio Bloque 5<br/>Validación de Identidad]:::bloque --> B{¿Existe documento previo?}
+
+B -->|Sí| C[Validar documento previo]
+B -->|No| D[Captura documental]
+
+C --> E{¿Documento previo válido?}
+E -->|Sí| H[Validación de consistencia]
+E -->|No| D
+
+D --> F{¿Cliente realizó captura?}
+
+F -->|Sí| I[Validación documental]
+F -->|No| G[Estado:<br/>Pendiente cliente]:::estado
+
+G --> G1{¿Retoma antes de 90 días?}
+G1 -->|Sí| D
+G1 -->|No| Z1([Estado final:<br/>Expirada]):::finno
+
+I --> J{¿Documento válido?}
+
+J -->|Sí| H
+J -->|No| K{¿Agotó intentos?}
+
+K -->|No| D
+K -->|Sí| S[Estado:<br/>En fábrica de soporte]:::soporte
+
+H --> H1{¿Tipo y número coinciden?}
+
+H1 -->|Sí| H2{¿Cambios relevantes?}
+H1 -->|No| Z2([Estado final:<br/>Fraude / inconsistencia]):::finno
+
+H2 -->|Sí| R1[Actualizar datos<br/>Retorna Bloque 4]
+H2 -->|No| H3{¿Resto coincide?}
+
+R1 --> L
+
+H3 -->|Sí| L[Prueba de vida]
+H3 -->|No| H4[Reemplazar datos]
+
+H4 --> L
+
+L --> M{¿Cliente realizó biometría?}
+
+M -->|Sí| O{¿Coincide base suplantadores?}
+M -->|No| N[Estado:<br/>Pendiente cliente]:::estado
+
+N --> N1{¿Retoma antes de 90 días?}
+N1 -->|Sí| L
+N1 -->|No| Z3([Estado final:<br/>Expirada]):::finno
+
+O -->|Sí| S
+O -->|No| P{¿Biometría exitosa?}
+
+P -->|Sí| T{¿Existe biometría anterior?}
+P -->|No| Q{¿Agotó intentos?}
+
+Q -->|No| L
+Q -->|Sí| S
+
+T -->|No| U([Salida:<br/>Bloque 6]):::finok
+T -->|Sí| V{¿Biometría consistente?}
+
+V -->|Sí| U
+V -->|No| W{¿Supera validación adicional?}
+
+W -->|Sí| U
+W -->|No| S
+
+S --> S1{¿Soporte aprueba continuidad?}
+
+S1 -->|Sí| U
+S1 -->|No| Z4([Estado final:<br/>Según causal]):::finno

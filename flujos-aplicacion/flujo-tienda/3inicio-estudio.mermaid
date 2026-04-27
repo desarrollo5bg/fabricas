@@ -1,0 +1,50 @@
+flowchart TD
+
+classDef bloque fill:#E3F2FD,stroke:#1E88E5,color:#000,stroke-width:2px;
+classDef estado fill:#F3E5F5,stroke:#8E24AA,color:#000,stroke-width:1.5px;
+classDef finok fill:#E0F2F1,stroke:#00897B,color:#000,stroke-width:2px;
+classDef finno fill:#FFEBEE,stroke:#E53935,color:#000,stroke-width:2px;
+
+A[Inicio Bloque 3<br/>Inicio de Estudio]:::bloque --> B[Verificar y actualizar datos]
+
+B --> C{¿Requiere actualización?}
+
+C -->|Sí| D[Actualizar datos]
+D --> B
+C -->|No| E[Validación de asesor]
+
+E --> F{¿Código válido?}
+
+F -->|Sí| G[Validación facial asesor]
+F -->|No| Z1([Estado final:<br/>Expirada previa]):::finno
+
+G --> H{¿Validación exitosa?}
+
+H -->|Sí| I[Crear solicitud preliminar]
+H -->|No| H1{¿Agotó intentos?}
+
+H1 -->|No| G
+H1 -->|Sí| Z2([Estado final:<br/>Expirada previa]):::finno
+
+I --> J[Enviar token<br/>IVR / SMS / WhatsApp]
+
+J --> K{¿Cliente recibió token?}
+
+K -->|Sí| M[Ingreso de token]
+K -->|No| L[Estado:<br/>Pendiente cliente previo]:::estado
+
+L --> J
+
+M --> N{¿Token válido y vigente?}
+
+N -->|Sí| P[Crear solicitud formal<br/>Estado: En proceso]:::estado
+N -->|No| O[Estado:<br/>Pendiente cliente previo]:::estado
+
+O --> M
+
+P --> Q[Validación inicial<br/>Antecedentes]
+
+Q --> R{¿Antecedentes negativos?}
+
+R -->|Sí| Z3([Estado final:<br/>No viable antecedentes]):::finno
+R -->|No| S([Salida:<br/>Bloque 4]):::finok
