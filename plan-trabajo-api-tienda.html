@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan de Trabajo — API Flujo Tienda Fabricas de Credito</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAFBFC;
+      --white: #FFFFFF;
+      --text: #1a1a2e;
+      --text-secondary: #555770;
+      --border: #E2E5EA;
+      --border-light: #F0F1F4;
+      --accent: #7633FF;
+      --accent-bg: #F3EEFF;
+      --red: #DC2626;
+      --red-bg: #FEF2F2;
+      --green: #16A34A;
+      --green-bg: #F0FDF4;
+      --amber: #D97706;
+      --amber-bg: #FFFBEB;
+      --violet: #7C3AED;
+      --violet-bg: #F5F3FF;
+      --cyan: #0891B2;
+      --cyan-bg: #ECFEFF;
+      --code-bg: #F4F5F7;
+      --sidebar-w: 280px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--white);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 24px 0;
+      z-index: 50;
+    }
+    .sidebar-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+      padding: 0 20px;
+      margin-bottom: 20px;
+      letter-spacing: -0.01em;
+    }
+    .sidebar nav a {
+      display: block;
+      padding: 6px 20px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+    }
+    .sidebar nav a:hover {
+      color: var(--accent);
+      background: var(--accent-bg);
+      border-left-color: var(--accent);
+    }
+    .sidebar nav a.indent { padding-left: 36px; font-size: 12px; }
+    .sidebar nav a.active {
+      color: var(--accent);
+      font-weight: 600;
+      border-left-color: var(--accent);
+      background: var(--accent-bg);
+    }
+    .sidebar-section {
+      padding: 10px 20px 4px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+    }
+
+    /* Main content */
+    .main {
+      margin-left: var(--sidebar-w);
+      max-width: 1000px;
+      padding: 48px 56px 120px;
+    }
+
+    /* Typography */
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-top: 48px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--border);
+    }
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-top: 32px;
+      margin-bottom: 12px;
+    }
+    h4 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+    p {
+      margin-bottom: 12px;
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+    strong { color: var(--text); }
+
+    /* Meta */
+    .meta {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .meta-item {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .meta-item strong {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Code */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      margin: 16px 0 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.65;
+      color: var(--text);
+    }
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      background: var(--code-bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    pre code { background: none; padding: 0; }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 20px;
+      font-size: 13px;
+    }
+    th {
+      background: var(--code-bg);
+      font-weight: 600;
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 2px solid var(--border);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-secondary);
+    }
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text);
+    }
+    tr:hover td { background: var(--accent-bg); }
+    td code { font-size: 12px; }
+
+    /* Lists */
+    ul, ol {
+      margin: 8px 0 16px 24px;
+    }
+    li {
+      font-size: 15px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+    li strong { color: var(--text); }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+    .badge--accent { background: var(--accent-bg); color: var(--accent); }
+    .badge--red { background: var(--red-bg); color: var(--red); }
+    .badge--green { background: var(--green-bg); color: var(--green); }
+    .badge--amber { background: var(--amber-bg); color: var(--amber); }
+    .badge--violet { background: var(--violet-bg); color: var(--violet); }
+    .badge--cyan { background: var(--cyan-bg); color: var(--cyan); }
+
+    /* Callouts */
+    .callout {
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+    .callout p { margin-bottom: 4px; }
+    .callout--info { background: var(--accent-bg); border-left: 4px solid var(--accent); }
+    .callout--warn { background: var(--amber-bg); border-left: 4px solid var(--amber); }
+    .callout--danger { background: var(--red-bg); border-left: 4px solid var(--red); }
+    .callout--success { background: var(--green-bg); border-left: 4px solid var(--green); }
+
+    /* Cards */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .card-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    /* Task list */
+    .task-list {
+      list-style: none;
+      margin: 12px 0;
+    }
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      background: var(--white);
+    }
+    .task-check {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .task-content { flex: 1; }
+    .task-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .task-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* Progress bar */
+    .progress-container {
+      margin: 24px 0;
+    }
+    .progress-bar {
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* Status indicators */
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+    }
+    .status-pending { background: var(--border); }
+    .status-in-progress { background: var(--amber); }
+    .status-completed { background: var(--green); }
+    .status-blocked { background: var(--red); }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-title">Plan de Trabajo</div>
+    <nav>
+      <a href="#resumen">Resumen Ejecutivo</a>
+      <a href="#objetivo">Objetivo</a>
+      <a href="#alcance">Alcance</a>
+      <a href="#fase1" class="indent">Fase 1: Ingreso</a>
+      <a href="#fase2" class="indent">Fase 2: Captura Datos</a>
+      <a href="#fase3" class="indent">Fase 3: Validaciones</a>
+      <a href="#fase4" class="indent">Fase 4: Resultado</a>
+      <a href="#tareas">Detalle de Tareas</a>
+      <a href="#dependencias">Dependencias</a>
+      <a href="#entregables">Entregables</a>
+      <a href="#timeline">Cronograma</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <h1>Plan de Trabajo — API Flujo Tienda</h1>
+    <p style="font-size: 17px; color: var(--text); font-weight: 500;">
+      Fabricas de Credito QUAC — Construccion de APIs REST para el Flujo de Tienda (4 Bloques)
+    </p>
+    <div class="meta">
+      <div class="meta-item"><strong>Version:</strong> 1.0</div>
+      <div class="meta-item"><strong>Fecha:</strong> 2026-04-27</div>
+      <div class="meta-item"><strong>Proyecto:</strong> Fabricas de Credito QUAC</div>
+      <div class="meta-item"><strong>Estado:</strong> Plan propuesto</div>
+
+    <!-- ==================== RESUMEN EJECUTIVO ==================== -->
+    <h2 id="resumen">Resumen Ejecutivo</h2>
+    <p>
+      Este plan de trabajo establece la hoja de ruta para construir las APIs REST que permiten ejecutar el <strong>Flujo de Tienda</strong> completo,
+      desde el ingreso del cliente hasta la activacion del cupo. El flujo se divide en 4 bloques funcionales que agrupan 13 pasos y 18 servicios externos.
+    </p>
+    <div class="callout callout--info">
+      <p><strong>Resultado buscado:</strong> API completamente funcionales que permitan ejecutar el flujo de tienda desde la interfaz de la tienda fisica,
+      incluyendo validaciones deidentity, calculo de cuotas, verificacion biometrica y activacion del credito.</p>
+    </div>
+
+    <div class="card-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 24px 0;">
+      <div class="card" style="text-align: center; padding: 20px;">
+        <div style="font-size: 32px; font-weight: 800; color: var(--accent);">4</div>
+        <div style="font-size: 13px; color: var(--text-secondary);">Bloques</div>
+      </div>
+      <div class="card" style="text-align: center; padding: 20px;">
+        <div style="font-size: 32px; font-weight: 800; color: var(--accent);">13</div>
+        <div style="font-size: 13px; color: var(--text-secondary);">Pasos</div>
+      </div>
+      <div class="card" style="text-align: center; padding: 20px;">
+        <div style="font-size: 32px; font-weight: 800; color: var(--accent);">18</div>
+        <div style="font-size: 13px; color: var(--text-secondary);">Servicios</div>
+      </div>
+      <div class="card" style="text-align: center; padding: 20px;">
+        <div style="font-size: 32px; font-weight: 800; color: var(--accent);">~45</div>
+        <div style="font-size: 13px; color: var(--text-secondary);">Dias estimados</div>
+      </div>
+    </div>
+
+    <!-- ==================== OBJETIVO ==================== -->
+    <h2 id="objetivo">Objetivo</h2>
+    <p>
+      Construir un conjunto de APIs REST que permiten ejecutar el flujo completo de solicitud de credito en una tienda fisica (Tienda QUAC),
+      desde la captura del documento hasta la activacion del cupo preaprobado, siguiendo los diagramas Mermaid documentados en <code>flujos/index.html</code>.
+    </p>
+    <h4>Objetivos especificos</h4>
+    <ul>
+      <li><strong>Bloque 1 (Ingreso):</strong> Validar documento, verificar existencia en ERP, consultar estado de cupo activo/bloqueado</li>
+      <li><strong>Bloque 2 (Captura):</strong> Capturar datos del cliente, telefono, email, direccion, tokenizar consentimientos</li>
+      <li><strong>Bloque 3 (Validaciones):</strong> Consultar listas restrictivas, buró de credito, evaluacion Preselecta, validacion FOSYGA, calculo de cupo</li>
+      <li><strong>Bloque 4 (Resultado):</strong> Verificacion biometrica, activacion en UBICA, activacion del cupo</li>
+    </ul>
+
+    <!-- ==================== ALCANCE ==================== -->
+    <h2 id="alcance">Alcance</h2>
+    <div class="callout callout--success">
+      <p><strong>Incluido:</strong></p>
+      <ul style="margin-bottom: 12px;">
+        <li>Diseno de contratos de API (OpenAPI/Swagger)</li>
+        <li>Implementacion de endpoints REST</li>
+        <li>Integracion con servicios externos (ERP, Core Credito, Preselecta, FOSYGA, UBICA, Biometria)</li>
+        <li>Maquina de estados para control de flujo</li>
+        <li>Registro de invocaciones (logging)</li>
+        <li>Manejo de errores y reintentos</li>
+      </ul>
+    </div>
+    <div class="callout callout--danger">
+      <p><strong>Excluido (fuera del alcance de esta fase):</strong></p>
+      <ul style="margin-bottom: 12px;">
+        <li>Interfaz de usuario de la tienda (frontend)</li>
+        <li>Integracion con sistema de inventario/tienda (POS)</li>
+        <li>Flujo Web (autoservicio) - se documenta pero no se implementa</li>
+        <li>Flujo Externo (asesor de campo) - se documenta pero no se implementa</li>
+      </ul>
+    </div>
+
+    <!-- ==================== BLOQUE 1: INGRESO ==================== -->
+    <h2 id="fase1">Fase 1: Ingreso del Cliente</h2>
+    <p>
+      El Bloque 1 maneja el ingreso inicial del cliente a la tienda: validacion de documento, consulta de existencia en ERP,
+      y verificacion del estado de cupo (activo, bloqueado, cancelado).
+    </p>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-number">1</div>
+        <div class="card-title">POST /api/estudio/iniciar</div>
+      </div>
+      <p style="font-size: 14px; margin-bottom: 12px;">
+        Iniciar un nuevo estudio de credito. Recibe tipo y numero de documento, codigo de tienda/asesor.
+        Valida contra ERP si el tercero existe y consulta estado de cartera.
+      </p>
+      <table>
+        <thead><tr><th>Input</th><th>Tipo</th><th>Descripcion</th></tr></thead>
+        <tbody>
+          <tr><td>tipoDocumento</td><td>string</td><td>CC, CE, TI, RC</td></tr>
+          <tr><td>numeroDocumento</td><td>string</td><td>Numero de documento</td></tr>
+          <tr><td>idCanal</td><td>int</td><td>ID del canal (TIENDA = 2)</td></tr>
+          <tr><td>idBodega</td><td>int</td><td>ID de la tienda</td></tr>
+          <tr><td>nitAsesor</td><td>string</td><td>NIT del asesor (opcional)</td></tr>
+        </tbody>
+      </table>
+      <table>
+        <thead><tr><th>Respuesta</th><th>Tipo</th><th>Descripcion</th></tr></thead>
+        <tbody>
+          <tr><td>idEstudio</td><td>int</td><td>ID del estudio creado</td></tr>
+          <tr><td>estado</td><td>string</td><td>INICIADO, NO_VIABLE, REQUIERE_REACTIVACION</td></tr>
+          <tr><td>terceroExiste</td><td>boolean</td><td>Si existe en ERP</td></tr>
+          <tr><td>cupoActivo</td><td>object</td><td>Info del cupo activo (si aplica)</td></tr>
+          <tr><td>motivo</td><td>string</td><td>Descripcion del estado</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-number">2</div>
+        <div class="card-title">GET /api/estudio/{id}/validar-documento</div>
+      </div>
+      <p style="font-size: 14px; margin-bottom: 12px;">
+        Validar el documento en listas restrictivas. Llama al servicio LISTAS_RESTRICTIVAS.
+      </p>
+      <table>
+        <thead><tr><th>Input</th><th>Tipo</th><th>Descripcion</th></tr></thead>
+        <tbody>
+          <tr><td>idEstudio</td><td>int</td><td>ID del estudio</td></tr>
+          <tr><td>tipoDocumento</td><td>string</td><td>Tipo de documento</td></tr>
+          <tr><td>numeroDocumento</td><td>string</td><td>Numero de documento</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>Servicios externos del Bloque 1</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Servicio</th>
+          <th>Tipo</th>
+          <th>Responsable</th>
+          <th>Descripcion</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>VALIDAR_EXISTENCIA</code></td><td>ERP_QUAC</td><td>Backend</td><td>Confirma que el tercero existe en ERP</td></tr>
+        <tr><td><code>VALIDAR_CUPO_BLOQUEO</code></td><td>CORE_CREDITO</td><td>Backend</td><td>Sin cupo activo ni bloqueos vigentes</td></tr>
+        <tr><td><code>INGRESO_DOCUMENTO</code></td><td>—</td><td>ASESOR</td><td>Captura manual del documento</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ==================== BLOQUE 2: CAPTURA DATOS ==================== -->
+    <h2 id="fase2">Fase 2: Captura de Datos</h2>
+    <p>
+      El Bloque 2 captura los datos del cliente: nombre, telefono, email, direccion. Valida telefono y email,
+      y tokeniza los consentimientos legales.
+    </p>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-number">3</div>
+        <div class="card-title">POST /api/estudio/{id}/capturar-datos</div>
+      </div>
+      <p style="font-size: 14px; margin-bottom: 12px;">
+        Capturar datos del cliente. Validar que el telefono y email no esten asociados a otro documento con cupo activo.
+      </p>
+      <table>
+        <thead><tr><th>Input</th><th>Tipo</th><th>Descripcion</th></tr></thead>
+        <tbody>
+          <tr><td>idEstudio</td><td>int</td><td>ID del estudio</td></tr>
+          <tr><td>nombres</td><td>string</td><td>Nombres completos</td></tr>
+          <tr><td>apellidos</td><td>string</td><td>Apellidos completos</td></tr>
+          <tr><td>telefono</td><td>string</td><td>Celular (10 digitos)</td></tr>
+          <tr><td>email</td><td>string</td><td>Correo electronico</td></tr>
+          <tr><td>fechaNacimiento</td><td>string</td><td>Fecha nacimiento (YYYY-MM-DD)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-number">4</div>
+        <div class="card-title">POST /api/estudio/{id}/capturar-direccion</div>
+      </div>
+      <p style="font-size: 14px; margin-bottom: 12px;">
+        Capturar la direccion de residencia del cliente.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-number">5</div>
+        <div class="card-title">POST /api/estudio/{id}/tokenizar-consentimiento</div>
+      </div>
+      <p style="font-size: 14px; margin-bottom: 12px;">
+        Tokenizar los consentimientos legales del cliente. Envia OTP al telefono registrado y espera verificacion.
+      </p>
+      <table>
+        <thead><tr><th>Input</th><th>Tipo</th><th>Descripcion</th></tr></thead>
+        <tbody>
+          <tr><td>idEstudio</td><td>int</td><td>ID del estudio</td></tr>
+          <tr><td>consentimientos</td><td>array</td><td>Lista de consentimientos</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>Servicios externos del Bloque 2</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Servicio</th>
+          <th>Tipo</th>
+          <th>Responsable</th>
+          <th>Descripcion</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>CAPTURA_DATOS</code></td><td>—</td><td>ASESOR</td><td>Datos del cliente capturados</td></tr>
+        <tr><td><code>CONSENTIMIENTO_DATOS</code></td><td>—</td><td>CLIENTE</td><td>Firma OTP o checkbox</td></tr>
+        <tr><td><code>TOKENIZACION</code></td><td>OTP_PROVIDER</td><td>Backend</td><td>OTP enviado y verificado</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ==================== BLOQUE 3: VALIDACIONES ==================== -->
+    <h2 id="fase3">Fase 3: Validaciones</h2>
+    <p>
+      El Bloque 3 ejecuta las validaciones de riesgo: listas restrictivas, bure de credito, evaluacion Preselecta,
+      validacion FOSYGA/ADRES, y calculo del cupo. Este es el bloque con mas servicios externos.
+    </p>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-number">6</div>
+        <div class="card-title">POST /api/estudio/{id}/validar-listas</div>
+      </div>
+      <p style="font-size: 14px; margin-bottom: 12px;">
+        Consultar listas restrictivas. Retorna si el cliente esta en alguna lista negra.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-number">7</div>
+        <div class="card-title">POST /api/estudio/{id}/consultar-buro</div>
+      </div>
+      <p style="font-size: 14px; margin-bottom: 12px;">
+        Consultar bure de credito. Retorna score y historial crediticio.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-number">8</div>
+        <div class="card-title">POST /api/estudio/{id}/evaluar-preselecta</div>
+      </div>
+      <p style="font-size: 14px; margin-bottom: 12px;">
+        Ejecutar evaluacion de Preselecta. Retorna viabilidad y oferta preaprobada.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-number">9</div>
+        <div class="card-title">POST /api/estudio/{id}/validar-fosyga</div>
+      </div>
+      <p style="font-size: 14px; margin-bottom: 12px;">
+        Validar cotizacion en FOSYGA/ADRES. Retorna si esta activo y si cotiza en los ultimos meses.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-number">10</div>
+        <div class="card-title">POST /api/estudio/{id}/calcular-cupo</div>
+      </div>
+      <p style="font-size: 14px; margin-bottom: 12px;">
+        Calcular el cupo preaprobado basado en las validaciones anteriores.
+      </p>
+    </div>
+
+    <h4>Servicios externos del Bloque 3</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Servicio</th>
+          <th>Tipo</th>
+          <th>Responsable</th>
+          <th>Descripcion</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>VALIDAR_LISTAS</code></td><td>LISTAS_RESTRICTIVAS</td><td>Backend</td><td>No aparece en listas negras</td></tr>
+        <tr><td><code>CONSULTAR_BURO</code></td><td>BURO_CREDITO</td><td>Backend</td><td>Score de credito obtenido</td></tr>
+        <tr><td><code>EVALUAR_PRESELECTA</code></td><td>PRESELECTA</td><td>Backend</td><td>Preseleccion de oferta</td></tr>
+        <tr><td><code>VALIDAR_FOSYGA</code></td><td>FOSYGA</td><td>Backend</td><td>Vigencia en sistema de salud</td></tr>
+        <tr><td><code>CALCULAR_CUPO</code></td><td>MOTOR_CUPO</td><td>Backend</td><td>Cupo calculado y aprobado</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ==================== BLOQUE 4: RESULTADO ==================== -->
+    <h2 id="fase4">Fase 4: Resultado y Activacion</h2>
+    <p>
+      El Bloque 4 muestra el resultado al cliente, ejecuta la verificacion biometrica, y si todo es correcto,
+      activa el cupo en UBICA y genera la tarjeta virtual.
+    </p>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-number">11</div>
+        <div class="card-title">GET /api/estudio/{id}/resultado</div>
+      </div>
+      <p style="font-size: 14px; margin-bottom: 12px;">
+        Consultar el resultado del estudio. Retorna aprobado/rechazado con detalle.
+      </p>
+      <table>
+        <thead><tr><th>Respuesta</th><th>Tipo</th><th>Descripcion</th></tr></thead>
+        <tbody>
+          <tr><td>estado</td><td>string</td><td>APROBADO, RECHAZADO, REVISION_FABRICA</td></tr>
+          <tr><td>cupoPreaprobado</td><td>decimal</td><td>Monto del cupo</td></tr>
+          <tr><td>cuotaMensual</td><td>decimal</td><td>Valor de la cuota</td></tr>
+          <tr><td>tasaInteres</td><td>decimal</td><td>Tasa de interes</td></tr>
+          <tr><td>motivoRechazo</td><td>string</td><td>Motivo del rechazo (si aplica)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-number">12</div>
+        <div class="card-title">POST /api/estudio/{id}/verificar-biometria</div>
+      </div>
+      <p style="font-size: 14px; margin-bottom: 12px;">
+        Ejecutar verificacion biometrica: comparar selfie con foto del documento. Umbral configurable (default 85%).
+      </p>
+      <table>
+        <thead><tr><th>Input</th><th>Tipo</th><th>Descripcion</th></tr></thead>
+        <tbody>
+          <tr><td>idEstudio</td><td>int</td><td>ID del estudio</td></tr>
+          <tr><td>fotoSelfie</td><td>base64</td><td>Foto tomada en tiempo real</td></tr>
+          <tr><td>idFotoDocumento</td><td>int</td><td>ID de la foto del documento</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-number">13</div>
+        <div class="card-title">POST /api/estudio/{id}/activar-cupo</div>
+      </div>
+      <p style="font-size: 14px; margin-bottom: 12px;">
+        Activar el cupo preaprobado. Registra en UBICA y genera la tarjeta virtual.
+      </p>
+    </div>
+
+    <h4>Servicios externos del Bloque 4</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Servicio</th>
+          <th>Tipo</th>
+          <th>Responsable</th>
+          <th>Descripcion</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>VERIFICACION_BIOMETRICA</code></td><td>BIOMETRIA / AWS Rekognition</td><td>Backend</td><td>Comparacion selfie vs documento 85%</td></tr>
+        <tr><td><code>ACTIVACION_CUPO</code></td><td>UBICA</td><td>Backend</td><td>Cupo activado en sistema UBICA</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ==================== DETALLE DE TAREAS ==================== -->
+    <h2 id="tareas">Detalle de Tareas</h2>
+
+    <h3>Fase 1: Infraestructura Core (Dias 1-15)</h3>
+    <ul class="task-list">
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">T-001: Disenar esquema de base de datos</div>
+          <div class="task-desc">Crear/verificar tablas: EstudiosCredito, PasosEstudio, HistorialEstados, RegistroServiciosExternos, EvaluacionesRiesgo</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">T-002: Implementar maquina de estados</div>
+          <div class="task-desc">Crear stored procedure para transiciones de estado con validacion</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">T-003: Crear proyecto API base</div>
+          <div class="task-desc">Configurar .NET Core / Node.js, estructura de carpetas, Middleware de logging</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">T-004: Implementar cliente HTTP para servicios externos</div>
+          <div class="task-desc">Crear wrapper con reintentos, timeouts, circuit breaker</div>
+        </div>
+      </li>
+    </ul>
+
+    <h3>Fase 2: APIs del Bloque 1 (Dias 16-25)</h3>
+    <ul class="task-list">
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">T-005: POST /api/estudio/iniciar</div>
+          <div class="task-desc">Endpoint para iniciar estudio. Valida documento contra ERP y CORE</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">T-006: GET /api/estudio/{id}</div>
+        <div class="task-desc">Consultar estado de un estudio</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">T-007: Integracion ERP_QUAC</div>
+          <div class="task-desc">Consumo de servicio de existencia de terceros</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">T-008: Integracion CORE_CREDITO</div>
+          <div class="task-desc">Consumo de servicio de consulta de cupo/bloqueos</div>
+        </div>
+      </li>
+    </ul>
+
+    <h3>Fase 3: APIs del Bloque 2 (Dias 26-32)</h3>
+    <ul class="task-list">
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">T-009: POST /api/estudio/{id}/capturar-datos</div>
+          <div class="task-desc">Capturar datos del cliente con validaciones</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">T-010: POST /api/estudio/{id}/capturar-direccion</div>
+          <div class="task-desc">Capturar direccion de residencia</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">T-011: POST /api/estudio/{id}/consentimiento</div>
+          <div class="task-desc">Tokenizar consentimientos con OTP</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">T-012: Integracion OTP_PROVIDER</div>
+          <div class="task-desc">Consumo de servicio de envio de OTP (Infobip)</div>
+        </div>
+      </li>
+    </ul>
+
+    <h3>Fase 4: APIs del Bloque 3 (Dias 33-40)</h3>
+    <ul class="task-list">
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">T-013: POST /api/estudio/{id}/validar-listas</div>
+          <div class="task-desc">Consultar listas restrictivas</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">T-014: POST /api/estudio/{id}/consultar-buro</div>
+          <div class="task-desc">Consultar bure de credito</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">T-015: POST /api/estudio/{id}/evaluar-preselecta</div>
+          <div class="task-desc">Ejecutar evaluacion Preselecta</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">T-016: POST /api/estudio/{id}/validar-fosyga</div>
+          <div class="task-desc">Validar cotizacion FOSYGA/ADRES</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">T-017: POST /api/estudio/{id}/calcular-cupo</div>
+          <div class="task-desc">Calcular cupo preaprobado</div>
+        </div>
+      </li>
+    </ul>
+
+    <h3>Fase 5: APIs del Bloque 4 (Dias 41-45)</h3>
+    <ul class="task-list">
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">T-018: GET /api/estudio/{id}/resultado</div>
+          <div class="task-desc">Consultar resultado del estudio</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">T-019: POST /api/estudio/{id}/verificar-biometria</div>
+          <div class="task-desc">Verificacion biometrica con AWS Rekognition</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">T-020: POST /api/estudio/{id}/activar-cupo</div>
+          <div class="task-desc">Activar cupo en UBICA</div>
+        </div>
+      </li>
+    </ul>
+
+    <!-- ==================== DEPENDENCIAS ==================== -->
+    <h2 id="dependencias">Dependencias Externas</h2>
+    <p>Las siguiente integraciones deben estar disponibles antes de iniciar las pruebas de интеграacion:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Servicio</th>
+          <th>Proveedor</th>
+          <th>Tipo</th>
+          <th>Requerido para</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>ERP_QUAC</td><td>Interno</td><td>REST</td><td>T-005</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>CORE_CREDITO</td><td>Interno</td><td>REST</td><td>T-005</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>LISTAS_RESTRICTIVAS</td><td>Externo</td><td>REST</td><td>T-013</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>BURO_CREDITO</td><td>Datcredito/Central</td><td>REST</td><td>T-014</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>PRESELECTA</td><td>Interno</td><td>REST</td><td>T-015</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>FOSYGA</td><td>ADRES</td><td>REST/WS</td><td>T-016</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>OTP_PROVIDER</td><td>Infobip</td><td>REST</td><td>T-011</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>AWS Rekognition</td><td>AWS</td><td>SDK</td><td>T-019</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>UBICA</td><td>TransUnion</td><td>REST</td><td>T-020</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout--warn">
+      <p><strong>Nota critica:</strong> Sin los servicios externos disponibles, los endpoints correspondientes no pueden probarse.
+      Se recomienda crear MOCKS para desarrollo y pruebas locales.</p>
+    </div>
+
+    <!-- ==================== ENTREGABLES ==================== -->
+    <h2 id="entregables">Entregables</h2>
+
+    <h3>Documentacion</h3>
+    <ul>
+      <li><code>docs/openapi.yaml</code> — Especificacion OpenAPI 3.0 de todos los endpoints</li>
+      <li><code>docs/Manual-API.md</code> — Manual de integracion con ejemplos</li>
+      <li><code>docs/Diagramas-Arquitectura.drawio</code> — Diagramas de arquitectura</li>
+    </ul>
+
+    <h3>Codigo Fuente</h3>
+    <ul>
+      <li>Proyecto API — codigo fuente completo</li>
+      <li>Scripts de base de datos — DDL y seeds</li>
+      <li>Tests unitarios — cobertura minima 80%</li>
+      <li>Tests de интеграacion — para flujos completos</li>
+    </ul>
+
+    <h3> Infraestructura </h3>
+    <ul>
+      <li>Dockerfile — contenedor de la aplicacion</li>
+      <li>docker-compose.yml — ambiente de desarrollo</li>
+      <li>Configuracion — variables de entorno documentadas</li>
+    </ul>
+
+    <!-- ==================== CRONOGRAMA ==================== -->
+    <h2 id="timeline">Cronograma</h2>
+
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%;"></div>
+      </div>
+      <div class="progress-label">
+        <span>0%</span>
+        <span> ~45 dias estimados</span>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Semana</th>
+          <th>Fase</th>
+          <th>Tareas</th>
+          <th>Entregable</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Sem 1-2</strong></td>
+          <td>Infraestructura Core</td>
+          <td>T-001 a T-004</td>
+          <td>Proyecto base, DB, wrapper HTTP</td>
+        </tr>
+        <tr>
+          <td><strong>Sem 3-4</strong></td>
+          <td>Bloque 1: Ingreso</td>
+          <td>T-005 a T-008</td>
+          <td>Endpoints /api/estudio/iniciar</td>
+        </tr>
+        <tr>
+          <td><strong>Sem 5</strong></td>
+          <td>Bloque 2: Captura Datos</td>
+          <td>T-009 a T-012</td>
+          <td>Endpoints de captura</td>
+        </tr>
+        <tr>
+          <td><strong>Sem 6-7</strong></td>
+          <td>Bloque 3: Validaciones</td>
+          <td>T-013 a T-017</td>
+          <td>Endpoints de validacion</td>
+        </tr>
+        <tr>
+          <td><strong>Sem 7-8</strong></td>
+          <td>Bloque 4: Resultado</td>
+          <td>T-018 a T-020</td>
+          <td>Endpoints de activacion</td>
+        </tr>
+        <tr>
+          <td><strong>Sem 8-9</strong></td>
+          <td>Pruebas e Integracion</td>
+          <td>Testing, fixes</td>
+          <td>API lista para QA</td>
+        </tr>
+        <tr>
+          <td><strong>Sem 10</strong></td>
+          <td>Entrega</td>
+          <td>Documentacion, walkthrough</td>
+          <td>Entregable final</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout--info">
+      <p><strong>Supuestos:</strong></p>
+      <ul style="margin-bottom: 12px;">
+        <li>Equipo de desarrollo: 1-2 desarrolladores senior</li>
+        <li>Acceso a servicios externos: disponible para pruebas</li>
+        <li>Infraestructura: Kubernetes o VM para deploy</li>
+        <li>Metodologia: Agile/Scrum con sprints de 2 semanas</li>
+      </ul>
+    </div>
+
+    <!-- ==================== NOTAS ==================== -->
+    <h2 style="margin-top: 48px; border-top: 2px solid var(--border); padding-top: 24px;">Notas</h2>
+    <ul>
+      <li><strong>Este plan es un documento vivo</strong> — se actualizara conforme avance el desarrollo.</li>
+      <li><strong>Las estimaciones son conservadoras</strong> — pueden ajustarse segun disponibilidad del equipo.</li>
+      <li><strong>Los servicios externos son bloqueadores criticos</strong> — sin ellos no hay pruebas de integracion.</li>
+      <li><strong>La documentacion debe mantenerse actualizada</strong> — cualquier cambio en el flujo debe reflejarse aqui.</li>
+    </ul>
+
+    <p style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-secondary);">
+      <strong>Documentos relacionados:</strong>
+      <a href="flujos/index.html" style="color: var(--accent);">flujos/index.html</a> |
+      <a href="infraestructura/06-servicios-backend.html" style="color: var(--accent);">infraestructura/06-servicios-backend.html</a> |
+      <a href="DB/DDL/FABRICASv2.sql" style="color: var(--accent);">DB/DDL/FABRICASv2.sql</a>
+    </p>
+  </main>
+
+  <script>
+    console.log('Plan de Trabajo loaded - Fabricas de Credito QUAC');
+  </script>
+</body>
+</html>
