@@ -7,8 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+  <script src="assets/js/mermaid.min.js"></script>
+  <script src="assets/js/svg-pan-zoom.min.js"></script>
   <style>
     :root {
       --bg: #FAFBFC;
@@ -361,6 +361,42 @@
             } else {
               container.textContent = 'Error loading diagram: ' + src;
             }
+          } catch (e) {
+            container.textContent = 'Failed to fetch ' + src;
+          }
+        }
+      }
+      
+      // Renderizamos los diagramas estáticos (.mermaid)
+      try {
+        await mermaid.run({
+          querySelector: '.mermaid'
+        });
+        
+        // Inicializamos pan-zoom para los estáticos
+        document.querySelectorAll('.mermaid > svg').forEach(svgElement => {
+          svgElement.style.width = '100%';
+          svgElement.style.height = '60vh';
+          svgElement.style.maxWidth = 'none';
+          svgPanZoom(svgElement, {
+            zoomEnabled: true,
+            controlIconsEnabled: true,
+            fit: true,
+            center: true,
+            minZoom: 0.5,
+            maxZoom: 10
+          });
+        });
+      } catch (e) {
+        console.error('Error rendering static diagrams:', e);
+      }
+
+      // Renderizamos el diagrama de la pestaña activa inicial
+      const activeCard = document.querySelector('.diagram-card.active');
+      if (activeCard) {
+        await renderCard(activeCard);
+      }
+    }
           } catch (e) {
             container.textContent = 'Failed to fetch ' + src;
           }
