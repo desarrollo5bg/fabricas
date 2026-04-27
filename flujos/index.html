@@ -164,10 +164,16 @@
     <div class="sidebar-title">Flujos — Fabricas QUAC</div>
     <nav>
       <a href="#flujos-tienda">Flujo Tienda</a>
-      <a href="#flujo-bloque1" class="indent">Bloque 1: Ingreso</a>
-      <a href="#flujo-bloque2" class="indent">Bloque 2: Captura Datos</a>
-      <a href="#flujo-bloque3" class="indent">Bloque 3: Validaciones</a>
-      <a href="#flujo-bloque4" class="indent">Bloque 4: Resultado</a>
+      <a href="#flujo-general" class="indent">Resumen General</a>
+      <a href="#paso1" class="indent">1. Creación/Validación</a>
+      <a href="#paso2" class="indent">2. Validación Cupo</a>
+      <a href="#paso3" class="indent">3. Inicio Estudio</a>
+      <a href="#paso4" class="indent">4. Evaluación Inicial</a>
+      <a href="#paso5" class="indent">5. Validación Identidad</a>
+      <a href="#paso6" class="indent">6. Definición Ubica</a>
+      <a href="#paso7" class="indent">7. Fábrica Soporte</a>
+      <a href="#paso8" class="indent">8. Validación Cotización</a>
+      <a href="#paso9" class="indent">9. Activación Cupo</a>
       <a href="#flujo-web" class="indent">Flujo Web</a>
       <a href="#flujo-externo" class="indent">Flujo Externo</a>
     </nav>
@@ -187,94 +193,85 @@
     <h2 id="flujos-tienda">Flujo Tienda</h2>
 
     <div class="tabs">
-      <button class="tab active" onclick="showDiagram('bloque1', this)">Bloque 1</button>
-      <button class="tab" onclick="showDiagram('bloque2', this)">Bloque 2</button>
-      <button class="tab" onclick="showDiagram('bloque3', this)">Bloque 3</button>
-      <button class="tab" onclick="showDiagram('bloque4', this)">Bloque 4</button>
+      <button class="tab active" onclick="showDiagram('flujo-general', this)">Resumen General</button>
+      <button class="tab" onclick="showDiagram('paso1', this)">1. Creación/Validación</button>
+      <button class="tab" onclick="showDiagram('paso2', this)">2. Validación Cupo</button>
+      <button class="tab" onclick="showDiagram('paso3', this)">3. Inicio Estudio</button>
+      <button class="tab" onclick="showDiagram('paso4', this)">4. Evaluación Inicial</button>
+      <button class="tab" onclick="showDiagram('paso5', this)">5. Validación Identidad</button>
+      <button class="tab" onclick="showDiagram('paso6', this)">6. Definición Ubica</button>
+      <button class="tab" onclick="showDiagram('paso7', this)">7. Soporte/Atención</button>
+      <button class="tab" onclick="showDiagram('paso8', this)">8. Validación Cotización</button>
+      <button class="tab" onclick="showDiagram('paso9', this)">9. Activación Cupo</button>
     </div>
 
-    <div class="diagram-card active" id="bloque1">
+    <div class="diagram-card active" id="flujo-general">
       <div class="diagram-container">
-        <div class="diagram-title">Bloque 1: Ingreso del Cliente</div>
-        <div class="mermaid">
-        graph TD
-          A[Cliente llega a tienda] --> B{Cupo Activo?}
-          B -->|Si| C[Cupo disponible?]
-          B -->|No| D[Iniciar estudio]
-          C -->|Si| E[Mostrar cupos activos]
-          C -->|No| D
-          E --> F{Continuar?}
-          F -->|Si| D
-          F -->|No| G[Fin - Usar cupo actual]
-          D --> H[Asesor captura documento]
-          H --> I[Validar documento en listas]
-          I --> J{Aprobado?}
-          J -->|Si| K[Continuar flujo]
-          J -->|No| L[Mostrar motivo rech]
-          L --> M[Fin - No viable]
-          K --> N[Bloque 2]
-        </div>
+        <div class="diagram-title">Resumen General</div>
+        <div class="mermaid-container" data-src="../flujos-aplicacion/flujo-tienda/flujo-general-resumen.mermaid"></div>
       </div>
     </div>
 
-    <div class="diagram-card" id="bloque2">
+    <div class="diagram-card" id="paso1">
       <div class="diagram-container">
-        <div class="diagram-title">Bloque 2: Captura de Datos</div>
-        <div class="mermaid">
-        graph TD
-          A[Bloque 2: Captura] --> B[Capturar datos cliente]
-          B --> C[Validar telefono]
-          C --> D{Valido?}
-          D -->|Si| E[Capturar email]
-          D -->|No| F[Pedir telefono valido]
-          F --> C
-          E --> G[Capturar direccion]
-          G --> H[Tokenizar consentimientos]
-          H --> I{Completo?}
-          I -->|Si| J[Continuar]
-          I -->|No| K[Mostrar errores]
-          K --> H
-          J --> L[Bloque 3]
-        </div>
+        <div class="diagram-title">1. Creación y Validación Cliente</div>
+        <div class="mermaid-container" data-src="../flujos-aplicacion/flujo-tienda/1creacion-validacion.mermaid"></div>
       </div>
     </div>
 
-    <div class="diagram-card" id="bloque3">
+    <div class="diagram-card" id="paso2">
       <div class="diagram-container">
-        <div class="diagram-title">Bloque 3: Validaciones</div>
-        <div class="mermaid">
-        graph TD
-          A[Bloque 3: Validaciones] --> B[Consultar listas restrictivas]
-          B --> C[Consultar buró de crédito]
-          C --> D[Evaluación Preselecta]
-          D --> E[Validar FOSYGA / ADRES]
-          E --> F{Todas aprobadas?}
-          F -->|Si| G[Calcular cupo]
-          F -->|No| H[Determinar rech]
-          H --> I[Mostrar resultado]
-          I --> J[Fin - Rechazado]
-          G --> K[Bloque 4]
-        </div>
+        <div class="diagram-title">2. Validación de Cupo</div>
+        <div class="mermaid-container" data-src="../flujos-aplicacion/flujo-tienda/2validacion-cupo.mermaid"></div>
       </div>
     </div>
 
-    <div class="diagram-card" id="bloque4">
+    <div class="diagram-card" id="paso3">
       <div class="diagram-container">
-        <div class="diagram-title">Bloque 4: Resultado y Activación</div>
-        <div class="mermaid">
-        graph TD
-          A[Bloque 4: Resultado] --> B{Studio aprobado?}
-          B -->|Si| C[Mostrar cupo preaprobado]
-          C --> D[Validar identidad biometrics]
-          D --> E{Aprobado?}
-          E -->|Si| F[Enviar a UBICA]
-          E -->|No| G[Derivar a Fabrica]
-          B -->|No| H[Mostrar motivo]
-          H --> I[Fin - No aprobado]
-          F --> J[Activar cupo]
-          J --> K[Fin - Cupo activado]
-          G --> L[Fin - Requiere revision]
-        </div>
+        <div class="diagram-title">3. Inicio de Estudio</div>
+        <div class="mermaid-container" data-src="../flujos-aplicacion/flujo-tienda/3inicio-estudio.mermaid"></div>
+      </div>
+    </div>
+
+    <div class="diagram-card" id="paso4">
+      <div class="diagram-container">
+        <div class="diagram-title">4. Evaluación Inicial</div>
+        <div class="mermaid-container" data-src="../flujos-aplicacion/flujo-tienda/4evaluacion-inicial.mermaid"></div>
+      </div>
+    </div>
+
+    <div class="diagram-card" id="paso5">
+      <div class="diagram-container">
+        <div class="diagram-title">5. Validación de Identidad</div>
+        <div class="mermaid-container" data-src="../flujos-aplicacion/flujo-tienda/5-validacion-identidad.mermaid"></div>
+      </div>
+    </div>
+
+    <div class="diagram-card" id="paso6">
+      <div class="diagram-container">
+        <div class="diagram-title">6. Definición UBICA</div>
+        <div class="mermaid-container" data-src="../flujos-aplicacion/flujo-tienda/6definicion-ubica.mermaid"></div>
+      </div>
+    </div>
+
+    <div class="diagram-card" id="paso7">
+      <div class="diagram-container">
+        <div class="diagram-title">7. Fábrica de Soporte</div>
+        <div class="mermaid-container" data-src="../flujos-aplicacion/flujo-tienda/7fabricas-soporte-credito-atencion-manual.mermaid"></div>
+      </div>
+    </div>
+
+    <div class="diagram-card" id="paso8">
+      <div class="diagram-container">
+        <div class="diagram-title">8. Validación Cotización</div>
+        <div class="mermaid-container" data-src="../flujos-aplicacion/flujo-tienda/8validacion-cotizavion.mermaid"></div>
+      </div>
+    </div>
+
+    <div class="diagram-card" id="paso9">
+      <div class="diagram-container">
+        <div class="diagram-title">9. Activación Cupo</div>
+        <div class="mermaid-container" data-src="../flujos-aplicacion/flujo-tienda/9activacion-cupo.mermaid"></div>
       </div>
     </div>
 
@@ -337,7 +334,7 @@
 
   <script>
     mermaid.initialize({
-      startOnLoad: true,
+      startOnLoad: false, // We'll render manually after fetch
       theme: 'base',
       themeVariables: {
         primaryColor: '#F3EEFF',
@@ -348,6 +345,33 @@
         tertiaryColor: '#fffbeb'
       }
     });
+
+    async function loadMermaidDiagrams() {
+      const containers = document.querySelectorAll('.mermaid-container');
+      for (const container of containers) {
+        const src = container.getAttribute('data-src');
+        if (src) {
+          try {
+            const response = await fetch(src);
+            if (response.ok) {
+              const text = await response.text();
+              const div = document.createElement('div');
+              div.className = 'mermaid';
+              div.textContent = text;
+              container.appendChild(div);
+            } else {
+              container.textContent = 'Error loading diagram: ' + src;
+            }
+          } catch (e) {
+            container.textContent = 'Failed to fetch ' + src;
+          }
+        }
+      }
+      mermaid.run();
+    }
+
+    // Load diagrams on startup
+    window.addEventListener('DOMContentLoaded', loadMermaidDiagrams);
 
     function showDiagram(id, btn) {
       // Ocultar todos los diagramas
@@ -362,11 +386,6 @@
         el.classList.remove('active');
       });
       btn.classList.add('active');
-      
-      // Re-renderizar mermaid después del cambio
-      setTimeout(() => {
-        mermaid.run();
-      }, 100);
     }
   </script>
 </body>
