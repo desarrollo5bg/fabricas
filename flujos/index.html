@@ -402,6 +402,31 @@
           }
         }
       }
+      
+      // Renderizamos los diagramas estáticos (.mermaid)
+      try {
+        await mermaid.run({
+          querySelector: '.mermaid'
+        });
+        
+        // Inicializamos pan-zoom para los estáticos
+        document.querySelectorAll('.mermaid > svg').forEach(svgElement => {
+          svgElement.style.width = '100%';
+          svgElement.style.height = '60vh';
+          svgElement.style.maxWidth = 'none';
+          svgPanZoom(svgElement, {
+            zoomEnabled: true,
+            controlIconsEnabled: true,
+            fit: true,
+            center: true,
+            minZoom: 0.5,
+            maxZoom: 10
+          });
+        });
+      } catch (e) {
+        console.error('Error rendering static diagrams:', e);
+      }
+
       // Renderizamos el diagrama de la pestaña activa inicial
       const activeCard = document.querySelector('.diagram-card.active');
       if (activeCard) {
