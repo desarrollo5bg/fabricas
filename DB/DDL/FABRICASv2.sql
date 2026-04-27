@@ -79,7 +79,9 @@
   - GAP-15: Nueva tabla AuditoriaLogins
   - GAP-16: SolicitudesRecarga: índice IX_SolicitudesRecarga_Estudio no incluye IdTipoFoto en clave
   - GAP-17: JWT_ORIGEN_TIENDA seed (ya cubierto por GAP-04)
-  - GAP-18: TercerosFabricas +CelularTercero VARCHAR(20) NULL
+  - GAP-18: TercerosFabricas +CelularPrincipal, +CelularWhatsApp
+  - GAP-20: EstudiosCredito +RenunciaCupo BIT NOT NULL DEFAULT 0 (Eliminación voluntaria)
+  - GAP-21: EvaluacionesRiesgo +MoraComerciosAliados BIT NULL
 
   CAMBIOS v2.3 — Gestión de Fotografías / Módulo de Revisión (2026-04-13):
   - PH-01: Nueva tabla CatalogoTiposFotografia (catálogo de los 3 tipos obligatorios)
@@ -301,7 +303,8 @@ BEGIN
         FechaRegistroBiometrico DATETIME2(3) NULL,           -- GAP-06: precisión explícita (3)
         PuntajeCredito         DECIMAL(5,2) NULL,
         FechaUltimaEvaluacion  DATETIME2(3) NULL,            -- GAP-06: precisión explícita (3)
-        CelularTercero         VARCHAR(20) NULL,             -- GAP-18: celular principal para contacto y OTP
+        CelularPrincipal       VARCHAR(20) NULL,             -- GAP-18: Teléfono para llamadas/SMS
+        CelularWhatsApp        VARCHAR(20) NULL,             -- GAP-18: Teléfono exclusivo para WhatsApp
         FechaCreacion          DATETIME2(3) NOT NULL DEFAULT GETDATE(),  -- GAP-06+11: DATETIME2(3) y GETDATE()
         FechaModificacion      DATETIME2(3) NOT NULL DEFAULT GETDATE(),  -- GAP-06+11: DATETIME2(3) y GETDATE()
         CONSTRAINT PK_TercerosFabricas PRIMARY KEY CLUSTERED (IdTerceroFabricas),
@@ -466,6 +469,7 @@ BEGIN
         -- Banderas de proceso
         EsPreaprobado          BIT                 NOT NULL DEFAULT 0,
         EsReactivacion         BIT                 NOT NULL DEFAULT 0,
+        RenunciaCupo           BIT                 NOT NULL DEFAULT 0, -- GAP-20: Marcación si el cliente solicita eliminar/renunciar a su cupo
         RequiereCallCenter     BIT                 NOT NULL DEFAULT 0,
         
         -- Tipo de cierre y cupo express (GT-04)
@@ -588,6 +592,7 @@ BEGIN
         -- Resultados clave
         CoincidenciaListasRestrictivas BIT            NOT NULL DEFAULT 0,
         ScoreBuro                  INT                 NULL,
+        MoraComerciosAliados       BIT                 NULL,       -- GAP-21: Validación si presenta mora en otros comercios
         ViablePreselecta           BIT                 NULL,
         EsPensionado               BIT                 NULL,
         TieneSeguridadSocial       BIT                 NULL,
@@ -1815,6 +1820,14 @@ END
 IF NOT EXISTS (SELECT * FROM CatalogoReglasFraude)
 BEGIN
     INSERT INTO [cat].[CatalogoReglasFraude] (Codigo, Nombre, Descripcion, NivelRiesgo, AccionAutomatica) VALUES
+    ('DUPLICIDAD_EMAIL',
+        'Email Duplicado',
+        'El correo electrónico ya se encuentra registrado con otro tercero.',
+        'MEDIO', 'NOTIFICAR'),
+    ('DUPLICIDAD_CELULAR',
+        'Celular Duplicado',
+        'El número de celular ya se encuentra registrado con otro tercero.',
+        'ALTO', 'BLOQUEAR'),
     ('EMAIL_CHANGE_POST_OTP_FAIL',
         'Cambio de email después de fallo OTP',
         'El cliente intenta cambiar su email después de que falló la validación OTP. Patrón típico de suplantación: el suplantador no tiene acceso al email real del titular y lo cambia para recibir el OTP.',
@@ -1986,7 +1999,19 @@ BEGIN
     ('REENVIOS_OTP_MAX',
         'Máximo de reenvíos de OTP permitidos por reto',
         '2', 'INT', 'OTP',
-        'Número máximo de veces que el cliente puede solicitar reenvío del OTP sin que se cancele el reto');
+        'Número máximo de veces que el cliente puede solicitar reenvío del OTP sin que se cancele el reto'),
+    ('VENTANA_REACTIVACION_CUPO_DIAS',
+        'Ventana de eliminación para reactivación (días)',
+        '30', 'INT', 'RIESGO',
+        'Días permitidos para evaluar reactivación de un cupo tras haber sido eliminado por el cliente'),
+    ('VENTANA_COMPRAS_RECIENTES_DIAS',
+        'Ventana compras recientes ruta simplificada (días)',
+        '60', 'INT', 'RIESGO',
+        'Validar si el cliente realizó compras en los últimos X días para habilitar validación abreviada'),
+    ('VENTANA_ACTUALIZACION_DATOS_DIAS',
+        'Ventana actualización datos ruta simplificada (días)',
+        '90', 'INT', 'RIESGO',
+        'Días transcurridos sin cambios de correo y dirección para habilitar validación abreviada');
 
     PRINT '✓ Seeds adicionales insertados en ConfiguracionReglasNegocio';
 END
@@ -3002,7 +3027,7 @@ END
   ║  ├── TransicionesEstado:            40 registros (+8 nuevas v2.3)            ║
   ║  ├── ConfiguracionReglasNegocio:    20 registros (v2.4 duplicados eliminados)║
   ║  ├── CatalogoCanalesOrigen:          3 registros                             ║
-  ║  ├── CatalogoReglasFraude:          12 registros (+4 nuevas v2.3)            ║
+  ║  ├── CatalogoReglasFraude:          14 registros (+6 nuevas v2.3)            ║
   ║  ├── CatalogoMotivosEscalamiento:   12 registros (+4 nuevos v2.3)            ║
   ║  └── CatalogoTiposFotografia:        3 registros (PH-10)                     ║
   ║                                                                              ║
@@ -3024,7 +3049,9 @@ END
   ║  ├── GAP-15 🟢 Nueva tabla AuditoriaLogins                                  ║
   ║  ├── GAP-16 🟢 IX_SolicitudesRecarga_Estudio: IdTipoFoto → INCLUDE (nullable)║
   ║  ├── GAP-17 🟢 JWT_ORIGEN_TIENDA (cubierto en GAP-04)                       ║
-  ║  └── GAP-18 🟢 TercerosFabricas +CelularTercero                             ║
+  ║  ├── GAP-18 🟢 TercerosFabricas +CelularPrincipal, +CelularWhatsApp           ║
+  ║  ├── GAP-20 🟢 EstudiosCredito +RenunciaCupo (Marcación de eliminación)       ║
+  ║  └── GAP-21 🟢 EvaluacionesRiesgo +MoraComerciosAliados                       ║
   ║                                                                              ║
   ╚══════════════════════════════════════════════════════════════════════════════╝
 */

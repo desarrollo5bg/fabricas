@@ -217,11 +217,13 @@ END
 
 
 -- ==============================================================================
--- 7. CatalogoReglasFraude (6 registros)
+-- 7. CatalogoReglasFraude (8 registros)
 -- ==============================================================================
 IF NOT EXISTS (SELECT * FROM [cat].[CatalogoReglasFraude])
 BEGIN
     INSERT INTO [cat].[CatalogoReglasFraude] (Codigo, Nombre, Descripcion, NivelRiesgo, AccionAutomatica) VALUES
+    ('DUPLICIDAD_EMAIL', 'Email Duplicado', 'El correo electrónico ya se encuentra registrado con otro tercero.', 'MEDIO', 'NOTIFICAR'),
+    ('DUPLICIDAD_CELULAR', 'Celular Duplicado', 'El número de celular ya se encuentra registrado con otro tercero.', 'ALTO', 'BLOQUEAR'),
     ('EMAIL_CHANGE_POST_OTP_FAIL',
         'Cambio de email después de fallo OTP',
         'El cliente intenta cambiar su email después de que falló la validación OTP.',
@@ -247,7 +249,7 @@ BEGIN
         'Los datos extraídos por OCR no coinciden con los datos declarados.',
         'MEDIO', 'ESCALAR');
     
-    PRINT '✓ cat.CatalogoReglasFraude: 6 registros insertados';
+    PRINT '✓ cat.CatalogoReglasFraude: 8 registros insertados';
 END
 ELSE
 BEGIN
@@ -336,7 +338,7 @@ PRINT '  cfg.PasosEstudio:              13';
 PRINT '  cfg.CatalogoEstados:          17';
 PRINT '  cfg.TransicionesEstado:     ~17';
 PRINT '  cat.CatalogoCanalesOrigen:    3';
-PRINT '  cat.CatalogoReglasFraude:      6';
+PRINT '  cat.CatalogoReglasFraude:      8';
 PRINT '  cat.CatalogoMotivosEscalamiento: 5';
 PRINT '  cat.CatalogoTiposFotografia:   3';
 PRINT '';

@@ -270,7 +270,8 @@ BEGIN
         FechaRegistroBiometrico DATETIME2(3) NULL,
         PuntajeCredito         DECIMAL(5,2) NULL,
         FechaUltimaEvaluacion  DATETIME2(3) NULL,
-        CelularTercero         VARCHAR(20) NULL,
+        CelularPrincipal       VARCHAR(20) NULL,
+        CelularWhatsApp        VARCHAR(20) NULL,
         FechaCreacion          DATETIME2(3) NOT NULL DEFAULT GETDATE(),
         FechaModificacion      DATETIME2(3) NOT NULL DEFAULT GETDATE(),
         CONSTRAINT PK_TercerosFabricas PRIMARY KEY CLUSTERED (IdTerceroFabricas),
@@ -345,6 +346,7 @@ BEGIN
         -- Banderas de proceso
         EsPreaprobado          BIT                 NOT NULL DEFAULT 0,
         EsReactivacion         BIT                 NOT NULL DEFAULT 0,
+        RenunciaCupo           BIT                 NOT NULL DEFAULT 0,
         RequiereCallCenter     BIT                 NOT NULL DEFAULT 0,
         
         -- Tipo de cierre y cupo express
@@ -462,6 +464,7 @@ BEGIN
         TipoEvaluacion             VARCHAR(30)         NOT NULL,
         CoincidenciaListasRestrictivas BIT            NOT NULL DEFAULT 0,
         ScoreBuro                  INT                 NULL,
+        MoraComerciosAliados       BIT                 NULL,
         ViablePreselecta           BIT                 NULL,
         EsPensionado               BIT                 NULL,
         TieneSeguridadSocial       BIT                 NULL,
