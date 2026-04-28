@@ -6361,9 +6361,14 @@ T+0:07  App recibe la respuesta → Andrés ve la pantalla de "Datos básicos" s
           </thead>
           <tbody>
             <tr>
-              <td><span class="badge badge--amber">v2.6</span></td>
-              <td>2026-04-15</td>
-              <td><strong>Correcciones Iteración 1 + Auditoría DDL: 18 gaps cerrados.</strong> Tabla <code>FotografiasEstudio</code> unificada (selfie + documento frontal + trasero). Nueva tabla <code>AuditoriaLogins</code> (LoginWeb/LoginTienda). <code>NitComercio</code> y <code>CelularCliente</code> en <code>EstudiosCredito</code>. <code>IdBodega</code> renombrado desde <code>IdTienda</code>. Eliminados <code>ClaveIdempotencia</code> y <code>VersionFila</code> de la definición de columnas (se manejan como mecanismos de infraestructura).</td>
+              <td><span class="badge badge--accent">v2.7</span></td>
+              <td>2026-04-22</td>
+              <td><strong>Post-Validación Funcional + Sincronización infraestructura.</strong> GAP-18 rediseñado (separación celular/WhatsApp), GAP-20 (RenunciaCupo), GAP-21 (MoraComerciosAliados), GAP-22 (reglas DUPLICIDAD_EMAIL/CELULAR), GAP-23 (ventanas reactivación), GAP-24 (documentación sincronizada). 6 archivos infraestructura actualizados a v2.7.</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">v2.6</span></td>
+              <td>2026-04-16</td>
+              <td><strong>Operadores y trazabilidad inmutable.</strong> Nuevas tablas <code>fab.OperadoresFabrica</code> y <code>fab.DisponibilidadOperadores</code>. Columnas de NIT en todas las tablas transaccionales para trazabilidad inmutable.</td>
             </tr>
             <tr>
               <td><span class="badge badge--accent">v2.5</span></td>
@@ -6401,9 +6406,9 @@ T+0:07  App recibe la respuesta → Andrés ve la pantalla de "Datos básicos" s
 
       <hr />
       <p style="font-size: 13px; color: var(--text-secondary)">
-        <strong>Documento:</strong> Arquitectura de Datos — Fábricas de Crédito
-        QUAC v2.6<br />
-        <strong>Fecha:</strong> 15 de abril de 2026<br />
+<strong>Documento:</strong> Arquitectura de Datos — Fábricas de Crédito
+QUAC v2.7<br />
+        <strong>Fecha:</strong> 22 de abril de 2026<br />
         <strong>Archivos relacionados:</strong>
         <code>DB/DDL/FABRICASv2.sql</code>
       </p>
