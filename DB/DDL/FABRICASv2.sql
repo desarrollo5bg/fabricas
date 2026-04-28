@@ -80,8 +80,12 @@
   - GAP-16: SolicitudesRecarga: índice IX_SolicitudesRecarga_Estudio no incluye IdTipoFoto en clave
   - GAP-17: JWT_ORIGEN_TIENDA seed (ya cubierto por GAP-04)
   - GAP-18: TercerosFabricas +CelularPrincipal, +CelularWhatsApp
+  - GAP-19: OperadoresFabrica +DisponibilidadOperadores (Trazabilidad inmutable de operadores)
   - GAP-20: EstudiosCredito +RenunciaCupo BIT NOT NULL DEFAULT 0 (Eliminación voluntaria)
   - GAP-21: EvaluacionesRiesgo +MoraComerciosAliados BIT NULL
+  - GAP-22: CatalogoReglasFraude +DUPLICIDAD_EMAIL, +DUPLICIDAD_CELULAR (Políticas de duplicidad)
+  - GAP-23: ConfiguracionReglasNegocio +VENTANA_REACTIVACION_CUPO_DIAS, +VENTANA_ELIMINACION_RECIENTE_DIAS
+  - GAP-24: Documentación actualizada con gaps v2.7
 
   CAMBIOS v2.3 — Gestión de Fotografías / Módulo de Revisión (2026-04-13):
   - PH-01: Nueva tabla CatalogoTiposFotografia (catálogo de los 3 tipos obligatorios)

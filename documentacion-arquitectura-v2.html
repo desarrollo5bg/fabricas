@@ -505,6 +505,7 @@
         <a href="#gaps-v22" class="indent">Gaps Resueltos v2.2</a>
         <a href="#gaps-v23" class="indent">Gaps Resueltos v2.3</a>
         <a href="#gaps-v26" class="indent">Gaps Resueltos v2.6</a>
+        <a href="#gaps-v27" class="indent">Gaps Resueltos v2.7</a>
         <a href="#mapeo-tablas" class="indent">Mapeo de Tablas</a>
         <a href="#estrategia-integracion" class="indent"
           >Estrategia de Integración</a
@@ -1201,6 +1202,92 @@
         </table>
       </section>
 
+      <!-- Gaps Resueltos v2.7 -->
+      <section id="gaps-v27">
+        <h2>Gaps Identificados y Resueltos (v2.7) <span class="badge badge--accent">Post-Validación Funcional</span></h2>
+        <p>
+          Durante la validación de <code>Definición funcional.html</code> contra <code>FABRICASv2.sql</code> se identificaron gaps adicionales relacionados con la separación de teléfonos, políticas de duplicidad y gestión de cupos. Estos cambios complementan la taxonomía de servicios.
+        </p>
+
+        <div class="callout callout--success">
+          <p><strong>Estado:</strong> Los gaps GAP-20 a GAP-24 han sido resueltos. Las tablas fueron actualizadas en <code>FABRICASv2.sql</code> y el plan de trabajo API fue alineado a la arquitectura de 4 capas.</p>
+        </div>
+
+        <h3>Gaps de Validación Funcional (GAP)</h3>
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Gap Identificado</th><th>Tabla Afectada</th><th>Resolución</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge--green">GAP-18 ✓</span></td>
+              <td>Sin distinción entre celular para llamadas y WhatsApp</td>
+              <td><code>TercerosFabricas</code></td>
+              <td>Añadidas columnas <code>CelularPrincipal</code> y <code>CelularWhatsApp</code> separadas</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">GAP-20 ✓</span></td>
+              <td>Sin marcación de renuncia de cupo a solicitud del cliente</td>
+              <td><code>EstudiosCredito</code></td>
+              <td>Añadida columna <code>RenunciaCupo</code> para cupos eliminados voluntariamente</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">GAP-21 ✓</span></td>
+              <td>Sin flag de mora en comercios aliados (validación externa)</td>
+              <td><code>EvaluacionesRiesgo</code></td>
+              <td>Añadida columna <code>MoraComerciosAliados</code> para mora en comercios aliados</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">GAP-22 ✓</span></td>
+              <td>Sin políticas configurables de duplicidad de contacto</td>
+              <td><code>CatalogoReglasFraude</code></td>
+              <td>Añadidas reglas semilla: <code>DUPLICIDAD_EMAIL</code>, <code>DUPLICIDAD_CELULAR</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">GAP-23 ✓</span></td>
+              <td>Sin parámetros configurables para ventanas de tiempo de reactivación</td>
+              <td><code>ConfiguracionReglasNegocio</code></td>
+              <td>Añadidos parámetros para ventanas de eliminación y reactivación de cupos</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">GAP-24 ✓</span></td>
+              <td>Documentación desalineada con SQL — gaps no documentados</td>
+              <td><code>documentacion-arquitectura-v2.html</code></td>
+              <td>Actualizada sección Gaps Resueltos v2.7 y diccionario de tablas</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Resumen de Cambios</h3>
+        <table>
+          <thead>
+            <tr><th>Componente</th><th>Cambio</th><th>Detalle</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>DDL SQL</td>
+              <td>3 columnas añadidas (GAP-18, GAP-20, GAP-21)</td>
+              <td><code>TercerosFabricas.CelularPrincipal</code>, <code>CelularWhatsApp</code> (GAP-18); <code>EstudiosCredito.RenunciaCupo</code> (GAP-20); <code>EvaluacionesRiesgo.MoraComerciosAliados</code> (GAP-21)</td>
+            </tr>
+            <tr>
+              <td>Catalogos</td>
+              <td>2 reglas añadidas (GAP-22)</td>
+              <td><code>CatalogoReglasFraude.DUPLICIDAD_EMAIL</code>, <code>DUPLICIDAD_CELULAR</code></td>
+            </tr>
+            <tr>
+              <td>Configuración</td>
+              <td>2 parámetros añadidos (GAP-23)</td>
+              <td><code>ConfiguracionReglasNegocio.VENTANA_REACTIVACION_CUPO_DIAS</code>, <code>VENTANA_ELIMINACION_RECIENTE_DIAS</code></td>
+            </tr>
+            <tr>
+              <td>API Plan</td>
+              <td>Actualizado a v1.2</td>
+              <td>Arquitectura de 4 capas: 84 servicios (Core 21 + BFF Web 17 + BFF Tienda 17 + BFF Handoff 4 + Utilitários 13 + Adaptadores 12)</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
       <!-- Mapeo de Tablas -->
       <section id="mapeo-tablas">
         <h2>Mapeo de Tablas (Homologación)</h2>
@@ -1829,6 +1916,27 @@ CREATE TABLE dbo.TercerosFabricas (
           </tbody>
         </table>
 
+        <h4>Columnas añadidas en v2.7 <span class="badge badge--amber">v2.7</span></h4>
+        <div class="callout callout--success" style="border-left-color:#10b981;background:#ecfdf5;">
+          <p><strong>Gestión de cupos:</strong> Se añaden columnas para tracking de renuncia de cupo a solicitud del cliente y seguimiento del ciclo de vida del cupo.</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Columna</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>RenunciaCupo</code> <span class="badge badge--amber">v2.7</span> <span class="badge badge--green">GAP-20</span></td>
+              <td>BIT NOT NULL DEFAULT 0</td>
+              <td>Indica si el cliente solicitó voluntariamente la eliminación de su cupo (Pasos 30-31).GAP-22: 1 =杯o eliminado por voluntad del cliente, 0 =杯o vigente o eliminado por mora/tema.</td>
+            </tr>
+          </tbody>
+        </table>
+
         <h3>HistorialEstados</h3>
         <p>
           <strong>Tabla de auditoría inmutable.</strong> Cada cambio de estado
@@ -2070,6 +2178,16 @@ CREATE TABLE dbo.TercerosFabricas (
               <td>DATETIME2(3)</td>
               <td>Auditoría: fecha de última actualización</td>
             </tr>
+            <tr>
+              <td><code>CelularPrincipal</code> <span class="badge badge--amber">v2.7</span> <span class="badge badge--green">GAP-18</span></td>
+              <td>VARCHAR(20) NULL</td>
+              <td>Celular para llamadas y verificación de identidad. Separado de WhatsApp para políticas independientes (GAP-18).</td>
+            </tr>
+            <tr>
+              <td><code>CelularWhatsApp</code> <span class="badge badge--amber">v2.7</span> <span class="badge badge--green">GAP-18</span></td>
+              <td>VARCHAR(20) NULL</td>
+              <td>Celular para envío de mensajes WhatsApp. Puede diferir de CelularPrincipal para políticas独立antes (GAP-20).</td>
+            </tr>
           </tbody>
         </table>
 
@@ -2167,6 +2285,32 @@ CREATE TABLE dbo.TercerosFabricas (
               <td><code>FechaActualizacion</code></td>
               <td>DATETIME2(3)</td>
               <td>Auditoría: fecha de última actualización</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Parámetros añadidos en v2.7 <span class="badge badge--amber">v2.7</span></h4>
+        <div class="callout callout--success" style="border-left-color:#10b981;background:#ecfdf5;">
+          <p><strong>Ventanas de tiempo:</strong> Se añaden parámetros configurables para gestión de eliminación y reactivación de cupos.</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>VENTANA_REACTIVACION_DIAS</code> <span class="badge badge--amber">v2.7</span> <span class="badge badge--green">GAP-23</span></td>
+              <td>INT</td>
+              <td>Días ventana para permitir reactivación de cupos eliminados recientemente (GAP-23). Ej: 30 días tras eliminación.</td>
+            </tr>
+            <tr>
+              <td><code>VENTANA_ELIMINACION_RECIENTE_DIAS</code> <span class="badge badge--amber">v2.7</span> <span class="badge badge--green">GAP-23</span></td>
+              <td>INT</td>
+              <td>Días para considerar un cupo como "eliminado recientemente" (GAP-23). Ej: 7 días.</td>
             </tr>
           </tbody>
         </table>
@@ -2300,6 +2444,11 @@ CREATE TABLE dbo.TercerosFabricas (
               <td><code>FechaActualizacion</code></td>
               <td>DATETIME2(3)</td>
               <td>Auditoría: fecha de última actualización</td>
+            </tr>
+            <tr>
+              <td><code>MoraComerciosAliados</code> <span class="badge badge--amber">v2.7</span> <span class="badge badge--green">GAP-21</span></td>
+              <td>BIT NULL</td>
+              <td>Indica si el cliente tiene mora en comercios aliados (Paso 21). GAP-23: NULL = sin consultar, 0 = sin mora, 1 = con mora. Validación externa integrada.</td>
             </tr>
           </tbody>
         </table>
@@ -2777,7 +2926,7 @@ Si RECHAZADA  → EsVigente = 0 en foto anterior → nueva captura
 Si REEMPLAZADA → foto anterior EsVigente = 0   → nueva foto EsVigente = 1</code></pre>
 
         <h3>CatalogoReglasFraude <span class="badge badge--red">Nuevo v2.2</span></h3>
-        <p>Catálogo de reglas de detección de fraude. Define qué patrones se consideran sospechosos y qué acción automática desencadenar. Preconfigurado con 8 reglas semilla.</p>
+        <p>Catálogo de reglas de detección de fraude. Define qué patrones se consideran sospechosos y qué acción automática desencadenar. Preconfigurado con 10 reglas semilla (8 originales + 2 de duplicidad GAP-21).</p>
         <table>
           <thead>
             <tr>
@@ -4521,6 +4670,18 @@ ESCENARIO B — Asesor llama al cliente y verifica legitimidad:
               <td><span class="badge badge--red">CRITICO</span></td>
               <td>NIT del documento OCR no coincide con NIT del estudio</td>
               <td>BLOQUEAR</td>
+            </tr>
+            <tr>
+              <td><code>DUPLICIDAD_EMAIL</code> <span class="badge badge--amber">v2.7</span> <span class="badge badge--green">GAP-22</span></td>
+              <td><span class="badge badge--amber">MEDIO</span></td>
+              <td>Mismo email usado por múltiples clientes diferentes (GAP-22)</td>
+              <td>ALERTA</td>
+            </tr>
+            <tr>
+              <td><code>DUPLICIDAD_CELULAR</code> <span class="badge badge--amber">v2.7</span> <span class="badge badge--green">GAP-22</span></td>
+              <td><span class="badge badge--amber">MEDIO</span></td>
+              <td>Mismo número de celular usado por múltiples clientes diferentes (GAP-22)</td>
+              <td>ALERTA</td>
             </tr>
           </tbody>
         </table>
