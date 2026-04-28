@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Seguridad y Antifraude — Fábricas de Crédito QUAC v2.6</title>
+  <title>Seguridad y Antifraude — Fábricas de Crédito QUAC v2.7</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -40,7 +40,7 @@
 </head>
 <body>
   <aside class="sidebar">
-    <div class="sidebar-title">FÁBRICAS DE CRÉDITO v2.6</div>
+    <div class="sidebar-title">FÁBRICAS DE CRÉDITO v2.7</div>
     <nav>
       <div class="sidebar-section">Índice de Infraestructura</div>
       <a href="index.html">00 · Índice</a>
@@ -68,11 +68,11 @@
 
   <main class="main">
     <h1>Seguridad y Antifraude</h1>
-    <p style="font-size:17px;color:var(--text);font-weight:500;">8 tablas de seguridad — DDL v2.5 (SA-01…SA-11, C-03, GAP-15)</p>
+    <p style="font-size:17px;color:var(--text);font-weight:500;">8 tablas de seguridad — DDL v2.7</p>
     <div class="meta">
-      <div class="meta-item"><strong>Versión</strong> v2.6</div>
-      <div class="meta-item"><strong>Fecha</strong> 2026-04-16</div>
-      <div class="meta-item"><strong>Fuente</strong> FABRICASv2.sql v2.5</div>
+      <div class="meta-item"><strong>Versión</strong> v2.7</div>
+      <div class="meta-item"><strong>Fecha</strong> 2026-04-22</div>
+      <div class="meta-item"><strong>Fuente</strong> FABRICASv2.sql v2.7</div>
       <div class="meta-item"><strong>Tablas</strong> 8</div>
     </div>
 
@@ -213,6 +213,15 @@
         <tr><td><code>REINTENTO_RAPIDO_OTRO_EMAIL</code></td><td><span class="badge badge--red">ALTO</span></td><td>ESCALAR</td><td>Nuevo OTP a email diferente en &lt; 5 min</td></tr>
         <tr><td><code>IP_MULTIPLES_ESTUDIOS</code></td><td><span class="badge badge--red">CRITICO</span></td><td>BLOQUEAR</td><td>Misma IP en múltiples estudios simultáneos</td></tr>
         <tr><td><code>DOCUMENTO_OCR_DISCREPANCIA</code></td><td><span class="badge badge--amber">MEDIO</span></td><td>ESCALAR</td><td>Datos OCR no coinciden con datos declarados</td></tr>
+      </tbody>
+    </table>
+
+    <h3>2 reglas de duplicidad (v2.7) <span class="badge badge--accent">GAP-22</span></h3>
+    <table>
+      <thead><tr><th>Código</th><th>Nivel</th><th>Acción</th><th>Descripción breve</th></tr></thead>
+      <tbody>
+        <tr><td><code>DUPLICIDAD_EMAIL</code></td><td><span class="badge badge--red">ALTO</span></td><td>ESCALAR</td><td>Email ya usado en otro estudio activo — posible duplicidad</td></tr>
+        <tr><td><code>DUPLICIDAD_CELULAR</code></td><td><span class="badge badge--red">ALTO</span></td><td>ESCALAR</td><td>Celular ya usado en otro estudio activo — posible duplicidad</td></tr>
       </tbody>
     </table>
 

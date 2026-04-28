@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Visión General — Fábricas de Crédito QUAC v2.6</title>
+  <title>Visión General — Fábricas de Crédito QUAC v2.7</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -48,7 +48,7 @@
 </head>
 <body>
   <aside class="sidebar">
-    <div class="sidebar-title">FÁBRICAS DE CRÉDITO v2.6</div>
+    <div class="sidebar-title">FÁBRICAS DE CRÉDITO v2.7</div>
     <nav>
       <div class="sidebar-section">Índice de Infraestructura</div>
       <a href="index.html">00 · Índice</a>
@@ -75,8 +75,8 @@
     <h1>Visión General y Arquitectura</h1>
     <p style="font-size:17px;color:var(--text);font-weight:500;">LOS — Loan Origination System · Fábricas de Crédito QUAC</p>
     <div class="meta">
-      <div class="meta-item"><strong>Versión</strong> v2.6</div>
-      <div class="meta-item"><strong>Fecha</strong> 2026-04-16</div>
+      <div class="meta-item"><strong>Versión</strong> v2.7</div>
+      <div class="meta-item"><strong>Fecha</strong> 2026-04-22</div>
       <div class="meta-item"><strong>Proyecto</strong> Fábricas de Crédito QUAC</div>
     </div>
 
@@ -190,14 +190,14 @@
         <tr><td><code>PasosEstudio</code></td><td>INT IDENTITY</td><td><span class="badge badge--violet">Config</span></td><td>13 pasos individuales del flujo, con actor y servicio externo</td><td>v2.0</td></tr>
         <tr><td><code>CatalogoEstados</code></td><td>INT IDENTITY</td><td><span class="badge badge--violet">Config</span></td><td>15 estados posibles del estudio (INICIAL/PROCESO/TERMINAL)</td><td>v2.0</td></tr>
         <tr><td><code>TransicionesEstado</code></td><td>INT IDENTITY</td><td><span class="badge badge--violet">Config</span></td><td>~40 transiciones válidas entre estados</td><td>v2.0</td></tr>
-        <tr><td><code>ConfiguracionReglasNegocio</code></td><td>INT IDENTITY</td><td><span class="badge badge--violet">Config</span></td><td>Parámetros configurables: OTP, biometría, fotos, JWT, riesgo</td><td>v2.0</td></tr>
+        <tr><td><code>ConfiguracionReglasNegocio</code></td><td>INT IDENTITY</td><td><span class="badge badge--violet">Config</span></td><td>22 parámetros configurables: OTP, biometría, fotos, JWT, riesgo, ventanas de reactivación <span class="badge badge--accent">v2.7</span></td><td>v2.0</td></tr>
         <tr><td><code>CatalogoCanalesOrigen</code></td><td>INT IDENTITY</td><td><span class="badge badge--violet">Config</span></td><td>WEB, TIENDA, EXTERNO</td><td>v2.1</td></tr>
-         <tr><td><code>TercerosFabricas</code></td><td>INT IDENTITY</td><td><span class="badge badge--amber">Integración</span></td><td>Fuente de verdad de clientes, sincroniza con QUAC.dbo.terceros</td><td>v2.0</td></tr>
+         <tr><td><code>TercerosFabricas</code></td><td>INT IDENTITY</td><td><span class="badge badge--amber">Integración</span></td><td>Fuente de verdad de clientes, sincroniza con QUAC.dbo.terceros. <span class="badge badge--green">GAP-18 v2.7</span>: CelularPrincipal y CelularWhatsApp separados</td><td>v2.0</td></tr>
          <tr><td><code>OperadoresFabrica</code></td><td>INT IDENTITY</td><td><span class="badge badge--violet">Config</span></td><td>Maestro de operadores/asesores con trazabilidad inmutable por NIT (GAP-19)</td><td>v2.6</td></tr>
          <tr><td><code>DisponibilidadOperadores</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>Snapshots de conexión/desconexión de operadores con trazabilidad de NIT (GAP-19)</td><td>v2.6</td></tr>
-        <tr><td><code>EstudiosCredito</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>Tabla central: orquesta el flujo completo del estudio</td><td>v2.0</td></tr>
+        <tr><td><code>EstudiosCredito</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>Tabla central: orquesta el flujo completo del estudio. <span class="badge badge--green">GAP-20 v2.7</span>: RenunciaCupo</td><td>v2.0</td></tr>
         <tr><td><code>RetosSeguridad</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>Tokens OTP: hash, canal, intentos, reenvíos, dirección de envío</td><td>v2.0</td></tr>
-        <tr><td><code>EvaluacionesRiesgo</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>LISTAS, BURO, PRESELECTA, FOSYGA, ANTECEDENTES, UBICA</td><td>v2.0</td></tr>
+        <tr><td><code>EvaluacionesRiesgo</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>LISTAS, BURO, PRESELECTA, FOSYGA, ANTECEDENTES, UBICA. <span class="badge badge--green">GAP-21 v2.7</span>: MoraComerciosAliados</td><td>v2.0</td></tr>
         <tr><td><code>RegistrosBiometria</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>Resultados de biometría facial y OCR; FK a las 3 fotos</td><td>v2.0</td></tr>
         <tr><td><code>ValidacionesContactabilidad</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>Score UBICA, gestión manual Call Center, vínculo alerta fraude</td><td>v2.0</td></tr>
         <tr><td><code>ConsentimientosLegales</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--cyan">Trans.</span></td><td>Aceptaciones con tipo de firma (OTP/CHECKBOX/FIRMA_DIGITAL)</td><td>v2.0</td></tr>
@@ -212,7 +212,7 @@
         <tr><td><code>RevisionesFotografia</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--green">Auditoría</span></td><td>INSERT-ONLY: decisiones de revisión por fotografía (APROBADA/RECHAZADA)</td><td>v2.3</td></tr>
         <tr><td><code>HistorialFotografias</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--green">Auditoría</span></td><td>INSERT-ONLY: transiciones de estado de cada fotografía</td><td>v2.3</td></tr>
         <tr><td><code>AuditoriaLogins</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--accent">Seguridad</span></td><td>INSERT-ONLY: todos los intentos de login por canal y tipo de usuario</td><td>v2.5</td></tr>
-        <tr><td><code>CatalogoReglasFraude</code></td><td>INT IDENTITY</td><td><span class="badge badge--red">Antifraude</span></td><td>12 reglas tipificadas de detección de fraude</td><td>v2.2</td></tr>
+        <tr><td><code>CatalogoReglasFraude</code></td><td>INT IDENTITY</td><td><span class="badge badge--red">Antifraude</span></td><td>14 reglas tipificadas de detección de fraude (12 base + 2 v2.7 GAP-22)</td><td>v2.2</td></tr>
         <tr><td><code>CatalogoMotivosEscalamiento</code></td><td>INT IDENTITY</td><td><span class="badge badge--red">Antifraude</span></td><td>12 motivos tipificados de escalamiento a fábrica</td><td>v2.2</td></tr>
         <tr><td><code>AlertasFraude</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--red">Antifraude</span></td><td>INSERT-ONLY: alertas disparadas por reglas de negocio</td><td>v2.2</td></tr>
         <tr><td><code>LogValidacionesOTP</code></td><td>BIGINT IDENTITY</td><td><span class="badge badge--red">Antifraude</span></td><td>INSERT-ONLY: log granular de cada intento individual de OTP</td><td>v2.2</td></tr>

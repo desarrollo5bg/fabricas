@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gaps e Historial de Cambios — Fábricas de Crédito QUAC v2.6</title>
+  <title>Gaps e Historial de Cambios — Fábricas de Crédito QUAC v2.7</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -41,7 +41,7 @@
 </head>
 <body>
 <aside class="sidebar">
-    <div class="sidebar-title">FÁBRICAS DE CRÉDITO v2.6</div>
+    <div class="sidebar-title">FÁBRICAS DE CRÉDITO v2.7</div>
     <nav>
       <div class="sidebar-section">Índice de Infraestructura</div>
       <a href="index.html">00 · Índice</a>
@@ -60,6 +60,8 @@
       <a href="#v23" class="indent">Gaps v2.3 (PH)</a>
       <a href="#v24" class="indent">Gaps v2.4 (C)</a>
       <a href="#v25" class="indent">Gaps v2.5 (GAP)</a>
+      <a href="#v26" class="indent">Gaps v2.6 (Operadores)</a>
+      <a href="#v27" class="indent">Gaps v2.7 (Post-Validación)</a>
       <a href="#eliminaciones" class="indent">Eliminaciones confirmadas</a>
       <div class="sidebar-section">Documentación General</div>
       <a href="../documentacion-arquitectura-v2.html" target="_blank">📋 Arquitectura General</a>
@@ -68,11 +70,11 @@
 
   <main class="main">
     <h1>Gaps e Historial de Cambios</h1>
-    <p style="font-size:17px;color:var(--text);font-weight:500;">descisiones en modelo de datos, evolución del esquema v2.1 → v2.5 y eliminaciones confirmadas</p>
+    <p style="font-size:17px;color:var(--text);font-weight:500;">descisiones en modelo de datos, evolución del esquema v2.1 → v2.7 y eliminaciones confirmadas</p>
     <div class="meta">
-      <div class="meta-item"><strong>Versión actual</strong> v2.5 (DDL) → v2.6 (docs)</div>
-      <div class="meta-item"><strong>Fecha</strong> 2026-04-16</div>
-      <div class="meta-item"><strong>Total gaps</strong> 57 (12+11+10+6+18)</div>
+      <div class="meta-item"><strong>Versión actual</strong> v2.7 (DDL) → v2.7 (docs)</div>
+      <div class="meta-item"><strong>Fecha</strong> 2026-04-22</div>
+      <div class="meta-item"><strong>Total gaps</strong> 63 (12+11+10+6+18+1+5)</div>
     </div>
 
     <h2 id="resumen">Resumen de versiones</h2>
@@ -86,6 +88,8 @@
         <tr><td><span class="badge badge--amber">v2.3</span></td><td><code>PH</code></td><td>10</td><td>Fotografías y biometría</td></tr>
         <tr><td><span class="badge badge--cyan">v2.4</span></td><td><code>C</code></td><td>6</td><td>Correcciones nomenclatura y modelos</td></tr>
         <tr><td><span class="badge badge--green">v2.5</span></td><td><code>GAP</code></td><td>18</td><td>Consolidación final y gaps funcionales</td></tr>
+        <tr><td><span class="badge badge--accent">v2.6</span></td><td><code>GAP</code></td><td>1</td><td>Operadores y trazabilidad inmutable por NIT</td></tr>
+        <tr><td><span class="badge badge--accent">v2.7</span></td><td><code>GAP</code></td><td>5</td><td>Post-Validación Funcional: GAP-18 rediseñado, GAP-20→24</td></tr>
       </tbody>
     </table>
 
@@ -278,6 +282,80 @@
         <tr><td><span class="gap-id">GAP-17</span></td><td>Recargas</td><td>SolicitudesRecarga sin estado de la solicitud</td><td>Campo EstadoSolicitud CHECK (PENDIENTE, APROBADA, RECHAZADA) agregado</td></tr>
         <tr><td><span class="gap-id">GAP-18</span></td><td>Técnico</td><td>Faltan índices en columnas de búsqueda frecuente</td><td>Índices creados: IX_Estudios_IdTercero, IX_AlertasFraude_IdEstudio, IX_HistorialEstados_IdEstudio</td></tr>
          <tr><td><span class="gap-id">GAP-19</span></td><td>Operadores y Trazabilidad</td><td>Trazabilidad inmutable de operadores. Nuevas tablas fab.OperadoresFabrica y fab.DisponibilidadOperadores.</td><td>Creadas <code>fab.OperadoresFabrica</code> (registro maestro) y <code>fab.DisponibilidadOperadores</code> (disponibilidad/conexiones). Se añadieron columnas de NIT del operador a todas las tablas transaccionales: <code>NitAsesor</code>, <code>NitUsuarioAccion</code>, <code>NitAsesorCallCenter</code>, <code>NitUsuarioResolucion</code>, <code>NitAsesorAsignado</code>, <code>NitOperador</code> para inmutabilidad de trazabilidad si el ID del ERP cambia de persona.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="v26">Gaps v2.6 — Operadores y Trazabilidad Inmutable</h2>
+    <p>Un gap de alta criticidad que introdujo el nuevo modelo de gestión de operadores/asesores y trazabilidad inmutable por NIT.</p>
+
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Área</th><th>Descripción</th><th>Resolución en DDL</th></tr>
+      </thead>
+      <tbody>
+         <tr><td><span class="gap-id">GAP-19</span></td><td>Operadores y Trazabilidad</td><td>Trazabilidad inmutable de operadores. Nuevas tablas fab.OperadoresFabrica y fab.DisponibilidadOperadores.</td><td>Creadas <code>fab.OperadoresFabrica</code> (registro maestro) y <code>fab.DisponibilidadOperadores</code> (disponibilidad/conexiones). Se añadieron columnas de NIT del operador a todas las tablas transaccionales: <code>NitAsesor</code>, <code>NitUsuarioAccion</code>, <code>NitAsesorCallCenter</code>, <code>NitUsuarioResolucion</code>, <code>NitAsesorAsignado</code>, <code>NitOperador</code> para inmutabilidad de trazabilidad si el ID del ERP cambia de persona.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="v27">Gaps v2.7 — Post-Validación Funcional <span class="badge badge--accent">GAP-18→24</span></h2>
+    <p>Durante la validación de <code>Definición funcional.html</code> contra <code>FABRICASv2.sql</code> se identificaron gaps adicionales relacionados con la separación de teléfonos, políticas de duplicidad y gestión de cupos.</p>
+
+    <div class="callout callout--success">
+      <p><strong>Estado:</strong> Los gaps GAP-18 (rediseñado), GAP-20 a GAP-24 han sido resueltos. Las tablas fueron actualizadas en <code>FABRICASv2.sql</code> y el plan de trabajo API fue alineado a la arquitectura de 4 capas.</p>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Gap Identificado</th><th>Tabla Afectada</th><th>Resolución</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge badge--green">GAP-18 ✓</span></td>
+          <td>Sin distinción entre celular para llamadas y WhatsApp</td>
+          <td><code>TercerosFabricas</code></td>
+          <td>Añadidas columnas <code>CelularPrincipal</code> y <code>CelularWhatsApp</code> separadas (rediseño del GAP-18 original de v2.5)</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--green">GAP-20 ✓</span></td>
+          <td>Sin marcación de renuncia de cupo a solicitud del cliente</td>
+          <td><code>EstudiosCredito</code></td>
+          <td>Añadida columna <code>RenunciaCupo</code> para cupos eliminados voluntariamente</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--green">GAP-21 ✓</span></td>
+          <td>Sin flag de mora en comercios aliados (validación externa)</td>
+          <td><code>EvaluacionesRiesgo</code></td>
+          <td>Añadida columna <code>MoraComerciosAliados</code> para mora en comercios aliados</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--green">GAP-22 ✓</span></td>
+          <td>Sin políticas configurables de duplicidad de contacto</td>
+          <td><code>CatalogoReglasFraude</code></td>
+          <td>Añadidas reglas semilla: <code>DUPLICIDAD_EMAIL</code>, <code>DUPLICIDAD_CELULAR</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--green">GAP-23 ✓</span></td>
+          <td>Sin parámetros configurables para ventanas de tiempo de reactivación</td>
+          <td><code>ConfiguracionReglasNegocio</code></td>
+          <td>Añadidos parámetros <code>VENTANA_REACTIVACION_CUPO_DIAS</code>, <code>VENTANA_ELIMINACION_RECIENTE_DIAS</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--green">GAP-24 ✓</span></td>
+          <td>Documentación desalineada con SQL — gaps no documentados</td>
+          <td><code>infraestructura/</code></td>
+          <td>Actualizados 6 archivos de infraestructura con contenido v2.7</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Resumen de Cambios v2.7</h3>
+    <table>
+      <thead><tr><th>Componente</th><th>Cambio</th><th>Detalle</th></tr></thead>
+      <tbody>
+        <tr><td>DDL SQL</td><td>3 columnas añadidas</td><td><code>TercerosFabricas.CelularPrincipal</code>, <code>CelularWhatsApp</code> (GAP-18); <code>EstudiosCredito.RenunciaCupo</code> (GAP-20); <code>EvaluacionesRiesgo.MoraComerciosAliados</code> (GAP-21)</td></tr>
+        <tr><td>Catálogos</td><td>2 reglas añadidas (GAP-22)</td><td><code>CatalogoReglasFraude.DUPLICIDAD_EMAIL</code>, <code>DUPLICIDAD_CELULAR</code></td></tr>
+        <tr><td>Configuración</td><td>2 parámetros añadidos (GAP-23)</td><td><code>ConfiguracionReglasNegocio.VENTANA_REACTIVACION_CUPO_DIAS</code>, <code>VENTANA_ELIMINACION_RECIENTE_DIAS</code></td></tr>
+        <tr><td>Documentación</td><td>6 archivos actualizados (GAP-24)</td><td>index, 01-vision-general, 02-diccionario-datos, 04-seguridad-antifraude, 06-servicios-backend, 08-gaps-historial-cambios</td></tr>
       </tbody>
     </table>
 

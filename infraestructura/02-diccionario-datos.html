@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Diccionario de Datos — Fábricas de Crédito QUAC v2.6</title>
+  <title>Diccionario de Datos — Fábricas de Crédito QUAC v2.7</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -49,7 +49,7 @@
 </head>
 <body>
   <aside class="sidebar">
-    <div class="sidebar-title">FÁBRICAS DE CRÉDITO v2.6</div>
+    <div class="sidebar-title">FÁBRICAS DE CRÉDITO v2.7</div>
     <nav>
       <div class="sidebar-section">Índice de Infraestructura</div>
       <a href="index.html">00 · Índice</a>
@@ -75,11 +75,11 @@
 
   <main class="main">
     <h1>Diccionario Completo de Datos</h1>
-    <p style="font-size:17px;color:var(--text);font-weight:500;">Columnas exactas de las 29 tablas — DDL v2.5</p>
+    <p style="font-size:17px;color:var(--text);font-weight:500;">Columnas exactas de las 29 tablas — DDL v2.7</p>
     <div class="meta">
-      <div class="meta-item"><strong>Versión</strong> v2.6</div>
-      <div class="meta-item"><strong>Fecha</strong> 2026-04-16</div>
-      <div class="meta-item"><strong>Fuente</strong> FABRICASv2.sql v2.5</div>
+      <div class="meta-item"><strong>Versión</strong> v2.7</div>
+      <div class="meta-item"><strong>Fecha</strong> 2026-04-22</div>
+      <div class="meta-item"><strong>Fuente</strong> FABRICASv2.sql v2.7</div>
       <div class="meta-item"><strong>Tablas</strong> 29 propias</div>
     </div>
 
@@ -167,7 +167,7 @@
     </div>
 
     <h3>ConfiguracionReglasNegocio</h3>
-    <p>Parámetros configurables del sistema sin necesidad de re-deploy. 20 registros en seeds (v2.4: duplicados OTP eliminados). Categorías válidas: ENFRIAMIENTO, GENERAL, OTP, BIOMETRIA, RIESGO, FOTOS, AUTH.</p>
+    <p>Parámetros configurables del sistema sin necesidad de re-deploy. 22 registros en seeds (v2.7: +2 parámetros de ventanas de reactivación GAP-23). Categorías válidas: ENFRIAMIENTO, GENERAL, OTP, BIOMETRIA, RIESGO, FOTOS, AUTH.</p>
     <table>
       <thead><tr><th>Columna</th><th>Tipo</th><th>Nullable</th><th>Descripción</th></tr></thead>
       <tbody>
@@ -262,6 +262,8 @@
         <tr><td><code>PuntajeCredito</code></td><td>DECIMAL(5,2)</td><td class="null-yes">NULL</td><td>Último score crediticio calculado</td></tr>
         <tr><td><code>FechaUltimaEvaluacion</code></td><td>DATETIME2(3)</td><td class="null-yes">NULL</td><td>GAP-06: precisión explícita (3)</td></tr>
         <tr><td><code>CelularTercero</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td>GAP-18: celular principal para contacto y OTP</td></tr>
+        <tr><td><code>CelularPrincipal</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td><span class="badge badge--accent">v2.7 GAP-18</span> Celular para llamadas telefónicas</td></tr>
+        <tr><td><code>CelularWhatsApp</code></td><td>VARCHAR(20)</td><td class="null-yes">NULL</td><td><span class="badge badge--accent">v2.7 GAP-18</span> Celular para envíos por WhatsApp</td></tr>
         <tr><td><code>FechaCreacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
         <tr><td><code>FechaModificacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
       </tbody>
@@ -312,6 +314,7 @@
         <tr><td><code>FotografiasAprobadas</code></td><td>INT</td><td class="null-no">NOT NULL</td><td>DEFAULT 0. Contador desnormalizado 0–3. Gate: = 3 (PH-06)</td></tr>
         <tr><td><code>EstadoRevisionFotos</code></td><td>VARCHAR(15)</td><td class="null-no">NOT NULL</td><td>DEFAULT 'PENDIENTE'. CHECK: PENDIENTE, EN_REVISION, APROBADO, CON_RECHAZOS (PH-06)</td></tr>
         <tr><td><code>IdValidacionAsesor</code></td><td>BIGINT</td><td class="null-yes">NULL</td><td>FK → ValidacionesAsesor.IdValidacion. NULL en canal WEB (C-04)</td></tr>
+        <tr><td><code>RenunciaCupo</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td><span class="badge badge--accent">v2.7 GAP-20</span> DEFAULT 0. 1 = cupo eliminado a solicitud del cliente</td></tr>
       </tbody>
     </table>
     <div class="callout callout--warn">
@@ -357,6 +360,7 @@
         <tr><td><code>MotivoResultado</code></td><td>NVARCHAR(200)</td><td class="null-yes">NULL</td><td>Descripción del resultado</td></tr>
         <tr><td><code>DetallesJSON</code></td><td>NVARCHAR(MAX)</td><td class="null-yes">NULL</td><td>Payload original de la respuesta del servicio externo</td></tr>
         <tr><td><code>FechaEvaluacion</code></td><td>DATETIME2(3)</td><td class="null-no">NOT NULL</td><td>DEFAULT GETDATE()</td></tr>
+        <tr><td><code>MoraComerciosAliados</code></td><td>BIT</td><td class="null-no">NOT NULL</td><td><span class="badge badge--accent">v2.7 GAP-21</span> DEFAULT 0. Mora en comercios aliados reportada por validación externa</td></tr>
       </tbody>
     </table>
 

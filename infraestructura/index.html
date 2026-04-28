@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Índice — Fábricas de Crédito QUAC v2.6</title>
+  <title>Índice — Fábricas de Crédito QUAC v2.7</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -85,7 +85,7 @@
 </head>
 <body>
 <aside class="sidebar">
-    <div class="sidebar-title">FÁBRICAS DE CRÉDITO v2.6</div>
+    <div class="sidebar-title">FÁBRICAS DE CRÉDITO v2.7</div>
     <nav>
       <div class="sidebar-section">Este archivo</div>
       <a href="#metricas" class="active">Métricas del sistema</a>
@@ -112,15 +112,15 @@
     <h1>Fábricas de Crédito QUAC — LOS</h1>
     <p style="font-size:17px; color:var(--text); font-weight:500;">Documentación de arquitectura de datos · Índice y resumen ejecutivo</p>
     <div class="meta">
-      <div class="meta-item"><strong>Versión</strong> v2.6</div>
-      <div class="meta-item"><strong>Fecha</strong> 2026-04-16</div>
+      <div class="meta-item"><strong>Versión</strong> v2.7</div>
+      <div class="meta-item"><strong>Fecha</strong> 2026-04-22</div>
       <div class="meta-item"><strong>Proyecto</strong> Fábricas de Crédito QUAC</div>
       <div class="meta-item"><strong>Motor</strong> SQL Server 2019+</div>
-      <div class="meta-item"><strong>DDL fuente</strong> FABRICASv2.sql v2.5</div>
+      <div class="meta-item"><strong>DDL fuente</strong> FABRICASv2.sql v2.7</div>
     </div>
 
      <h2 id="metricas">Métricas del sistema</h2>
-     <p>El modelo de datos del LOS (Loan Origination System) de Fábricas de Crédito QUAC comprende las siguientes magnitudes en su versión 2.6 del DDL (con GAP-19 integrado):</p>
+     <p>El modelo de datos del LOS (Loan Origination System) de Fábricas de Crédito QUAC comprende las siguientes magnitudes en su versión 2.7 del DDL (con GAP-24 integrado):</p>
 
      <div class="card-grid">
        <div class="card">
@@ -160,7 +160,7 @@
      </div>
 
     <h2 id="archivos">Archivos de esta documentación</h2>
-    <p>La documentación está dividida en 9 archivos HTML temáticos. Todos se encuentran en el directorio <code>infraestructura/</code> y están sincronizados con el DDL v2.5.</p>
+    <p>La documentación está dividida en 9 archivos HTML temáticos. Todos se encuentran en el directorio <code>infraestructura/</code> y están sincronizados con el DDL v2.7.</p>
 
     <table>
       <thead>
@@ -247,9 +247,13 @@
         <h4>v2.5 — 18 Audit Gaps <span class="badge badge--accent" style="margin-left:8px">GAP-01 → GAP-18</span></h4>
         <p>Nueva tabla <code>AuditoriaLogins</code> (GAP-15). CelularCliente en EstudiosCredito (GAP-03). CelularTercero en TercerosFabricas (GAP-18). FotografiasEstudio REDISEÑADA como tabla unificada biométrica (GAP-07). CHECK Categoria en ConfiguracionReglasNegocio (GAP-05). TipoUsuario ampliado con CLIENTE y ADMINISTRADOR (GAP-02). 13 correcciones adicionales de tipos, índices y seeds.</p>
       </div>
+      <div class="timeline-item done">
+        <h4>v2.6 — GAP-19 Operadores <span class="badge badge--green" style="margin-left:8px">1 gap</span></h4>
+        <p>Nuevas tablas <code>fab.OperadoresFabrica</code> y <code>fab.DisponibilidadOperadores</code> para gestión de asesores con trazabilidad inmutable por NIT. Columnas <code>NitAsesor</code>, <code>NitUsuarioAccion</code>, <code>NitAsesorCallCenter</code>, <code>NitUsuarioResolucion</code>, <code>NitAsesorAsignado</code>, <code>NitOperador</code> añadidas a todas las tablas transaccionales.</p>
+      </div>
       <div class="timeline-item">
-        <h4>v2.6 — Documentación actual <span class="badge badge--accent" style="margin-left:8px">Hoy</span></h4>
-        <p>Esta documentación (9 archivos HTML). Sincronización completa con DDL v2.5. Reorganización en subcarpeta <code>infraestructura/</code>. Diccionario de datos completo con todas las columnas exactas del DDL.</p>
+        <h4>v2.7 — Post-Validación Funcional <span class="badge badge--accent" style="margin-left:8px">GAP-18 → GAP-24</span></h4>
+        <p><strong>Esta versión.</strong> Separación de celular para llamadas y WhatsApp en <code>TercerosFabricas</code> (GAP-18 rediseñado). <code>RenunciaCupo</code> en <code>EstudiosCredito</code> (GAP-20). <code>MoraComerciosAliados</code> en <code>EvaluacionesRiesgo</code> (GAP-21). Reglas <code>DUPLICIDAD_EMAIL</code> y <code>DUPLICIDAD_CELULAR</code> en <code>CatalogoReglasFraude</code> (GAP-22). Parámetros de ventanas de reactivación en <code>ConfiguracionReglasNegocio</code> (GAP-23). Documentación alineada con SQL (GAP-24). 9 archivos sincronizados.</p>
       </div>
     </div>
   </main>
