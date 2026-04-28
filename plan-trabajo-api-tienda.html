@@ -360,6 +360,11 @@
       <a href="#dependencias">Dependencias</a>
       <a href="#entregables">Entregables</a>
       <a href="#timeline">Cronograma</a>
+      <div class="sidebar-section">BFFs</div>
+      <a href="#taxonomia" class="indent">Core (C-01 a C-21)</a>
+      <a href="#taxonomia" class="indent">Web (W-01 a W-17)</a>
+      <a href="#taxonomia" class="indent">Tienda (T-01 a T-17)</a>
+      <a href="#taxonomia" class="indent">Handoff (H-01 a H-04)</a>
     </nav>
   </aside>
 
@@ -916,7 +921,50 @@
     </table>
 
     <div class="callout callout--warn" style="margin-top: 16px;">
-      <p style="font-size: 13px;"><strong>Patrón de delegación:</strong> Los BFFs (T-01 a T-17) delegan en Core services (C-01 a C-21). Los Core services pueden invocar utilitários (U-01 a U-13) y adaptadores externos (E-01 a E-12). Esta separación asegura que la lógica de negocio sea inmutable y reusable entre canales.</p>
+      <p style="font-size: 13px;"><strong>Patrón de delegación:</strong> Los BFFs (T-01 a T-17, W-01 a W-17) delegan en Core services (C-01 a C-21). Los Core services pueden invocar utilitários (U-01 a U-13) y adaptadores externos (E-01 a E-12). Esta separación asegura que la lógica de negocio sea inmutable y reusable entre canales.</p>
+    </div>
+
+    <h3>BFF Web — 17 endpoints (Autogestión)</h3>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th><th>Delega a Core</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="badge badge--cyan">W-01</span></td><td>POST</td><td><code>/web/solicitud/iniciar</code></td><td>Punto de entrada único. Evalúa elegibilidad y crea/retoma estudio.</td><td>C-01, C-06</td></tr>
+        <tr><td><span class="badge badge--cyan">W-02</span></td><td>GET</td><td><code>/web/solicitud/{id}/estado</code></td><td>Estado + next_action para renderizado. Idempotente.</td><td>C-02, C-04</td></tr>
+        <tr><td><span class="badge badge--cyan">W-03</span></td><td>POST</td><td><code>/web/solicitud/{id}/datos-basicos</code></td><td>Guardar nombre, correo, celular. Dispara auditoría.</td><td>C-07, C-15</td></tr>
+        <tr><td><span class="badge badge--cyan">W-04</span></td><td>POST</td><td><code>/web/solicitud/{id}/consentimiento</code></td><td>Aceptar T&C, disparar OTP.</td><td>C-10, U-01</td></tr>
+        <tr><td><span class="badge badge--cyan">W-05</span></td><td>POST</td><td><code>/web/solicitud/{id}/validar-otp</code></td><td>Validar código OTP. Registra en LogValidacionesOTP.</td><td>U-02</td></tr>
+        <tr><td><span class="badge badge--cyan">W-06</span></td><td>POST</td><td><code>/web/solicitud/{id}/confirmar-datos-doc</code></td><td>Confirmar fecha nacimiento y correo.</td><td>C-07</td></tr>
+        <tr><td><span class="badge badge--cyan">W-07</span></td><td>POST</td><td><code>/web/solicitud/{id}/iniciar-estudio</code></td><td>Lanzar pipeline async: Antecedentes → Preselecta → FOSYGA → UBICA.</td><td>C-08, E-01 a E-05</td></tr>
+        <tr><td><span class="badge badge--cyan">W-08</span></td><td>GET</td><td><code>/web/solicitud/{id}/resultado-estudio</code></td><td>Polling del pipeline async.</td><td>C-02</td></tr>
+        <tr><td><span class="badge badge--cyan">W-09</span></td><td>POST</td><td><code>/web/solicitud/{id}/datos-direccion</code></td><td>Guardar depto, ciudad, dirección, barrio.</td><td>C-05</td></tr>
+        <tr><td><span class="badge badge--cyan">W-10</span></td><td>POST</td><td><code>/web/solicitud/{id}/biometria/iniciar</code></td><td>Inicializar sesión biométrica.</td><td>C-09</td></tr>
+        <tr><td><span class="badge badge--cyan">W-11</span></td><td>POST</td><td><code>/web/solicitud/{id}/biometria/foto-frontal</code></td><td>Subir foto frontal. Dispara OCR.</td><td>C-09, E-06</td></tr>
+        <tr><td><span class="badge badge--cyan">W-12</span></td><td>POST</td><td><code>/web/solicitud/{id}/biometria/foto-reverso</code></td><td>Subir foto reverso.</td><td>C-09</td></tr>
+        <tr><td><span class="badge badge--cyan">W-13</span></td><td>POST</td><td><code>/web/solicitud/{id}/biometria/selfie</code></td><td>Subir selfie + faceliveness + face-match (≥85%).</td><td>C-09, E-07, E-08</td></tr>
+        <tr><td><span class="badge badge--cyan">W-14</span></td><td>GET</td><td><code>/web/solicitud/{id}/biometria/estado</code></td><td>Estado del proceso biométrico completo.</td><td>C-02</td></tr>
+        <tr><td><span class="badge badge--cyan">W-15</span></td><td>POST</td><td><code>/web/solicitud/{id}/reenviar-otp</code></td><td>Reenviar OTP (SMS → WA → Llamada escalonado).</td><td>U-04</td></tr>
+        <tr><td><span class="badge badge--cyan">W-16</span></td><td>POST</td><td><code>/web/solicitud/{id}/activar-cupo</code></td><td>Validar token correo + activación final.</td><td>C-14, U-06</td></tr>
+        <tr><td><span class="badge badge--cyan">W-17</span></td><td>GET</td><td><code>/web/solicitud/retomar</code></td><td>Retomar sesión por NIT + SlugPasoWeb.</td><td>C-02</td></tr>
+      </tbody>
+    </table>
+
+    <h3>BFF Handoff — 4 endpoints (Celular del cliente)</h3>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="badge badge--amber">H-01</span></td><td>GET</td><td><code>/handoff/{token}/validar</code></td><td>Validar token y retornar contexto del estudio.</td></tr>
+        <tr><td><span class="badge badge--amber">H-02</span></td><td>POST</td><td><code>/handoff/{token}/biometria/selfie</code></td><td>Cliente sube selfie. Dispara faceliveness + face-match.</td></tr>
+        <tr><td><span class="badge badge--amber">H-03</span></td><td>GET</td><td><code>/handoff/{token}/estado</code></td><td>Estado del handoff para UX del cliente.</td></tr>
+        <tr><td><span class="badge badge--amber">H-04</span></td><td>POST</td><td><code>/handoff/{token}/fotos/recarga</code></td><td>Cliente sube foto de re-carga solicitada.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout--info" style="margin-top: 16px;">
+      <p style="font-size: 13px;"><strong>Nota técnica Handoff:</strong> El Session Handoff usa polling HTTP cada 3 segundos + token UUID. Estado almacenado en <code>SolicitudesRecarga</code> con <code>TipoSolicitud = 'HANDOFF_BIOMETRIA'</code>. TTL de 15 minutos.</p>
     </div>
 
     <!-- ==================== DETALLE DE TAREAS ==================== -->
