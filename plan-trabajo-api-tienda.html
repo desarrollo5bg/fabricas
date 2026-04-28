@@ -368,10 +368,10 @@
       Fabricas de Credito QUAC — Construccion de APIs REST para el Flujo de Tienda (4 Bloques)
     </p>
     <div class="meta">
-      <div class="meta-item"><strong>Version:</strong> 1.1</div>
+      <div class="meta-item"><strong>Version:</strong> 1.2</div>
       <div class="meta-item"><strong>Fecha:</strong> 2026-04-28</div>
       <div class="meta-item"><strong>Proyecto:</strong> Fabricas de Credito QUAC</div>
-      <div class="meta-item"><strong>Estado:</strong> Plan actualizado post-validacion DB</div>
+      <div class="meta-item"><strong>Arquitectura:</strong> 4 capas (Core + BFF + Util + Ext)</div>
 
     <!-- ==================== RESUMEN EJECUTIVO ==================== -->
     <h2 id="resumen">Resumen Ejecutivo</h2>
@@ -438,13 +438,12 @@
       </ul>
     </div>
     <div class="callout callout--success">
-      <p><strong>Actualizacion v1.1 post-validacion DB:</strong></p>
+      <p><strong>Actualizacion v1.2 con Taxonomia de Servicios (ref: documentacion-arquitectura-v2.html):</strong></p>
       <ul style="margin-bottom: 12px; font-size: 13px;">
-        <li>Campos <code>celularPrincipal</code> y <code>celularWhatsApp</code> separados en capturar-datos</li>
-        <li>Response de /iniciar incluye <code>cupoEliminado</code> para detectar renuncias previas (Pasos 30-31)</li>
-        <li>FOSYGA ahora referenciado como "cotizaciones" (equivale a validacion ADRES)</li>
-        <li>Endpoint /escalar para enviar a Fabrica de Soporte</li>
-        <li>Consultas de mora incluir flag <code>moraComerciosAliados</code> (Paso 21)</li>
+        <li>Arquitectura de 4 capas: Core (21) + BFF Tienda (17) + Utilitarios (13) + Externos (12)</li>
+        <li>Cada endpoint BFF delega a servicios Core internos</li>
+        <li>Modelo "Estado Dirigido por el Sistema" + payload estandar con next_action</li>
+        <li>Session Handoff para biomatria viaSolicitudesRecarga</li>
       </ul>
     <div class="callout callout--danger">
       <p><strong>Excluido (fuera del alcance de esta fase):</strong></p>
