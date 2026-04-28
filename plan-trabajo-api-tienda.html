@@ -351,6 +351,7 @@
       <a href="#resumen">Resumen Ejecutivo</a>
       <a href="#objetivo">Objetivo</a>
       <a href="#alcance">Alcance</a>
+      <a href="#taxonomia">Arquitectura 4 Capas</a>
       <a href="#fase1" class="indent">Fase 1: Ingreso</a>
       <a href="#fase2" class="indent">Fase 2: Captura Datos</a>
       <a href="#fase3" class="indent">Fase 3: Validaciones</a>
@@ -392,11 +393,32 @@
 
     <div class="card-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 24px 0;">
       <div class="card" style="text-align: center; padding: 20px;">
-        <div style="font-size: 32px; font-weight: 800; color: var(--accent);">4</div>
-        <div style="font-size: 13px; color: var(--text-secondary);">Bloques</div>
+        <div style="font-size: 32px; font-weight: 800; color: var(--violet);">21</div>
+        <div style="font-size: 13px; color: var(--text-secondary);">Core Services</div>
       </div>
       <div class="card" style="text-align: center; padding: 20px;">
-        <div style="font-size: 32px; font-weight: 800; color: var(--accent);">15</div>
+        <div style="font-size: 32px; font-weight: 800; color: var(--cyan);">17</div>
+        <div style="font-size: 13px; color: var(--text-secondary);">BFF Tienda</div>
+      </div>
+      <div class="card" style="text-align: center; padding: 20px;">
+        <div style="font-size: 32px; font-weight: 800; color: var(--green);">13</div>
+        <div style="font-size: 13px; color: var(--text-secondary);">Utilitarios</div>
+      </div>
+      <div class="card" style="text-align: center; padding: 20px;">
+        <div style="font-size: 32px; font-weight: 800; color: var(--amber);">12</div>
+        <div style="font-size: 13px; color: var(--text-secondary);">Adaptadores Ext</div>
+      </div>
+    </div>
+
+    <div class="callout callout--info" style="margin-top: 16px;">
+      <p style="font-size: 13px;"><strong>Arquitectura de 4 capas (ref: documentacion-arquitectura-v2.html):</strong></p>
+      <ul style="font-size: 12px; margin-bottom: 0;">
+        <li><strong>Core (21)</strong>: Lógica de negocio pura. Sin conocimiento de canal. Solo mTLS interno.</li>
+        <li><strong>BFF Tienda (17)</strong>: Orquestación por canal. Delega a Core. Expuestos al frontend.</li>
+        <li><strong>Utilitarios (13)</strong>: OTP, SMS, Email, Storage, Catálogos, Idempotencia.</li>
+        <li><strong>Externos (12)</strong>: Buró, OCR, Biometría, FOSYGA, UBICA, etc.</li>
+      </ul>
+    </div>
         <div style="font-size: 13px; color: var(--text-secondary);">Endpoints</div>
       </div>
       <div class="card" style="text-align: center; padding: 20px;">
@@ -786,6 +808,116 @@
         <tr><td><code>ACTIVACION_CUPO</code></td><td>UBICA</td><td>Backend</td><td>Cupo activado en sistema UBICA</td></tr>
       </tbody>
     </table>
+
+    <!-- ==================== TAXONOMÍA DE SERVICIOS ==================== -->
+    <h2 id="taxonomia">Taxonomía de Servicios — Arquitectura de 4 Capas</h2>
+    <p>
+      Este diseño sigue la arquitectura definida en <code>documentacion-arquitectura-v2.html</code> (v2.4). 
+      La <strong>Regla de Oro</strong>: el Backend dicta la máquina de estados — los Frontends son Thin Clients.
+    </p>
+
+    <h3>A) Core Services — 21 endpoints (Lógica pura)</h3>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th><th>Tablas</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="badge badge--violet">C-01</span></td><td>POST</td><td><code>/core/estudios</code></td><td>Crear estudio de crédito</td><td>EstudiosCredito</td></tr>
+        <tr><td><span class="badge badge--violet">C-02</span></td><td>GET</td><td><code>/core/estudios/{id}</code></td><td>Estado completo del estudio</td><td>EstudiosCredito</td></tr>
+        <tr><td><span class="badge badge--violet">C-03</span></td><td>POST</td><td><code>/core/estudios/{id}/estado</code></td><td>Transicionar estado (valida TransicionesEstado)</td><td>EstudiosCredito, HistorialEstados</td></tr>
+        <tr><td><span class="badge badge--violet">C-04</span></td><td>GET</td><td><code>/core/estudios/{id}/next-step</code></td><td>Calcular siguiente paso del flujo</td><td>PasosEstudio, FasesEstudio</td></tr>
+        <tr><td><span class="badge badge--violet">C-05</span></td><td>POST</td><td><code>/core/estudios/{id}/paso-completado</code></td><td>Avanzar cursor IdPasoActual</td><td>EstudiosCredito</td></tr>
+        <tr><td><span class="badge badge--violet">C-06</span></td><td>GET</td><td><code>/core/terceros/{nit}/elegibilidad</code></td><td>Bloqueo, cupo activo, cooling-off</td><td>TercerosFabricas, KCRM_CadenaCreditos</td></tr>
+        <tr><td><span class="badge badge--violet">C-07</span></td><td>POST</td><td><code>/core/terceros/{nit}/upsert</code></td><td>Crear o actualizar tercero</td><td>TercerosFabricas</td></tr>
+        <tr><td><span class="badge badge--violet">C-08</span></td><td>POST</td><td><code>/core/evaluaciones-riesgo</code></td><td>Registrar resultado de evaluación</td><td>EvaluacionesRiesgo</td></tr>
+        <tr><td><span class="badge badge--violet">C-09</span></td><td>POST</td><td><code>/core/biometria</code></td><td>Registrar resultado biométrico</td><td>RegistrosBiometria, FotografiasEstudio</td></tr>
+        <tr><td><span class="badge badge--violet">C-10</span></td><td>POST</td><td><code>/core/consentimientos</code></td><td>Registrar consentimiento legal</td><td>ConsentimientosLegales</td></tr>
+        <tr><td><span class="badge badge--violet">C-11</span></td><td>POST</td><td><code>/core/fraude/evaluar</code></td><td>Ejecutar reglas de fraude</td><td>AlertasFraude, CatalogoReglasFraude</td></tr>
+        <tr><td><span class="badge badge--violet">C-12</span></td><td>POST</td><td><code>/core/escalamientos</code></td><td>Crear escalamiento a Fábrica</td><td>EscalamientosFabrica, CatalogoMotivosEscalamiento</td></tr>
+        <tr><td><span class="badge badge--violet">C-13</span></td><td>POST</td><td><code>/core/fotos/{id}/revision</code></td><td>Registrar decisión de revisión (INSERT-ONLY)</td><td>RevisionesFotografia</td></tr>
+        <tr><td><span class="badge badge--violet">C-14</span></td><td>POST</td><td><code>/core/estudios/{id}/activar-cupo</code></td><td>Activación final del cupo</td><td>EstudiosCredito, TercerosFabricas, KCRM_CadenaCreditos</td></tr>
+        <tr><td><span class="badge badge--violet">C-15</span></td><td>POST</td><td><code>/core/auditoria/cambio-datos</code></td><td>Registrar mutación de datos sensibles</td><td>HistorialDatosSensibles</td></tr>
+        <tr><td><span class="badge badge--violet">C-16</span></td><td>POST</td><td><code>/core/auditoria/servicio-externo</code></td><td>Registrar llamada externa</td><td>RegistroServiciosExternos</td></tr>
+        <tr><td><span class="badge badge--violet">C-17</span></td><td>GET</td><td><code>/core/catalogos/estados</code></td><td>Estados de la máquina</td><td>CatalogoEstados</td></tr>
+        <tr><td><span class="badge badge--violet">C-18</span></td><td>GET</td><td><code>/core/catalogos/pasos</code></td><td>Pasos y fases del flujo</td><td>PasosEstudio, FasesEstudio</td></tr>
+        <tr><td><span class="badge badge--violet">C-19</span></td><td>GET</td><td><code>/core/catalogos/canales</code></td><td>Canales de origen</td><td>CatalogoCanalesOrigen</td></tr>
+        <tr><td><span class="badge badge--violet">C-20</span></td><td>GET</td><td><code>/core/catalogos/tipos-documento</code></td><td>Tipos de documento</td><td>Tabla dominio QUAC</td></tr>
+        <tr><td><span class="badge badge--violet">C-21</span></td><td>GET</td><td><code>/core/reglas-negocio</code></td><td>Parámetros configurables</td><td>ConfiguracionReglasNegocio</td></tr>
+      </tbody>
+    </table>
+
+    <h3>B) BFF Tienda — 17 endpoints (Orquestación)</h3>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th><th>Delega a Core</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="badge badge--cyan">T-01</span></td><td>POST</td><td><code>/tienda/solicitud/iniciar-asistida</code></td><td>Punto de entrada asesor. Adjunta IdAsesor + IdBodega.</td><td>C-01, C-06</td></tr>
+        <tr><td><span class="badge badge--cyan">T-02</span></td><td>GET</td><td><code>/tienda/solicitud/{id}/estado</code></td><td>Estado + next_action para el PC del asesor.</td><td>C-02, C-04</td></tr>
+        <tr><td><span class="badge badge--cyan">T-03</span></td><td>POST</td><td><code>/tienda/solicitud/{id}/datos-tercero</code></td><td>Crear tercero por OCR o manual.</td><td>C-07</td></tr>
+        <tr><td><span class="badge badge--cyan">T-04</span></td><td>POST</td><td><code>/tienda/solicitud/{id}/token-tyc</code></td><td>Enviar token T&C por SMS/WhatsApp.</td><td>U-01</td></tr>
+        <tr><td><span class="badge badge--cyan">T-05</span></td><td>POST</td><td><code>/tienda/solicitud/{id}/validar-token</code></td><td>Validar token T&C.</td><td>U-02</td></tr>
+        <tr><td><span class="badge badge--cyan">T-06</span></td><td>POST</td><td><code>/tienda/solicitud/{id}/evaluar-viabilidad</code></td><td>Antecedentes + Preselecta + FOSYGA + UBICA.</td><td>C-08, E-01 a E-05</td></tr>
+        <tr><td><span class="badge badge--cyan">T-07</span></td><td>POST</td><td><code>/tienda/solicitud/{id}/direccion</code></td><td>Guardar dirección.</td><td>C-05</td></tr>
+        <tr><td><span class="badge badge--cyan">T-08</span></td><td>POST</td><td><code>/tienda/solicitud/{id}/biometria/asesor</code></td><td>Captura biométrica cámara asesor.</td><td>C-09</td></tr>
+        <tr><td><span class="badge badge--cyan">T-09</span></td><td>POST</td><td><code>/tienda/handoff/generar-link</code></td><td>Generar link SMS para handoff biométrico.</td><td>PH-04 (SolicitudesRecarga)</td></tr>
+        <tr><td><span class="badge badge--cyan">T-10</span></td><td>GET</td><td><code>/tienda/handoff/estado/{token}</code></td><td>Polling — ¿completó el handoff?</td><td>SolicitudesRecarga</td></tr>
+        <tr><td><span class="badge badge--cyan">T-11</span></td><td>POST</td><td><code>/tienda/solicitud/{id}/escalar-fabrica</code></td><td>Escalar a Fábrica con motivo.</td><td>C-12</td></tr>
+        <tr><td><span class="badge badge--cyan">T-12</span></td><td>POST</td><td><code>/tienda/solicitud/{id}/solicitar-recarga-foto</code></td><td>Generar link de re-carga.</td><td>PH-04</td></tr>
+        <tr><td><span class="badge badge--cyan">T-13</span></td><td>POST</td><td><code>/tienda/solicitud/{id}/activar-cupo</code></td><td>Activación final (express o normal).</td><td>C-14</td></tr>
+        <tr><td><span class="badge badge--cyan">T-14</span></td><td>GET</td><td><code>/tienda/mesa-estudios</code></td><td>Listado de estudios con filtros.</td><td>C-02</td></tr>
+        <tr><td><span class="badge badge--cyan">T-15</span></td><td>GET</td><td><code>/tienda/mesa-estudios/{id}/detalle</code></td><td>Detalle completo para asesor.</td><td>C-02</td></tr>
+        <tr><td><span class="badge badge--cyan">T-16</span></td><td>POST</td><td><code>/tienda/fotos/{idFoto}/revisar</code></td><td>Aprobar o rechazar foto individual.</td><td>C-13</td></tr>
+        <tr><td><span class="badge badge--cyan">T-17</span></td><td>GET</td><td><code>/tienda/estadisticas/diarias</code></td><td>KPIs del día.</td><td>C-02</td></tr>
+      </tbody>
+    </table>
+
+    <h3>C) Utilitários — 13 endpoints (Transversales)</h3>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="badge badge--green">U-01</span></td><td>POST</td><td><code>/util/otp/enviar</code></td><td>Enviar OTP (SMS→WA→Email escalonado)</td></tr>
+        <tr><td><span class="badge badge--green">U-02</span></td><td>POST</td><td><code>/util/otp/validar</code></td><td>Validar código contra hash</td></tr>
+        <tr><td><span class="badge badge--green">U-03</span></td><td>GET</td><td><code>/util/otp/estado/{idReto}</code></td><td>Estado del reto</td></tr>
+        <tr><td><span class="badge badge--green">U-04</span></td><td>POST</td><td><code>/util/otp/reenviar</code></td><td>Reenviar por otro canal</td></tr>
+        <tr><td><span class="badge badge--green">U-05</span></td><td>POST</td><td><code>/util/sms/enviar</code></td><td>SMS genérico</td></tr>
+        <tr><td><span class="badge badge--green">U-06</span></td><td>POST</td><td><code>/util/email/enviar</code></td><td>Email genérico</td></tr>
+        <tr><td><span class="badge badge--green">U-07</span></td><td>POST</td><td><code>/util/whatsapp/enviar</code></td><td>WhatsApp</td></tr>
+        <tr><td><span class="badge badge--green">U-08</span></td><td>GET</td><td><code>/util/catalogos/departamentos</code></td><td>Departamentos Colombia</td></tr>
+        <tr><td><span class="badge badge--green">U-09</span></td><td>GET</td><td><code>/util/catalogos/ciudades/{idDepto}</code></td><td>Ciudades por depto</td></tr>
+        <tr><td><span class="badge badge--green">U-10</span></td><td>GET</td><td><code>/util/catalogos/tipos-documento</code></td><td>Tipos documento</td></tr>
+        <tr><td><span class="badge badge--green">U-11</span></td><td>POST</td><td><code>/util/storage/presigned-url</code></td><td>URL pre-firmada (TTL 15min)</td></tr>
+        <tr><td><span class="badge badge--green">U-12</span></td><td>POST</td><td><code>/util/idempotencia/verificar</code></td><td>Verificar ClaveIdempotencia</td></tr>
+        <tr><td><span class="badge badge--green">U-13</span></td><td>GET</td><td><code>/util/health</code></td><td>Health check</td></tr>
+      </tbody>
+    </table>
+
+    <h3>D) Adaptadores Externos — 12 integraciones</h3>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Path</th><th>Descripción</th><th>Escribe en</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="badge badge--amber">E-01</span></td><td><code>/ext/antecedentes/consultar</code></td><td>Antecedentes y listas restrictivas</td><td>EvaluacionesRiesgo (ANTECEDENTES)</td></tr>
+        <tr><td><span class="badge badge--amber">E-02</span></td><td><code>/ext/buro/consultar</code></td><td>Buró de crédito</td><td>EvaluacionesRiesgo (BURO)</td></tr>
+        <tr><td><span class="badge badge--amber">E-03</span></td><td><code>/ext/preselecta/consultar</code></td><td>Preselecta</td><td>EvaluacionesRiesgo (PRESELECTA)</td></tr>
+        <tr><td><span class="badge badge--amber">E-04</span></td><td><code>/ext/fosyga/consultar</code></td><td>FOSYGA/ADRES (cotizaciones)</td><td>EvaluacionesRiesgo (FOSYGA)</td></tr>
+        <tr><td><span class="badge badge--amber">E-05</span></td><td><code>/ext/ubica/consultar</code></td><td>UBICA contactabilidad</td><td>ValidacionesContactabilidad</td></tr>
+        <tr><td><span class="badge badge--amber">E-06</span></td><td><code>/ext/ocr/procesar-documento</code></td><td>OCR documento</td><td>RegistrosBiometria (campos OCR)</td></tr>
+        <tr><td><span class="badge badge--amber">E-07</span></td><td><code>/ext/biometria/faceliveness</code></td><td>Prueba de vida facial</td><td>RegistrosBiometria</td></tr>
+        <tr><td><span class="badge badge--amber">E-08</span></td><td><code>/ext/biometria/face-match</code></td><td>Comparación selfie vs documento (≥85%)</td><td>RegistrosBiometria</td></tr>
+        <tr><td><span class="badge badge--amber">E-09</span></td><td><code>/ext/biometria/enroll</code></td><td>Enrollar biometría futura</td><td>RegistrosBiometria, TercerosFabricas</td></tr>
+        <tr><td><span class="badge badge--amber">E-10</span></td><td><code>/ext/infobip/sms</code></td><td>Infobip SMS</td><td>RegistroServiciosExternos</td></tr>
+        <tr><td><span class="badge badge--amber">E-11</span></td><td><code>/ext/infobip/whatsapp</code></td><td>Infobip WhatsApp</td><td>RegistroServiciosExternos</td></tr>
+        <tr><td><span class="badge badge--amber">E-12</span></td><td><code>/ext/call-center/escalar</code></td><td>Notificar Call Center</td><td>EscalamientosFabrica</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout--warn" style="margin-top: 16px;">
+      <p style="font-size: 13px;"><strong>Patrón de delegación:</strong> Los BFFs (T-01 a T-17) delegan en Core services (C-01 a C-21). Los Core services pueden invocar utilitários (U-01 a U-13) y adaptadores externos (E-01 a E-12). Esta separación asegura que la lógica de negocio sea inmutable y reusable entre canales.</p>
+    </div>
 
     <!-- ==================== DETALLE DE TAREAS ==================== -->
     <h2 id="tareas">Detalle de Tareas</h2>
