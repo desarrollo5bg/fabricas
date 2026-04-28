@@ -368,17 +368,23 @@
       Fabricas de Credito QUAC — Construccion de APIs REST para el Flujo de Tienda (4 Bloques)
     </p>
     <div class="meta">
-      <div class="meta-item"><strong>Version:</strong> 1.0</div>
-      <div class="meta-item"><strong>Fecha:</strong> 2026-04-27</div>
+      <div class="meta-item"><strong>Version:</strong> 1.1</div>
+      <div class="meta-item"><strong>Fecha:</strong> 2026-04-28</div>
       <div class="meta-item"><strong>Proyecto:</strong> Fabricas de Credito QUAC</div>
-      <div class="meta-item"><strong>Estado:</strong> Plan propuesto</div>
+      <div class="meta-item"><strong>Estado:</strong> Plan actualizado post-validacion DB</div>
 
     <!-- ==================== RESUMEN EJECUTIVO ==================== -->
     <h2 id="resumen">Resumen Ejecutivo</h2>
     <p>
       Este plan de trabajo establece la hoja de ruta para construir las APIs REST que permiten ejecutar el <strong>Flujo de Tienda</strong> completo,
-      desde el ingreso del cliente hasta la activacion del cupo. El flujo se divide en 4 bloques funcionales que agrupan 13 pasos y 18 servicios externos.
+      desde el ingreso del cliente hasta la activacion del cupo. El flujo se divide en 4 bloques funcionales que agrupan 15 endpoints y 20 servicios externos.
     </p>
+    <div class="callout callout--success" style="margin-top: 12px;">
+      <p style="font-size: 13px;"><strong>Validacion DB completa:</strong> 
+        <code>FABRICASv2.sql</code> fue validado contra <code>Definición funcional.html</code> (153 pasos). 
+        Todos los gaps identificados fueron resueltos (celulares separados, duplicidades, MoraComerciosAliados, RenunciaCupo, EscalamientosFabrica).
+      </p>
+    </div>
     <div class="callout callout--info">
       <p><strong>Resultado buscado:</strong> API completamente funcionales que permitan ejecutar el flujo de tienda desde la interfaz de la tienda fisica,
       incluyendo validaciones deidentity, calculo de cuotas, verificacion biometrica y activacion del credito.</p>
@@ -390,15 +396,15 @@
         <div style="font-size: 13px; color: var(--text-secondary);">Bloques</div>
       </div>
       <div class="card" style="text-align: center; padding: 20px;">
-        <div style="font-size: 32px; font-weight: 800; color: var(--accent);">13</div>
-        <div style="font-size: 13px; color: var(--text-secondary);">Pasos</div>
+        <div style="font-size: 32px; font-weight: 800; color: var(--accent);">15</div>
+        <div style="font-size: 13px; color: var(--text-secondary);">Endpoints</div>
       </div>
       <div class="card" style="text-align: center; padding: 20px;">
-        <div style="font-size: 32px; font-weight: 800; color: var(--accent);">18</div>
+        <div style="font-size: 32px; font-weight: 800; color: var(--accent);">20</div>
         <div style="font-size: 13px; color: var(--text-secondary);">Servicios</div>
       </div>
       <div class="card" style="text-align: center; padding: 20px;">
-        <div style="font-size: 32px; font-weight: 800; color: var(--accent);">~45</div>
+        <div style="font-size: 32px; font-weight: 800; color: var(--accent);">~50</div>
         <div style="font-size: 13px; color: var(--text-secondary);">Dias estimados</div>
       </div>
     </div>
@@ -411,10 +417,10 @@
     </p>
     <h4>Objetivos especificos</h4>
     <ul>
-      <li><strong>Bloque 1 (Ingreso):</strong> Validar documento, verificar existencia en ERP, consultar estado de cupo activo/bloqueado</li>
-      <li><strong>Bloque 2 (Captura):</strong> Capturar datos del cliente, telefono, email, direccion, tokenizar consentimientos</li>
-      <li><strong>Bloque 3 (Validaciones):</strong> Consultar listas restrictivas, buró de credito, evaluacion Preselecta, validacion FOSYGA, calculo de cupo</li>
-      <li><strong>Bloque 4 (Resultado):</strong> Verificacion biometrica, activacion en UBICA, activacion del cupo</li>
+      <li><strong>Bloque 1 (Ingreso):</strong> Validar documento, verificar existencia en ERP, consultar estado de cupo activo/bloqueado/eliminado (incluye <code>RenunciaCupo</code>)</li>
+      <li><strong>Bloque 2 (Captura):</strong> Capturar datos del cliente, <code>celularPrincipal</code> + <code>celularWhatsApp</code> separados, email, direccion, tokenizar consentimientos</li>
+      <li><strong>Bloque 3 (Validaciones):</strong> Consultar listas restrictivas, bureo de credito + mora en comercios aliados (<code>MoraComerciosAliados</code>), evaluacion Preselecta, validacion FOSYGA/ADRES (cotizaciones), calculo de cupo</li>
+      <li><strong>Bloque 4 (Resultado):</strong> Verificacion biometrica, generacion token activacion, confirmacion token, activacion en UBICA,可能的 escalamiento a Fabrica de Soporte</li>
     </ul>
 
     <!-- ==================== ALCANCE ==================== -->
@@ -424,12 +430,22 @@
       <ul style="margin-bottom: 12px;">
         <li>Diseno de contratos de API (OpenAPI/Swagger)</li>
         <li>Implementacion de endpoints REST</li>
-        <li>Integracion con servicios externos (ERP, Core Credito, Preselecta, FOSYGA, UBICA, Biometria)</li>
+        <li>Integracion con servicios externos (ERP, Core Credito, Preselecta, FOSYGA/Cotizaciones, UBICA, Biometria)</li>
         <li>Maquina de estados para control de flujo</li>
         <li>Registro de invocaciones (logging)</li>
         <li>Manejo de errores y reintentos</li>
+        <li>Escalamiento a Fabrica de Soporte</li>
       </ul>
     </div>
+    <div class="callout callout--success">
+      <p><strong>Actualizacion v1.1 post-validacion DB:</strong></p>
+      <ul style="margin-bottom: 12px; font-size: 13px;">
+        <li>Campos <code>celularPrincipal</code> y <code>celularWhatsApp</code> separados en capturar-datos</li>
+        <li>Response de /iniciar incluye <code>cupoEliminado</code> para detectar renuncias previas (Pasos 30-31)</li>
+        <li>FOSYGA ahora referenciado como "cotizaciones" (equivale a validacion ADRES)</li>
+        <li>Endpoint /escalar para enviar a Fabrica de Soporte</li>
+        <li>Consultas de mora incluir flag <code>moraComerciosAliados</code> (Paso 21)</li>
+      </ul>
     <div class="callout callout--danger">
       <p><strong>Excluido (fuera del alcance de esta fase):</strong></p>
       <ul style="margin-bottom: 12px;">
@@ -470,9 +486,10 @@
         <thead><tr><th>Respuesta</th><th>Tipo</th><th>Descripcion</th></tr></thead>
         <tbody>
           <tr><td>idEstudio</td><td>int</td><td>ID del estudio creado</td></tr>
-          <tr><td>estado</td><td>string</td><td>INICIADO, NO_VIABLE, REQUIERE_REACTIVACION</td></tr>
-          <tr><td>terceroExiste</td><td>boolean</td><td>Si existe en ERP</td></tr>
+          <tr><td>estado</td><td>string</td><td>INICIADO, NO_VIABLE, REQUIERE_REACTIVACION, CUPO_YA_ACTIVO</td></tr>
+          <tr><td>terceroExiste</td><td>boolean</td><td>Si existe en ERP/QUAC</td></tr>
           <tr><td>cupoActivo</td><td>object</td><td>Info del cupo activo (si aplica)</td></tr>
+          <tr><td>cupoEliminado</td><td>boolean</td><td>Si existio cupo eliminado previamente (Paso 30-31)</td></tr>
           <tr><td>motivo</td><td>string</td><td>Descripcion del estado</td></tr>
         </tbody>
       </table>
@@ -509,9 +526,10 @@
       <tbody>
         <tr><td><code>VALIDAR_EXISTENCIA</code></td><td>ERP_QUAC</td><td>Backend</td><td>Confirma que el tercero existe en ERP</td></tr>
         <tr><td><code>VALIDAR_CUPO_BLOQUEO</code></td><td>CORE_CREDITO</td><td>Backend</td><td>Sin cupo activo ni bloqueos vigentes</td></tr>
-        <tr><td><code>INGRESO_DOCUMENTO</code></td><td>—</td><td>ASESOR</td><td>Captura manual del documento</td></tr>
-      </tbody>
-    </table>
+<tr><td><code>INGRESO_DOCUMENTO</code></td><td>—</td><td>ASESOR</td><td>Captura manual del documento</td></tr>
+          <tr><td><code>VALIDAR_DUPLICIDAD</code></td><td>CatalogoReglasFraude</td><td>Backend</td><td>Validar celular/email duplicados (politica configurable)</td></tr>
+        </tbody>
+      </table>
 
     <!-- ==================== BLOQUE 2: CAPTURA DATOS ==================== -->
     <h2 id="fase2">Fase 2: Captura de Datos</h2>
@@ -534,11 +552,15 @@
           <tr><td>idEstudio</td><td>int</td><td>ID del estudio</td></tr>
           <tr><td>nombres</td><td>string</td><td>Nombres completos</td></tr>
           <tr><td>apellidos</td><td>string</td><td>Apellidos completos</td></tr>
-          <tr><td>telefono</td><td>string</td><td>Celular (10 digitos)</td></tr>
+          <tr><td>celularPrincipal</td><td>string</td><td>Celular principal para llamadas (10 digitos)</td></tr>
+          <tr><td>celularWhatsApp</td><td>string</td><td>Celular para WhatsApp (puede ser igual al principal)</td></tr>
           <tr><td>email</td><td>string</td><td>Correo electronico</td></tr>
           <tr><td>fechaNacimiento</td><td>string</td><td>Fecha nacimiento (YYYY-MM-DD)</td></tr>
         </tbody>
       </table>
+      <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
+        <strong>Nota:</strong> Los telefonos se almacenan separados para cumplir con politicas de duplicidad configurables en <code>CatalogoReglasFraude</code>.
+      </p>
     </div>
 
     <div class="card">
@@ -654,10 +676,11 @@
       </thead>
       <tbody>
         <tr><td><code>VALIDAR_LISTAS</code></td><td>LISTAS_RESTRICTIVAS</td><td>Backend</td><td>No aparece en listas negras</td></tr>
-        <tr><td><code>CONSULTAR_BURO</code></td><td>BURO_CREDITO</td><td>Backend</td><td>Score de credito obtenido</td></tr>
+        <tr><td><code>CONSULTAR_BURO</code></td><td>BURO_CREDITO</td><td>Backend</td><td>Score de credito + mora en comercios aliados (Paso 21)</td></tr>
         <tr><td><code>EVALUAR_PRESELECTA</code></td><td>PRESELECTA</td><td>Backend</td><td>Preseleccion de oferta</td></tr>
-        <tr><td><code>VALIDAR_FOSYGA</code></td><td>FOSYGA</td><td>Backend</td><td>Vigencia en sistema de salud</td></tr>
+        <tr><td><code>VALIDAR_FOSYGA</code></td><td>FOSYGA/ADRES</td><td>Backend</td><td>Vigencia en sistema de salud (cotizaciones)</td></tr>
         <tr><td><code>CALCULAR_CUPO</code></td><td>MOTOR_CUPO</td><td>Backend</td><td>Cupo calculado y aprobado</td></tr>
+        <tr><td><code>REACTIVACION_CUPO</code></td><td>CORE_CREDITO</td><td>Backend</td><td>Reactivar cupo eliminado (ventana configurable)</td></tr>
       </tbody>
     </table>
 
@@ -712,8 +735,41 @@
         <div class="card-title">POST /api/estudio/{id}/activar-cupo</div>
       </div>
       <p style="font-size: 14px; margin-bottom: 12px;">
-        Activar el cupo preaprobado. Registra en UBICA y genera la tarjeta virtual.
+        Activar el cupo preaprobado. Genera token de activacion y registra en UBICA.
       </p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-number">14</div>
+        <div class="card-title">POST /api/estudio/{id}/confirmar-token</div>
+      </div>
+      <p style="font-size: 14px; margin-bottom: 12px;">
+        Validar token de activacion enviado al correo del cliente. Completa la activacion del cupo.
+      </p>
+      <table>
+        <thead><tr><th>Input</th><th>Tipo</th><th>Descripcion</th></tr></thead>
+        <tbody>
+          <tr><td>token</td><td>string</td><td>Token recibido por el cliente</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-number">15</div>
+        <div class="card-title">POST /api/estudio/{id}/escalar</div>
+      </div>
+      <p style="font-size: 14px; margin-bottom: 12px;">
+        Escalar caso a Fabrica de Soporte. Requiere motivo tipificado de <code>CatalogoMotivosEscalamiento</code>.
+      </p>
+      <table>
+        <thead><tr><th>Input</th><th>Tipo</th><th>Descripcion</th></tr></thead>
+        <tbody>
+          <tr><td>idMotivoEscalamiento</td><td>int</td><td>FK a CatalogoMotivosEscalamiento</td></tr>
+          <tr><td>observacion</td><td>string</td><td>Detalle adicional (opcional)</td></tr>
+        </tbody>
+      </table>
     </div>
 
     <h4>Servicios externos del Bloque 4</h4>
@@ -741,7 +797,7 @@
         <div class="task-check"></div>
         <div class="task-content">
           <div class="task-title">T-001: Disenar esquema de base de datos</div>
-          <div class="task-desc">Crear/verificar tablas: EstudiosCredito, PasosEstudio, HistorialEstados, RegistroServiciosExternos, EvaluacionesRiesgo</div>
+          <div class="task-desc">Crear/verificar tablas: EstudiosCredito, PasosEstudio, HistorialEstados, RegistroServiciosExternos, EvaluacionesRiesgo, TercerosFabricas (CelularPrincipal + CelularWhatsApp), EscalamientosFabrica, CatalogoMotivosEscalamiento</div>
         </div>
       </li>
       <li class="task-item">
@@ -890,7 +946,21 @@
         <div class="task-check"></div>
         <div class="task-content">
           <div class="task-title">T-020: POST /api/estudio/{id}/activar-cupo</div>
-          <div class="task-desc">Activar cupo en UBICA</div>
+          <div class="task-desc">Generar token de activacion y registrar en UBICA</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">T-021: POST /api/estudio/{id}/confirmar-token</div>
+          <div class="task-desc">Validar token de activacion (enviado por email)</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">T-022: POST /api/estudio/{id}/escalar</div>
+          <div class="task-desc">Escalar a Fabrica de Soporte (motivos tipificados)</div>
         </div>
       </li>
     </ul>
@@ -911,14 +981,15 @@
       </thead>
       <tbody>
         <tr><td>ERP_QUAC</td><td>Interno</td><td>REST</td><td>T-005</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
-        <tr><td>CORE_CREDITO</td><td>Interno</td><td>REST</td><td>T-005</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>CORE_CREDITO</td><td>Interno</td><td>REST</td><td>T-005, T-017</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
         <tr><td>LISTAS_RESTRICTIVAS</td><td>Externo</td><td>REST</td><td>T-013</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
         <tr><td>BURO_CREDITO</td><td>Datcredito/Central</td><td>REST</td><td>T-014</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
         <tr><td>PRESELECTA</td><td>Interno</td><td>REST</td><td>T-015</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
-        <tr><td>FOSYGA</td><td>ADRES</td><td>REST/WS</td><td>T-016</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>FOSYGA/ADRES</td><td>ADRES</td><td>REST/WS</td><td>T-016</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
         <tr><td>OTP_PROVIDER</td><td>Infobip</td><td>REST</td><td>T-011</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
         <tr><td>AWS Rekognition</td><td>AWS</td><td>SDK</td><td>T-019</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
         <tr><td>UBICA</td><td>TransUnion</td><td>REST</td><td>T-020</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>EMAIL_PROVIDER</td><td>Externo</td><td>SMTP/REST</td><td>T-020, T-021</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
       </tbody>
     </table>
 
@@ -1043,7 +1114,8 @@
       <strong>Documentos relacionados:</strong>
       <a href="flujos/index.html" style="color: var(--accent);">flujos/index.html</a> |
       <a href="infraestructura/06-servicios-backend.html" style="color: var(--accent);">infraestructura/06-servicios-backend.html</a> |
-      <a href="DB/DDL/FABRICASv2.sql" style="color: var(--accent);">DB/DDL/FABRICASv2.sql</a>
+      <a href="DB/DDL/FABRICASv2.sql" style="color: var(--accent);">DB/DDL/FABRICASv2.sql</a> |
+      <a href="Definición funcional.html" style="color: var(--accent);">Definición funcional.html</a>
     </p>
   </main>
 
