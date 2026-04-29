@@ -382,11 +382,11 @@
       <a href="#dependencias">Dependencias</a>
       <a href="#entregables">Entregables</a>
       <a href="#timeline">Cronograma</a>
-      <div class="sidebar-section">BFFs</div>
-      <a href="#taxonomia" class="indent">Core (C-01 a C-21)</a>
-      <a href="#taxonomia" class="indent">Web (W-01 a W-17)</a>
-      <a href="#taxonomia" class="indent">Tienda (T-01 a T-17)</a>
-      <a href="#taxonomia" class="indent">Handoff (H-01 a H-04)</a>
+       <div class="sidebar-section">BFFs</div>
+       <a href="#core-services" class="indent">Core (C-01 a C-21)</a>
+       <a href="#bff-tienda" class="indent">Tienda (T-01 a T-17)</a>
+       <a href="#bff-web" class="indent">Web (W-01 a W-17)</a>
+       <a href="#bff-handoff" class="indent">Handoff (H-01 a H-04)</a>
     </nav>
   </aside>
 
@@ -843,7 +843,7 @@
       La <strong>Regla de Oro</strong>: el Backend dicta la máquina de estados — los Frontends son Thin Clients.
     </p>
 
-    <h3>A) Core Services — 21 endpoints (Lógica pura)</h3>
+     <h3 id="core-services">A) Core Services — 21 endpoints (Lógica pura)</h3>
     <table>
       <thead>
         <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th><th>Tablas</th></tr>
@@ -873,7 +873,7 @@
       </tbody>
     </table>
 
-    <h3>B) BFF Tienda — 17 endpoints (Orquestación)</h3>
+     <h3 id="bff-tienda">B) BFF Tienda — 17 endpoints (Orquestación)</h3>
     <table>
       <thead>
         <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th><th>Delega a Core</th></tr>
@@ -946,7 +946,7 @@
       <p style="font-size: 13px;"><strong>Patrón de delegación:</strong> Los BFFs (T-01 a T-17, W-01 a W-17) delegan en Core services (C-01 a C-21). Los Core services pueden invocar utilitários (U-01 a U-13) y adaptadores externos (E-01 a E-12). Esta separación asegura que la lógica de negocio sea inmutable y reusable entre canales.</p>
     </div>
 
-    <h3>BFF Web — 17 endpoints (Autogestión)</h3>
+     <h3 id="bff-web">BFF Web — 17 endpoints (Autogestión)</h3>
     <table>
       <thead>
         <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th><th>Delega a Core</th></tr>
@@ -972,7 +972,7 @@
       </tbody>
     </table>
 
-    <h3>BFF Handoff — 4 endpoints (Celular del cliente)</h3>
+     <h3 id="bff-handoff">BFF Handoff — 4 endpoints (Celular del cliente)</h3>
     <table>
       <thead>
         <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th></tr>
