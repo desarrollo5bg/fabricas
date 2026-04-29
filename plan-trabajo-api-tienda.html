@@ -8,29 +8,51 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg: #FAFBFC;
-      --white: #FFFFFF;
-      --text: #1a1a2e;
-      --text-secondary: #555770;
-      --border: #E2E5EA;
-      --border-light: #F0F1F4;
-      --accent: #7633FF;
-      --accent-bg: #F3EEFF;
-      --red: #DC2626;
-      --red-bg: #FEF2F2;
-      --green: #16A34A;
-      --green-bg: #F0FDF4;
-      --amber: #D97706;
-      --amber-bg: #FFFBEB;
-      --violet: #7C3AED;
-      --violet-bg: #F5F3FF;
-      --cyan: #0891B2;
-      --cyan-bg: #ECFEFF;
-      --code-bg: #F4F5F7;
-      --sidebar-w: 280px;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+       --bg: #FAFBFC;
+       --white: #FFFFFF;
+       --text: #1a1a2e;
+       --text-secondary: #555770;
+       --border: #E2E5EA;
+       --border-light: #F0F1F4;
+       --accent: #7633FF;
+       --accent-bg: #F3EEFF;
+       --red: #DC2626;
+       --red-bg: #FEF2F2;
+       --green: #16A34A;
+       --green-bg: #F0FDF4;
+       --amber: #D97706;
+       --amber-bg: #FFFBEB;
+       --violet: #7C3AED;
+       --violet-bg: #F5F3FF;
+       --cyan: #0891B2;
+       --cyan-bg: #ECFEFF;
+       --code-bg: #F4F5F7;
+--sidebar-w: 280px;
+       --scroll-height: 4px;
+       --scroll-bg: var(--border);
+       --scroll-fg: var(--accent);
+     }
+     
+     /* Custom scrollbar */
+     ::-webkit-scrollbar {
+       width: var(--scroll-height);
+     }
+     
+     ::-webkit-scrollbar-track {
+       background: var(--scroll-bg);
+     }
+     
+     ::-webkit-scrollbar-thumb {
+       background: var(--scroll-fg);
+       border-radius: 2px;
+     }
+     
+     ::-webkit-scrollbar-thumb:hover {
+       opacity: 0.8;
+     }
+     
+     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
       font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
@@ -1298,8 +1320,85 @@
     </p>
   </main>
 
-  <script>
-    console.log('Plan de Trabajo loaded - Fabricas de Credito QUAC');
-  </script>
+   <script>
+     console.log('Plan de Trabajo loaded - Fabricas de Credito QUAC');
+     
+     // Scroll enhancements
+     document.addEventListener('DOMContentLoaded', function() {
+       // Add scroll indicator to sidebar
+       const sidebar = document.querySelector('.sidebar');
+       if (sidebar) {
+         // Create scroll indicator
+         const scrollIndicator = document.createElement('div');
+         scrollIndicator.style.position = 'fixed';
+         scrollIndicator.style.top = '20px';
+         scrollIndicator.style.right = '20px';
+         scrollIndicator.style.width = '8px';
+         scrollIndicator.style.height = '60px';
+         scrollIndicator.style.background = 'rgba(118, 51, 255, 0.2)';
+         scrollIndicator.style.borderRadius = '4px';
+         scrollIndicator.style.pointerEvents = 'none';
+         scrollIndicator.style.zIndex = '1000';
+         scrollIndicator.style.display = 'none';
+         scrollIndicator.style.transition = 'opacity 0.3s';
+         
+         const scrollIndicatorFill = document.createElement('div');
+         scrollIndicatorFill.style.width = '100%';
+         scrollIndicatorFill.style.height = '100%';
+         scrollIndicatorFill.style.background = 'var(--accent)';
+         scrollIndicatorFill.style.borderRadius = '4px';
+         scrollIndicatorFill.style.transition = 'height 0.1s';
+         
+         scrollIndicator.appendChild(scrollIndicatorFill);
+         document.body.appendChild(scrollIndicator);
+         
+         // Update scroll indicator position
+         function updateScrollIndicator() {
+           const scrollTop = sidebar.scrollTop;
+           const scrollHeight = sidebar.scrollHeight - sidebar.clientHeight;
+           const scrollPercent = scrollTop / scrollHeight;
+           
+           if (scrollHeight > 0) {
+             scrollIndicatorFill.style.height = (scrollPercent * 100) + '%';
+             scrollIndicator.style.display = 'block';
+           } else {
+             scrollIndicator.style.display = 'none';
+           }
+         }
+         
+         // Update on scroll
+         sidebar.addEventListener('scroll', updateScrollIndicator);
+         
+         // Initial update
+         updateScrollIndicator();
+         
+         // Hide indicator when not scrolling
+         let scrollTimeout;
+         sidebar.addEventListener('scroll', function() {
+           scrollIndicator.style.opacity = '1';
+           clearTimeout(scrollTimeout);
+           scrollTimeout = setTimeout(() => {
+             scrollIndicator.style.opacity = '0';
+           }, 1500);
+         });
+       }
+       
+       // Smooth scrolling for anchor links
+       document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+         anchor.addEventListener('click', function(e) {
+           const targetId = this.getAttribute('href');
+           if (targetId !== '#') {
+             const targetElement = document.querySelector(targetId);
+             if (targetElement) {
+               e.preventDefault();
+               targetElement.scrollIntoView({
+                 behavior: 'smooth'
+               });
+             }
+           }
+         });
+       });
+     });
+   </script>
 </body>
 </html>
