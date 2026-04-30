@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Arquitectura de Datos v2.6 — Fábricas de Crédito QUAC</title>
+    <title>Arquitectura de Datos v2.7 — Fábricas de Crédito QUAC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -491,7 +491,7 @@
   <body>
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
-      <div class="sidebar-title">FABRICAS DE CRÉDITO v2.6</div>
+      <div class="sidebar-title">FABRICAS DE CRÉDITO v2.7</div>
       <nav>
         <a href="#overview" class="active">Visión General</a>
         <a href="#resumen-ejecutivo" class="indent">Resumen Ejecutivo</a>
@@ -546,6 +546,7 @@
         <a href="#backend-driven-state" class="indent">Estado Dirigido por el Sistema</a>
         <a href="#next-action-enum" class="indent">Enum NextAction</a>
         <a href="#payload-escenarios" class="indent">Payloads por Escenario</a>
+        <a href="#procedimientos-almacenados" class="indent">F) Procedimientos Almacenados</a>
         <div class="sidebar-section">Correcciones v2.5</div>
         <a href="#division-responsabilidades">División Backend vs Frontend</a>
         <a href="#autenticacion-asesores">Autenticación de Asesores</a>
@@ -554,11 +555,11 @@
         <a href="#dict-fotografias-estudio">FotografiasEstudio Unificada</a>
         <a href="#dict-auditoria-logins">AuditoriaLogins</a>
         <div class="sidebar-section">Documentación Técnica</div>
-        <a href="infraestructura/index.html" target="_blank">📋 Índice de Documentación</a>
-        <a href="infraestructura/02-diccionario-datos.html" class="indent">Diccionario de Datos</a>
-        <a href="infraestructura/04-seguridad-antifraude.html" class="indent">Detalle antifraude</a>
-        <a href="infraestructura/05-fotografias-biometria.html" class="indent">Detalle fotografías</a>
-        <a href="infraestructura/06-servicios-backend.html" class="indent">API backend</a>
+        <a href="Arquitectura/index.html" target="_blank">📋 Índice de Documentación</a>
+        <a href="Arquitectura/02-diccionario-datos.html" class="indent">Diccionario de Datos</a>
+        <a href="Arquitectura/04-seguridad-antifraude.html" class="indent">Detalle antifraude</a>
+        <a href="Arquitectura/05-fotografias-biometria.html" class="indent">Detalle fotografías</a>
+        <a href="Arquitectura/06-servicios-backend.html" class="indent">API backend</a>
         <div class="sidebar-section">Referencia</div>
         <a href="#historial-versiones">Historial de Versiones</a>
       </nav>
@@ -573,10 +574,10 @@
           <span class="meta-item"
             ><strong>Motor:</strong> SQL Server 2019+</span
           >
-          <span class="meta-item"><strong>Versión:</strong> 2.6</span>
-          <span class="meta-item"
-            ><strong>Fecha:</strong> 15 de abril de 2026</span
-          >
+<span class="meta-item"><strong>Versión:</strong> 2.7</span>
+           <span class="meta-item"
+             ><strong>Fecha:</strong> 30 de abril de 2026</span
+           >
           <span class="meta-item"><strong>Tablas Nuevas:</strong> 31</span>
           <span class="meta-item"><strong>Tablas Modificadas:</strong> 1</span>
         </p>
@@ -5285,18 +5286,18 @@ ORDER BY rv.FechaRevision DESC;</code></pre>
           Thin Clients que solo renderizan y envían payloads.
         </p>
 
-        <div class="card-grid">
+<div class="card-grid">
           <div class="card card--violet">
             <h4>21 Servicios Core</h4>
             <p>Lógica inmutable. Sin conocimiento de canal. Solo llamados internos vía mTLS.</p>
           </div>
           <div class="card card--cyan">
-            <h4>38 Servicios BFF</h4>
-            <p>17 Web + 17 Tienda + 4 Handoff. Orquestan el Core según el canal.</p>
+            <h4>82 Servicios BFF</h4>
+            <p>17 Web + 17 Tienda + 4 Handoff + 44 Admin. Orquestan el Core según el canal.</p>
           </div>
           <div class="card card--green">
-            <h4>13 Servicios Utilitarios</h4>
-            <p>OTP, SMS, Email, WhatsApp, Storage, Catálogos, Idempotencia.</p>
+            <h4>13 Utilitários + 36 SPs</h4>
+            <p>OTP, SMS, Email, Storage, Catálogos. + 36 procedimientos almacenados en DB.</p>
           </div>
           <div class="card card--amber">
             <h4>12 Adaptadores Externos</h4>
@@ -5399,7 +5400,7 @@ PC del asesor continúa el flujo ✓</pre>
             <tr><th>Criterio</th><th>Polling 3s ✅</th><th>WebSocket</th></tr>
           </thead>
           <tbody>
-            <tr><td>Infraestructura</td><td>Solo HTTP REST stateless</td><td>WS server persistente + sticky sessions</td></tr>
+            <tr><td>Arquitectura</td><td>Solo HTTP REST stateless</td><td>WS server persistente + sticky sessions</td></tr>
             <tr><td>Escalabilidad</td><td>Load balancer nativo</td><td>Redis pub/sub requerido</td></tr>
             <tr><td>TTL / Expiración</td><td>Trivial — responde <code>HANDOFF_EXPIRED</code></td><td>Heartbeat complejo</td></tr>
             <tr><td>Complejidad</td><td>Días de implementación</td><td>Semanas/meses</td></tr>
@@ -5447,7 +5448,7 @@ PC del asesor continúa el flujo ✓</pre>
 
       <!-- Servicios BFF -->
       <section id="servicios-bff">
-        <h2>B) Servicios BFF por Canal — 38 endpoints</h2>
+        <h2>B) Servicios BFF por Canal — 82 endpoints</h2>
         <p>
           Servicios específicos para cada interfaz de usuario. Orquestan llamados al Core y manejan el contexto
           del canal. Los BFFs conocen el canal pero <strong>no contienen lógica de negocio</strong> — la delegan al Core.
@@ -5521,6 +5522,60 @@ PC del asesor continúa el flujo ✓</pre>
             <tr><td>H-04</td><td><span class="badge badge--green">POST</span></td><td><code>/handoff/{token}/fotos/recarga</code></td><td>Cliente sube foto de re-carga solicitada por el asesor.</td></tr>
           </tbody>
         </table>
+
+        <h3>BFF Canal ADMIN — 44 endpoints (<code>/admin/</code>) <span class="badge badge--red">Nuevo v2.7</span></h3>
+        <p>Gestión de maestros y parametrización. Requiere rol <code>ADMIN_FABRICAS</code> o <code>SUPERADMIN</code>. No expuestos al frontend de tienda o web.</p>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th><th>Tabla/Recurso</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>A-01</td><td><span class="badge badge--cyan">GET</span></td><td><code>/admin/estados</code></td><td>Listar estados de la máquina</td><td>CatalogoEstados</td></tr>
+            <tr><td>A-02</td><td><span class="badge badge--green">POST</span></td><td><code>/admin/estados</code></td><td>Crear estado</td><td>CatalogoEstados</td></tr>
+            <tr><td>A-03</td><td><span class="badge badge--cyan">GET</span></td><td><code>/admin/estados/{id}</code></td><td>Obtener estado por ID</td><td>CatalogoEstados</td></tr>
+            <tr><td>A-04</td><td><span class="badge badge--amber">PUT</span></td><td><code>/admin/estados/{id}</code></td><td>Actualizar estado</td><td>CatalogoEstados</td></tr>
+            <tr><td>A-05</td><td><span class="badge badge--red">DELETE</span></td><td><code>/admin/estados/{id}</code></td><td>Desactivar estado (soft delete)</td><td>CatalogoEstados</td></tr>
+            <tr><td>A-06</td><td><span class="badge badge--cyan">GET</span></td><td><code>/admin/fases</code></td><td>Listar todas las fases</td><td>FasesEstudio</td></tr>
+            <tr><td>A-07</td><td><span class="badge badge--green">POST</span></td><td><code>/admin/fases</code></td><td>Crear nueva fase</td><td>FasesEstudio</td></tr>
+            <tr><td>A-08</td><td><span class="badge badge--cyan">GET</span></td><td><code>/admin/fases/{id}</code></td><td>Obtener fase por ID</td><td>FasesEstudio</td></tr>
+            <tr><td>A-09</td><td><span class="badge badge--amber">PUT</span></td><td><code>/admin/fases/{id}</code></td><td>Actualizar fase</td><td>FasesEstudio</td></tr>
+            <tr><td>A-10</td><td><span class="badge badge--red">DELETE</span></td><td><code>/admin/fases/{id}</code></td><td>Eliminar fase</td><td>FasesEstudio</td></tr>
+            <tr><td>A-11</td><td><span class="badge badge--cyan">GET</span></td><td><code>/admin/pasos</code></td><td>Listar todos los pasos del flujo</td><td>PasosEstudio</td></tr>
+            <tr><td>A-12</td><td><span class="badge badge--green">POST</span></td><td><code>/admin/pasos</code></td><td>Crear nuevo paso</td><td>PasosEstudio</td></tr>
+            <tr><td>A-13</td><td><span class="badge badge--cyan">GET</span></td><td><code>/admin/pasos/{id}</code></td><td>Obtener paso por ID</td><td>PasosEstudio</td></tr>
+            <tr><td>A-14</td><td><span class="badge badge--amber">PUT</span></td><td><code>/admin/pasos/{id}</code></td><td>Actualizar paso</td><td>PasosEstudio</td></tr>
+            <tr><td>A-15</td><td><span class="badge badge--red">DELETE</span></td><td><code>/admin/pasos/{id}</code></td><td>Eliminar paso</td><td>PasosEstudio</td></tr>
+            <tr><td>A-16</td><td><span class="badge badge--cyan">GET</span></td><td><code>/admin/transiciones</code></td><td>Listar transiciones válidas</td><td>TransicionesEstado</td></tr>
+            <tr><td>A-17</td><td><span class="badge badge--green">POST</span></td><td><code>/admin/transiciones</code></td><td>Crear nueva transición</td><td>TransicionesEstado</td></tr>
+            <tr><td>A-18</td><td><span class="badge badge--red">DELETE</span></td><td><code>/admin/transiciones/{id}</code></td><td>Eliminar transición</td><td>TransicionesEstado</td></tr>
+            <tr><td>A-19</td><td><span class="badge badge--cyan">GET</span></td><td><code>/admin/reglas-negocio</code></td><td>Listar parámetros configurables</td><td>ConfiguracionReglasNegocio</td></tr>
+            <tr><td>A-20</td><td><span class="badge badge--green">POST</span></td><td><code>/admin/reglas-negocio</code></td><td>Crear regla de negocio</td><td>ConfiguracionReglasNegocio</td></tr>
+            <tr><td>A-21</td><td><span class="badge badge--amber">PUT</span></td><td><code>/admin/reglas-negocio/{id}</code></td><td>Actualizar valor de regla</td><td>ConfiguracionReglasNegocio</td></tr>
+            <tr><td>A-22</td><td><span class="badge badge--red">DELETE</span></td><td><code>/admin/reglas-negocio/{id}</code></td><td>Eliminar regla</td><td>ConfiguracionReglasNegocio</td></tr>
+            <tr><td>A-23</td><td><span class="badge badge--cyan">GET</span></td><td><code>/admin/canales</code></td><td>Listar canales de origen</td><td>CatalogoCanalesOrigen</td></tr>
+            <tr><td>A-24</td><td><span class="badge badge--green">POST</span></td><td><code>/admin/canales</code></td><td>Crear canal</td><td>CatalogoCanalesOrigen</td></tr>
+            <tr><td>A-25</td><td><span class="badge badge--amber">PUT</span></td><td><code>/admin/canales/{id}</code></td><td>Actualizar canal</td><td>CatalogoCanalesOrigen</td></tr>
+            <tr><td>A-26</td><td><span class="badge badge--cyan">GET</span></td><td><code>/admin/motivos-escalamiento</code></td><td>Listar motivos tipificados</td><td>CatalogoMotivosEscalamiento</td></tr>
+            <tr><td>A-27</td><td><span class="badge badge--green">POST</span></td><td><code>/admin/motivos-escalamiento</code></td><td>Crear motivo de escalamiento</td><td>CatalogoMotivosEscalamiento</td></tr>
+            <tr><td>A-28</td><td><span class="badge badge--amber">PUT</span></td><td><code>/admin/motivos-escalamiento/{id}</code></td><td>Actualizar motivo</td><td>CatalogoMotivosEscalamiento</td></tr>
+            <tr><td>A-29</td><td><span class="badge badge--cyan">GET</span></td><td><code>/admin/tipos-fotografia</code></td><td>Listar tipos de foto requeridos</td><td>CatalogoTiposFotografia</td></tr>
+            <tr><td>A-30</td><td><span class="badge badge--green">POST</span></td><td><code>/admin/tipos-fotografia</code></td><td>Crear tipo de fotografía</td><td>CatalogoTiposFotografia</td></tr>
+            <tr><td>A-31</td><td><span class="badge badge--amber">PUT</span></td><td><code>/admin/tipos-fotografia/{id}</code></td><td>Actualizar tipo de fotografía</td><td>CatalogoTiposFotografia</td></tr>
+            <tr><td>A-32</td><td><span class="badge badge--cyan">GET</span></td><td><code>/admin/reglas-fraude</code></td><td>Listar reglas de detección de fraude</td><td>CatalogoReglasFraude</td></tr>
+            <tr><td>A-33</td><td><span class="badge badge--green">POST</span></td><td><code>/admin/reglas-fraude</code></td><td>Crear regla de fraude</td><td>CatalogoReglasFraude</td></tr>
+            <tr><td>A-34</td><td><span class="badge badge--amber">PUT</span></td><td><code>/admin/reglas-fraude/{id}</code></td><td>Activar/desactivar regla</td><td>CatalogoReglasFraude</td></tr>
+            <tr><td>A-35</td><td><span class="badge badge--cyan">GET</span></td><td><code>/admin/operadores</code></td><td>Listar todos los operadores</td><td>OperadoresFabrica</td></tr>
+            <tr><td>A-36</td><td><span class="badge badge--green">POST</span></td><td><code>/admin/operadores</code></td><td>Registrar nuevo operador</td><td>OperadoresFabrica</td></tr>
+            <tr><td>A-37</td><td><span class="badge badge--cyan">GET</span></td><td><code>/admin/operadores/{id}</code></td><td>Obtener operador por ID</td><td>OperadoresFabrica</td></tr>
+            <tr><td>A-38</td><td><span class="badge badge--amber">PUT</span></td><td><code>/admin/operadores/{id}</code></td><td>Actualizar datos del operador</td><td>OperadoresFabrica</td></tr>
+            <tr><td>A-39</td><td><span class="badge badge--red">DELETE</span></td><td><code>/admin/operadores/{id}</code></td><td>Desactivar operador (soft delete)</td><td>OperadoresFabrica</td></tr>
+            <tr><td>A-40</td><td><span class="badge badge--cyan">GET</span></td><td><code>/admin/operadores/{id}/disponibilidad</code></td><td>Ver horario de disponibilidad</td><td>DisponibilidadOperadores</td></tr>
+            <tr><td>A-41</td><td><span class="badge badge--amber">PUT</span></td><td><code>/admin/operadores/{id}/disponibilidad</code></td><td>Configurar horario de disponibilidad</td><td>DisponibilidadOperadores</td></tr>
+            <tr><td>A-42</td><td><span class="badge badge--cyan">GET</span></td><td><code>/admin/operadores/disponibles</code></td><td>Listar operadores disponibles por turno</td><td>DisponibilidadOperadores</td></tr>
+            <tr><td>A-43</td><td><span class="badge badge--amber">PUT</span></td><td><code>/admin/operadores/{id}/estado</code></td><td>Cambiar estado (ACTIVO/INACTIVO/BLOQUEADO)</td><td>OperadoresFabrica</td></tr>
+            <tr><td>A-44</td><td><span class="badge badge--cyan">GET</span></td><td><code>/admin/operadores/asignacion/{idEstudio}</code></td><td>Obtener operador asignado a un estudio</td><td>EscalamientosFabrica</td></tr>
+          </tbody>
+        </table>
       </section>
 
       <!-- Servicios Utilitarios -->
@@ -5575,6 +5630,33 @@ PC del asesor continúa el flujo ✓</pre>
             <tr><td>E-12</td><td><span class="badge badge--green">POST</span></td><td><code>/ext/call-center/escalar</code></td><td>Notificar caso al Call Center.</td><td><code>EscalamientosFabrica</code>, <code>ValidacionesContactabilidad</code></td></tr>
           </tbody>
         </table>
+      </section>
+
+      <!-- Procedimientos Almacenados -->
+      <section id="procedimientos-almacenados">
+        <h2>F) Procedimientos Almacenados — 36 SPs <span class="badge badge--accent">Nuevo v2.7</span></h2>
+        <p>
+          Los procedimientos almacenados son la <strong>única vía de escritura directa</strong> a las tablas transaccionales
+          y de auditoría del LOS. Cada servicio Core y Admin tiene al menos un SP asociado. Detalle completo en
+          <code>Arquitectura/06-servicios-backend.html</code>.
+        </p>
+        <div class="card-grid">
+          <div class="card card--violet">
+            <h4>21 SPs Core</h4>
+            <p>sp_CrearEstudio, sp_TransicionarEstado, sp_EvaluarFraude, sp_ActivarCupo, etc.</p>
+          </div>
+          <div class="card card--red">
+            <h4>11 SPs Admin</h4>
+            <p>sp_CRUD_Estados, sp_CRUD_Fases, sp_CRUD_Pasos, sp_CRUD_Operadores, etc.</p>
+          </div>
+          <div class="card card--green">
+            <h4>4 SPs Transversales</h4>
+            <p>sp_EnviarOTP, sp_ValidarOTP, sp_EjecutarPipelineAsync, sp_ValidarDuplicidad</p>
+          </div>
+        </div>
+        <div class="callout callout--info">
+          <p><strong>Regla de oro:</strong> Toda escritura a tablas transaccionales o de auditoría pasa por un SP. Las APIs solo hacen READs directos a tablas de catálogo (maestros). Ningún INSERT/UPDATE/DELETE directo desde la aplicación.</p>
+        </div>
       </section>
 
       <!-- Estado Dirigido por el Sistema -->
@@ -6363,7 +6445,7 @@ T+0:07  App recibe la respuesta → Andrés ve la pantalla de "Datos básicos" s
             <tr>
               <td><span class="badge badge--accent">v2.7</span></td>
               <td>2026-04-22</td>
-              <td><strong>Post-Validación Funcional + Sincronización infraestructura.</strong> GAP-18 rediseñado (separación celular/WhatsApp), GAP-20 (RenunciaCupo), GAP-21 (MoraComerciosAliados), GAP-22 (reglas DUPLICIDAD_EMAIL/CELULAR), GAP-23 (ventanas reactivación), GAP-24 (documentación sincronizada). 6 archivos infraestructura actualizados a v2.7.</td>
+              <td><strong>Post-Validación Funcional + Sincronización Arquitectura.</strong> GAP-18 rediseñado (separación celular/WhatsApp), GAP-20 (RenunciaCupo), GAP-21 (MoraComerciosAliados), GAP-22 (reglas DUPLICIDAD_EMAIL/CELULAR), GAP-23 (ventanas reactivación), GAP-24 (documentación sincronizada). 6 archivos Arquitectura actualizados a v2.7.</td>
             </tr>
             <tr>
               <td><span class="badge badge--green">v2.6</span></td>

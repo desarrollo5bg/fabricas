@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Servicios Backend — Fábricas de Crédito QUAC v2.7</title>
+  <title>Servicios Backend — Fábricas de Crédito QUAC v2.8</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -40,9 +40,9 @@
 </head>
 <body>
 <aside class="sidebar">
-    <div class="sidebar-title">FÁBRICAS DE CRÉDITO v2.7</div>
+    <div class="sidebar-title">FÁBRICAS DE CRÉDITO v2.8</div>
     <nav>
-      <div class="sidebar-section">Índice de Infraestructura</div>
+      <div class="sidebar-section">Índice de Arquitectura</div>
       <a href="index.html">00 · Índice</a>
       <a href="01-vision-general.html">01 · Visión General</a>
       <a href="02-diccionario-datos.html">02 · Diccionario de Datos</a>
@@ -58,6 +58,8 @@
       <a href="#evaluaciones" class="indent">EvaluacionesRiesgo</a>
       <a href="#bff" class="indent">Patrón BFF</a>
       <a href="#concurrencia-idempotencia" class="indent">Concurrencia e Idempotencia</a>
+      <a href="#bff-admin" class="indent">E) BFF Admin</a>
+      <a href="#procedimientos" class="indent">Procedimientos</a>
       <div class="sidebar-section">Documentación General</div>
       <a href="../documentacion-arquitectura-v2.html" target="_blank">📋 Arquitectura General</a>
     </nav>
@@ -65,16 +67,17 @@
 
   <main class="main">
     <h1>Servicios Backend e Integraciones</h1>
-    <p style="font-size:17px;color:var(--text);font-weight:500;">Log de invocaciones, evaluaciones de riesgo y patrón BFF — DDL v2.7</p>
+    <p style="font-size:17px;color:var(--text);font-weight:500;">Log de invocaciones, evaluaciones de riesgo y patrón BFF — DDL v2.8</p>
     <div class="meta">
-      <div class="meta-item"><strong>Versión</strong> v2.7</div>
-      <div class="meta-item"><strong>Fecha</strong> 2026-04-22</div>
-      <div class="meta-item"><strong>Fuente</strong> FABRICASv2.sql v2.7</div>
-      <div class="meta-item"><strong>Servicios</strong> 10 externos</div>
+      <div class="meta-item"><strong>Versión</strong> v2.8</div>
+      <div class="meta-item"><strong>Fecha</strong> 2026-04-30</div>
+      <div class="meta-item"><strong>Fuente</strong> FABRICASv2.sql v2.8</div>
+      <div class="meta-item"><strong>Servicios</strong> 10 externos + 44 Admin</div>
     </div>
 
     <h2 id="servicios">Catálogo de Servicios Externos</h2>
     <p>El flujo de 13 pasos invoca 10 servicios externos. Cada invocación queda registrada en <code>RegistroServiciosExternos</code>.</p>
+    <p>Además del flujo transaccional, el sistema incluye un BFF Admin con <strong>44 endpoints (A-01 a A-44)</strong> para gestión de maestros y parametrización, y <strong>36 procedimientos almacenados</strong> que encapsulan toda la lógica de escritura a la base de datos. Ref: <code>Arquitectura/06-servicios-backend.html</code> para detalle de SPs.</p>
 
     <table>
       <thead>
@@ -161,7 +164,7 @@
         <tr><td><span class="badge badge--green">EXITOSO</span></td><td>Servicio respondió con resultado positivo de negocio</td><td>No</td></tr>
         <tr><td><span class="badge badge--red">FALLIDO</span></td><td>Servicio respondió pero el resultado es negativo (p.ej. score bajo)</td><td>Según regla</td></tr>
         <tr><td><span class="badge badge--amber">TIMEOUT</span></td><td>Sin respuesta en el tiempo límite configurado</td><td>Sí — política de reintentos</td></tr>
-        <tr><td><span class="badge badge--accent">ERROR</span></td><td>Excepción técnica o HTTP 5xx — error de infraestructura</td><td>Sí — alerta inmediata</td></tr>
+        <tr><td><span class="badge badge--accent">ERROR</span></td><td>Excepción técnica o HTTP 5xx — error de Arquitectura</td><td>Sí — alerta inmediata</td></tr>
       </tbody>
     </table>
 
@@ -269,6 +272,130 @@ CREATE INDEX IX_RegServ_Estudio
 -- Monitoreo de servicios lentos o fallidos
 CREATE INDEX IX_RegServ_Servicio_Resultado
     ON RegistroServiciosExternos(NombreServicio, ResultadoInterpretado, FechaInvocacion DESC);</code></pre>
+
+    <h2 id="bff-admin">E) BFF Admin — 44 endpoints (Gestión de Maestros)</h2>
+    <p>APIs de administración para gestionar la parametrización del sistema y los operadores de fábrica. Acceso restringido a roles <code>ADMIN_FABRICAS</code> o <code>SUPERADMIN</code>.</p>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th><th>Tabla/Recurso</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="badge badge--red">A-01</span></td><td>GET</td><td><code>/admin/estados</code></td><td>Listar estados de la máquina</td><td>CatalogoEstados</td></tr>
+        <tr><td><span class="badge badge--red">A-02</span></td><td>POST</td><td><code>/admin/estados</code></td><td>Crear estado</td><td>CatalogoEstados</td></tr>
+        <tr><td><span class="badge badge--red">A-03</span></td><td>GET</td><td><code>/admin/estados/{id}</code></td><td>Obtener estado por ID</td><td>CatalogoEstados</td></tr>
+        <tr><td><span class="badge badge--red">A-04</span></td><td>PUT</td><td><code>/admin/estados/{id}</code></td><td>Actualizar estado</td><td>CatalogoEstados</td></tr>
+        <tr><td><span class="badge badge--red">A-05</span></td><td>DELETE</td><td><code>/admin/estados/{id}</code></td><td>Desactivar estado</td><td>CatalogoEstados</td></tr>
+        <tr><td><span class="badge badge--red">A-06</span></td><td>GET</td><td><code>/admin/fases</code></td><td>Listar fases</td><td>FasesEstudio</td></tr>
+        <tr><td><span class="badge badge--red">A-07</span></td><td>POST</td><td><code>/admin/fases</code></td><td>Crear fase</td><td>FasesEstudio</td></tr>
+        <tr><td><span class="badge badge--red">A-08</span></td><td>GET</td><td><code>/admin/fases/{id}</code></td><td>Obtener fase por ID</td><td>FasesEstudio</td></tr>
+        <tr><td><span class="badge badge--red">A-09</span></td><td>PUT</td><td><code>/admin/fases/{id}</code></td><td>Actualizar fase</td><td>FasesEstudio</td></tr>
+        <tr><td><span class="badge badge--red">A-10</span></td><td>DELETE</td><td><code>/admin/fases/{id}</code></td><td>Eliminar fase</td><td>FasesEstudio</td></tr>
+        <tr><td><span class="badge badge--red">A-11</span></td><td>GET</td><td><code>/admin/pasos</code></td><td>Listar pasos del flujo</td><td>PasosEstudio</td></tr>
+        <tr><td><span class="badge badge--red">A-12</span></td><td>POST</td><td><code>/admin/pasos</code></td><td>Crear paso</td><td>PasosEstudio</td></tr>
+        <tr><td><span class="badge badge--red">A-13</span></td><td>GET</td><td><code>/admin/pasos/{id}</code></td><td>Obtener paso por ID</td><td>PasosEstudio</td></tr>
+        <tr><td><span class="badge badge--red">A-14</span></td><td>PUT</td><td><code>/admin/pasos/{id}</code></td><td>Actualizar paso</td><td>PasosEstudio</td></tr>
+        <tr><td><span class="badge badge--red">A-15</span></td><td>DELETE</td><td><code>/admin/pasos/{id}</code></td><td>Eliminar paso</td><td>PasosEstudio</td></tr>
+        <tr><td><span class="badge badge--red">A-16</span></td><td>GET</td><td><code>/admin/transiciones</code></td><td>Listar transiciones</td><td>TransicionesEstado</td></tr>
+        <tr><td><span class="badge badge--red">A-17</span></td><td>POST</td><td><code>/admin/transiciones</code></td><td>Crear transición</td><td>TransicionesEstado</td></tr>
+        <tr><td><span class="badge badge--red">A-18</span></td><td>DELETE</td><td><code>/admin/transiciones/{id}</code></td><td>Eliminar transición</td><td>TransicionesEstado</td></tr>
+        <tr><td><span class="badge badge--red">A-19</span></td><td>GET</td><td><code>/admin/reglas-negocio</code></td><td>Listar parámetros</td><td>ConfiguracionReglasNegocio</td></tr>
+        <tr><td><span class="badge badge--red">A-20</span></td><td>POST</td><td><code>/admin/reglas-negocio</code></td><td>Crear regla</td><td>ConfiguracionReglasNegocio</td></tr>
+        <tr><td><span class="badge badge--red">A-21</span></td><td>PUT</td><td><code>/admin/reglas-negocio/{id}</code></td><td>Actualizar valor</td><td>ConfiguracionReglasNegocio</td></tr>
+        <tr><td><span class="badge badge--red">A-22</span></td><td>DELETE</td><td><code>/admin/reglas-negocio/{id}</code></td><td>Eliminar regla</td><td>ConfiguracionReglasNegocio</td></tr>
+        <tr><td><span class="badge badge--red">A-23</span></td><td>GET</td><td><code>/admin/canales</code></td><td>Listar canales</td><td>CatalogoCanalesOrigen</td></tr>
+        <tr><td><span class="badge badge--red">A-24</span></td><td>POST</td><td><code>/admin/canales</code></td><td>Crear canal</td><td>CatalogoCanalesOrigen</td></tr>
+        <tr><td><span class="badge badge--red">A-25</span></td><td>PUT</td><td><code>/admin/canales/{id}</code></td><td>Actualizar canal</td><td>CatalogoCanalesOrigen</td></tr>
+        <tr><td><span class="badge badge--red">A-26</span></td><td>GET</td><td><code>/admin/motivos-escalamiento</code></td><td>Listar motivos</td><td>CatalogoMotivosEscalamiento</td></tr>
+        <tr><td><span class="badge badge--red">A-27</span></td><td>POST</td><td><code>/admin/motivos-escalamiento</code></td><td>Crear motivo</td><td>CatalogoMotivosEscalamiento</td></tr>
+        <tr><td><span class="badge badge--red">A-28</span></td><td>PUT</td><td><code>/admin/motivos-escalamiento/{id}</code></td><td>Actualizar motivo</td><td>CatalogoMotivosEscalamiento</td></tr>
+        <tr><td><span class="badge badge--red">A-29</span></td><td>GET</td><td><code>/admin/tipos-fotografia</code></td><td>Listar tipos de foto</td><td>CatalogoTiposFotografia</td></tr>
+        <tr><td><span class="badge badge--red">A-30</span></td><td>POST</td><td><code>/admin/tipos-fotografia</code></td><td>Crear tipo</td><td>CatalogoTiposFotografia</td></tr>
+        <tr><td><span class="badge badge--red">A-31</span></td><td>PUT</td><td><code>/admin/tipos-fotografia/{id}</code></td><td>Actualizar tipo</td><td>CatalogoTiposFotografia</td></tr>
+        <tr><td><span class="badge badge--red">A-32</span></td><td>GET</td><td><code>/admin/reglas-fraude</code></td><td>Listar reglas</td><td>CatalogoReglasFraude</td></tr>
+        <tr><td><span class="badge badge--red">A-33</span></td><td>POST</td><td><code>/admin/reglas-fraude</code></td><td>Crear regla</td><td>CatalogoReglasFraude</td></tr>
+        <tr><td><span class="badge badge--red">A-34</span></td><td>PUT</td><td><code>/admin/reglas-fraude/{id}</code></td><td>Activar/desactivar</td><td>CatalogoReglasFraude</td></tr>
+        <tr><td><span class="badge badge--red">A-35</span></td><td>GET</td><td><code>/admin/operadores</code></td><td>Listar operadores</td><td>OperadoresFabrica</td></tr>
+        <tr><td><span class="badge badge--red">A-36</span></td><td>POST</td><td><code>/admin/operadores</code></td><td>Registrar operador</td><td>OperadoresFabrica</td></tr>
+        <tr><td><span class="badge badge--red">A-37</span></td><td>GET</td><td><code>/admin/operadores/{id}</code></td><td>Obtener operador</td><td>OperadoresFabrica</td></tr>
+        <tr><td><span class="badge badge--red">A-38</span></td><td>PUT</td><td><code>/admin/operadores/{id}</code></td><td>Actualizar operador</td><td>OperadoresFabrica</td></tr>
+        <tr><td><span class="badge badge--red">A-39</span></td><td>DELETE</td><td><code>/admin/operadores/{id}</code></td><td>Desactivar operador</td><td>OperadoresFabrica</td></tr>
+        <tr><td><span class="badge badge--red">A-40</span></td><td>GET</td><td><code>/admin/operadores/{id}/disponibilidad</code></td><td>Ver horario</td><td>DisponibilidadOperadores</td></tr>
+        <tr><td><span class="badge badge--red">A-41</span></td><td>PUT</td><td><code>/admin/operadores/{id}/disponibilidad</code></td><td>Configurar horario</td><td>DisponibilidadOperadores</td></tr>
+        <tr><td><span class="badge badge--red">A-42</span></td><td>GET</td><td><code>/admin/operadores/disponibles</code></td><td>Disponibles por turno</td><td>DisponibilidadOperadores</td></tr>
+        <tr><td><span class="badge badge--red">A-43</span></td><td>PUT</td><td><code>/admin/operadores/{id}/estado</code></td><td>Cambiar estado</td><td>OperadoresFabrica</td></tr>
+        <tr><td><span class="badge badge--red">A-44</span></td><td>GET</td><td><code>/admin/operadores/asignacion/{idEstudio}</code></td><td>Operador asignado</td><td>EscalamientosFabrica</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="procedimientos">F) Procedimientos Almacenados — 36 SPs</h2>
+    <p>Cada servicio tiene al menos un procedimiento almacenado asociado. Los SPs son la <strong>única vía de escritura directa</strong> a las tablas transaccionales y de auditoría — ninguna API escribe directamente sin pasar por un SP.</p>
+
+    <h3>Core Services — 21 SPs</h3>
+    <table>
+      <thead>
+        <tr><th>Servicio</th><th>SP</th><th>Propósito</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>C-01</td><td><code>sp_CrearEstudio</code></td><td>Crear estudio con estado inicial y cursor en paso 1</td></tr>
+        <tr><td>C-02</td><td><code>sp_ObtenerEstadoEstudio</code></td><td>Estado completo + next_action</td></tr>
+        <tr><td>C-03</td><td><code>sp_TransicionarEstado</code></td><td>Validar y ejecutar transición (lee TransicionesEstado)</td></tr>
+        <tr><td>C-04</td><td><code>sp_CalcularSiguientePaso</code></td><td>Determinar siguiente paso</td></tr>
+        <tr><td>C-05</td><td><code>sp_AvanzarPaso</code></td><td>Actualizar IdPasoActual + marcar en Historial</td></tr>
+        <tr><td>C-06</td><td><code>sp_VerificarElegibilidad</code></td><td>Bloqueo, cupo activo, cooling-off</td></tr>
+        <tr><td>C-07</td><td><code>sp_UpsertTercero</code></td><td>Crear/actualizar tercero</td></tr>
+        <tr><td>C-08</td><td><code>sp_RegistrarEvaluacionRiesgo</code></td><td>Insertar en EvaluacionesRiesgo</td></tr>
+        <tr><td>C-09</td><td><code>sp_RegistrarBiometria</code></td><td>Guardar registro + FK a FotografiasEstudio</td></tr>
+        <tr><td>C-10</td><td><code>sp_RegistrarConsentimiento</code></td><td>Insertar en ConsentimientosLegales</td></tr>
+        <tr><td>C-11</td><td><code>sp_EvaluarFraude</code></td><td>Ejecutar reglas de CatalogoReglasFraude</td></tr>
+        <tr><td>C-12</td><td><code>sp_CrearEscalamiento</code></td><td>Registrar escalamiento con motivo tipificado</td></tr>
+        <tr><td>C-13</td><td><code>sp_RegistrarRevisionFoto</code></td><td>Insertar en RevisionesFotografia</td></tr>
+        <tr><td>C-14</td><td><code>sp_ActivarCupo</code></td><td>Activación final + notificación UBICA</td></tr>
+        <tr><td>C-15</td><td><code>sp_RegistrarAuditoriaCambioDatos</code></td><td>HistorialDatosSensibles (INSERT only)</td></tr>
+        <tr><td>C-16</td><td><code>sp_RegistrarLlamadaServicioExterno</code></td><td>RegistroServiciosExternos con payload JSON</td></tr>
+        <tr><td>C-17</td><td><code>sp_ListarEstados</code></td><td>SELECT CatalogoEstados</td></tr>
+        <tr><td>C-18</td><td><code>sp_ListarPasosFases</code></td><td>SELECT PasosEstudio + FasesEstudio JOIN</td></tr>
+        <tr><td>C-19</td><td><code>sp_ListarCanales</code></td><td>SELECT CatalogoCanalesOrigen</td></tr>
+        <tr><td>C-20</td><td><code>sp_ListarTiposDocumento</code></td><td>SELECT tabla dominio QUAC</td></tr>
+        <tr><td>C-21</td><td><code>sp_ListarReglasNegocio</code></td><td>SELECT ConfiguracionReglasNegocio</td></tr>
+      </tbody>
+    </table>
+
+    <h3>BFF Admin — 11 SPs</h3>
+    <table>
+      <thead>
+        <tr><th>Maestro</th><th>SP</th><th>Propósito</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Estados</td><td><code>sp_CRUD_Estados</code></td><td>Alta, baja, modificación de CatalogoEstados</td></tr>
+        <tr><td>Fases</td><td><code>sp_CRUD_Fases</code></td><td>Alta, baja, modificación de FasesEstudio</td></tr>
+        <tr><td>Pasos</td><td><code>sp_CRUD_Pasos</code></td><td>Alta, baja, modificación de PasosEstudio</td></tr>
+        <tr><td>Transiciones</td><td><code>sp_CRUD_Transiciones</code></td><td>Alta y baja de TransicionesEstado</td></tr>
+        <tr><td>Reglas de Negocio</td><td><code>sp_CRUD_ReglasNegocio</code></td><td>Parametrización de ConfiguracionReglasNegocio</td></tr>
+        <tr><td>Canales</td><td><code>sp_CRUD_Canales</code></td><td>Gestión de CatalogoCanalesOrigen</td></tr>
+        <tr><td>Motivos de Escalamiento</td><td><code>sp_CRUD_MotivosEscalamiento</code></td><td>Gestión de CatalogoMotivosEscalamiento</td></tr>
+        <tr><td>Tipos de Fotografía</td><td><code>sp_CRUD_TiposFotografia</code></td><td>Gestión de CatalogoTiposFotografia</td></tr>
+        <tr><td>Reglas de Fraude</td><td><code>sp_CRUD_ReglasFraude</code></td><td>Activar/desactivar reglas</td></tr>
+        <tr><td>Operadores</td><td><code>sp_CRUD_Operadores</code></td><td>Gestión de OperadoresFabrica + DisponibilidadOperadores</td></tr>
+        <tr><td>Operadores Disponibles</td><td><code>sp_ListarOperadoresDisponibles</code></td><td>SELECT con filtros de disponibilidad y turno</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Utilitarios y Transversales — 4 SPs</h3>
+    <table>
+      <thead>
+        <tr><th>Contexto</th><th>SP</th><th>Propósito</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>OTP</td><td><code>sp_EnviarOTP</code></td><td>Generar reto, almacenar hash, disparar canal</td></tr>
+        <tr><td>OTP</td><td><code>sp_ValidarOTP</code></td><td>Validar código + registrar en LogValidacionesOTP</td></tr>
+        <tr><td>Evaluación</td><td><code>sp_EjecutarPipelineAsync</code></td><td>Lanzar pipeline async (Antecedentes→Preselecta→FOSYGA→UBICA)</td></tr>
+        <tr><td>Fraude</td><td><code>sp_ValidarDuplicidad</code></td><td>Verificar celular/email duplicado con cupo activo</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout--success">
+      <p><strong>Regla de oro SP:</strong> Toda escritura a tablas transaccionales o de auditoría pasa por un SP. Las APIs solo hacen READs directos a tablas de catálogo (maestros). Ningún INSERT/UPDATE/DELETE desde aplicación.</p>
+    </div>
 
     <h2 id="concurrencia-idempotencia">Concurrencia Optimista e Idempotencia — Guía Práctica <span class="badge badge--accent">Nuevo v2.5</span></h2>
     <p>Dos mecanismos de protección son indispensables para un sistema financiero multicanal. Esta sección los explica con ejemplos reales del día a día en la bodega y en la web.</p>
