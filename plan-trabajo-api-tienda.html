@@ -387,7 +387,7 @@
        <a href="#bff-tienda" class="indent">Tienda (T-01 a T-17)</a>
        <a href="#bff-web" class="indent">Web (W-01 a W-17)</a>
        <a href="#bff-handoff" class="indent">Handoff (H-01 a H-04)</a>
-       <a href="#bff-admin" class="indent">Admin (A-01 a A-31)</a>
+       <a href="#bff-admin" class="indent">Admin (A-01 a A-44)</a>
        <a href="#procedimientos">Procedimientos</a>
     </nav>
   </aside>
@@ -446,7 +446,7 @@
         <li><strong>BFF Tienda (17)</strong>: Orquestación por canal. Delega a Core. Expuestos al frontend.</li>
         <li><strong>BFF Web (17)</strong>: Autogestión para portal de clientes.</li>
         <li><strong>BFF Handoff (4)</strong>: Biometría en celular del cliente via link SMS.</li>
-        <li><strong>BFF Admin (31)</strong>: CRUD de maestros y parametrización (Roles: ADMIN_FABRICAS).</li>
+        <li><strong>BFF Admin (44)</strong>: CRUD de maestros y parametrización (Roles: ADMIN_FABRICAS).</li>
         <li><strong>Utilitarios (12)</strong> + <strong>Externos (12)</strong>: OTP, SMS, Email, Storage + Buró, OCR, FOSYGA, UBICA.</li>
       </ul>
     </div>
@@ -465,7 +465,7 @@
         <div style="font-size: 12px; color: var(--text-secondary);">BFF Web</div>
       </div>
       <div class="card" style="text-align: center; padding: 16px;">
-        <div style="font-size: 28px; font-weight: 800; color: var(--red);">31</div>
+        <div style="font-size: 28px; font-weight: 800; color: var(--red);">44</div>
         <div style="font-size: 12px; color: var(--text-secondary);">BFF Admin</div>
       </div>
       <div class="card" style="text-align: center; padding: 16px;">
@@ -480,11 +480,11 @@
 
     <div class="card-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 16px 0;">
       <div class="card" style="text-align: center; padding: 20px;">
-        <div style="font-size: 32px; font-weight: 800; color: var(--accent);">114</div>
+        <div style="font-size: 32px; font-weight: 800; color: var(--accent);">127</div>
         <div style="font-size: 13px; color: var(--text-secondary);">Endpoints REST</div>
       </div>
       <div class="card" style="text-align: center; padding: 20px;">
-        <div style="font-size: 32px; font-weight: 800; color: var(--green);">35</div>
+        <div style="font-size: 32px; font-weight: 800; color: var(--green);">36</div>
         <div style="font-size: 13px; color: var(--text-secondary);">Proc. Almacenados</div>
       </div>
       <div class="card" style="text-align: center; padding: 20px;">
@@ -1017,7 +1017,7 @@
       </tbody>
     </table>
 
-    <h3>G) BFF Admin — 10 procedimientos (uno por cada maestro)</h3>
+    <h3>G) BFF Admin — 11 procedimientos (uno por cada maestro)</h3>
     <table>
       <thead>
         <tr><th>Maestro</th><th>Procedimiento Almacenado</th><th>Propósito</th></tr>
@@ -1096,57 +1096,72 @@
       <p style="font-size: 13px;"><strong>Nota técnica Handoff:</strong> El Session Handoff usa polling HTTP cada 3 segundos + token UUID. Estado almacenado en <code>SolicitudesRecarga</code> con <code>TipoSolicitud = 'HANDOFF_BIOMETRIA'</code>. TTL de 15 minutos.</p>
     </div>
 
-    <h3 id="bff-admin">E) BFF Admin — 31 endpoints (Gestión de Maestros)</h3>
-    <p>APIs de administración para gestionar la parametrización del sistema. Permiten CRUD completo sobre los catálogos y tablas de configuración sin necesidad de acceder directamente a la base de datos.</p>
+    <h3 id="bff-admin">E) BFF Admin — 41 endpoints (Gestión de Maestros y Operadores)</h3>
+    <p>APIs de administración para gestionar la parametrización del sistema y los operadores de fábrica. Permiten CRUD completo sobre los catálogos y tablas de configuración sin necesidad de acceder directamente a la base de datos.</p>
     <table>
       <thead>
         <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th><th>Tabla/Recurso</th></tr>
       </thead>
       <tbody>
-        <!-- Estados -->
+        <!-- Estados (5) -->
         <tr><td><span class="badge badge--red">A-01</span></td><td>GET</td><td><code>/admin/estados</code></td><td>Listar todos los estados de la máquina</td><td>CatalogoEstados</td></tr>
         <tr><td><span class="badge badge--red">A-02</span></td><td>POST</td><td><code>/admin/estados</code></td><td>Crear nuevo estado</td><td>CatalogoEstados</td></tr>
         <tr><td><span class="badge badge--red">A-03</span></td><td>GET</td><td><code>/admin/estados/{id}</code></td><td>Obtener estado por ID</td><td>CatalogoEstados</td></tr>
         <tr><td><span class="badge badge--red">A-04</span></td><td>PUT</td><td><code>/admin/estados/{id}</code></td><td>Actualizar estado</td><td>CatalogoEstados</td></tr>
         <tr><td><span class="badge badge--red">A-05</span></td><td>DELETE</td><td><code>/admin/estados/{id}</code></td><td>Desactivar estado (soft delete)</td><td>CatalogoEstados</td></tr>
-        <!-- Fases -->
+        <!-- Fases (5) -->
         <tr><td><span class="badge badge--red">A-06</span></td><td>GET</td><td><code>/admin/fases</code></td><td>Listar todas las fases</td><td>FasesEstudio</td></tr>
         <tr><td><span class="badge badge--red">A-07</span></td><td>POST</td><td><code>/admin/fases</code></td><td>Crear nueva fase</td><td>FasesEstudio</td></tr>
         <tr><td><span class="badge badge--red">A-08</span></td><td>GET</td><td><code>/admin/fases/{id}</code></td><td>Obtener fase por ID</td><td>FasesEstudio</td></tr>
         <tr><td><span class="badge badge--red">A-09</span></td><td>PUT</td><td><code>/admin/fases/{id}</code></td><td>Actualizar fase</td><td>FasesEstudio</td></tr>
         <tr><td><span class="badge badge--red">A-10</span></td><td>DELETE</td><td><code>/admin/fases/{id}</code></td><td>Eliminar fase</td><td>FasesEstudio</td></tr>
-        <!-- Pasos -->
+        <!-- Pasos (5) -->
         <tr><td><span class="badge badge--red">A-11</span></td><td>GET</td><td><code>/admin/pasos</code></td><td>Listar todos los pasos del flujo</td><td>PasosEstudio</td></tr>
         <tr><td><span class="badge badge--red">A-12</span></td><td>POST</td><td><code>/admin/pasos</code></td><td>Crear nuevo paso</td><td>PasosEstudio</td></tr>
         <tr><td><span class="badge badge--red">A-13</span></td><td>GET</td><td><code>/admin/pasos/{id}</code></td><td>Obtener paso por ID</td><td>PasosEstudio</td></tr>
         <tr><td><span class="badge badge--red">A-14</span></td><td>PUT</td><td><code>/admin/pasos/{id}</code></td><td>Actualizar paso</td><td>PasosEstudio</td></tr>
         <tr><td><span class="badge badge--red">A-15</span></td><td>DELETE</td><td><code>/admin/pasos/{id}</code></td><td>Eliminar paso</td><td>PasosEstudio</td></tr>
-        <!-- Transiciones -->
+        <!-- Transiciones (3) -->
         <tr><td><span class="badge badge--red">A-16</span></td><td>GET</td><td><code>/admin/transiciones</code></td><td>Listar transiciones válidas</td><td>TransicionesEstado</td></tr>
         <tr><td><span class="badge badge--red">A-17</span></td><td>POST</td><td><code>/admin/transiciones</code></td><td>Crear nueva transición</td><td>TransicionesEstado</td></tr>
         <tr><td><span class="badge badge--red">A-18</span></td><td>DELETE</td><td><code>/admin/transiciones/{id}</code></td><td>Eliminar transición</td><td>TransicionesEstado</td></tr>
-        <!-- Reglas de Negocio -->
+        <!-- Reglas de Negocio (4) -->
         <tr><td><span class="badge badge--red">A-19</span></td><td>GET</td><td><code>/admin/reglas-negocio</code></td><td>Listar parámetros configurables</td><td>ConfiguracionReglasNegocio</td></tr>
         <tr><td><span class="badge badge--red">A-20</span></td><td>POST</td><td><code>/admin/reglas-negocio</code></td><td>Crear regla de negocio</td><td>ConfiguracionReglasNegocio</td></tr>
         <tr><td><span class="badge badge--red">A-21</span></td><td>PUT</td><td><code>/admin/reglas-negocio/{id}</code></td><td>Actualizar valor de regla</td><td>ConfiguracionReglasNegocio</td></tr>
         <tr><td><span class="badge badge--red">A-22</span></td><td>DELETE</td><td><code>/admin/reglas-negocio/{id}</code></td><td>Eliminar regla</td><td>ConfiguracionReglasNegocio</td></tr>
-        <!-- Canales de Origen -->
+        <!-- Canales de Origen (3) -->
         <tr><td><span class="badge badge--red">A-23</span></td><td>GET</td><td><code>/admin/canales</code></td><td>Listar canales de origen</td><td>CatalogoCanalesOrigen</td></tr>
         <tr><td><span class="badge badge--red">A-24</span></td><td>POST</td><td><code>/admin/canales</code></td><td>Crear canal</td><td>CatalogoCanalesOrigen</td></tr>
         <tr><td><span class="badge badge--red">A-25</span></td><td>PUT</td><td><code>/admin/canales/{id}</code></td><td>Actualizar canal</td><td>CatalogoCanalesOrigen</td></tr>
-        <!-- Motivos de Escalamiento -->
+        <!-- Motivos de Escalamiento (3) -->
         <tr><td><span class="badge badge--red">A-26</span></td><td>GET</td><td><code>/admin/motivos-escalamiento</code></td><td>Listar motivos tipificados</td><td>CatalogoMotivosEscalamiento</td></tr>
         <tr><td><span class="badge badge--red">A-27</span></td><td>POST</td><td><code>/admin/motivos-escalamiento</code></td><td>Crear motivo de escalamiento</td><td>CatalogoMotivosEscalamiento</td></tr>
         <tr><td><span class="badge badge--red">A-28</span></td><td>PUT</td><td><code>/admin/motivos-escalamiento/{id}</code></td><td>Actualizar motivo</td><td>CatalogoMotivosEscalamiento</td></tr>
-        <!-- Reglas de Fraude -->
-        <tr><td><span class="badge badge--red">A-29</span></td><td>GET</td><td><code>/admin/reglas-fraude</code></td><td>Listar reglas de detección de fraude</td><td>CatalogoReglasFraude</td></tr>
-        <tr><td><span class="badge badge--red">A-30</span></td><td>POST</td><td><code>/admin/reglas-fraude</code></td><td>Crear regla de fraude</td><td>CatalogoReglasFraude</td></tr>
-        <tr><td><span class="badge badge--red">A-31</span></td><td>PUT</td><td><code>/admin/reglas-fraude/{id}</code></td><td>Activar/desactivar regla</td><td>CatalogoReglasFraude</td></tr>
+        <!-- Tipos de Fotografía (3) -->
+        <tr><td><span class="badge badge--red">A-29</span></td><td>GET</td><td><code>/admin/tipos-fotografia</code></td><td>Listar tipos de foto requeridos</td><td>CatalogoTiposFotografia</td></tr>
+        <tr><td><span class="badge badge--red">A-30</span></td><td>POST</td><td><code>/admin/tipos-fotografia</code></td><td>Crear tipo de fotografía</td><td>CatalogoTiposFotografia</td></tr>
+        <tr><td><span class="badge badge--red">A-31</span></td><td>PUT</td><td><code>/admin/tipos-fotografia/{id}</code></td><td>Actualizar tipo de fotografía</td><td>CatalogoTiposFotografia</td></tr>
+        <!-- Reglas de Fraude (3) -->
+        <tr><td><span class="badge badge--red">A-32</span></td><td>GET</td><td><code>/admin/reglas-fraude</code></td><td>Listar reglas de detección de fraude</td><td>CatalogoReglasFraude</td></tr>
+        <tr><td><span class="badge badge--red">A-33</span></td><td>POST</td><td><code>/admin/reglas-fraude</code></td><td>Crear regla de fraude</td><td>CatalogoReglasFraude</td></tr>
+        <tr><td><span class="badge badge--red">A-34</span></td><td>PUT</td><td><code>/admin/reglas-fraude/{id}</code></td><td>Activar/desactivar regla</td><td>CatalogoReglasFraude</td></tr>
+        <!-- Operadores de Fábrica (10) -->
+        <tr><td><span class="badge badge--red">A-35</span></td><td>GET</td><td><code>/admin/operadores</code></td><td>Listar todos los operadores</td><td>OperadoresFabrica</td></tr>
+        <tr><td><span class="badge badge--red">A-36</span></td><td>POST</td><td><code>/admin/operadores</code></td><td>Registrar nuevo operador</td><td>OperadoresFabrica</td></tr>
+        <tr><td><span class="badge badge--red">A-37</span></td><td>GET</td><td><code>/admin/operadores/{id}</code></td><td>Obtener operador por ID</td><td>OperadoresFabrica</td></tr>
+        <tr><td><span class="badge badge--red">A-38</span></td><td>PUT</td><td><code>/admin/operadores/{id}</code></td><td>Actualizar datos del operador</td><td>OperadoresFabrica</td></tr>
+        <tr><td><span class="badge badge--red">A-39</span></td><td>DELETE</td><td><code>/admin/operadores/{id}</code></td><td>Desactivar operador (soft delete)</td><td>OperadoresFabrica</td></tr>
+        <tr><td><span class="badge badge--red">A-40</span></td><td>GET</td><td><code>/admin/operadores/{id}/disponibilidad</code></td><td>Ver horario de disponibilidad del operador</td><td>DisponibilidadOperadores</td></tr>
+        <tr><td><span class="badge badge--red">A-41</span></td><td>PUT</td><td><code>/admin/operadores/{id}/disponibilidad</code></td><td>Configurar horario de disponibilidad</td><td>DisponibilidadOperadores</td></tr>
+        <tr><td><span class="badge badge--red">A-42</span></td><td>GET</td><td><code>/admin/operadores/disponibles</code></td><td>Listar operadores disponibles por turno</td><td>DisponibilidadOperadores</td></tr>
+        <tr><td><span class="badge badge--red">A-43</span></td><td>PUT</td><td><code>/admin/operadores/{id}/estado</code></td><td>Cambiar estado (ACTIVO/INACTIVO/BLOQUEADO)</td><td>OperadoresFabrica</td></tr>
+        <tr><td><span class="badge badge--red">A-44</span></td><td>GET</td><td><code>/admin/operadores/asignacion/{idEstudio}</code></td><td>Obtener operador asignado a un estudio</td><td>EscalamientosFabrica</td></tr>
       </tbody>
     </table>
 
     <div class="callout callout--warn" style="margin-top: 16px;">
-      <p style="font-size: 13px;"><strong>Acceso restringido:</strong> Los endpoints Admin (A-01 a A-31) requieren rol <code>ADMIN_FABRICAS</code> o <code>SUPERADMIN</code>. No exposed al frontend de tienda o web.</p>
+      <p style="font-size: 13px;"><strong>Acceso restringido:</strong> Los endpoints Admin (A-01 a A-44) requieren rol <code>ADMIN_FABRICAS</code> o <code>SUPERADMIN</code>. No expuestos al frontend de tienda o web.</p>
     </div>
 
     <!-- ==================== DETALLE DE TAREAS ==================== -->
