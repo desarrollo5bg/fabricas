@@ -373,7 +373,7 @@
       <a href="#resumen">Resumen Ejecutivo</a>
       <a href="#objetivo">Objetivo</a>
       <a href="#alcance">Alcance</a>
-      <a href="#taxonomia">Arquitectura 4 Capas</a>
+      <a href="#taxonomia">Arquitectura 6 Capas</a>
       <a href="#fase1" class="indent">Fase 1: Ingreso</a>
       <a href="#fase2" class="indent">Fase 2: Captura Datos</a>
       <a href="#fase3" class="indent">Fase 3: Validaciones</a>
@@ -383,8 +383,8 @@
       <a href="#entregables">Entregables</a>
       <a href="#timeline">Cronograma</a>
        <div class="sidebar-section">BFFs</div>
-       <a href="#core-services" class="indent">Core (C-01 a C-21)</a>
-       <a href="#bff-tienda" class="indent">Tienda (T-01 a T-17)</a>
+       <a href="#core-services" class="indent">Core (C-01 a C-22)</a>
+       <a href="#bff-tienda" class="indent">Tienda (T-01 a T-19)</a>
        <a href="#bff-web" class="indent">Web (W-01 a W-17)</a>
        <a href="#bff-handoff" class="indent">Handoff (H-01 a H-04)</a>
        <a href="#bff-admin" class="indent">Admin (A-01 a A-44)</a>
@@ -398,10 +398,10 @@
       Fabricas de Credito QUAC — Construccion de APIs REST para el Flujo de Tienda (4 Bloques)
     </p>
     <div class="meta">
-      <div class="meta-item"><strong>Version:</strong> 1.3</div>
-      <div class="meta-item"><strong>Fecha:</strong> 2026-04-28</div>
+       <div class="meta-item"><strong>Version:</strong> 1.4</div>
+       <div class="meta-item"><strong>Fecha:</strong> 2026-05-04</div>
       <div class="meta-item"><strong>Proyecto:</strong> Fabricas de Credito QUAC</div>
-      <div class="meta-item"><strong>Arquitectura:</strong> 4 capas (Core + BFF + Util + Ext)</div>
+      <div class="meta-item"><strong>Arquitectura:</strong> 6 capas (Core + BFF Tienda + BFF Web + BFF Handoff + BFF Admin + Util/Ext)</div>
 
     <!-- ==================== RESUMEN EJECUTIVO ==================== -->
     <h2 id="resumen">Resumen Ejecutivo</h2>
@@ -420,49 +420,36 @@
       incluyendo validaciones deidentity, calculo de cuotas, verificacion biometrica y activacion del credito.</p>
     </div>
 
-    <div class="card-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 24px 0;">
-      <div class="card" style="text-align: center; padding: 20px;">
-        <div style="font-size: 32px; font-weight: 800; color: var(--violet);">21</div>
-        <div style="font-size: 13px; color: var(--text-secondary);">Core Services</div>
-      </div>
-      <div class="card" style="text-align: center; padding: 20px;">
-        <div style="font-size: 32px; font-weight: 800; color: var(--cyan);">17</div>
-        <div style="font-size: 13px; color: var(--text-secondary);">BFF Tienda</div>
-      </div>
-      <div class="card" style="text-align: center; padding: 20px;">
-        <div style="font-size: 32px; font-weight: 800; color: var(--green);">13</div>
-        <div style="font-size: 13px; color: var(--text-secondary);">Utilitarios</div>
-      </div>
-      <div class="card" style="text-align: center; padding: 20px;">
-        <div style="font-size: 32px; font-weight: 800; color: var(--amber);">12</div>
-        <div style="font-size: 13px; color: var(--text-secondary);">Adaptadores Ext</div>
-      </div>
-    </div>
+
 
     <div class="callout callout--info" style="margin-top: 16px;">
       <p style="font-size: 13px;"><strong>Arquitectura de 6 capas (ref: documentacion-arquitectura-v2.html):</strong></p>
       <ul style="font-size: 12px; margin-bottom: 0;">
-        <li><strong>Core (21)</strong>: Lógica de negocio pura. Sin conocimiento de canal. Solo mTLS interno.</li>
-        <li><strong>BFF Tienda (17)</strong>: Orquestación por canal. Delega a Core. Expuestos al frontend.</li>
-        <li><strong>BFF Web (17)</strong>: Autogestión para portal de clientes.</li>
-        <li><strong>BFF Handoff (4)</strong>: Biometría en celular del cliente via link SMS.</li>
-        <li><strong>BFF Admin (44)</strong>: CRUD de maestros y parametrización (Roles: ADMIN_FABRICAS).</li>
-        <li><strong>Utilitarios (12)</strong> + <strong>Externos (12)</strong>: OTP, SMS, Email, Storage + Buró, OCR, FOSYGA, UBICA.</li>
-      </ul>
+         <li><strong>Core (22)</strong>: Lógica de negocio pura. Sin conocimiento de canal. Solo mTLS interno.</li>
+         <li><strong>BFF Tienda (19)</strong>: Orquestación por canal. Delega a Core. Expuestos al frontend.</li>
+         <li><strong>BFF Web (17)</strong>: Autogestión para portal de clientes.</li>
+         <li><strong>BFF Handoff (4)</strong>: Biometría en celular del cliente via link SMS.</li>
+         <li><strong>BFF Admin (44)</strong>: CRUD de maestros y parametrización (Roles: ADMIN_FABRICAS).</li>
+         <li><strong>Utilitarios (12)</strong> + <strong>Externos (12)</strong>: OTP, SMS, Email, Storage + Buró, OCR, FOSYGA, UBICA.</li>
+       </ul>
     </div>
 
     <div class="card-grid" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin: 24px 0;">
       <div class="card" style="text-align: center; padding: 16px;">
-        <div style="font-size: 28px; font-weight: 800; color: var(--violet);">21</div>
+        <div style="font-size: 28px; font-weight: 800; color: var(--violet);">22</div>
         <div style="font-size: 12px; color: var(--text-secondary);">Core</div>
       </div>
       <div class="card" style="text-align: center; padding: 16px;">
-        <div style="font-size: 28px; font-weight: 800; color: var(--cyan);">17</div>
+        <div style="font-size: 28px; font-weight: 800; color: var(--cyan);">19</div>
         <div style="font-size: 12px; color: var(--text-secondary);">BFF Tienda</div>
       </div>
       <div class="card" style="text-align: center; padding: 16px;">
         <div style="font-size: 28px; font-weight: 800; color: var(--amber);">17</div>
         <div style="font-size: 12px; color: var(--text-secondary);">BFF Web</div>
+      </div>
+      <div class="card" style="text-align: center; padding: 16px;">
+        <div style="font-size: 28px; font-weight: 800; color: var(--green);">4</div>
+        <div style="font-size: 12px; color: var(--text-secondary);">BFF Handoff</div>
       </div>
       <div class="card" style="text-align: center; padding: 16px;">
         <div style="font-size: 28px; font-weight: 800; color: var(--red);">44</div>
@@ -472,20 +459,16 @@
         <div style="font-size: 28px; font-weight: 800; color: var(--green);">12</div>
         <div style="font-size: 12px; color: var(--text-secondary);">Utilitários</div>
       </div>
-      <div class="card" style="text-align: center; padding: 16px;">
-        <div style="font-size: 28px; font-weight: 800; color: var(--amber);">12</div>
-        <div style="font-size: 12px; color: var(--text-secondary);">Adaptadores</div>
-      </div>
     </div>
 
-    <div class="card-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 16px 0;">
+     <div class="card-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 16px 0;">
+       <div class="card" style="text-align: center; padding: 20px;">
+         <div style="font-size: 32px; font-weight: 800; color: var(--accent);">129</div>
+         <div style="font-size: 13px; color: var(--text-secondary);">Endpoints REST</div>
+       </div>
       <div class="card" style="text-align: center; padding: 20px;">
-        <div style="font-size: 32px; font-weight: 800; color: var(--accent);">127</div>
-        <div style="font-size: 13px; color: var(--text-secondary);">Endpoints REST</div>
-      </div>
-      <div class="card" style="text-align: center; padding: 20px;">
-        <div style="font-size: 32px; font-weight: 800; color: var(--green);">36</div>
-        <div style="font-size: 13px; color: var(--text-secondary);">Proc. Almacenados</div>
+        <div style="font-size: 32px; font-weight: 800; color: var(--green);">37</div>
+         <div style="font-size: 13px; color: var(--text-secondary);">Proc. Almacenados</div>
       </div>
       <div class="card" style="text-align: center; padding: 20px;">
         <div style="font-size: 32px; font-weight: 800; color: var(--accent);">10</div>
@@ -528,11 +511,11 @@
     <div class="callout callout--success">
       <p><strong>Actualizacion v1.2 con Taxonomia de Servicios (ref: documentacion-arquitectura-v2.html):</strong></p>
       <ul style="margin-bottom: 12px; font-size: 13px;">
-        <li>Arquitectura de 6 capas: Core (21) + BFF Tienda (17) + BFF Web (17) + BFF Handoff (4) + BFF Admin (31) + Utilitários (12) + Externos (12)</li>
-        <li>Cada endpoint BFF delega a servicios Core internos</li>
-        <li>Modelo "Estado Dirigido por el Sistema" + payload estandar con next_action</li>
-        <li>Session Handoff para biomatria viaSolicitudesRecarga</li>
-      </ul>
+         <li>Arquitectura de 6 capas: Core (22) + BFF Tienda (19) + BFF Web (17) + BFF Handoff (4) + BFF Admin (44) + Utilitários (12) + Externos (12)</li>
+         <li>Cada endpoint BFF delega a servicios Core internos</li>
+         <li>Modelo "Estado Dirigido por el Sistema" + payload estandar con next_action</li>
+         <li>Session Handoff para biomatria viaSolicitudesRecarga</li>
+       </ul>
     <div class="callout callout--danger">
       <p><strong>Excluido (fuera del alcance de esta fase):</strong></p>
       <ul style="margin-bottom: 12px;">
@@ -876,13 +859,13 @@
     </table>
 
     <!-- ==================== TAXONOMÍA DE SERVICIOS ==================== -->
-    <h2 id="taxonomia">Taxonomía de Servicios — Arquitectura de 4 Capas</h2>
+    <h2 id="taxonomia">Taxonomía de Servicios — Arquitectura de 6 Capas</h2>
     <p>
       Este diseño sigue la arquitectura definida en <code>documentacion-arquitectura-v2.html</code> (v2.4). 
       La <strong>Regla de Oro</strong>: el Backend dicta la máquina de estados — los Frontends son Thin Clients.
     </p>
 
-     <h3 id="core-services">A) Core Services — 21 endpoints (Lógica pura)</h3>
+     <h3 id="core-services">A) Core Services — 22 endpoints (Lógica pura)</h3>
     <table>
       <thead>
         <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th><th>Tablas</th></tr>
@@ -912,7 +895,7 @@
       </tbody>
     </table>
 
-     <h3 id="bff-tienda">B) BFF Tienda — 17 endpoints (Orquestación)</h3>
+      <h3 id="bff-tienda">B) BFF Tienda — 19 endpoints (Orquestación)</h3>
     <table>
       <thead>
         <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th><th>Delega a Core</th></tr>
@@ -921,9 +904,10 @@
         <tr><td><span class="badge badge--cyan">T-01</span></td><td>POST</td><td><code>/tienda/solicitud/iniciar-asistida</code></td><td>Punto de entrada asesor. Adjunta IdAsesor + IdBodega.</td><td>C-01, C-06</td></tr>
         <tr><td><span class="badge badge--cyan">T-02</span></td><td>GET</td><td><code>/tienda/solicitud/{id}/estado</code></td><td>Estado + next_action para el PC del asesor.</td><td>C-02, C-04</td></tr>
         <tr><td><span class="badge badge--cyan">T-03</span></td><td>POST</td><td><code>/tienda/solicitud/{id}/datos-tercero</code></td><td>Crear tercero por OCR o manual.</td><td>C-07</td></tr>
-        <tr><td><span class="badge badge--cyan">T-04</span></td><td>POST</td><td><code>/tienda/solicitud/{id}/token-tyc</code></td><td>Enviar token T&C por SMS/WhatsApp.</td><td>U-01</td></tr>
+         <tr><td><span class="badge badge--cyan">T-04</span></td><td>POST</td><td><code>/tienda/solicitud/{id}/token-tyc</code></td><td>Enviar token T&C por SMS/WhatsApp. El campo <code>contexto</code> es <strong>obligatorio</strong> y acepta: <code>"inicio_estudio"</code> (token en IVR/SMS/WhatsApp al inicio, Bloque 3) o <code>"activacion_cupo"</code> (token por email para activar cupo, Bloque 9).</td><td>U-01</td></tr>
         <tr><td><span class="badge badge--cyan">T-05</span></td><td>POST</td><td><code>/tienda/solicitud/{id}/validar-token</code></td><td>Validar token T&C.</td><td>U-02</td></tr>
-        <tr><td><span class="badge badge--cyan">T-06</span></td><td>POST</td><td><code>/tienda/solicitud/{id}/evaluar-viabilidad</code></td><td>Antecedentes + Preselecta + FOSYGA + UBICA.</td><td>C-08, E-01 a E-05</td></tr>
+         <tr><td><span class="badge badge--cyan">T-06a</span></td><td>POST</td><td><code>/tienda/solicitud/{id}/evaluar-antecedentes</code></td><td>Consulta centrales de riesgo, historial crediticio y antecedentes del cliente (Bloque 3). Falla rápido si hay bloqueos — no avanza a preselecta.</td><td>C-08, E-01</td></tr>
+         <tr><td><span class="badge badge--cyan">T-06b</span></td><td>POST</td><td><code>/tienda/solicitud/{id}/evaluar-preselecta</code></td><td>Ejecuta motor de preselecta crediticia (Bloque 4). Solo se llama si T-06a fue exitoso.</td><td>C-08, E-03</td></tr>
         <tr><td><span class="badge badge--cyan">T-07</span></td><td>POST</td><td><code>/tienda/solicitud/{id}/direccion</code></td><td>Guardar dirección.</td><td>C-05</td></tr>
         <tr><td><span class="badge badge--cyan">T-08</span></td><td>POST</td><td><code>/tienda/solicitud/{id}/biometria/asesor</code></td><td>Captura biométrica cámara asesor.</td><td>C-09</td></tr>
         <tr><td><span class="badge badge--cyan">T-09</span></td><td>POST</td><td><code>/tienda/handoff/generar-link</code></td><td>Generar link SMS para handoff biométrico.</td><td>PH-04 (SolicitudesRecarga)</td></tr>
@@ -934,7 +918,9 @@
         <tr><td><span class="badge badge--cyan">T-14</span></td><td>GET</td><td><code>/tienda/mesa-estudios</code></td><td>Listado de estudios con filtros.</td><td>C-02</td></tr>
         <tr><td><span class="badge badge--cyan">T-15</span></td><td>GET</td><td><code>/tienda/mesa-estudios/{id}/detalle</code></td><td>Detalle completo para asesor.</td><td>C-02</td></tr>
         <tr><td><span class="badge badge--cyan">T-16</span></td><td>POST</td><td><code>/tienda/fotos/{idFoto}/revisar</code></td><td>Aprobar o rechazar foto individual.</td><td>C-13</td></tr>
-        <tr><td><span class="badge badge--cyan">T-17</span></td><td>GET</td><td><code>/tienda/estadisticas/diarias</code></td><td>KPIs del día.</td><td>C-02</td></tr>
+         <tr><td><span class="badge badge--cyan">T-17</span></td><td>GET</td><td><code>/tienda/estadisticas/diarias</code></td><td>KPIs del día.</td><td>C-02</td></tr>
+         <tr><td><span class="badge badge--cyan">T-18</span></td><td>GET</td><td><code>/tienda/solicitud/retomar</code></td><td>Consulta si el cliente tiene un estudio de crédito activo (< 90 días). Retorna el estado actual y el paso en que se quedó para reanudar el flujo desde el punto exacto. (Bloque 2)</td><td>C-02</td></tr>
+         <tr><td><span class="badge badge--cyan">T-19</span></td><td>POST</td><td><code>/tienda/solicitud/{id}/validar-asesor</code></td><td>Registra la validación de identidad del asesor (código de asesor, resultado biométrico facial, dispositivo, intentos). Diferente de T-08 que valida al cliente. (Bloque 3)</td><td>C-09</td></tr>
       </tbody>
     </table>
 
@@ -981,13 +967,13 @@
     </table>
 
     <div class="callout callout--warn" style="margin-top: 16px;">
-      <p style="font-size: 13px;"><strong>Patrón de delegación:</strong> Los BFFs (T-01 a T-17, W-01 a W-17) delegan en Core services (C-01 a C-21). Los Core services pueden invocar utilitários (U-01 a U-13) y adaptadores externos (E-01 a E-12). Esta separación asegura que la lógica de negocio sea inmutable y reusable entre canales.</p>
+      <p style="font-size: 13px;"><strong>Patrón de delegación:</strong> Los BFFs (T-01 a T-19, W-01 a W-17) delegan en Core services (C-01 a C-22). Los Core services pueden invocar utilitários (U-01 a U-12) y adaptadores externos (E-01 a E-12). Esta separación asegura que la lógica de negocio sea inmutable y reusable entre canales.</p>
     </div>
 
     <h2 id="procedimientos">Procedimientos Almacenados — 1 SP mínimo por servicio</h2>
     <p>Cada servicio de la taxonomía tiene al menos un procedimiento almacenado asociado que encapsula su lógica de negocio. Los SPs son la única vía de escritura directa a las tablas de la base de datos — ninguna API escribe directamente sin pasar por un SP.</p>
 
-    <h3>F) Core Services — 21 procedimientos</h3>
+    <h3>F) Core Services — 22 procedimientos</h3>
     <table>
       <thead>
         <tr><th>Servicio</th><th>Procedimiento Almacenado</th><th>Propósito</th></tr>
@@ -1013,7 +999,8 @@
         <tr><td><span class="badge badge--violet">C-18</span></td><td><code>sp_ListarPasosFases</code></td><td>SELECT de PasosEstudio + FasesEstudio (JOIN)</td></tr>
         <tr><td><span class="badge badge--violet">C-19</span></td><td><code>sp_ListarCanales</code></td><td>SELECT de CatalogoCanalesOrigen (solo lectura)</td></tr>
         <tr><td><span class="badge badge--violet">C-20</span></td><td><code>sp_ListarTiposDocumento</code></td><td>SELECT de tabla dominio QUAC (solo lectura)</td></tr>
-        <tr><td><span class="badge badge--violet">C-21</span></td><td><code>sp_ListarReglasNegocio</code></td><td>SELECT de ConfiguracionReglasNegocio (solo lectura)</td></tr>
+         <tr><td><span class="badge badge--violet">C-21</span></td><td><code>sp_ListarReglasNegocio</code></td><td>SELECT de ConfiguracionReglasNegocio (solo lectura)</td></tr>
+         <tr><td><span class="badge badge--violet">C-22</span></td><td><code>sp_RegistrarValidacionAsesor</code></td><td>Registra el resultado de la validación de identidad del asesor (código, biometría, dispositivo, intentos, timestamp). Tabla destino: fab.ValidacionesAsesores</td></tr>
       </tbody>
     </table>
 

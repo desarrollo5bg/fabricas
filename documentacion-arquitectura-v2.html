@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Arquitectura de Datos v2.7 — Fábricas de Crédito QUAC</title>
+    <title>Arquitectura de Datos v2.8 — Fábricas de Crédito QUAC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -491,7 +491,7 @@
   <body>
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
-      <div class="sidebar-title">FABRICAS DE CRÉDITO v2.7</div>
+      <div class="sidebar-title">FABRICAS DE CRÉDITO v2.8</div>
       <nav>
         <a href="#overview" class="active">Visión General</a>
         <a href="#resumen-ejecutivo" class="indent">Resumen Ejecutivo</a>
@@ -569,15 +569,15 @@
     <main class="main">
       <!-- Header -->
       <section id="overview">
-        <h1>Arquitectura de Datos v2.6 — Fábricas de Crédito QUAC</h1>
+        <h1>Arquitectura de Datos v2.8 — Fábricas de Crédito QUAC</h1>
         <p class="meta">
           <span class="meta-item"
             ><strong>Motor:</strong> SQL Server 2019+</span
           >
-<span class="meta-item"><strong>Versión:</strong> 2.7</span>
+<span class="meta-item"><strong>Versión:</strong> 2.8</span>
            <span class="meta-item"
-             ><strong>Fecha:</strong> 30 de abril de 2026</span
-           >
+             ><strong>Fecha:</strong> 04 de mayo de 2026</span
+            >
           <span class="meta-item"><strong>Tablas Nuevas:</strong> 31</span>
           <span class="meta-item"><strong>Tablas Modificadas:</strong> 1</span>
         </p>
@@ -5295,10 +5295,10 @@ ORDER BY rv.FechaRevision DESC;</code></pre>
             <h4>82 Servicios BFF</h4>
             <p>17 Web + 17 Tienda + 4 Handoff + 44 Admin. Orquestan el Core según el canal.</p>
           </div>
-          <div class="card card--green">
-            <h4>13 Utilitários + 36 SPs</h4>
-            <p>OTP, SMS, Email, Storage, Catálogos. + 36 procedimientos almacenados en DB.</p>
-          </div>
+           <div class="card card--green">
+             <h4>13 Utilitários + 37 SPs</h4>
+             <p>OTP, SMS, Email, Storage, Catálogos. + 37 procedimientos almacenados en DB.</p>
+           </div>
           <div class="card card--amber">
             <h4>12 Adaptadores Externos</h4>
             <p>Buró, OCR, Biometría, FOSYGA, UBICA, Antecedentes, Infobip, Call Center.</p>
@@ -5411,7 +5411,7 @@ PC del asesor continúa el flujo ✓</pre>
 
       <!-- Servicios Core -->
       <section id="servicios-core">
-        <h2>A) Servicios Core / Globales — 21 endpoints</h2>
+        <h2>A) Servicios Core / Globales — 22 endpoints</h2>
         <p>
           Lógica de negocio inmutable. Sin conocimiento de canal. Accesibles únicamente desde los BFFs
           mediante mTLS o API Key interna — <strong>nunca expuestos al exterior</strong>.
@@ -5441,7 +5441,8 @@ PC del asesor continúa el flujo ✓</pre>
             <tr><td>C-18</td><td><span class="badge badge--cyan">GET</span></td><td><code>/core/catalogos/pasos</code></td><td>Pasos y fases del flujo</td><td><code>PasosEstudio</code>, <code>FasesEstudio</code></td></tr>
             <tr><td>C-19</td><td><span class="badge badge--cyan">GET</span></td><td><code>/core/catalogos/canales</code></td><td>Canales de origen disponibles</td><td><code>CatalogoCanalesOrigen</code></td></tr>
             <tr><td>C-20</td><td><span class="badge badge--cyan">GET</span></td><td><code>/core/catalogos/tipos-documento</code></td><td>Tipos de documento de identidad</td><td>Tabla dominio QUAC</td></tr>
-            <tr><td>C-21</td><td><span class="badge badge--cyan">GET</span></td><td><code>/core/reglas-negocio</code></td><td>Parámetros configurables (días cooling, intentos OTP, etc.)</td><td><code>ConfiguracionReglasNegocio</code></td></tr>
+             <tr><td>C-21</td><td><span class="badge badge--cyan">GET</span></td><td><code>/core/reglas-negocio</code></td><td>Parámetros configurables (días cooling, intentos OTP, etc.)</td><td><code>ConfiguracionReglasNegocio</code></td></tr>
+             <tr><td>C-22</td><td><span class="badge badge--green">POST</span></td><td><code>/core/validar-asesor</code></td><td>Registra validación de identidad del asesor (código, biometría, dispositivo, intentos, timestamp)</td><td><code>ValidacionesAsesor</code> → <code>fab.ValidacionesAsesores</code></td></tr>
           </tbody>
         </table>
       </section>
@@ -5480,7 +5481,7 @@ PC del asesor continúa el flujo ✓</pre>
           </tbody>
         </table>
 
-        <h3>BFF Canal TIENDA — 17 endpoints (<code>/tienda/</code>)</h3>
+        <h3>BFF Canal TIENDA — 19 endpoints (<code>/tienda/</code>)</h3>
         <table>
           <thead>
             <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th></tr>
@@ -5502,7 +5503,9 @@ PC del asesor continúa el flujo ✓</pre>
             <tr><td>T-14</td><td><span class="badge badge--cyan">GET</span></td><td><code>/tienda/mesa-estudios</code></td><td>Listado de estudios del asesor/tienda con filtros y estados.</td></tr>
             <tr><td>T-15</td><td><span class="badge badge--cyan">GET</span></td><td><code>/tienda/mesa-estudios/{id}/detalle</code></td><td>Detalle completo de un estudio para el asesor.</td></tr>
             <tr><td>T-16</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/fotos/{idFoto}/revisar</code></td><td>Asesor aprueba o rechaza una foto individual.</td></tr>
-            <tr><td>T-17</td><td><span class="badge badge--cyan">GET</span></td><td><code>/tienda/estadisticas/diarias</code></td><td>KPIs del día para el asesor o la tienda.</td></tr>
+             <tr><td>T-17</td><td><span class="badge badge--cyan">GET</span></td><td><code>/tienda/estadisticas/diarias</code></td><td>KPIs del día para el asesor o la tienda.</td></tr>
+             <tr><td>T-18</td><td><span class="badge badge--cyan">GET</span></td><td><code>/tienda/solicitud/retomar</code></td><td>Retomar estudio previo (< 90 días) iniciado por cliente.</td></tr>
+             <tr><td>T-19</td><td><span class="badge badge--green">POST</span></td><td><code>/tienda/solicitud/{id}/validar-asesor</code></td><td>Validar identidad del asesor (código, biometría, dispositivo).</td></tr>
           </tbody>
         </table>
 
@@ -5634,7 +5637,7 @@ PC del asesor continúa el flujo ✓</pre>
 
       <!-- Procedimientos Almacenados -->
       <section id="procedimientos-almacenados">
-        <h2>F) Procedimientos Almacenados — 36 SPs <span class="badge badge--accent">Nuevo v2.7</span></h2>
+         <h2>F) Procedimientos Almacenados — 37 SPs <span class="badge badge--accent">Nuevo v2.7</span></h2>
         <p>
           Los procedimientos almacenados son la <strong>única vía de escritura directa</strong> a las tablas transaccionales
           y de auditoría del LOS. Cada servicio Core y Admin tiene al menos un SP asociado. Detalle completo en
@@ -5642,9 +5645,9 @@ PC del asesor continúa el flujo ✓</pre>
         </p>
         <div class="card-grid">
           <div class="card card--violet">
-            <h4>21 SPs Core</h4>
-            <p>sp_CrearEstudio, sp_TransicionarEstado, sp_EvaluarFraude, sp_ActivarCupo, etc.</p>
-          </div>
+             <h4>22 SPs Core</h4>
+             <p>sp_CrearEstudio, sp_TransicionarEstado, sp_EvaluarFraude, sp_RegistrarValidacionAsesor, etc.</p>
+           </div>
           <div class="card card--red">
             <h4>11 SPs Admin</h4>
             <p>sp_CRUD_Estados, sp_CRUD_Fases, sp_CRUD_Pasos, sp_CRUD_Operadores, etc.</p>

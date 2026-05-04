@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Servicios Backend — Fábricas de Crédito QUAC v2.8</title>
+    <title>Servicios Backend — Fábricas de Crédito QUAC v2.9</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -40,7 +40,7 @@
 </head>
 <body>
 <aside class="sidebar">
-    <div class="sidebar-title">FÁBRICAS DE CRÉDITO v2.8</div>
+    <div class="sidebar-title">FÁBRICAS DE CRÉDITO v2.9</div>
     <nav>
       <div class="sidebar-section">Índice de Arquitectura</div>
       <a href="index.html">00 · Índice</a>
@@ -67,17 +67,17 @@
 
   <main class="main">
     <h1>Servicios Backend e Integraciones</h1>
-    <p style="font-size:17px;color:var(--text);font-weight:500;">Log de invocaciones, evaluaciones de riesgo y patrón BFF — DDL v2.8</p>
+    <p style="font-size:17px;color:var(--text);font-weight:500;">Log de invocaciones, evaluaciones de riesgo y patrón BFF — DDL v2.9</p>
     <div class="meta">
-      <div class="meta-item"><strong>Versión</strong> v2.8</div>
-      <div class="meta-item"><strong>Fecha</strong> 2026-04-30</div>
+      <div class="meta-item"><strong>Versión</strong> v2.9</div>
+      <div class="meta-item"><strong>Fecha</strong> 2026-05-04</div>
       <div class="meta-item"><strong>Fuente</strong> FABRICASv2.sql v2.8</div>
-      <div class="meta-item"><strong>Servicios</strong> 10 externos + 44 Admin</div>
+      <div class="meta-item"><strong>Servicios</strong> 10 externos + 44 Admin + 1 Validación Asesor</div>
     </div>
 
     <h2 id="servicios">Catálogo de Servicios Externos</h2>
     <p>El flujo de 13 pasos invoca 10 servicios externos. Cada invocación queda registrada en <code>RegistroServiciosExternos</code>.</p>
-    <p>Además del flujo transaccional, el sistema incluye un BFF Admin con <strong>44 endpoints (A-01 a A-44)</strong> para gestión de maestros y parametrización, y <strong>36 procedimientos almacenados</strong> que encapsulan toda la lógica de escritura a la base de datos. Ref: <code>Arquitectura/06-servicios-backend.html</code> para detalle de SPs.</p>
+    <p>Además del flujo transaccional, el sistema incluye un BFF Admin con <strong>44 endpoints (A-01 a A-44)</strong> para gestión de maestros y parametrización, y <strong>37 procedimientos almacenados</strong> que encapsulan toda la lógica de escritura a la base de datos. Ref: <code>Arquitectura/06-servicios-backend.html</code> para detalle de SPs.</p>
 
     <table>
       <thead>
@@ -327,10 +327,10 @@ CREATE INDEX IX_RegServ_Servicio_Resultado
       </tbody>
     </table>
 
-    <h2 id="procedimientos">F) Procedimientos Almacenados — 36 SPs</h2>
+     <h2 id="procedimientos">F) Procedimientos Almacenados — 37 SPs</h2>
     <p>Cada servicio tiene al menos un procedimiento almacenado asociado. Los SPs son la <strong>única vía de escritura directa</strong> a las tablas transaccionales y de auditoría — ninguna API escribe directamente sin pasar por un SP.</p>
 
-    <h3>Core Services — 21 SPs</h3>
+     <h3>Core Services — 22 SPs</h3>
     <table>
       <thead>
         <tr><th>Servicio</th><th>SP</th><th>Propósito</th></tr>
@@ -356,7 +356,8 @@ CREATE INDEX IX_RegServ_Servicio_Resultado
         <tr><td>C-18</td><td><code>sp_ListarPasosFases</code></td><td>SELECT PasosEstudio + FasesEstudio JOIN</td></tr>
         <tr><td>C-19</td><td><code>sp_ListarCanales</code></td><td>SELECT CatalogoCanalesOrigen</td></tr>
         <tr><td>C-20</td><td><code>sp_ListarTiposDocumento</code></td><td>SELECT tabla dominio QUAC</td></tr>
-        <tr><td>C-21</td><td><code>sp_ListarReglasNegocio</code></td><td>SELECT ConfiguracionReglasNegocio</td></tr>
+         <tr><td>C-21</td><td><code>sp_ListarReglasNegocio</code></td><td>SELECT ConfiguracionReglasNegocio</td></tr>
+         <tr><td>C-22</td><td><code>sp_RegistrarValidacionAsesor</code></td><td>Registra resultado de validación de identidad del asesor (código, biometría, dispositivo, intentos, timestamp). Tabla destino: <code>fab.ValidacionesAsesores</code></td></tr>
       </tbody>
     </table>
 
