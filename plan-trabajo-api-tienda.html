@@ -395,7 +395,7 @@
   <main class="main">
     <h1>Plan de Trabajo — API Flujo Tienda</h1>
     <p style="font-size: 17px; color: var(--text); font-weight: 500;">
-      Fabricas de Credito QUAC — Construccion de APIs REST para el Flujo de Tienda (4 Bloques)
+      Fabricas de Credito QUAC — Construccion de APIs REST — 6 Capas / 9 Bloques funcionales
     </p>
     <div class="meta">
        <div class="meta-item"><strong>Version:</strong> 1.4</div>
@@ -525,338 +525,6 @@
         <li>Flujo Externo (asesor de campo) - se documenta pero no se implementa</li>
       </ul>
     </div>
-
-    <!-- ==================== BLOQUE 1: INGRESO ==================== -->
-    <h2 id="fase1">Fase 1: Ingreso del Cliente</h2>
-    <p>
-      El Bloque 1 maneja el ingreso inicial del cliente a la tienda: validacion de documento, consulta de existencia en ERP,
-      y verificacion del estado de cupo (activo, bloqueado, cancelado).
-    </p>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-number">1</div>
-        <div class="card-title">POST /api/estudio/iniciar</div>
-      </div>
-      <p style="font-size: 14px; margin-bottom: 12px;">
-        Iniciar un nuevo estudio de credito. Recibe tipo y numero de documento, codigo de tienda/asesor.
-        Valida contra ERP si el tercero existe y consulta estado de cartera.
-      </p>
-      <table>
-        <thead><tr><th>Input</th><th>Tipo</th><th>Descripcion</th></tr></thead>
-        <tbody>
-          <tr><td>tipoDocumento</td><td>string</td><td>CC, CE, TI, RC</td></tr>
-          <tr><td>numeroDocumento</td><td>string</td><td>Numero de documento</td></tr>
-          <tr><td>idCanal</td><td>int</td><td>ID del canal (TIENDA = 2)</td></tr>
-          <tr><td>idBodega</td><td>int</td><td>ID de la tienda</td></tr>
-          <tr><td>nitAsesor</td><td>string</td><td>NIT del asesor (opcional)</td></tr>
-        </tbody>
-      </table>
-      <table>
-        <thead><tr><th>Respuesta</th><th>Tipo</th><th>Descripcion</th></tr></thead>
-        <tbody>
-          <tr><td>idEstudio</td><td>int</td><td>ID del estudio creado</td></tr>
-          <tr><td>estado</td><td>string</td><td>INICIADO, NO_VIABLE, REQUIERE_REACTIVACION, CUPO_YA_ACTIVO</td></tr>
-          <tr><td>terceroExiste</td><td>boolean</td><td>Si existe en ERP/QUAC</td></tr>
-          <tr><td>cupoActivo</td><td>object</td><td>Info del cupo activo (si aplica)</td></tr>
-          <tr><td>cupoEliminado</td><td>boolean</td><td>Si existio cupo eliminado previamente (Paso 30-31)</td></tr>
-          <tr><td>motivo</td><td>string</td><td>Descripcion del estado</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-number">2</div>
-        <div class="card-title">GET /api/estudio/{id}/validar-documento</div>
-      </div>
-      <p style="font-size: 14px; margin-bottom: 12px;">
-        Validar el documento en listas restrictivas. Llama al servicio LISTAS_RESTRICTIVAS.
-      </p>
-      <table>
-        <thead><tr><th>Input</th><th>Tipo</th><th>Descripcion</th></tr></thead>
-        <tbody>
-          <tr><td>idEstudio</td><td>int</td><td>ID del estudio</td></tr>
-          <tr><td>tipoDocumento</td><td>string</td><td>Tipo de documento</td></tr>
-          <tr><td>numeroDocumento</td><td>string</td><td>Numero de documento</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <h4>Servicios externos del Bloque 1</h4>
-    <table>
-      <thead>
-        <tr>
-          <th>Servicio</th>
-          <th>Tipo</th>
-          <th>Responsable</th>
-          <th>Descripcion</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td><code>VALIDAR_EXISTENCIA</code></td><td>ERP_QUAC</td><td>Backend</td><td>Confirma que el tercero existe en ERP</td></tr>
-        <tr><td><code>VALIDAR_CUPO_BLOQUEO</code></td><td>CORE_CREDITO</td><td>Backend</td><td>Sin cupo activo ni bloqueos vigentes</td></tr>
-<tr><td><code>INGRESO_DOCUMENTO</code></td><td>—</td><td>ASESOR</td><td>Captura manual del documento</td></tr>
-          <tr><td><code>VALIDAR_DUPLICIDAD</code></td><td>CatalogoReglasFraude</td><td>Backend</td><td>Validar celular/email duplicados (politica configurable)</td></tr>
-        </tbody>
-      </table>
-
-    <!-- ==================== BLOQUE 2: CAPTURA DATOS ==================== -->
-    <h2 id="fase2">Fase 2: Captura de Datos</h2>
-    <p>
-      El Bloque 2 captura los datos del cliente: nombre, telefono, email, direccion. Valida telefono y email,
-      y tokeniza los consentimientos legales.
-    </p>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-number">3</div>
-        <div class="card-title">POST /api/estudio/{id}/capturar-datos</div>
-      </div>
-      <p style="font-size: 14px; margin-bottom: 12px;">
-        Capturar datos del cliente. Validar que el telefono y email no esten asociados a otro documento con cupo activo.
-      </p>
-      <table>
-        <thead><tr><th>Input</th><th>Tipo</th><th>Descripcion</th></tr></thead>
-        <tbody>
-          <tr><td>idEstudio</td><td>int</td><td>ID del estudio</td></tr>
-          <tr><td>nombres</td><td>string</td><td>Nombres completos</td></tr>
-          <tr><td>apellidos</td><td>string</td><td>Apellidos completos</td></tr>
-          <tr><td>celularPrincipal</td><td>string</td><td>Celular principal para llamadas (10 digitos)</td></tr>
-          <tr><td>celularWhatsApp</td><td>string</td><td>Celular para WhatsApp (puede ser igual al principal)</td></tr>
-          <tr><td>email</td><td>string</td><td>Correo electronico</td></tr>
-          <tr><td>fechaNacimiento</td><td>string</td><td>Fecha nacimiento (YYYY-MM-DD)</td></tr>
-        </tbody>
-      </table>
-      <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
-        <strong>Nota:</strong> Los telefonos se almacenan separados para cumplir con politicas de duplicidad configurables en <code>CatalogoReglasFraude</code>.
-      </p>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-number">4</div>
-        <div class="card-title">POST /api/estudio/{id}/capturar-direccion</div>
-      </div>
-      <p style="font-size: 14px; margin-bottom: 12px;">
-        Capturar la direccion de residencia del cliente.
-      </p>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-number">5</div>
-        <div class="card-title">POST /api/estudio/{id}/tokenizar-consentimiento</div>
-      </div>
-      <p style="font-size: 14px; margin-bottom: 12px;">
-        Tokenizar los consentimientos legales del cliente. Envia OTP al telefono registrado y espera verificacion.
-      </p>
-      <table>
-        <thead><tr><th>Input</th><th>Tipo</th><th>Descripcion</th></tr></thead>
-        <tbody>
-          <tr><td>idEstudio</td><td>int</td><td>ID del estudio</td></tr>
-          <tr><td>consentimientos</td><td>array</td><td>Lista de consentimientos</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <h4>Servicios externos del Bloque 2</h4>
-    <table>
-      <thead>
-        <tr>
-          <th>Servicio</th>
-          <th>Tipo</th>
-          <th>Responsable</th>
-          <th>Descripcion</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td><code>CAPTURA_DATOS</code></td><td>—</td><td>ASESOR</td><td>Datos del cliente capturados</td></tr>
-        <tr><td><code>CONSENTIMIENTO_DATOS</code></td><td>—</td><td>CLIENTE</td><td>Firma OTP o checkbox</td></tr>
-        <tr><td><code>TOKENIZACION</code></td><td>OTP_PROVIDER</td><td>Backend</td><td>OTP enviado y verificado</td></tr>
-      </tbody>
-    </table>
-
-    <!-- ==================== BLOQUE 3: VALIDACIONES ==================== -->
-    <h2 id="fase3">Fase 3: Validaciones</h2>
-    <p>
-      El Bloque 3 ejecuta las validaciones de riesgo: listas restrictivas, bure de credito, evaluacion Preselecta,
-      validacion FOSYGA/ADRES, y calculo del cupo. Este es el bloque con mas servicios externos.
-    </p>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-number">6</div>
-        <div class="card-title">POST /api/estudio/{id}/validar-listas</div>
-      </div>
-      <p style="font-size: 14px; margin-bottom: 12px;">
-        Consultar listas restrictivas. Retorna si el cliente esta en alguna lista negra.
-      </p>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-number">7</div>
-        <div class="card-title">POST /api/estudio/{id}/consultar-buro</div>
-      </div>
-      <p style="font-size: 14px; margin-bottom: 12px;">
-        Consultar bure de credito. Retorna score y historial crediticio.
-      </p>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-number">8</div>
-        <div class="card-title">POST /api/estudio/{id}/evaluar-preselecta</div>
-      </div>
-      <p style="font-size: 14px; margin-bottom: 12px;">
-        Ejecutar evaluacion de Preselecta. Retorna viabilidad y oferta preaprobada.
-      </p>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-number">9</div>
-        <div class="card-title">POST /api/estudio/{id}/validar-fosyga</div>
-      </div>
-      <p style="font-size: 14px; margin-bottom: 12px;">
-        Validar cotizacion en FOSYGA/ADRES. Retorna si esta activo y si cotiza en los ultimos meses.
-      </p>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-number">10</div>
-        <div class="card-title">POST /api/estudio/{id}/calcular-cupo</div>
-      </div>
-      <p style="font-size: 14px; margin-bottom: 12px;">
-        Calcular el cupo preaprobado basado en las validaciones anteriores.
-      </p>
-    </div>
-
-    <h4>Servicios externos del Bloque 3</h4>
-    <table>
-      <thead>
-        <tr>
-          <th>Servicio</th>
-          <th>Tipo</th>
-          <th>Responsable</th>
-          <th>Descripcion</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td><code>VALIDAR_LISTAS</code></td><td>LISTAS_RESTRICTIVAS</td><td>Backend</td><td>No aparece en listas negras</td></tr>
-        <tr><td><code>CONSULTAR_BURO</code></td><td>BURO_CREDITO</td><td>Backend</td><td>Score de credito + mora en comercios aliados (Paso 21)</td></tr>
-        <tr><td><code>EVALUAR_PRESELECTA</code></td><td>PRESELECTA</td><td>Backend</td><td>Preseleccion de oferta</td></tr>
-        <tr><td><code>VALIDAR_FOSYGA</code></td><td>FOSYGA/ADRES</td><td>Backend</td><td>Vigencia en sistema de salud (cotizaciones)</td></tr>
-        <tr><td><code>CALCULAR_CUPO</code></td><td>MOTOR_CUPO</td><td>Backend</td><td>Cupo calculado y aprobado</td></tr>
-        <tr><td><code>REACTIVACION_CUPO</code></td><td>CORE_CREDITO</td><td>Backend</td><td>Reactivar cupo eliminado (ventana configurable)</td></tr>
-      </tbody>
-    </table>
-
-    <!-- ==================== BLOQUE 4: RESULTADO ==================== -->
-    <h2 id="fase4">Fase 4: Resultado y Activacion</h2>
-    <p>
-      El Bloque 4 muestra el resultado al cliente, ejecuta la verificacion biometrica, y si todo es correcto,
-      activa el cupo en UBICA y genera la tarjeta virtual.
-    </p>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-number">11</div>
-        <div class="card-title">GET /api/estudio/{id}/resultado</div>
-      </div>
-      <p style="font-size: 14px; margin-bottom: 12px;">
-        Consultar el resultado del estudio. Retorna aprobado/rechazado con detalle.
-      </p>
-      <table>
-        <thead><tr><th>Respuesta</th><th>Tipo</th><th>Descripcion</th></tr></thead>
-        <tbody>
-          <tr><td>estado</td><td>string</td><td>APROBADO, RECHAZADO, REVISION_FABRICA</td></tr>
-          <tr><td>cupoPreaprobado</td><td>decimal</td><td>Monto del cupo</td></tr>
-          <tr><td>cuotaMensual</td><td>decimal</td><td>Valor de la cuota</td></tr>
-          <tr><td>tasaInteres</td><td>decimal</td><td>Tasa de interes</td></tr>
-          <tr><td>motivoRechazo</td><td>string</td><td>Motivo del rechazo (si aplica)</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-number">12</div>
-        <div class="card-title">POST /api/estudio/{id}/verificar-biometria</div>
-      </div>
-      <p style="font-size: 14px; margin-bottom: 12px;">
-        Ejecutar verificacion biometrica: comparar selfie con foto del documento. Umbral configurable (default 85%).
-      </p>
-      <table>
-        <thead><tr><th>Input</th><th>Tipo</th><th>Descripcion</th></tr></thead>
-        <tbody>
-          <tr><td>idEstudio</td><td>int</td><td>ID del estudio</td></tr>
-          <tr><td>fotoSelfie</td><td>base64</td><td>Foto tomada en tiempo real</td></tr>
-          <tr><td>idFotoDocumento</td><td>int</td><td>ID de la foto del documento</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-number">13</div>
-        <div class="card-title">POST /api/estudio/{id}/activar-cupo</div>
-      </div>
-      <p style="font-size: 14px; margin-bottom: 12px;">
-        Activar el cupo preaprobado. Genera token de activacion y registra en UBICA.
-      </p>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-number">14</div>
-        <div class="card-title">POST /api/estudio/{id}/confirmar-token</div>
-      </div>
-      <p style="font-size: 14px; margin-bottom: 12px;">
-        Validar token de activacion enviado al correo del cliente. Completa la activacion del cupo.
-      </p>
-      <table>
-        <thead><tr><th>Input</th><th>Tipo</th><th>Descripcion</th></tr></thead>
-        <tbody>
-          <tr><td>token</td><td>string</td><td>Token recibido por el cliente</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-number">15</div>
-        <div class="card-title">POST /api/estudio/{id}/escalar</div>
-      </div>
-      <p style="font-size: 14px; margin-bottom: 12px;">
-        Escalar caso a Fabrica de Soporte. Requiere motivo tipificado de <code>CatalogoMotivosEscalamiento</code>.
-      </p>
-      <table>
-        <thead><tr><th>Input</th><th>Tipo</th><th>Descripcion</th></tr></thead>
-        <tbody>
-          <tr><td>idMotivoEscalamiento</td><td>int</td><td>FK a CatalogoMotivosEscalamiento</td></tr>
-          <tr><td>observacion</td><td>string</td><td>Detalle adicional (opcional)</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <h4>Servicios externos del Bloque 4</h4>
-    <table>
-      <thead>
-        <tr>
-          <th>Servicio</th>
-          <th>Tipo</th>
-          <th>Responsable</th>
-          <th>Descripcion</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td><code>VERIFICACION_BIOMETRICA</code></td><td>BIOMETRIA / AWS Rekognition</td><td>Backend</td><td>Comparacion selfie vs documento 85%</td></tr>
-        <tr><td><code>ACTIVACION_CUPO</code></td><td>UBICA</td><td>Backend</td><td>Cupo activado en sistema UBICA</td></tr>
-      </tbody>
-    </table>
 
     <!-- ==================== TAXONOMÍA DE SERVICIOS ==================== -->
     <h2 id="taxonomia">Taxonomía de Servicios — Arquitectura de 6 Capas</h2>
@@ -1153,189 +821,217 @@
 
     <!-- ==================== DETALLE DE TAREAS ==================== -->
     <h2 id="tareas">Detalle de Tareas</h2>
+    <div class="callout callout--info" style="margin-bottom: 16px;">
+      <p style="font-size: 13px;"><strong>Nomenclatura:</strong> Los endpoints a implementar son los definidos en la Taxonomía de Servicios. <strong>No existe</strong> ningún path <code>/api/estudio/...</code> — esos eran prototipos de versiones anteriores. Los paths reales son <code>/core/...</code>, <code>/tienda/...</code>, <code>/util/...</code>, etc.</p>
+    </div>
 
-    <h3>Fase 1: Arquitectura Core (Dias 1-15)</h3>
+    <h3>Fase 1: Infraestructura Base (Días 1–10)</h3>
     <ul class="task-list">
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">T-001: Disenar esquema de base de datos</div>
-          <div class="task-desc">Crear/verificar tablas: EstudiosCredito, PasosEstudio, HistorialEstados, RegistroServiciosExternos, EvaluacionesRiesgo, TercerosFabricas (CelularPrincipal + CelularWhatsApp), EscalamientosFabrica, CatalogoMotivosEscalamiento</div>
+          <div class="task-title">TASK-01: Verificar y completar DDL (FABRICASv2.sql)</div>
+          <div class="task-desc">Confirmar existencia de todas las tablas requeridas: EstudiosCredito, TercerosFabricas, EvaluacionesRiesgo, RegistrosBiometria, ConsentimientosLegales, EscalamientosFabrica, ValidacionesAsesores, HistorialEstados, PasosEstudio, FasesEstudio, TransicionesEstado, CatalogoEstados, CatalogoReglasFraude.</div>
         </div>
       </li>
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">T-002: Implementar maquina de estados</div>
-          <div class="task-desc">Crear stored procedure para transiciones de estado con validacion</div>
+          <div class="task-title">TASK-02: Implementar 22 Stored Procedures Core (F)</div>
+          <div class="task-desc">sp_CrearEstudio, sp_TransicionarEstado, sp_CalcularSiguientePaso, sp_AvanzarPaso, sp_VerificarElegibilidad, sp_UpsertTercero, sp_RegistrarEvaluacionRiesgo, sp_RegistrarBiometria, sp_RegistrarConsentimiento, sp_EvaluarFraude, sp_CrearEscalamiento, sp_RegistrarRevisionFoto, sp_ActivarCupo, sp_RegistrarAuditoriaCambioDatos, sp_RegistrarLlamadaServicioExterno, sp_ListarEstados, sp_ListarPasosFases, sp_ListarCanales, sp_ListarTiposDocumento, sp_ListarReglasNegocio, sp_ObtenerEstadoEstudio, sp_RegistrarValidacionAsesor.</div>
         </div>
       </li>
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">T-003: Crear proyecto API base</div>
-          <div class="task-desc">Configurar .NET Core / Node.js, estructura de carpetas, Middleware de logging</div>
+          <div class="task-title">TASK-03: Implementar 4 Stored Procedures Transversales (H)</div>
+          <div class="task-desc">sp_EnviarOTP, sp_ValidarOTP, sp_EjecutarPipelineAsync, sp_ValidarDuplicidad.</div>
         </div>
       </li>
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">T-004: Implementar cliente HTTP para servicios externos</div>
-          <div class="task-desc">Crear wrapper con reintentos, timeouts, circuit breaker</div>
+          <div class="task-title">TASK-04: Crear proyecto API base + middleware</div>
+          <div class="task-desc">Configurar estructura de carpetas, autenticación JWT/mTLS para Core, middleware de logging, manejo global de errores, configuración de entornos (dev/staging/prod).</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">TASK-05: Implementar cliente HTTP para adaptadores externos (E-01..E-12)</div>
+          <div class="task-desc">Wrapper con reintentos, timeouts, circuit breaker. Registrar cada llamada en RegistroServiciosExternos vía sp_RegistrarLlamadaServicioExterno (C-16).</div>
         </div>
       </li>
     </ul>
 
-    <h3>Fase 2: APIs del Bloque 1 (Dias 16-25)</h3>
+    <h3>Fase 2: Core Services C-01..C-10 (Días 11–22)</h3>
     <ul class="task-list">
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">T-005: POST /api/estudio/iniciar</div>
-          <div class="task-desc">Endpoint para iniciar estudio. Valida documento contra ERP y CORE</div>
+          <div class="task-title">TASK-06: C-01 POST /core/estudios — Crear estudio</div>
+          <div class="task-desc">Llama sp_CrearEstudio. Estado inicial INICIADO, cursor en paso 1.</div>
         </div>
       </li>
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">T-006: GET /api/estudio/{id}</div>
-        <div class="task-desc">Consultar estado de un estudio</div>
+          <div class="task-title">TASK-07: C-02/C-03/C-04/C-05 — Máquina de estados</div>
+          <div class="task-desc">GET /core/estudios/{id} (estado completo), POST estado (transición validada), GET next-step (cursor), POST paso-completado (avanzar IdPasoActual).</div>
         </div>
       </li>
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">T-007: Integracion ERP_QUAC</div>
-          <div class="task-desc">Consumo de servicio de existencia de terceros</div>
+          <div class="task-title">TASK-08: C-06/C-07 — Terceros</div>
+          <div class="task-desc">GET /core/terceros/{nit}/elegibilidad (bloqueo, cupo activo, cooling-off). POST /core/terceros/{nit}/upsert (crear o actualizar TercerosFabricas).</div>
         </div>
       </li>
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">T-008: Integracion CORE_CREDITO</div>
-          <div class="task-desc">Consumo de servicio de consulta de cupo/bloqueos</div>
+          <div class="task-title">TASK-09: C-08/C-09/C-10 — Registro de evaluaciones, biometría y consentimientos</div>
+          <div class="task-desc">POST /core/evaluaciones-riesgo (sp_RegistrarEvaluacionRiesgo), POST /core/biometria (sp_RegistrarBiometria), POST /core/consentimientos (sp_RegistrarConsentimiento).</div>
         </div>
       </li>
     </ul>
 
-    <h3>Fase 3: APIs del Bloque 2 (Dias 26-32)</h3>
+    <h3>Fase 3: Core Services C-11..C-22 + Utilitarios U (Días 23–32)</h3>
     <ul class="task-list">
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">T-009: POST /api/estudio/{id}/capturar-datos</div>
-          <div class="task-desc">Capturar datos del cliente con validaciones</div>
+          <div class="task-title">TASK-10: C-11/C-12/C-13/C-14 — Fraude, escalamiento, fotos, activación</div>
+          <div class="task-desc">POST /core/fraude/evaluar, POST /core/escalamientos, POST /core/fotos/{id}/revision, POST /core/estudios/{id}/activar-cupo.</div>
         </div>
       </li>
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">T-010: POST /api/estudio/{id}/capturar-direccion</div>
-          <div class="task-desc">Capturar direccion de residencia</div>
+          <div class="task-title">TASK-11: C-15/C-16 — Auditoría</div>
+          <div class="task-desc">POST /core/auditoria/cambio-datos (sp_RegistrarAuditoriaCambioDatos → HistorialDatosSensibles), POST /core/auditoria/servicio-externo (sp_RegistrarLlamadaServicioExterno → RegistroServiciosExternos).</div>
         </div>
       </li>
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">T-011: POST /api/estudio/{id}/consentimiento</div>
-          <div class="task-desc">Tokenizar consentimientos con OTP</div>
+          <div class="task-title">TASK-12: C-17..C-22 — Catálogos + sp_RegistrarValidacionAsesor</div>
+          <div class="task-desc">GET endpoints de catálogos (estados, pasos, canales, tipos-documento, reglas-negocio). POST /core/validar-asesor → sp_RegistrarValidacionAsesor → fab.ValidacionesAsesores.</div>
         </div>
       </li>
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">T-012: Integracion OTP_PROVIDER</div>
-          <div class="task-desc">Consumo de servicio de envio de OTP (Infobip)</div>
+          <div class="task-title">TASK-13: U-01..U-12 — Utilitarios (OTP, mensajería, storage)</div>
+          <div class="task-desc">POST /util/otp/enviar (sp_EnviarOTP), POST /util/otp/validar (sp_ValidarOTP), GET /util/otp/estado/{idReto}, POST /util/otp/reenviar. SMS/Email/WhatsApp genérico (E-10, E-11). Catálogos geográficos. POST /util/storage/presigned-url (TTL 15min). GET /util/health.</div>
         </div>
       </li>
     </ul>
 
-    <h3>Fase 4: APIs del Bloque 3 (Dias 33-40)</h3>
+    <h3>Fase 4: BFF Tienda T-01..T-19 (Días 33–44)</h3>
     <ul class="task-list">
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">T-013: POST /api/estudio/{id}/validar-listas</div>
-          <div class="task-desc">Consultar listas restrictivas</div>
+          <div class="task-title">TASK-14: T-01/T-02/T-18 — Ingreso y retoma (Bloque 2)</div>
+          <div class="task-desc">POST /tienda/solicitud/iniciar-asistida (adjunta IdAsesor + IdBodega → C-01, C-06). GET /tienda/solicitud/{id}/estado (next_action → C-02, C-04). GET /tienda/solicitud/retomar (estudio activo &lt; 90 días → C-02).</div>
         </div>
       </li>
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">T-014: POST /api/estudio/{id}/consultar-buro</div>
-          <div class="task-desc">Consultar bure de credito</div>
+          <div class="task-title">TASK-15: T-03/T-04/T-05/T-19 — Datos, tokens y validación de asesor (Bloque 2–3)</div>
+          <div class="task-desc">POST datos-tercero (OCR o manual → C-07). POST token-tyc (contexto: "inicio_estudio" | "activacion_cupo" → U-01). POST validar-token (→ U-02). POST validar-asesor (biometría asesor → C-09 / sp_RegistrarValidacionAsesor).</div>
         </div>
       </li>
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">T-015: POST /api/estudio/{id}/evaluar-preselecta</div>
-          <div class="task-desc">Ejecutar evaluacion Preselecta</div>
+          <div class="task-title">TASK-16: T-06a/T-06b/T-07 — Evaluaciones separadas y dirección (Bloque 3–4)</div>
+          <div class="task-desc">POST evaluar-antecedentes (→ C-08, E-01 — falla rápido si bloqueos). POST evaluar-preselecta (→ C-08, E-03 — solo si T-06a exitoso). POST direccion (→ C-05).</div>
         </div>
       </li>
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">T-016: POST /api/estudio/{id}/validar-fosyga</div>
-          <div class="task-desc">Validar cotizacion FOSYGA/ADRES</div>
+          <div class="task-title">TASK-17: T-08/T-09/T-10 — Biometría asesor y handoff celular</div>
+          <div class="task-desc">POST biometria/asesor (captura desde cámara del PC → C-09). POST handoff/generar-link (link SMS → SolicitudesRecarga). GET handoff/estado/{token} (polling cada 3s, TTL 15min).</div>
         </div>
       </li>
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">T-017: POST /api/estudio/{id}/calcular-cupo</div>
-          <div class="task-desc">Calcular cupo preaprobado</div>
+          <div class="task-title">TASK-18: T-11/T-12/T-13 — Escalamiento, recarga foto y activación</div>
+          <div class="task-desc">POST escalar-fabrica (motivo tipificado → C-12). POST solicitar-recarga-foto (→ PH-04). POST activar-cupo (express o normal → C-14).</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">TASK-19: T-14/T-15/T-16/T-17 — Mesa de estudios y KPIs</div>
+          <div class="task-desc">GET mesa-estudios (listado con filtros → C-02). GET mesa-estudios/{id}/detalle (detalle completo → C-02). POST fotos/{idFoto}/revisar (aprobar/rechazar → C-13). GET estadisticas/diarias (KPIs del día → C-02).</div>
         </div>
       </li>
     </ul>
 
-    <h3>Fase 5: APIs del Bloque 4 (Dias 41-45)</h3>
+    <h3>Fase 5: BFF Admin A-01..A-44 + 11 SPs Admin (Días 45–55)</h3>
     <ul class="task-list">
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">T-018: GET /api/estudio/{id}/resultado</div>
-          <div class="task-desc">Consultar resultado del estudio</div>
+          <div class="task-title">TASK-20: Implementar 11 Stored Procedures Admin (G)</div>
+          <div class="task-desc">sp_CRUD_Estados, sp_CRUD_Fases, sp_CRUD_Pasos, sp_CRUD_Transiciones, sp_CRUD_ReglasNegocio, sp_CRUD_Canales, sp_CRUD_MotivosEscalamiento, sp_CRUD_ReglasFraude, sp_CRUD_TiposFotografia, sp_CRUD_Operadores. Requieren rol ADMIN_FABRICAS o SUPERADMIN.</div>
         </div>
       </li>
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">T-019: POST /api/estudio/{id}/verificar-biometria</div>
-          <div class="task-desc">Verificacion biometrica con AWS Rekognition</div>
+          <div class="task-title">TASK-21: A-01..A-34 — CRUD maestros de parametrización</div>
+          <div class="task-desc">Estados (5), Fases (5), Pasos (5), Transiciones (3), Reglas de Negocio (4), Canales (3), Motivos de Escalamiento (3), Tipos de Fotografía (3), Reglas de Fraude (3). Todos bajo /admin/ con guard ADMIN_FABRICAS.</div>
         </div>
       </li>
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">T-020: POST /api/estudio/{id}/activar-cupo</div>
-          <div class="task-desc">Generar token de activacion y registrar en UBICA</div>
+          <div class="task-title">TASK-22: A-35..A-44 — CRUD Operadores de Fábrica</div>
+          <div class="task-desc">GET/POST/PUT/DELETE /admin/operadores (OperadoresFabrica). GET/PUT disponibilidad (DisponibilidadOperadores). GET disponibles por turno. PUT estado (ACTIVO/INACTIVO/BLOQUEADO). GET asignacion/{idEstudio} (EscalamientosFabrica).</div>
+        </div>
+      </li>
+    </ul>
+
+    <h3>Fase 6: Pruebas e Integración (Días 56–65)</h3>
+    <ul class="task-list">
+      <li class="task-item">
+        <div class="task-check"></div>
+        <div class="task-content">
+          <div class="task-title">TASK-23: Mocks para servicios externos (E-01..E-12)</div>
+          <div class="task-desc">Crear mocks locales para: antecedentes, buró, preselecta, FOSYGA, UBICA, OCR, faceliveness, face-match, enroll, Infobip SMS, Infobip WhatsApp, call-center. Necesarios para CI/CD sin dependencias externas.</div>
         </div>
       </li>
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">T-021: POST /api/estudio/{id}/confirmar-token</div>
-          <div class="task-desc">Validar token de activacion (enviado por email)</div>
+          <div class="task-title">TASK-24: Tests de flujo completo BFF Tienda</div>
+          <div class="task-desc">Happy path: T-01 → T-18 (retoma) → T-03 → T-19 → T-04 → T-05 → T-06a → T-06b → T-07 → T-08/T-09/T-10 → T-13. Casos de fallo: antecedentes bloqueados (T-06a), handoff expirado, token inválido, escalamiento a fábrica.</div>
         </div>
       </li>
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">T-022: POST /api/estudio/{id}/escalar</div>
-          <div class="task-desc">Escalar a Fabrica de Soporte (motivos tipificados)</div>
+          <div class="task-title">TASK-25: Documentación OpenAPI + walkthrough</div>
+          <div class="task-desc">Generar openapi.yaml con todos los contratos (Core + BFF Tienda + Utilitarios + Externos). Manual de integración con ejemplos de request/response. Diagrama de secuencia del flujo completo.</div>
         </div>
       </li>
     </ul>
 
     <!-- ==================== DEPENDENCIAS ==================== -->
     <h2 id="dependencias">Dependencias Externas</h2>
-    <p>Las siguiente integraciones deben estar disponibles antes de iniciar las pruebas de интеграacion:</p>
+    <p>Las siguientes integraciones deben estar disponibles antes de iniciar las pruebas de integración:</p>
 
     <table>
       <thead>
         <tr>
-          <th>Servicio</th>
+          <th>Servicio (E-XX)</th>
           <th>Proveedor</th>
           <th>Tipo</th>
           <th>Requerido para</th>
@@ -1343,22 +1039,24 @@
         </tr>
       </thead>
       <tbody>
-        <tr><td>ERP_QUAC</td><td>Interno</td><td>REST</td><td>T-005</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
-        <tr><td>CORE_CREDITO</td><td>Interno</td><td>REST</td><td>T-005, T-017</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
-        <tr><td>LISTAS_RESTRICTIVAS</td><td>Externo</td><td>REST</td><td>T-013</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
-        <tr><td>BURO_CREDITO</td><td>Datcredito/Central</td><td>REST</td><td>T-014</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
-        <tr><td>PRESELECTA</td><td>Interno</td><td>REST</td><td>T-015</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
-        <tr><td>FOSYGA/ADRES</td><td>ADRES</td><td>REST/WS</td><td>T-016</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
-        <tr><td>OTP_PROVIDER</td><td>Infobip</td><td>REST</td><td>T-011</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
-        <tr><td>AWS Rekognition</td><td>AWS</td><td>SDK</td><td>T-019</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
-        <tr><td>UBICA</td><td>TransUnion</td><td>REST</td><td>T-020</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
-        <tr><td>EMAIL_PROVIDER</td><td>Externo</td><td>SMTP/REST</td><td>T-020, T-021</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>E-01 — Antecedentes/Listas</td><td>Externo</td><td>REST</td><td>TASK-16 (T-06a)</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>E-02 — Buró de Crédito</td><td>Datacredito/Central</td><td>REST</td><td>TASK-16 (T-06a)</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>E-03 — Preselecta</td><td>Interno</td><td>REST</td><td>TASK-16 (T-06b)</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>E-04 — FOSYGA/ADRES</td><td>ADRES</td><td>REST/WS</td><td>TASK-16 (T-06b)</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>E-05 — UBICA</td><td>TransUnion</td><td>REST</td><td>TASK-10 (C-14)</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>E-06 — OCR Documento</td><td>Externo</td><td>REST</td><td>TASK-15 (T-03)</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>E-07 — FaceLiveness</td><td>AWS/Externo</td><td>SDK/REST</td><td>TASK-17 (T-08)</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>E-08 — FaceMatch</td><td>AWS Rekognition</td><td>SDK</td><td>TASK-17 (T-08)</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>E-09 — Enroll Biométrico</td><td>Interno</td><td>REST</td><td>TASK-17 (T-08)</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>E-10 — Infobip SMS</td><td>Infobip</td><td>REST</td><td>TASK-13 (U-01), TASK-17 (T-09)</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>E-11 — Infobip WhatsApp</td><td>Infobip</td><td>REST</td><td>TASK-13 (U-01)</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>E-12 — Call Center</td><td>Interno</td><td>REST</td><td>TASK-18 (T-11)</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
       </tbody>
     </table>
 
     <div class="callout callout--warn">
-      <p><strong>Nota critica:</strong> Sin los servicios externos disponibles, los endpoints correspondientes no pueden probarse.
-      Se recomienda crear MOCKS para desarrollo y pruebas locales.</p>
+      <p><strong>Nota crítica:</strong> Sin los servicios externos disponibles, los endpoints correspondientes no pueden probarse en integración real.
+      <strong>TASK-23</strong> cubre la creación de mocks locales para E-01..E-12, permitiendo CI/CD sin dependencias externas.</p>
     </div>
 
     <!-- ==================== ENTREGABLES ==================== -->
@@ -1395,7 +1093,7 @@
       </div>
       <div class="progress-label">
         <span>0%</span>
-        <span> ~45 dias estimados</span>
+        <span>~65 días estimados (13 semanas)</span>
       </div>
     </div>
 
@@ -1410,46 +1108,40 @@
       </thead>
       <tbody>
         <tr>
-          <td><strong>Sem 1-2</strong></td>
-          <td>Arquitectura Core</td>
-          <td>T-001 a T-004</td>
-          <td>Proyecto base, DB, wrapper HTTP</td>
+          <td><strong>Sem 1–2</strong></td>
+          <td>Infraestructura Base (Días 1–10)</td>
+          <td>TASK-01 a TASK-05</td>
+          <td>DDL verificado, 26 SPs base, proyecto API + middleware, cliente HTTP</td>
         </tr>
         <tr>
-          <td><strong>Sem 3-4</strong></td>
-          <td>Bloque 1: Ingreso</td>
-          <td>T-005 a T-008</td>
-          <td>Endpoints /api/estudio/iniciar</td>
+          <td><strong>Sem 3–4</strong></td>
+          <td>Core Services C-01..C-10 (Días 11–22)</td>
+          <td>TASK-06 a TASK-09</td>
+          <td>Máquina de estados, terceros, evaluaciones, biometría, consentimientos</td>
         </tr>
         <tr>
-          <td><strong>Sem 5</strong></td>
-          <td>Bloque 2: Captura Datos</td>
-          <td>T-009 a T-012</td>
-          <td>Endpoints de captura</td>
+          <td><strong>Sem 5–6</strong></td>
+          <td>Core C-11..C-22 + Utilitarios U-01..U-12 (Días 23–32)</td>
+          <td>TASK-10 a TASK-13</td>
+          <td>Fraude, escalamiento, activación, auditoría, catálogos, OTP, storage</td>
         </tr>
         <tr>
-          <td><strong>Sem 6-7</strong></td>
-          <td>Bloque 3: Validaciones</td>
-          <td>T-013 a T-017</td>
-          <td>Endpoints de validacion</td>
+          <td><strong>Sem 7–9</strong></td>
+          <td>BFF Tienda T-01..T-19 (Días 33–44)</td>
+          <td>TASK-14 a TASK-19</td>
+          <td>Flujo completo de tienda: ingreso → retoma → datos → evaluaciones → biometría → activación + mesa de estudios</td>
         </tr>
         <tr>
-          <td><strong>Sem 7-8</strong></td>
-          <td>Bloque 4: Resultado</td>
-          <td>T-018 a T-020</td>
-          <td>Endpoints de activacion</td>
+          <td><strong>Sem 10–11</strong></td>
+          <td>BFF Admin A-01..A-44 (Días 45–55)</td>
+          <td>TASK-20 a TASK-22</td>
+          <td>11 SPs Admin, CRUD maestros de parametrización, gestión de operadores</td>
         </tr>
         <tr>
-          <td><strong>Sem 8-9</strong></td>
-          <td>Pruebas e Integracion</td>
-          <td>Testing, fixes</td>
-          <td>API lista para QA</td>
-        </tr>
-        <tr>
-          <td><strong>Sem 10</strong></td>
-          <td>Entrega</td>
-          <td>Documentacion, walkthrough</td>
-          <td>Entregable final</td>
+          <td><strong>Sem 12–13</strong></td>
+          <td>Pruebas e Integración (Días 56–65)</td>
+          <td>TASK-23 a TASK-25</td>
+          <td>Mocks E-01..E-12, tests de flujo completo, documentación OpenAPI + walkthrough</td>
         </tr>
       </tbody>
     </table>
