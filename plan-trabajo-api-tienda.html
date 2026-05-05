@@ -383,11 +383,11 @@
       <a href="#entregables">Entregables</a>
       <a href="#timeline">Cronograma</a>
        <div class="sidebar-section">BFFs</div>
-       <a href="#core-services" class="indent">Core (C-01 a C-22)</a>
+       <a href="#core-services" class="indent">Core (C-01 a C-27)</a>
        <a href="#bff-tienda" class="indent">Tienda (T-01 a T-19)</a>
        <a href="#bff-web" class="indent">Web (W-01 a W-17)</a>
        <a href="#bff-handoff" class="indent">Handoff (H-01 a H-04)</a>
-       <a href="#bff-admin" class="indent">Admin (A-01 a A-44)</a>
+       <a href="#bff-admin" class="indent">Admin (A-01 a A-49)</a>
        <a href="#procedimientos">Procedimientos</a>
     </nav>
   </aside>
@@ -398,7 +398,7 @@
       Fabricas de Credito QUAC — Construccion de APIs REST — 6 Capas / 9 Bloques funcionales
     </p>
     <div class="meta">
-       <div class="meta-item"><strong>Version:</strong> 1.4</div>
+       <div class="meta-item"><strong>Version:</strong> 1.5</div>
        <div class="meta-item"><strong>Fecha:</strong> 2026-05-04</div>
       <div class="meta-item"><strong>Proyecto:</strong> Fabricas de Credito QUAC</div>
       <div class="meta-item"><strong>Arquitectura:</strong> 6 capas (Core + BFF Tienda + BFF Web + BFF Handoff + BFF Admin + Util/Ext)</div>
@@ -533,7 +533,7 @@
       La <strong>Regla de Oro</strong>: el Backend dicta la máquina de estados — los Frontends son Thin Clients.
     </p>
 
-     <h3 id="core-services">A) Core Services — 22 endpoints (Lógica pura)</h3>
+      <h3 id="core-services">A) Core Services — 27 endpoints (Lógica pura)</h3>
     <table>
       <thead>
         <tr><th>#</th><th>Método</th><th>Path</th><th>Descripción</th><th>Tablas</th></tr>
@@ -613,7 +613,7 @@
       </tbody>
     </table>
 
-    <h3>D) Adaptadores Externos — 12 integraciones</h3>
+    <h3>D) Adaptadores Externos — 16 integraciones</h3>
     <table>
       <thead>
         <tr><th>#</th><th>Path</th><th>Descripción</th><th>Escribe en</th></tr>
@@ -621,9 +621,9 @@
       <tbody>
         <tr><td><span class="badge badge--amber">E-01</span></td><td><code>/ext/antecedentes/consultar</code></td><td>Antecedentes y listas restrictivas</td><td>EvaluacionesRiesgo (ANTECEDENTES)</td></tr>
         <tr><td><span class="badge badge--amber">E-02</span></td><td><code>/ext/buro/consultar</code></td><td>Buró de crédito</td><td>EvaluacionesRiesgo (BURO)</td></tr>
-        <tr><td><span class="badge badge--amber">E-03</span></td><td><code>/ext/preselecta/consultar</code></td><td>Preselecta</td><td>EvaluacionesRiesgo (PRESELECTA)</td></tr>
+        <tr><td><span class="badge badge--amber">E-03</span></td><td><code>/ext/preselecta/consultar</code></td><td>Preselecta (Datacredito, viabilidad)</td><td>EvaluacionesRiesgo (PRESELECTA) — lee Id del log en BERP_FABRICASDatacredito_PreselectaDesicion</td></tr>
         <tr><td><span class="badge badge--amber">E-04</span></td><td><code>/ext/fosyga/consultar</code></td><td>FOSYGA/ADRES (cotizaciones)</td><td>EvaluacionesRiesgo (FOSYGA)</td></tr>
-        <tr><td><span class="badge badge--amber">E-05</span></td><td><code>/ext/ubica/consultar</code></td><td>UBICA contactabilidad</td><td>ValidacionesContactabilidad</td></tr>
+        <tr><td><span class="badge badge--amber">E-05</span></td><td><code>/ext/ubica/consultar</code></td><td>UBICA (CIFIN, contactabilidad)</td><td>EvaluacionesRiesgo (UBICA) — lee Id del log en BERP_FABRICASCifinUbicaLog</td></tr>
         <tr><td><span class="badge badge--amber">E-06</span></td><td><code>/ext/ocr/procesar-documento</code></td><td>OCR documento</td><td>RegistrosBiometria (campos OCR)</td></tr>
         <tr><td><span class="badge badge--amber">E-07</span></td><td><code>/ext/biometria/faceliveness</code></td><td>Prueba de vida facial</td><td>RegistrosBiometria</td></tr>
         <tr><td><span class="badge badge--amber">E-08</span></td><td><code>/ext/biometria/face-match</code></td><td>Comparación selfie vs documento (≥85%)</td><td>RegistrosBiometria</td></tr>
@@ -631,17 +631,21 @@
         <tr><td><span class="badge badge--amber">E-10</span></td><td><code>/ext/infobip/sms</code></td><td>Infobip SMS</td><td>RegistroServiciosExternos</td></tr>
         <tr><td><span class="badge badge--amber">E-11</span></td><td><code>/ext/infobip/whatsapp</code></td><td>Infobip WhatsApp</td><td>RegistroServiciosExternos</td></tr>
         <tr><td><span class="badge badge--amber">E-12</span></td><td><code>/ext/call-center/escalar</code></td><td>Notificar Call Center</td><td>EscalamientosFabrica</td></tr>
+        <tr><td><span class="badge badge--amber">E-13</span></td><td><code>/ext/variables-adviser/consultar</code></td><td>VariablesAdviser (CIFIN, viabilidad)</td><td>EvaluacionesRiesgo (VARIABLES_ADVISER) — lee Id del log en BERP_FABRICASCifinAdviserLog</td></tr>
+        <tr><td><span class="badge badge--amber">E-14</span></td><td><code>/ext/reconocer/consultar</code></td><td>Reconocer (Datacredito, contactabilidad)</td><td>EvaluacionesRiesgo (RECONOCER) — lee Id del log en BERP_CUPOAprobacion_Reconocer_Log</td></tr>
+        <tr><td><span class="badge badge--amber">E-15</span></td><td><code>/ext/viabilidad-combinada/consultar</code></td><td>Viabilidad combinada — invoca E-03 + E-13 y fusiona decisión (AND lógico)</td><td>EvaluacionesRiesgo (VIABILIDAD_COMBINADA) — guarda Ids de log de ambas centrales</td></tr>
+        <tr><td><span class="badge badge--amber">E-16</span></td><td><code>/ext/contactabilidad-combinada/consultar</code></td><td>Contactabilidad combinada — invoca E-05 + E-14 y prioriza mayor score de localización</td><td>EvaluacionesRiesgo (CONTACTABILIDAD_COMBINADA) — guarda Ids de log de ambas centrales</td></tr>
       </tbody>
     </table>
 
     <div class="callout callout--warn" style="margin-top: 16px;">
-      <p style="font-size: 13px;"><strong>Patrón de delegación:</strong> Los BFFs (T-01 a T-19, W-01 a W-17) delegan en Core services (C-01 a C-22). Los Core services pueden invocar utilitários (U-01 a U-12) y adaptadores externos (E-01 a E-12). Esta separación asegura que la lógica de negocio sea inmutable y reusable entre canales.</p>
+      <p style="font-size: 13px;"><strong>Patrón de delegación:</strong> Los BFFs (T-01 a T-19, W-01 a W-17) delegan en Core services (C-01 a C-27). Los Core services pueden invocar utilitários (U-01 a U-12) y adaptadores externos (E-01 a E-16). Esta separación asegura que la lógica de negocio sea inmutable y reusable entre canales.</p>
     </div>
 
     <h2 id="procedimientos">Procedimientos Almacenados — 1 SP mínimo por servicio</h2>
     <p>Cada servicio de la taxonomía tiene al menos un procedimiento almacenado asociado que encapsula su lógica de negocio. Los SPs son la única vía de escritura directa a las tablas de la base de datos — ninguna API escribe directamente sin pasar por un SP.</p>
 
-    <h3>F) Core Services — 22 procedimientos</h3>
+    <h3>F) Core Services — 27 procedimientos</h3>
     <table>
       <thead>
         <tr><th>Servicio</th><th>Procedimiento Almacenado</th><th>Propósito</th></tr>
@@ -669,6 +673,11 @@
         <tr><td><span class="badge badge--violet">C-20</span></td><td><code>sp_ListarTiposDocumento</code></td><td>SELECT de tabla dominio QUAC (solo lectura)</td></tr>
          <tr><td><span class="badge badge--violet">C-21</span></td><td><code>sp_ListarReglasNegocio</code></td><td>SELECT de ConfiguracionReglasNegocio (solo lectura)</td></tr>
          <tr><td><span class="badge badge--violet">C-22</span></td><td><code>sp_RegistrarValidacionAsesor</code></td><td>Registra el resultado de la validación de identidad del asesor (código, biometría, dispositivo, intentos, timestamp). Tabla destino: fab.ValidacionesAsesores</td></tr>
+         <tr><td><span class="badge badge--violet">C-23</span></td><td><code>sp_EvaluarViabilidad</code></td><td>Orquesta la consulta de viabilidad a la central activa según cfg.CentralesRiesgoCfg (Datacredito / CIFIN / COMBINADO) y registra resultado en EvaluacionesRiesgo</td></tr>
+         <tr><td><span class="badge badge--violet">C-24</span></td><td><code>sp_EvaluarContactabilidad</code></td><td>Orquesta la consulta de contactabilidad a la central activa según cfg.CentralesRiesgoCfg (Datacredito / CIFIN / COMBINADO) y registra resultado en EvaluacionesRiesgo</td></tr>
+         <tr><td><span class="badge badge--violet">C-25</span></td><td><code>sp_ObtenerConfigCentralesRiesgo</code></td><td>SELECT de cfg.CentralesRiesgoCfg — retorna la configuración activa de centrales por tipo de servicio (solo lectura)</td></tr>
+         <tr><td><span class="badge badge--violet">C-26</span></td><td><code>sp_RegistrarEvaluacionCombinada</code></td><td>Inserta el resultado fusionado de una consulta combinada en EvaluacionesRiesgo con IdLogCentralExterno e IdLogCentralExternoSecundaria de ambas centrales</td></tr>
+         <tr><td><span class="badge badge--violet">C-27</span></td><td><code>sp_ListarCentralesRiesgo</code></td><td>SELECT de cfg.CentralesRiesgoCfg para el canal Core — retorna mapa completo de servicios activos/inactivos por central</td></tr>
       </tbody>
     </table>
 
@@ -751,7 +760,7 @@
       <p style="font-size: 13px;"><strong>Nota técnica Handoff:</strong> El Session Handoff usa polling HTTP cada 3 segundos + token UUID. Estado almacenado en <code>SolicitudesRecarga</code> con <code>TipoSolicitud = 'HANDOFF_BIOMETRIA'</code>. TTL de 15 minutos.</p>
     </div>
 
-    <h3 id="bff-admin">E) BFF Admin — 41 endpoints (Gestión de Maestros y Operadores)</h3>
+    <h3 id="bff-admin">E) BFF Admin — 46 endpoints (Gestión de Maestros y Operadores)</h3>
     <p>APIs de administración para gestionar la parametrización del sistema y los operadores de fábrica. Permiten CRUD completo sobre los catálogos y tablas de configuración sin necesidad de acceder directamente a la base de datos.</p>
     <table>
       <thead>
@@ -812,11 +821,17 @@
         <tr><td><span class="badge badge--red">A-42</span></td><td>GET</td><td><code>/admin/operadores/disponibles</code></td><td>Listar operadores disponibles por turno</td><td>DisponibilidadOperadores</td></tr>
         <tr><td><span class="badge badge--red">A-43</span></td><td>PUT</td><td><code>/admin/operadores/{id}/estado</code></td><td>Cambiar estado (ACTIVO/INACTIVO/BLOQUEADO)</td><td>OperadoresFabrica</td></tr>
         <tr><td><span class="badge badge--red">A-44</span></td><td>GET</td><td><code>/admin/operadores/asignacion/{idEstudio}</code></td><td>Obtener operador asignado a un estudio</td><td>EscalamientosFabrica</td></tr>
+        <!-- Centrales de Riesgo (5) -->
+        <tr><td><span class="badge badge--red">A-45</span></td><td>GET</td><td><code>/admin/centrales-riesgo</code></td><td>Listar toda la configuración de centrales de riesgo</td><td>cfg.CentralesRiesgoCfg</td></tr>
+        <tr><td><span class="badge badge--red">A-46</span></td><td>GET</td><td><code>/admin/centrales-riesgo/{id}</code></td><td>Obtener configuración de una central por ID</td><td>cfg.CentralesRiesgoCfg</td></tr>
+        <tr><td><span class="badge badge--red">A-47</span></td><td>PUT</td><td><code>/admin/centrales-riesgo/{id}</code></td><td>Actualizar configuración (activar/desactivar central, cambiar canal)</td><td>cfg.CentralesRiesgoCfg</td></tr>
+        <tr><td><span class="badge badge--red">A-48</span></td><td>PUT</td><td><code>/admin/centrales-riesgo/viabilidad/activa</code></td><td>Cambiar central activa para viabilidad (DATACREDITO / CIFIN / COMBINADO)</td><td>cfg.CentralesRiesgoCfg</td></tr>
+        <tr><td><span class="badge badge--red">A-49</span></td><td>PUT</td><td><code>/admin/centrales-riesgo/contactabilidad/activa</code></td><td>Cambiar central activa para contactabilidad (DATACREDITO / CIFIN / COMBINADO)</td><td>cfg.CentralesRiesgoCfg</td></tr>
       </tbody>
     </table>
 
     <div class="callout callout--warn" style="margin-top: 16px;">
-      <p style="font-size: 13px;"><strong>Acceso restringido:</strong> Los endpoints Admin (A-01 a A-44) requieren rol <code>ADMIN_FABRICAS</code> o <code>SUPERADMIN</code>. No expuestos al frontend de tienda o web.</p>
+      <p style="font-size: 13px;"><strong>Acceso restringido:</strong> Los endpoints Admin (A-01 a A-49) requieren rol <code>ADMIN_FABRICAS</code> o <code>SUPERADMIN</code>. No expuestos al frontend de tienda o web.</p>
     </div>
 
     <!-- ==================== DETALLE DE TAREAS ==================== -->
@@ -858,8 +873,8 @@
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">TASK-05: Implementar cliente HTTP para adaptadores externos (E-01..E-12)</div>
-          <div class="task-desc">Wrapper con reintentos, timeouts, circuit breaker. Registrar cada llamada en RegistroServiciosExternos vía sp_RegistrarLlamadaServicioExterno (C-16).</div>
+          <div class="task-title">TASK-05: Implementar cliente HTTP para adaptadores externos (E-01..E-16)</div>
+          <div class="task-desc">Wrapper con reintentos, timeouts, circuit breaker. Registrar cada llamada en RegistroServiciosExternos vía sp_RegistrarLlamadaServicioExterno (C-16). Incluye los 4 nuevos adaptadores de centrales de riesgo: E-13 (VariablesAdviser), E-14 (Reconocer), E-15 (viabilidad combinada), E-16 (contactabilidad combinada).</div>
         </div>
       </li>
     </ul>
@@ -1004,8 +1019,8 @@
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">TASK-23: Mocks para servicios externos (E-01..E-12)</div>
-          <div class="task-desc">Crear mocks locales para: antecedentes, buró, preselecta, FOSYGA, UBICA, OCR, faceliveness, face-match, enroll, Infobip SMS, Infobip WhatsApp, call-center. Necesarios para CI/CD sin dependencias externas.</div>
+          <div class="task-title">TASK-23: Mocks para servicios externos (E-01..E-16)</div>
+          <div class="task-desc">Crear mocks locales para: antecedentes, buró, preselecta, FOSYGA, UBICA, OCR, faceliveness, face-match, enroll, Infobip SMS, Infobip WhatsApp, call-center, VariablesAdviser (CIFIN), Reconocer (Datacredito), viabilidad combinada y contactabilidad combinada. Necesarios para CI/CD sin dependencias externas.</div>
         </div>
       </li>
       <li class="task-item">
@@ -1051,12 +1066,16 @@
         <tr><td>E-10 — Infobip SMS</td><td>Infobip</td><td>REST</td><td>TASK-13 (U-01), TASK-17 (T-09)</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
         <tr><td>E-11 — Infobip WhatsApp</td><td>Infobip</td><td>REST</td><td>TASK-13 (U-01)</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
         <tr><td>E-12 — Call Center</td><td>Interno</td><td>REST</td><td>TASK-18 (T-11)</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>E-13 — VariablesAdviser (CIFIN)</td><td>TransUnion</td><td>REST</td><td>TASK-05, C-23</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>E-14 — Reconocer (Datacredito)</td><td>Datacredito</td><td>REST</td><td>TASK-05, C-24</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>E-15 — Viabilidad Combinada</td><td>Datacredito + TransUnion</td><td>REST</td><td>TASK-05, C-23</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>E-16 — Contactabilidad Combinada</td><td>Datacredito + TransUnion</td><td>REST</td><td>TASK-05, C-24</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
       </tbody>
     </table>
 
     <div class="callout callout--warn">
       <p><strong>Nota crítica:</strong> Sin los servicios externos disponibles, los endpoints correspondientes no pueden probarse en integración real.
-      <strong>TASK-23</strong> cubre la creación de mocks locales para E-01..E-12, permitiendo CI/CD sin dependencias externas.</p>
+      <strong>TASK-23</strong> cubre la creación de mocks locales para E-01..E-16, permitiendo CI/CD sin dependencias externas.</p>
     </div>
 
     <!-- ==================== ENTREGABLES ==================== -->
@@ -1133,15 +1152,15 @@
         </tr>
         <tr>
           <td><strong>Sem 10–11</strong></td>
-          <td>BFF Admin A-01..A-44 (Días 45–55)</td>
+          <td>BFF Admin A-01..A-49 (Días 45–55)</td>
           <td>TASK-20 a TASK-22</td>
-          <td>11 SPs Admin, CRUD maestros de parametrización, gestión de operadores</td>
+          <td>11 SPs Admin + 1 SP CentralesRiesgo, CRUD maestros de parametrización, gestión de operadores, CRUD cfg.CentralesRiesgoCfg</td>
         </tr>
         <tr>
           <td><strong>Sem 12–13</strong></td>
           <td>Pruebas e Integración (Días 56–65)</td>
           <td>TASK-23 a TASK-25</td>
-          <td>Mocks E-01..E-12, tests de flujo completo, documentación OpenAPI + walkthrough</td>
+          <td>Mocks E-01..E-16, tests de flujo completo, documentación OpenAPI + walkthrough</td>
         </tr>
       </tbody>
     </table>

@@ -3065,3 +3065,193 @@ PRINT '  MIGRACIÓN FABRICASV2.5 COMPLETADA EXITOSAMENTE';
 PRINT '================================================================';
 PRINT '  Fecha: ' + CONVERT(VARCHAR, GETDATE(), 120);
 PRINT '================================================================';
+
+
+-- ==============================================================================
+-- ══════════════════════════════════════════════════════════════════════════════
+-- PARCHE V2.8 — GESTIÓN DE CENTRALES DE RIESGO
+-- Fecha: 2026-05-04
+-- Autor: Arquitectura de Datos — QUAC FinTech
+--
+-- CONTEXTO:
+--   Existen dos centrales de riesgo con servicios equivalentes:
+--     · DATACREDITO: Preselecta (viabilidad) + Reconocer (contactabilidad)
+--     · CIFIN:       VariablesAdviser (viabilidad) + UBICA (contactabilidad)
+--
+--   Los logs de cada central YA EXISTEN en QUAC.dbo.BERP_* (ver TABLAS_EXISTENTES.sql).
+--   El API externo de cada central consulta, escribe y retorna el Id del registro.
+--   Fábricas NO escribe en esas tablas — solo recibe el Id y lo referencia.
+--
+-- CAMBIOS:
+--   CR-01: Nueva tabla cfg.CentralesRiesgoCfg — configura qué central se usa
+--          por tipo de servicio (VIABILIDAD, CONTACTABILIDAD) y por canal.
+--   CR-02: ALTER fab.EvaluacionesRiesgo — añade columnas para referenciar qué
+--          central respondió y el Id del log en la tabla BERP_* correspondiente.
+--   CR-03: Semillas iniciales en cfg.CentralesRiesgoCfg.
+--   CR-04: Ampliación del CHECK CK_EvaluacionesRiesgo_Tipo para incluir
+--          VIABILIDAD_COMBINADA y CONTACTABILIDAD_COMBINADA (respuesta unificada).
+-- ==============================================================================
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- CR-01: cfg.CentralesRiesgoCfg
+-- Tabla de configuración: define qué central se usa por tipo de servicio.
+-- Un administrador puede cambiar la combinación sin tocar código.
+-- ─────────────────────────────────────────────────────────────────────────────
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'cfg.CentralesRiesgoCfg') AND type = 'U')
+BEGIN
+    CREATE TABLE [cfg].[CentralesRiesgoCfg] (
+        IdConfig            INT IDENTITY(1,1)   NOT NULL,
+
+        -- Qué tipo de evaluación configura esta fila
+        TipoServicio        VARCHAR(30)         NOT NULL,   -- VIABILIDAD | CONTACTABILIDAD
+
+        -- Qué central se usa (puede ser una sola o COMBINADO)
+        CentralActiva       VARCHAR(30)         NOT NULL,   -- DATACREDITO | CIFIN | COMBINADO
+
+        -- Nombre del servicio concreto dentro de la central
+        NombreServicio      VARCHAR(50)         NOT NULL,   -- PRESELECTA | VARIABLES_ADVISER | RECONOCER | UBICA | COMBINADO_VIABILIDAD | COMBINADO_CONTACTABILIDAD
+
+        -- Tabla de log externa donde quedan los registros (referencia documental)
+        TablaLogExterna     VARCHAR(100)        NOT NULL,   -- ej: QUAC.dbo.BERP_FABRICASDatacredito_PreselectaDesicion
+
+        -- Canal al que aplica esta configuración (NULL = aplica a todos)
+        Canal               VARCHAR(20)         NULL,       -- TIENDA | WEB | NULL (todos)
+
+        -- Control
+        Activa              BIT                 NOT NULL DEFAULT 1,
+        FechaVigencia       DATE                NOT NULL DEFAULT CAST(GETDATE() AS DATE),
+        Observaciones       NVARCHAR(500)       NULL,
+        FechaCreacion       DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
+        FechaActualizacion  DATETIME2(3)        NOT NULL DEFAULT GETDATE(),
+
+        CONSTRAINT PK_CentralesRiesgoCfg PRIMARY KEY (IdConfig),
+        CONSTRAINT CK_CentralesRiesgoCfg_TipoServicio CHECK (
+            TipoServicio IN ('VIABILIDAD','CONTACTABILIDAD')
+        ),
+        CONSTRAINT CK_CentralesRiesgoCfg_Central CHECK (
+            CentralActiva IN ('DATACREDITO','CIFIN','COMBINADO')
+        ),
+        CONSTRAINT CK_CentralesRiesgoCfg_Servicio CHECK (
+            NombreServicio IN (
+                'PRESELECTA',           -- Datacredito — viabilidad
+                'VARIABLES_ADVISER',    -- CIFIN — viabilidad
+                'RECONOCER',            -- Datacredito — contactabilidad
+                'UBICA',                -- CIFIN — contactabilidad
+                'COMBINADO_VIABILIDAD', -- Ambas centrales — respuesta unificada de decisión
+                'COMBINADO_CONTACTABILIDAD' -- Ambas centrales — respuesta unificada de contactabilidad
+            )
+        ),
+        CONSTRAINT CK_CentralesRiesgoCfg_Canal CHECK (
+            Canal IS NULL OR Canal IN ('TIENDA','WEB','HANDOFF')
+        )
+    );
+
+    CREATE NONCLUSTERED INDEX IX_CentralesRiesgoCfg_Tipo
+        ON [cfg].[CentralesRiesgoCfg] (TipoServicio, Activa);
+
+    PRINT '✓ Tabla CentralesRiesgoCfg creada';
+END
+
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- CR-02: ALTER fab.EvaluacionesRiesgo
+-- Añade referencia a qué central respondió y el Id del log externo.
+-- Permite cruzar el registro de Fábricas con el log detallado en BERP_*.
+-- ─────────────────────────────────────────────────────────────────────────────
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'fab.EvaluacionesRiesgo') AND name = 'CentralConsultada')
+BEGIN
+    ALTER TABLE [fab].[EvaluacionesRiesgo]
+        ADD CentralConsultada   VARCHAR(30) NULL;   -- DATACREDITO | CIFIN | COMBINADO
+    PRINT '✓ fab.EvaluacionesRiesgo +CentralConsultada';
+END
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'fab.EvaluacionesRiesgo') AND name = 'IdLogCentralExterno')
+BEGIN
+    ALTER TABLE [fab].[EvaluacionesRiesgo]
+        ADD IdLogCentralExterno BIGINT NULL;         -- Id del registro en la tabla BERP_* correspondiente
+    PRINT '✓ fab.EvaluacionesRiesgo +IdLogCentralExterno';
+END
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'fab.EvaluacionesRiesgo') AND name = 'IdLogCentralExternoSecundaria')
+BEGIN
+    ALTER TABLE [fab].[EvaluacionesRiesgo]
+        ADD IdLogCentralExternoSecundaria BIGINT NULL; -- Id del log de la segunda central (solo cuando CentralConsultada = COMBINADO)
+    PRINT '✓ fab.EvaluacionesRiesgo +IdLogCentralExternoSecundaria';
+END
+
+-- CHECK para las nuevas columnas
+IF NOT EXISTS (
+    SELECT * FROM sys.check_constraints
+    WHERE parent_object_id = OBJECT_ID(N'fab.EvaluacionesRiesgo')
+    AND name = 'CK_EvaluacionesRiesgo_Central'
+)
+BEGIN
+    ALTER TABLE [fab].[EvaluacionesRiesgo]
+        ADD CONSTRAINT CK_EvaluacionesRiesgo_Central CHECK (
+            CentralConsultada IS NULL OR
+            CentralConsultada IN ('DATACREDITO','CIFIN','COMBINADO')
+        );
+    PRINT '✓ fab.EvaluacionesRiesgo CHECK CentralConsultada';
+END
+
+-- Ampliar CHECK TipoEvaluacion para incluir los tipos combinados (CR-04)
+-- Primero eliminar el check existente y recrearlo
+IF EXISTS (
+    SELECT * FROM sys.check_constraints
+    WHERE parent_object_id = OBJECT_ID(N'fab.EvaluacionesRiesgo')
+    AND name = 'CK_EvaluacionesRiesgo_Tipo'
+)
+BEGIN
+    ALTER TABLE [fab].[EvaluacionesRiesgo] DROP CONSTRAINT CK_EvaluacionesRiesgo_Tipo;
+    ALTER TABLE [fab].[EvaluacionesRiesgo]
+        ADD CONSTRAINT CK_EvaluacionesRiesgo_Tipo CHECK (
+            TipoEvaluacion IN (
+                'LISTAS',
+                'BURO',
+                'PRESELECTA',               -- Datacredito — viabilidad
+                'VARIABLES_ADVISER',        -- CIFIN — viabilidad
+                'FOSYGA',
+                'ANTECEDENTES',
+                'RECONOCER',                -- Datacredito — contactabilidad
+                'UBICA',                    -- CIFIN — contactabilidad
+                'VIABILIDAD_COMBINADA',     -- Ambas centrales — decisión unificada
+                'CONTACTABILIDAD_COMBINADA' -- Ambas centrales — contactabilidad unificada
+            )
+        );
+    PRINT '✓ fab.EvaluacionesRiesgo CHECK TipoEvaluacion ampliado (CR-04)';
+END
+
+-- Índice para consultas por central
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'fab.EvaluacionesRiesgo') AND name = 'IX_EvaluacionesRiesgo_Central')
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_EvaluacionesRiesgo_Central
+        ON [fab].[EvaluacionesRiesgo] (CentralConsultada, TipoEvaluacion)
+        WHERE CentralConsultada IS NOT NULL;
+    PRINT '✓ fab.EvaluacionesRiesgo IX_EvaluacionesRiesgo_Central creado';
+END
+
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- CR-03: Seeds cfg.CentralesRiesgoCfg
+-- Configuración inicial: viabilidad por DATACREDITO, contactabilidad por CIFIN.
+-- Un admin puede cambiar estas filas sin deploy usando el CRUD A-XX.
+-- ─────────────────────────────────────────────────────────────────────────────
+IF NOT EXISTS (SELECT 1 FROM [cfg].[CentralesRiesgoCfg] WHERE TipoServicio = 'VIABILIDAD' AND CentralActiva = 'DATACREDITO')
+BEGIN
+    INSERT INTO [cfg].[CentralesRiesgoCfg]
+        (TipoServicio, CentralActiva, NombreServicio, TablaLogExterna, Canal, Activa, Observaciones)
+    VALUES
+        -- Configuración combinada: Datacredito para viabilidad, CIFIN para contactabilidad
+        ('VIABILIDAD',       'DATACREDITO', 'PRESELECTA',      'QUAC.dbo.BERP_FABRICASDatacredito_PreselectaDesicion', NULL, 1, 'Preselecta Datacredito — viabilidad por defecto'),
+        ('VIABILIDAD',       'CIFIN',       'VARIABLES_ADVISER','QUAC.dbo.BERP_FABRICASCifinAdviserLog',               NULL, 0, 'VariablesAdviser CIFIN — alternativa a Preselecta'),
+        ('CONTACTABILIDAD',  'CIFIN',       'UBICA',            'QUAC.dbo.BERP_FABRICASCifinUbicaLog',                 NULL, 1, 'UBICA CIFIN — contactabilidad por defecto'),
+        ('CONTACTABILIDAD',  'DATACREDITO', 'RECONOCER',        'QUAC.dbo.BERP_CUPOAprobacion_Reconocer_Log',          NULL, 0, 'Reconocer Datacredito — alternativa a UBICA');
+    PRINT '✓ Seeds CentralesRiesgoCfg insertados (4 filas)';
+END
+
+
+PRINT '================================================================';
+PRINT '  PARCHE V2.8 — CENTRALES DE RIESGO COMPLETADO';
+PRINT '================================================================';
+PRINT '  Fecha: ' + CONVERT(VARCHAR, GETDATE(), 120);
+PRINT '================================================================';

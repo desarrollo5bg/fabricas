@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Arquitectura de Datos v2.8 — Fábricas de Crédito QUAC</title>
+    <title>Arquitectura de Datos v2.9 — Fábricas de Crédito QUAC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -491,7 +491,7 @@
   <body>
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
-      <div class="sidebar-title">FABRICAS DE CRÉDITO v2.8</div>
+      <div class="sidebar-title">FABRICAS DE CRÉDITO v2.9</div>
       <nav>
         <a href="#overview" class="active">Visión General</a>
         <a href="#resumen-ejecutivo" class="indent">Resumen Ejecutivo</a>
@@ -506,6 +506,7 @@
         <a href="#gaps-v23" class="indent">Gaps Resueltos v2.3</a>
         <a href="#gaps-v26" class="indent">Gaps Resueltos v2.6</a>
         <a href="#gaps-v27" class="indent">Gaps Resueltos v2.7</a>
+        <a href="#gaps-v29" class="indent">Gaps Resueltos v2.9</a>
         <a href="#mapeo-tablas" class="indent">Mapeo de Tablas</a>
         <a href="#estrategia-integracion" class="indent"
           >Estrategia de Integración</a
@@ -569,12 +570,12 @@
     <main class="main">
       <!-- Header -->
       <section id="overview">
-        <h1>Arquitectura de Datos v2.8 — Fábricas de Crédito QUAC</h1>
+        <h1>Arquitectura de Datos v2.9 — Fábricas de Crédito QUAC</h1>
         <p class="meta">
           <span class="meta-item"
             ><strong>Motor:</strong> SQL Server 2019+</span
           >
-<span class="meta-item"><strong>Versión:</strong> 2.8</span>
+<span class="meta-item"><strong>Versión:</strong> 2.9</span>
            <span class="meta-item"
              ><strong>Fecha:</strong> 04 de mayo de 2026</span
             >
@@ -6432,6 +6433,132 @@ T+0:07  App recibe la respuesta → Andrés ve la pantalla de "Datos básicos" s
       </section>
 
       <!-- Historial de Versiones -->
+      <!-- Gaps Resueltos v2.9 -->
+      <section id="gaps-v29">
+        <h2>Gaps Identificados y Resueltos (v2.9) <span class="badge badge--accent">Gestión de Centrales de Riesgo</span></h2>
+        <p>
+          Se incorporó el modelo de configuración y trazabilidad para las dos centrales de riesgo:
+          <strong>Datacredito</strong> (Preselecta + Reconocer) y <strong>CIFIN/TransUnion</strong>
+          (VariablesAdviser + UBICA). Cada central ofrece un servicio de <em>viabilidad</em> y uno de
+          <em>contactabilidad</em>. Se puede configurar qué central se usa para cada servicio, o activar
+          el modo combinado que consulta ambas y entrega una respuesta unificada.
+        </p>
+
+        <div class="callout callout--info">
+          <p><strong>Principio clave:</strong> Los logs detallados de cada central <strong>ya existen</strong>
+          en <code>QUAC.dbo.BERP_*</code> y son escritos por el API externo de cada central.
+          Fábricas <strong>NO escribe</strong> en esas tablas — solo recibe el <code>Id</code>
+          del registro generado y lo guarda en <code>fab.EvaluacionesRiesgo</code> para trazabilidad cruzada.</p>
+        </div>
+
+        <div class="callout callout--success">
+          <p><strong>Estado:</strong> Los gaps CR-01 a CR-04 han sido resueltos en v2.9. El DDL incluye
+          la nueva tabla <code>cfg.CentralesRiesgoCfg</code>, 3 columnas nuevas en
+          <code>fab.EvaluacionesRiesgo</code> y seeds de configuración inicial.</p>
+        </div>
+
+        <h3>Mapa de Servicios por Central</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Central</th>
+              <th>Tipo de Servicio</th>
+              <th>Nombre del Servicio</th>
+              <th>Tabla de Log (existente)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge--violet">Datacredito</span></td>
+              <td>Viabilidad</td>
+              <td><code>PRESELECTA</code></td>
+              <td><code>QUAC.dbo.BERP_FABRICASDatacredito_PreselectaDesicion</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--violet">Datacredito</span></td>
+              <td>Contactabilidad</td>
+              <td><code>RECONOCER</code></td>
+              <td><code>QUAC.dbo.BERP_CUPOAprobacion_Reconocer_Log</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--cyan">CIFIN (TransUnion)</span></td>
+              <td>Viabilidad</td>
+              <td><code>VARIABLES_ADVISER</code></td>
+              <td><code>QUAC.dbo.BERP_FABRICASCifinAdviserLog</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--cyan">CIFIN (TransUnion)</span></td>
+              <td>Contactabilidad</td>
+              <td><code>UBICA</code></td>
+              <td><code>QUAC.dbo.BERP_FABRICASCifinUbicaLog</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">Combinado</span></td>
+              <td>Viabilidad</td>
+              <td><code>COMBINADO_VIABILIDAD</code></td>
+              <td>Consulta ambas — respuesta unificada de decisión</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">Combinado</span></td>
+              <td>Contactabilidad</td>
+              <td><code>COMBINADO_CONTACTABILIDAD</code></td>
+              <td>Consulta ambas — respuesta unificada de contactabilidad</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Gaps de Centrales de Riesgo (CR)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Gap Identificado</th>
+              <th>Tabla Afectada</th>
+              <th>Resolución</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge--green">CR-01 ✓</span></td>
+              <td>Sin tabla de configuración para elegir qué central se usa por tipo de servicio</td>
+              <td>—</td>
+              <td>Creada <code>cfg.CentralesRiesgoCfg</code>: configura VIABILIDAD y CONTACTABILIDAD por central (DATACREDITO / CIFIN / COMBINADO), con canal opcional y control de vigencia. Un admin puede cambiar la combinación sin deploy.</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">CR-02 ✓</span></td>
+              <td>Sin trazabilidad cruzada entre el registro de Fábricas y el log detallado de la central</td>
+              <td><code>fab.EvaluacionesRiesgo</code></td>
+              <td>Añadidas 3 columnas: <code>CentralConsultada</code> (DATACREDITO/CIFIN/COMBINADO), <code>IdLogCentralExterno</code> (Id en la tabla BERP_* principal), <code>IdLogCentralExternoSecundaria</code> (Id en la segunda central, solo en modo COMBINADO).</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">CR-03 ✓</span></td>
+              <td>Sin semillas de configuración inicial de centrales</td>
+              <td><code>cfg.CentralesRiesgoCfg</code></td>
+              <td>4 seeds insertados: Preselecta (Datacredito, viabilidad, activa), VariablesAdviser (CIFIN, viabilidad, inactiva), UBICA (CIFIN, contactabilidad, activa), Reconocer (Datacredito, contactabilidad, inactiva). Configuración por defecto: viabilidad → Datacredito, contactabilidad → CIFIN.</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--green">CR-04 ✓</span></td>
+              <td>El CHECK de <code>TipoEvaluacion</code> no incluía los nuevos servicios ni los tipos combinados</td>
+              <td><code>fab.EvaluacionesRiesgo</code></td>
+              <td>CHECK ampliado con: <code>VARIABLES_ADVISER</code>, <code>RECONOCER</code>, <code>VIABILIDAD_COMBINADA</code>, <code>CONTACTABILIDAD_COMBINADA</code>. Total: 10 valores válidos.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Diseño del Modo Combinado</h3>
+        <p>Cuando <code>CentralActiva = 'COMBINADO'</code>, el servicio Core invoca ambas centrales y entrega
+        una sola respuesta de decisión o contactabilidad. La lógica de fusión es:</p>
+        <ul>
+          <li><strong>Viabilidad combinada</strong>: se aprueba solo si <em>ambas</em> centrales aprueban
+          (lógica AND). Si una rechaza, se rechaza. Si una da error técnico, se usa la que respondió.</li>
+          <li><strong>Contactabilidad combinada</strong>: se prioriza la respuesta con mayor score de
+          localización. Si una da error técnico, se usa la que respondió.</li>
+          <li>En ambos casos, <code>IdLogCentralExterno</code> guarda el Id de la central primaria
+          (según <code>cfg.CentralesRiesgoCfg</code>) y <code>IdLogCentralExternoSecundaria</code>
+          guarda el Id de la segunda central.</li>
+        </ul>
+      </section>
+
       <section id="historial-versiones">
         <h2>Historial de Versiones</h2>
         <p>Registro de cambios significativos por versión del documento de arquitectura.</p>
@@ -6445,6 +6572,11 @@ T+0:07  App recibe la respuesta → Andrés ve la pantalla de "Datos básicos" s
             </tr>
           </thead>
           <tbody>
+            <tr>
+              <td><span class="badge badge--accent">v2.9</span></td>
+              <td>2026-05-04</td>
+              <td><strong>Gestión de Centrales de Riesgo.</strong> CR-01: nueva tabla <code>cfg.CentralesRiesgoCfg</code> para configurar qué central (Datacredito / CIFIN / Combinado) se usa por tipo de servicio (viabilidad, contactabilidad). CR-02: <code>fab.EvaluacionesRiesgo</code> +<code>CentralConsultada</code> +<code>IdLogCentralExterno</code> +<code>IdLogCentralExternoSecundaria</code> para trazabilidad cruzada con logs BERP_*. CR-03: 4 seeds de configuración inicial. CR-04: CHECK TipoEvaluacion ampliado a 10 valores (VARIABLES_ADVISER, RECONOCER, VIABILIDAD_COMBINADA, CONTACTABILIDAD_COMBINADA). Nuevos endpoints: C-23..C-27 (Core centrales), A-45..A-49 (Admin CRUD CentralesRiesgoCfg), E-13..E-16 (adaptadores por central).</td>
+            </tr>
             <tr>
               <td><span class="badge badge--accent">v2.7</span></td>
               <td>2026-04-22</td>

@@ -71,13 +71,13 @@
     <div class="meta">
       <div class="meta-item"><strong>Versión</strong> v2.9</div>
       <div class="meta-item"><strong>Fecha</strong> 2026-05-04</div>
-      <div class="meta-item"><strong>Fuente</strong> FABRICASv2.sql v2.8</div>
-      <div class="meta-item"><strong>Servicios</strong> 10 externos + 44 Admin + 1 Validación Asesor</div>
+      <div class="meta-item"><strong>Fuente</strong> FABRICASv2.sql v2.9</div>
+      <div class="meta-item"><strong>Servicios</strong> 14 externos + 49 Admin + Centrales de Riesgo</div>
     </div>
 
     <h2 id="servicios">Catálogo de Servicios Externos</h2>
     <p>El flujo de 13 pasos invoca 10 servicios externos. Cada invocación queda registrada en <code>RegistroServiciosExternos</code>.</p>
-    <p>Además del flujo transaccional, el sistema incluye un BFF Admin con <strong>44 endpoints (A-01 a A-44)</strong> para gestión de maestros y parametrización, y <strong>37 procedimientos almacenados</strong> que encapsulan toda la lógica de escritura a la base de datos. Ref: <code>Arquitectura/06-servicios-backend.html</code> para detalle de SPs.</p>
+    <p>Además del flujo transaccional, el sistema incluye un BFF Admin con <strong>49 endpoints (A-01 a A-49)</strong> para gestión de maestros y parametrización, y <strong>42 procedimientos almacenados</strong> que encapsulan toda la lógica de escritura a la base de datos. Ref: <code>Arquitectura/06-servicios-backend.html</code> para detalle de SPs.</p>
 
     <table>
       <thead>
@@ -273,7 +273,7 @@ CREATE INDEX IX_RegServ_Estudio
 CREATE INDEX IX_RegServ_Servicio_Resultado
     ON RegistroServiciosExternos(NombreServicio, ResultadoInterpretado, FechaInvocacion DESC);</code></pre>
 
-    <h2 id="bff-admin">E) BFF Admin — 44 endpoints (Gestión de Maestros)</h2>
+    <h2 id="bff-admin">E) BFF Admin — 49 endpoints (Gestión de Maestros)</h2>
     <p>APIs de administración para gestionar la parametrización del sistema y los operadores de fábrica. Acceso restringido a roles <code>ADMIN_FABRICAS</code> o <code>SUPERADMIN</code>.</p>
     <table>
       <thead>
@@ -324,13 +324,18 @@ CREATE INDEX IX_RegServ_Servicio_Resultado
         <tr><td><span class="badge badge--red">A-42</span></td><td>GET</td><td><code>/admin/operadores/disponibles</code></td><td>Disponibles por turno</td><td>DisponibilidadOperadores</td></tr>
         <tr><td><span class="badge badge--red">A-43</span></td><td>PUT</td><td><code>/admin/operadores/{id}/estado</code></td><td>Cambiar estado</td><td>OperadoresFabrica</td></tr>
         <tr><td><span class="badge badge--red">A-44</span></td><td>GET</td><td><code>/admin/operadores/asignacion/{idEstudio}</code></td><td>Operador asignado</td><td>EscalamientosFabrica</td></tr>
+        <tr><td><span class="badge badge--red">A-45</span></td><td>GET</td><td><code>/admin/centrales-riesgo</code></td><td>Listar configuración de centrales</td><td>cfg.CentralesRiesgoCfg</td></tr>
+        <tr><td><span class="badge badge--red">A-46</span></td><td>GET</td><td><code>/admin/centrales-riesgo/{id}</code></td><td>Obtener central por ID</td><td>cfg.CentralesRiesgoCfg</td></tr>
+        <tr><td><span class="badge badge--red">A-47</span></td><td>PUT</td><td><code>/admin/centrales-riesgo/{id}</code></td><td>Actualizar central (activar/desactivar, canal)</td><td>cfg.CentralesRiesgoCfg</td></tr>
+        <tr><td><span class="badge badge--red">A-48</span></td><td>PUT</td><td><code>/admin/centrales-riesgo/viabilidad/activa</code></td><td>Cambiar central activa de viabilidad</td><td>cfg.CentralesRiesgoCfg</td></tr>
+        <tr><td><span class="badge badge--red">A-49</span></td><td>PUT</td><td><code>/admin/centrales-riesgo/contactabilidad/activa</code></td><td>Cambiar central activa de contactabilidad</td><td>cfg.CentralesRiesgoCfg</td></tr>
       </tbody>
     </table>
 
-     <h2 id="procedimientos">F) Procedimientos Almacenados — 37 SPs</h2>
+     <h2 id="procedimientos">F) Procedimientos Almacenados — 42 SPs</h2>
     <p>Cada servicio tiene al menos un procedimiento almacenado asociado. Los SPs son la <strong>única vía de escritura directa</strong> a las tablas transaccionales y de auditoría — ninguna API escribe directamente sin pasar por un SP.</p>
 
-     <h3>Core Services — 22 SPs</h3>
+     <h3>Core Services — 27 SPs</h3>
     <table>
       <thead>
         <tr><th>Servicio</th><th>SP</th><th>Propósito</th></tr>
@@ -358,10 +363,15 @@ CREATE INDEX IX_RegServ_Servicio_Resultado
         <tr><td>C-20</td><td><code>sp_ListarTiposDocumento</code></td><td>SELECT tabla dominio QUAC</td></tr>
          <tr><td>C-21</td><td><code>sp_ListarReglasNegocio</code></td><td>SELECT ConfiguracionReglasNegocio</td></tr>
          <tr><td>C-22</td><td><code>sp_RegistrarValidacionAsesor</code></td><td>Registra resultado de validación de identidad del asesor (código, biometría, dispositivo, intentos, timestamp). Tabla destino: <code>fab.ValidacionesAsesores</code></td></tr>
+         <tr><td>C-23</td><td><code>sp_EvaluarViabilidad</code></td><td>Orquesta consulta de viabilidad a central activa según cfg.CentralesRiesgoCfg y registra en EvaluacionesRiesgo</td></tr>
+         <tr><td>C-24</td><td><code>sp_EvaluarContactabilidad</code></td><td>Orquesta consulta de contactabilidad a central activa según cfg.CentralesRiesgoCfg y registra en EvaluacionesRiesgo</td></tr>
+         <tr><td>C-25</td><td><code>sp_ObtenerConfigCentralesRiesgo</code></td><td>SELECT cfg.CentralesRiesgoCfg — retorna configuración activa por tipo de servicio</td></tr>
+         <tr><td>C-26</td><td><code>sp_RegistrarEvaluacionCombinada</code></td><td>Inserta resultado fusionado de consulta combinada con IdLogCentralExterno e IdLogCentralExternoSecundaria</td></tr>
+         <tr><td>C-27</td><td><code>sp_ListarCentralesRiesgo</code></td><td>SELECT completo de cfg.CentralesRiesgoCfg — mapa de servicios activos/inactivos por central</td></tr>
       </tbody>
     </table>
 
-    <h3>BFF Admin — 11 SPs</h3>
+    <h3>BFF Admin — 12 SPs</h3>
     <table>
       <thead>
         <tr><th>Maestro</th><th>SP</th><th>Propósito</th></tr>
@@ -378,6 +388,7 @@ CREATE INDEX IX_RegServ_Servicio_Resultado
         <tr><td>Reglas de Fraude</td><td><code>sp_CRUD_ReglasFraude</code></td><td>Activar/desactivar reglas</td></tr>
         <tr><td>Operadores</td><td><code>sp_CRUD_Operadores</code></td><td>Gestión de OperadoresFabrica + DisponibilidadOperadores</td></tr>
         <tr><td>Operadores Disponibles</td><td><code>sp_ListarOperadoresDisponibles</code></td><td>SELECT con filtros de disponibilidad y turno</td></tr>
+        <tr><td>Centrales de Riesgo</td><td><code>sp_CRUD_CentralesRiesgo</code></td><td>Activar/desactivar centrales, cambiar central activa por tipo de servicio en cfg.CentralesRiesgoCfg</td></tr>
       </tbody>
     </table>
 

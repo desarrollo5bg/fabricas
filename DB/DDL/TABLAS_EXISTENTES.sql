@@ -394,3 +394,84 @@ CREATE TABLE QUAC.dbo.KCRM_CadenaCreditos (
 	CupoAnterior money NULL,
 	CONSTRAINT PK_KCRM_CadenaCreditos_1 PRIMARY KEY (Nit,BERP_NitPromotor)
 );
+
+
+-- ==============================================================================
+-- TABLAS DE LOGS DE CENTRALES DE RIESGO (YA EXISTEN — NO MODIFICAR)
+-- Estas 4 tablas son los logs de invocación a las centrales de riesgo externas.
+-- Cada tabla registra la petición enviada y la respuesta recibida, con fecha y
+-- bandera de éxito. Las consultas y escrituras son realizadas por el API externo
+-- de cada central — Fábricas NO escribe en ellas directamente.
+-- Rol de Fábricas: leer el Id del registro generado por el API externo y
+-- guardarlo en fab.EvaluacionesRiesgo para trazabilidad cruzada.
+-- ==============================================================================
+
+-- QUAC.dbo.BERP_FABRICASDatacredito_PreselectaDesicion
+-- Central: Datacredito | Servicio: Preselecta (VIABILIDAD)
+-- Guarda cada consulta de viabilidad/preselecta realizada a Datacredito.
+-- Columna Cedula permite buscar el historial de consultas por cliente.
+-- FueExitoso = 1 indica que el servicio respondió sin error técnico
+-- (independiente del resultado de negocio incluido en Respuesta JSON).
+CREATE TABLE QUAC.dbo.BERP_FABRICASDatacredito_PreselectaDesicion (
+    Id          int IDENTITY(1,1) NOT NULL,
+    Cedula      bigint NOT NULL,
+    Respuesta   varchar(3000) COLLATE Modern_Spanish_CI_AS NOT NULL,
+    FechaRegistro date NOT NULL,
+    Peticion    varchar(1000) COLLATE Modern_Spanish_CI_AS NULL,
+    FueExitoso  bit NULL,
+    CONSTRAINT PK__BERP_FABRICASDatacredito_PreselectaDesicion PRIMARY KEY (Id)
+);
+CREATE NONCLUSTERED INDEX IX_BERP_FABRICASDatacredito_PreselectaDesicion_Cedula
+    ON QUAC.dbo.BERP_FABRICASDatacredito_PreselectaDesicion (Cedula ASC);
+
+
+-- QUAC.dbo.BERP_CUPOAprobacion_Reconocer_Log
+-- Central: Datacredito | Servicio: Reconocer (CONTACTABILIDAD)
+-- Guarda cada consulta de contactabilidad realizada a Reconocer (Datacredito).
+-- FechaRegistro es DATETIME (precisión completa) a diferencia de Preselecta (date).
+CREATE TABLE QUAC.dbo.BERP_CUPOAprobacion_Reconocer_Log (
+    Id          int IDENTITY(1,1) NOT NULL,
+    Cedula      bigint NOT NULL,
+    Respuesta   varchar(MAX) COLLATE Modern_Spanish_CI_AS NOT NULL,
+    FechaRegistro datetime NOT NULL,
+    Peticion    varchar(1000) COLLATE Modern_Spanish_CI_AS NULL,
+    FueExitoso  bit NOT NULL,
+    CONSTRAINT PK__BERP_CUPOAprobacion_Reconocer_Log PRIMARY KEY (Id)
+);
+CREATE NONCLUSTERED INDEX IX_BERP_CUPOAprobacion_Reconocer_Log_Cedula
+    ON QUAC.dbo.BERP_CUPOAprobacion_Reconocer_Log (Cedula ASC);
+
+
+-- QUAC.dbo.BERP_FABRICASCifinUbicaLog
+-- Central: CIFIN (TransUnion) | Servicio: UBICA (CONTACTABILIDAD)
+-- Guarda cada consulta de contactabilidad realizada a UBICA (CIFIN).
+-- Equivalente funcional a BERP_CUPOAprobacion_Reconocer_Log pero para CIFIN.
+-- FechaRegistro es DATE (sin hora), igual que en Preselecta.
+CREATE TABLE QUAC.dbo.BERP_FABRICASCifinUbicaLog (
+    Id          int IDENTITY(1,1) NOT NULL,
+    Cedula      bigint NOT NULL,
+    Respuesta   varchar(5000) COLLATE Modern_Spanish_CI_AS NOT NULL,
+    FechaRegistro date NOT NULL,
+    Peticion    varchar(1000) COLLATE Modern_Spanish_CI_AS NULL,
+    FueExitoso  bit NOT NULL,
+    CONSTRAINT PK__BERP_FABRICASCifinUbica PRIMARY KEY (Id)
+);
+CREATE NONCLUSTERED INDEX IX_BERP_FABRICASCifinUbica_Cedula
+    ON QUAC.dbo.BERP_FABRICASCifinUbicaLog (Cedula ASC);
+
+
+-- QUAC.dbo.BERP_FABRICASCifinAdviserLog
+-- Central: CIFIN (TransUnion) | Servicio: VariablesAdviser (VIABILIDAD)
+-- Guarda cada consulta de viabilidad realizada a VariablesAdviser (CIFIN).
+-- Equivalente funcional a BERP_FABRICASDatacredito_PreselectaDesicion.
+-- Peticion es varchar(4000) — payload más grande que Preselecta (varchar 1000).
+-- FechaRegistro es DATETIME con DEFAULT getdate() — el más preciso de los 4 logs.
+CREATE TABLE QUAC.dbo.BERP_FABRICASCifinAdviserLog (
+    Id          int IDENTITY(1,1) NOT NULL,
+    Cedula      bigint NOT NULL,
+    Peticion    varchar(4000) COLLATE Modern_Spanish_CI_AS NOT NULL,
+    Respuesta   varchar(MAX) COLLATE Modern_Spanish_CI_AS NOT NULL,
+    FechaRegistro datetime DEFAULT getdate() NOT NULL,
+    FueExitoso  bit NOT NULL,
+    CONSTRAINT PK__BERP_FAB__3214EC0795266C8A PRIMARY KEY (Id)
+);
