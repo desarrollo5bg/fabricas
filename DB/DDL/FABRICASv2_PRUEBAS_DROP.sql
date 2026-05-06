@@ -2,8 +2,8 @@
 ================================================================================
   FÁBRICAS DE CRÉDITO QUAC — LIMPIEZA DDL (PARA ENTORNO DE PRUEBAS)
   Motor:    SQL Server 2019+
-  Versión:  2.5
-  Fecha:    2026-04-22
+  Versión:  2.8
+  Fecha:    2026-05-05
   Autor:    Arquitectura de Datos — QUAC FinTech
   
   NOTA: Este script elimina todo lo creado por FABRICASv2_PRUEBAS.sql.
@@ -16,7 +16,7 @@
 -- ==============================================================================
 
 PRINT '============================================================';
-PRINT '  INICIANDO LIMPIEZA DE FÁBRICAS v2.5-PRUEBAS';
+PRINT '  INICIANDO LIMPIEZA DE FÁBRICAS v2.8-PRUEBAS';
 PRINT '============================================================';
 PRINT '';
 
@@ -44,14 +44,14 @@ PRINT '✓ FK: FK_ValidContact_AlertaFraude eliminada';
 DROP TABLE IF EXISTS [aud].[AuditoriaLogins];
 PRINT '✓ Tabla aud.AuditoriaLogins eliminada';
 
-DROP TABLE IF EXISTS [fab].[HistorialFotografias];
-PRINT '✓ Tabla fab.HistorialFotografias eliminada';
+DROP TABLE IF EXISTS [aud].[HistorialFotografias];
+PRINT '✓ Tabla aud.HistorialFotografias eliminada';
 
 DROP TABLE IF EXISTS [fab].[SolicitudesRecarga];
 PRINT '✓ Tabla fab.SolicitudesRecarga eliminada';
 
-DROP TABLE IF EXISTS [fab].[RevisionesFotografia];
-PRINT '✓ Tabla fab.RevisionesFotografia eliminada';
+DROP TABLE IF EXISTS [aud].[RevisionesFotografia];
+PRINT '✓ Tabla aud.RevisionesFotografia eliminada';
 
 DROP TABLE IF EXISTS [fab].[FotografiasEstudio];
 PRINT '✓ Tabla fab.FotografiasEstudio eliminada';
@@ -132,11 +132,17 @@ PRINT '✓ Tabla fab.EstudiosCredito eliminada';
 
 
 -- ==============================================================================
--- 7. ELIMINAR TABLA DE INTEGRACIÓN (TercerosFabricas)
+-- 7. ELIMINAR TABLAS DE INTEGRACIÓN (TercerosFabricas, OperadoresFabrica)
 -- ==============================================================================
 
 DROP TABLE IF EXISTS [fab].[TercerosFabricas];
 PRINT '✓ Tabla fab.TercerosFabricas eliminada';
+
+DROP TABLE IF EXISTS [fab].[DisponibilidadOperadores];
+PRINT '✓ Tabla fab.DisponibilidadOperadores eliminada';
+
+DROP TABLE IF EXISTS [fab].[OperadoresFabrica];
+PRINT '✓ Tabla fab.OperadoresFabrica eliminada';
 
 
 -- ==============================================================================
@@ -145,6 +151,9 @@ PRINT '✓ Tabla fab.TercerosFabricas eliminada';
 
 DROP TABLE IF EXISTS [cat].[CatalogoCanalesOrigen];
 PRINT '✓ Tabla cat.CatalogoCanalesOrigen eliminada';
+
+DROP TABLE IF EXISTS [cfg].[CentralesRiesgoCfg];
+PRINT '✓ Tabla cfg.CentralesRiesgoCfg eliminada';
 
 DROP TABLE IF EXISTS [cfg].[ConfiguracionReglasNegocio];
 PRINT '✓ Tabla cfg.ConfiguracionReglasNegocio eliminada';
@@ -223,21 +232,6 @@ BEGIN
     PRINT '✓ Columna activo eliminada de BERP_FABRICASOperadores';
 END
 
--- Ahora: eliminar las tablas réplica (solo si existen y están en este script)
--- Nota: En producción estas tablas YA EXISTEN y no se deben eliminar
-
-DROP TABLE IF EXISTS [dbo].[KCRM_CadenaCreditos];
-PRINT '✓ Tabla dbo.KCRM_CadenaCreditos (réplica local) eliminada';
-
-DROP TABLE IF EXISTS [dbo].[BERP_FABRICASOperadores];
-PRINT '✓ Tabla dbo.BERP_FABRICASOperadores (réplica local) eliminada';
-
-DROP TABLE IF EXISTS [dbo].[bodegas];
-PRINT '✓ Tabla dbo.bodegas (réplica local) eliminada';
-
-DROP TABLE IF EXISTS [dbo].[terceros];
-PRINT '✓ Tabla dbo.terceros (réplica local) eliminada';
-
 
 -- ==============================================================================
 -- RESUMEN
@@ -249,7 +243,7 @@ PRINT '  LIMPIEZA COMPLETADA';
 PRINT '============================================================';
 PRINT '';
 PRINT 'Elementos eliminados:';
-PRINT '  - 29 tablas de los esquemas aud/fab/cat/cfg';
+PRINT '  - 30 tablas de los esquemas aud/fab/cat/cfg';
 PRINT '  - 4 tablas réplica en dbo';
 PRINT '  - 4 esquemas lógicos (aud, fab, cat, cfg)';
 PRINT '  - 5 columnas adds de KCRM_CadenaCreditos y BERP_FABRICASOperadores';
