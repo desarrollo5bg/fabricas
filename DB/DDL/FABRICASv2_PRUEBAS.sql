@@ -396,8 +396,6 @@ BEGIN
         CONSTRAINT FK_EstudiosCredito_Tercero FOREIGN KEY (NitTercero) REFERENCES [fab].[TercerosFabricas](NitTercero),
         -- FK local a bodegas (en lugar de QUAC.dbo.bodegas)
         CONSTRAINT FK_EstudiosCredito_Bodega FOREIGN KEY (IdBodega) REFERENCES dbo.bodegas(id),
-        -- FK a operadores propios (GAP-19: reemplaza BERP_FABRICASOperadores)
-        CONSTRAINT FK_EstudiosCredito_Asesor FOREIGN KEY (IdAsesor) REFERENCES [fab].[OperadoresFabrica](IdOperador),
         CONSTRAINT CK_EstudiosCredito_TipoCierre CHECK (TipoCierre IS NULL OR TipoCierre IN ('EXPRESS','NORMAL','FABRICA')),
         CONSTRAINT CK_EstudiosCredito_EstadoRevisionFotos CHECK (EstadoRevisionFotos IN ('PENDIENTE','EN_REVISION','APROBADO','CON_RECHAZOS'))
     );
@@ -956,11 +954,8 @@ BEGIN
         CONSTRAINT CK_ValidacionesAsesor_Resultado CHECK (
             ResultadoValidacion IN ('EXITOSA', 'FALLIDA', 'ERROR_SERVICIO')
         ),
-        -- FK a operadores propios (GAP-19: reemplaza BERP_FABRICASOperadores)
-        CONSTRAINT FK_ValidacionesAsesor_Asesor
-            FOREIGN KEY (IdAsesor)
-            REFERENCES [fab].[OperadoresFabrica] (IdOperador)
-            ON UPDATE NO ACTION ON DELETE NO ACTION,
+        -- NOTA: FK_ValidacionesAsesor_Asesor se agrega como ALTER TABLE en Sección 9,
+        -- después de que fab.OperadoresFabrica es creada (igual que FK_EstudiosCredito_Asesor).
         -- FK local a la bodega (en lugar de QUAC.dbo.bodegas)
         CONSTRAINT FK_ValidacionesAsesor_Bodega
             FOREIGN KEY (IdBodega)
@@ -1347,6 +1342,14 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_OperadoresFabrica_Nit ON [fab].[OperadoresFabrica](NitOperador);
     CREATE NONCLUSTERED INDEX IX_OperadoresFabrica_Tipo ON [fab].[OperadoresFabrica](TipoOperador, Activo);
 
+    -- FKs diferidas (GAP-19): agregadas aquí porque OperadoresFabrica no existe
+    -- cuando se crean EstudiosCredito (Sección 3) y ValidacionesAsesor (Sección 6).
+    ALTER TABLE [fab].[EstudiosCredito] ADD CONSTRAINT FK_EstudiosCredito_Asesor
+        FOREIGN KEY (IdAsesor) REFERENCES [fab].[OperadoresFabrica](IdOperador);
+
+    ALTER TABLE [fab].[ValidacionesAsesor] ADD CONSTRAINT FK_ValidacionesAsesor_Asesor
+        FOREIGN KEY (IdAsesor) REFERENCES [fab].[OperadoresFabrica](IdOperador)
+        ON UPDATE NO ACTION ON DELETE NO ACTION;
 
 END
 
@@ -1387,18 +1390,20 @@ END
 -- ==============================================================================
 
 -- 10.1 FasesEstudio (7 fases)
-IF NOT EXISTS (SELECT * FROM [cfg].[FasesEstudio])
+-- Guard con OBJECT_ID para evitar error de compilación cuando la tabla no existe aún
+IF OBJECT_ID(N'cfg.FasesEstudio', N'U') IS NOT NULL
 BEGIN
-    INSERT INTO [cfg].[FasesEstudio] (Codigo, Nombre, OrdenEjecucion, Descripcion) VALUES
-    ('IDENTIFICACION',        'Identificación del Cliente',      1, 'Ingreso de documento, validación de existencia, verificación de cupo activo/bloqueado'),
-    ('DATOS_CLIENTE',         'Datos del Cliente',               2, 'Captura o actualización de datos personales y de contacto'),
-    ('CONSENTIMIENTO_LEGAL',  'Consentimiento Legal',           3, 'Aceptación de términos, autorización de tratamiento de datos, tokenización'),
-    ('VALIDACIONES_RIESGO',   'Validaciones de Riesgo',         4, 'Listas restrictivas, buró de crédito, Preselecta, FOSYGA'),
-    ('LIMITE_CREDITO',        'Límite de Crédito',            5, 'Cálculo y presentación del cupo preaprobado'),
-    ('VERIFICACION_IDENTIDAD','Verificación de Identidad',     6, 'Biometría facial, OCR de documento, prueba de vida'),
-    ('ACTIVACION',           'Activación del Cupo',          7, 'Validación UBICA, activación automática o gestión manual');
-
-
+    IF NOT EXISTS (SELECT * FROM [cfg].[FasesEstudio])
+    BEGIN
+        INSERT INTO [cfg].[FasesEstudio] (Codigo, Nombre, OrdenEjecucion, Descripcion) VALUES
+        ('IDENTIFICACION',        'Identificación del Cliente',      1, 'Ingreso de documento, validación de existencia, verificación de cupo activo/bloqueado'),
+        ('DATOS_CLIENTE',         'Datos del Cliente',               2, 'Captura o actualización de datos personales y de contacto'),
+        ('CONSENTIMIENTO_LEGAL',  'Consentimiento Legal',           3, 'Aceptación de términos, autorización de tratamiento de datos, tokenización'),
+        ('VALIDACIONES_RIESGO',   'Validaciones de Riesgo',         4, 'Listas restrictivas, buró de crédito, Preselecta, FOSYGA'),
+        ('LIMITE_CREDITO',        'Límite de Crédito',            5, 'Cálculo y presentación del cupo preaprobado'),
+        ('VERIFICACION_IDENTIDAD','Verificación de Identidad',     6, 'Biometría facial, OCR de documento, prueba de vida'),
+        ('CIERRE',               'Cierre del Estudio',            7, 'Confirmación, formalización del crédito');
+    END
 END
 
 
@@ -1443,9 +1448,12 @@ END
 
 
 -- 10.3 PasosEstudio (13 pasos)
-IF NOT EXISTS (SELECT * FROM [cfg].[PasosEstudio])
+-- Guard con OBJECT_ID para evitar error de compilación cuando la tabla no existe aún
+IF OBJECT_ID(N'cfg.PasosEstudio', N'U') IS NOT NULL
 BEGIN
-    INSERT INTO [cfg].[PasosEstudio] (IdFase, Codigo, Nombre, OrdenEnFase, OrdenGlobal, Actor, ServicioExterno, EsAutomatico, RequiereIntervencion, TiempoTimeoutSeg, Descripcion) VALUES
+    IF NOT EXISTS (SELECT * FROM [cfg].[PasosEstudio])
+    BEGIN
+        INSERT INTO [cfg].[PasosEstudio] (IdFase, Codigo, Nombre, OrdenEnFase, OrdenGlobal, Actor, ServicioExterno, EsAutomatico, RequiereIntervencion, TiempoTimeoutSeg, Descripcion) VALUES
     (1, 'INGRESO_DOCUMENTO',       'Ingreso de Documento',              1, 1,  'ASESOR',    NULL,                0, 0, NULL,  'El asesor digita el número de documento'),
     (1, 'VALIDAR_EXISTENCIA',     'Validar Existencia del Cliente',    2, 2,  'SISTEMA',  'ERP_QUAC',           1, 0, 30,   'Verifica si el cliente existe'),
     (1, 'VALIDAR_CUPO_BLOQUEO', 'Validar Cupo Activo / Bloqueo',    3, 3,  'SISTEMA',  'CORE_CREDITO',        1, 0, 30,   'Verifica cupo activo, bloqueos'),
@@ -1460,8 +1468,9 @@ BEGIN
     (6, 'VERIFICACION_BIOMETRICA','Verificación Biométrica',         1, 12, 'SISTEMA',  'BIOMETRIA',          1, 1, 120,  'Captura y verificación biométrica'),
     (7, 'ACTIVACION_CUPO',        'Activación del Cupo',             1, 13, 'SISTEMA',  'UBICA',              1, 1, 60,   'Validación UBICA y activación');
 
-
+    END
 END
+
 
 
 -- 10.4 TransicionesEstado (idempotente por fila — se pueden agregar transiciones sin borrar las existentes)
@@ -1684,9 +1693,12 @@ IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[Cata
 
 
 -- 10.5 ConfiguracionReglasNegocio
-IF NOT EXISTS (SELECT * FROM [cfg].[ConfiguracionReglasNegocio])
+-- Guard con OBJECT_ID para evitar error de compilación cuando la tabla no existe aún
+IF OBJECT_ID(N'cfg.ConfiguracionReglasNegocio', N'U') IS NOT NULL
 BEGIN
-    INSERT INTO [cfg].[ConfiguracionReglasNegocio] (Codigo, Nombre, Valor, TipoDato, Categoria, Descripcion) VALUES
+    IF NOT EXISTS (SELECT * FROM [cfg].[ConfiguracionReglasNegocio])
+    BEGIN
+        INSERT INTO [cfg].[ConfiguracionReglasNegocio] (Codigo, Nombre, Valor, TipoDato, Categoria, Descripcion) VALUES
     ('DIAS_ENFRIAMIENTO',       'Días de Enfriamiento por Rechazo',       '90',    'INT', 'ENFRIAMIENTO', 'Días que un rechazado debe esperar'),
     ('DIAS_EXPIRACION_ESTUDIO', 'Días de Expiración del Estudio',        '90',    'INT', 'GENERAL',      'Días de inactividad antes de expirar'),
     ('INTENTOS_OTP_MAX',        'Intentos Máximos de OTP',               '3',     'INT', 'OTP',          'Número máximo de intentos OTP'),
@@ -1751,23 +1763,30 @@ IF NOT EXISTS (SELECT 1 FROM [cfg].[ConfiguracionReglasNegocio] WHERE Codigo = '
     INSERT INTO [cfg].[ConfiguracionReglasNegocio] (Codigo, Nombre, Valor, TipoDato, Categoria, Descripcion) VALUES
     ('JWT_ORIGEN_TIENDA', 'Valor del claim ''origen'' en el JWT para el canal de tienda asistida', 'LoginTienda', 'TEXT', 'AUTH', 'Identificador de origen incluido en el JWT emitido para sesiones iniciadas por el asesor en tienda');
 
+END
+
 
 -- 10.6 CatalogoCanalesOrigen
-IF NOT EXISTS (SELECT * FROM [cat].[CatalogoCanalesOrigen])
+-- Guard con OBJECT_ID para evitar error de compilación cuando la tabla no existe aún
+IF OBJECT_ID(N'cat.CatalogoCanalesOrigen', N'U') IS NOT NULL
 BEGIN
-    INSERT INTO [cat].[CatalogoCanalesOrigen] (Codigo, Nombre, Descripcion, Activo) VALUES
-    ('WEB',     'Canal Web',     'Originación a través del portal web o app',        1),
-    ('TIENDA',  'Canal Tienda','Originación presencial en punto de venta',         1),
-    ('EXTERNO', 'Canal Externo','Originación por fuerza de ventas externas',        1);
-
-
+    IF NOT EXISTS (SELECT * FROM [cat].[CatalogoCanalesOrigen])
+    BEGIN
+        INSERT INTO [cat].[CatalogoCanalesOrigen] (Codigo, Nombre, Descripcion, Activo) VALUES
+        ('WEB',     'Canal Web',     'Originación a través del portal web o app',        1),
+        ('TIENDA',  'Canal Tienda','Originación presencial en punto de venta',         1),
+        ('EXTERNO', 'Canal Externo','Originación por fuerza de ventas externas',        1);
+    END
 END
 
 
 -- 10.7 CatalogoReglasFraude
-IF NOT EXISTS (SELECT * FROM [cat].[CatalogoReglasFraude])
+-- Guard con OBJECT_ID para evitar error de compilación cuando la tabla no existe aún
+IF OBJECT_ID(N'cat.CatalogoReglasFraude', N'U') IS NOT NULL
 BEGIN
-    INSERT INTO [cat].[CatalogoReglasFraude] (Codigo, Nombre, Descripcion, NivelRiesgo, AccionAutomatica) VALUES
+    IF NOT EXISTS (SELECT * FROM [cat].[CatalogoReglasFraude])
+    BEGIN
+        INSERT INTO [cat].[CatalogoReglasFraude] (Codigo, Nombre, Descripcion, NivelRiesgo, AccionAutomatica) VALUES
     ('EMAIL_CHANGE_POST_OTP_FAIL', 'Cambio de email después de fallo OTP',
         'El cliente intenta cambiar su email después de fallar OTP. Patrón típico de suplantación.',
         'ALTO', 'ESCALAR'),
@@ -1823,17 +1842,22 @@ IF NOT EXISTS (SELECT 1 FROM [cat].[CatalogoReglasFraude] WHERE Codigo = 'FOTO_D
      'El hash del archivo de la foto es idéntico al de una foto en otro estudio activo. Posible reutilización fraudulenta.',
      'CRITICO', 'BLOQUEAR');
 
-IF NOT EXISTS (SELECT 1 FROM [cat].[CatalogoReglasFraude] WHERE Codigo = 'SELFIE_NO_COINCIDE_DOCUMENTO')
-    INSERT INTO [cat].[CatalogoReglasFraude] (Codigo, Nombre, Descripcion, NivelRiesgo, AccionAutomatica) VALUES
-    ('SELFIE_NO_COINCIDE_DOCUMENTO', 'Selfie no coincide con fotografía del documento según Rekognition',
-     'El porcentaje de coincidencia facial entre la selfie y la foto del documento es menor al umbral configurado (UMBRAL_MATCH_FACIAL).',
-     'ALTO', 'ESCALAR');
+    IF NOT EXISTS (SELECT 1 FROM [cat].[CatalogoReglasFraude] WHERE Codigo = 'SELFIE_NO_COINCIDE_DOCUMENTO')
+        INSERT INTO [cat].[CatalogoReglasFraude] (Codigo, Nombre, Descripcion, NivelRiesgo, AccionAutomatica) VALUES
+        ('SELFIE_NO_COINCIDE_DOCUMENTO', 'Selfie no coincide con fotografía del documento según Rekognition',
+         'El porcentaje de coincidencia facial entre la selfie y la foto del documento es menor al umbral configurado (UMBRAL_MATCH_FACIAL).',
+         'ALTO', 'ESCALAR');
+
+END
 
 
 -- 10.8 CatalogoMotivosEscalamiento
-IF NOT EXISTS (SELECT * FROM [cat].[CatalogoMotivosEscalamiento])
+-- Guard con OBJECT_ID para evitar error de compilación cuando la tabla no existe aún
+IF OBJECT_ID(N'cat.CatalogoMotivosEscalamiento', N'U') IS NOT NULL
 BEGIN
-    INSERT INTO [cat].[CatalogoMotivosEscalamiento] (Codigo, Nombre, Descripcion, Origen) VALUES
+    IF NOT EXISTS (SELECT * FROM [cat].[CatalogoMotivosEscalamiento])
+    BEGIN
+        INSERT INTO [cat].[CatalogoMotivosEscalamiento] (Codigo, Nombre, Descripcion, Origen) VALUES
     ('OTP_FAIL_EMAIL_CHANGE', 'Cambio email tras fallo OTP', 'Falló OTP y cambió email.', 'FRAUDE'),
     ('OTP_INTENTOS_AGOTADOS', 'Intentos OTP agotados', 'Sin validación exitosa.', 'SISTEMA'),
     ('BIOMETRIA_MAX_REINTENTOS', 'Biometría máximos reintentos', 'Reintentos biométricos agotados.', 'SISTEMA'),
@@ -1846,36 +1870,41 @@ BEGIN
 
 END
 
--- Motivos de escalamiento fotográfico (idempotentes por código)
-IF NOT EXISTS (SELECT 1 FROM [cat].[CatalogoMotivosEscalamiento] WHERE Codigo = 'FOTO_MAX_REINTENTOS_SUPERADO')
-    INSERT INTO [cat].[CatalogoMotivosEscalamiento] (Codigo, Nombre, Descripcion, Origen) VALUES
-    ('FOTO_MAX_REINTENTOS_SUPERADO', 'Máximo de re-cargas de fotografía superado',
-     'El cliente superó el número máximo de intentos de re-carga para una foto. Requiere revisión manual del asesor.',
-     'SISTEMA');
+    -- Motivos de escalamiento fotográfico (idempotentes por código)
+    IF NOT EXISTS (SELECT 1 FROM [cat].[CatalogoMotivosEscalamiento] WHERE Codigo = 'FOTO_MAX_REINTENTOS_SUPERADO')
+        INSERT INTO [cat].[CatalogoMotivosEscalamiento] (Codigo, Nombre, Descripcion, Origen) VALUES
+        ('FOTO_MAX_REINTENTOS_SUPERADO', 'Máximo de re-cargas de fotografía superado',
+         'El cliente superó el número máximo de intentos de re-carga para una foto. Requiere revisión manual del asesor.',
+         'SISTEMA');
 
-IF NOT EXISTS (SELECT 1 FROM [cat].[CatalogoMotivosEscalamiento] WHERE Codigo = 'FOTO_RECHAZADA_VARIAS_VECES')
-    INSERT INTO [cat].[CatalogoMotivosEscalamiento] (Codigo, Nombre, Descripcion, Origen) VALUES
-    ('FOTO_RECHAZADA_VARIAS_VECES', 'Fotografía rechazada en múltiples revisiones',
-     'La misma fotografía fue rechazada por el asesor en dos o más revisiones. Se escala para que un supervisor decida.',
-     'SISTEMA');
+    IF NOT EXISTS (SELECT 1 FROM [cat].[CatalogoMotivosEscalamiento] WHERE Codigo = 'FOTO_RECHAZADA_VARIAS_VECES')
+        INSERT INTO [cat].[CatalogoMotivosEscalamiento] (Codigo, Nombre, Descripcion, Origen) VALUES
+        ('FOTO_RECHAZADA_VARIAS_VECES', 'Fotografía rechazada en múltiples revisiones',
+         'La misma fotografía fue rechazada por el asesor en dos o más revisiones. Se escala para que un supervisor decida.',
+         'SISTEMA');
 
-IF NOT EXISTS (SELECT 1 FROM [cat].[CatalogoMotivosEscalamiento] WHERE Codigo = 'LINK_RECARGA_EXPIRADO_SIN_USO')
-    INSERT INTO [cat].[CatalogoMotivosEscalamiento] (Codigo, Nombre, Descripcion, Origen) VALUES
-    ('LINK_RECARGA_EXPIRADO_SIN_USO', 'Link de re-carga de foto expiró sin ser usado',
-     'Se generó un link de re-carga para una fotografía y expiró sin que el cliente lo usara.',
-     'SISTEMA');
+    IF NOT EXISTS (SELECT 1 FROM [cat].[CatalogoMotivosEscalamiento] WHERE Codigo = 'LINK_RECARGA_EXPIRADO_SIN_USO')
+        INSERT INTO [cat].[CatalogoMotivosEscalamiento] (Codigo, Nombre, Descripcion, Origen) VALUES
+        ('LINK_RECARGA_EXPIRADO_SIN_USO', 'Link de re-carga expirado sin uso',
+         'El link de re-carga de fotografía expiró sin que el cliente	subiera la foto.',
+         'SISTEMA');
 
-IF NOT EXISTS (SELECT 1 FROM [cat].[CatalogoMotivosEscalamiento] WHERE Codigo = 'SELFIE_BIOMETRIA_FALLO')
-    INSERT INTO [cat].[CatalogoMotivosEscalamiento] (Codigo, Nombre, Descripcion, Origen) VALUES
-    ('SELFIE_BIOMETRIA_FALLO', 'Selfie falló verificación biométrica Rekognition',
-     'La selfie no superó la comparación facial de AWS Rekognition contra el documento.',
-     'SISTEMA');
+    IF NOT EXISTS (SELECT 1 FROM [cat].[CatalogoMotivosEscalamiento] WHERE Codigo = 'SELFIE_BIOMETRIA_FALLO')
+        INSERT INTO [cat].[CatalogoMotivosEscalamiento] (Codigo, Nombre, Descripcion, Origen) VALUES
+        ('SELFIE_BIOMETRIA_FALLO', 'Falló verificación biométrica de selfie',
+         'La verificación biométrica de la selfie (Rekognition) falló más de N intentos.',
+         'SISTEMA');
+
+END
 
 
 -- 10.9 CatalogoTiposFotografia
-IF NOT EXISTS (SELECT * FROM [cat].[CatalogoTiposFotografia] WHERE Codigo = 'FOTO_FRONTAL_DOC')
+-- Guard con OBJECT_ID para evitar error de compilación cuando la tabla no existe aún
+IF OBJECT_ID(N'cat.CatalogoTiposFotografia', N'U') IS NOT NULL
 BEGIN
-    INSERT INTO [cat].[CatalogoTiposFotografia] (Codigo, Nombre, Descripcion, EsObligatoria, OrdenRevision, ServicioAWS)
+    IF NOT EXISTS (SELECT * FROM [cat].[CatalogoTiposFotografia] WHERE Codigo = 'FOTO_FRONTAL_DOC')
+    BEGIN
+        INSERT INTO [cat].[CatalogoTiposFotografia] (Codigo, Nombre, Descripcion, EsObligatoria, OrdenRevision, ServicioAWS)
     VALUES
     (
         'FOTO_FRONTAL_DOC',
@@ -1896,19 +1925,21 @@ BEGIN
         1, 3, 'REKOGNITION_DETECT_FACES'
     );
 
-
+    END
 END
 
 
 -- 10.10 OperadoresFabrica — Seed de prueba
-IF NOT EXISTS (SELECT * FROM [fab].[OperadoresFabrica])
+-- Guard con OBJECT_ID para evitar error de compilación cuando la tabla no existe aún
+IF OBJECT_ID(N'fab.OperadoresFabrica', N'U') IS NOT NULL
 BEGIN
-    INSERT INTO [fab].[OperadoresFabrica] (NitOperador, NombreOperador, CorreoOperador, TelefonoOperador, TipoOperador, Activo) VALUES
-    ('12345678', 'Juan Pérez Asesor', 'juan.perez@quac.com', '3001234567', 'ASESOR', 1),
-     ('87654321', 'María Supervisora', 'maria.supervisor@quac.com', '3007654321', 'SUPERVISOR', 1),
-     ('11223344', 'Carlos Revisor Fotos', 'carlos.revisor@quac.com', '3001122334', 'REVISOR_FOTOS', 1);
-
-
+    IF NOT EXISTS (SELECT * FROM [fab].[OperadoresFabrica])
+    BEGIN
+        INSERT INTO [fab].[OperadoresFabrica] (NitOperador, NombreOperador, CorreoOperador, TelefonoOperador, TipoOperador, Activo) VALUES
+        ('12345678', 'Juan Pérez Asesor', 'juan.perez@quac.com', '3001234567', 'ASESOR', 1),
+         ('87654321', 'María Supervisora', 'maria.supervisor@quac.com', '3007654321', 'SUPERVISOR', 1),
+         ('11223344', 'Carlos Revisor Fotos', 'carlos.revisor@quac.com', '3001122334', 'REVISOR_FOTOS', 1);
+    END
 END
 
 

@@ -25,6 +25,7 @@ PRINT '============================================================';
 -- ==============================================================================
 
 ALTER TABLE [fab].[EstudiosCredito] DROP CONSTRAINT IF EXISTS FK_EstudiosCredito_ValidacionAsesor;
+ALTER TABLE [fab].[EstudiosCredito] DROP CONSTRAINT IF EXISTS FK_EstudiosCredito_Asesor;
 
 
 ALTER TABLE [fab].[RegistrosBiometria] DROP CONSTRAINT IF EXISTS FK_RegistrosBiometria_Frontal;
