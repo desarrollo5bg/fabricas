@@ -12,13 +12,12 @@
 */
 
 -- ==============================================================================
--- ORDEN DE ELIMINACIÓN: eerst las tablas con FKs, luego las que referencian
+-- ORDEN DE ELIMINACIÓN: primero las tablas con FKs, luego las que referencian
 -- ==============================================================================
 
 PRINT '============================================================';
 PRINT '  INICIANDO LIMPIEZA DE FÁBRICAS v2.8-PRUEBAS';
 PRINT '============================================================';
-PRINT '';
 
 
 -- ==============================================================================
@@ -26,15 +25,15 @@ PRINT '';
 -- ==============================================================================
 
 ALTER TABLE [fab].[EstudiosCredito] DROP CONSTRAINT IF EXISTS FK_EstudiosCredito_ValidacionAsesor;
-PRINT '✓ FK: FK_EstudiosCredito_ValidacionAsesor eliminada';
+
 
 ALTER TABLE [fab].[RegistrosBiometria] DROP CONSTRAINT IF EXISTS FK_RegistrosBiometria_Frontal;
 ALTER TABLE [fab].[RegistrosBiometria] DROP CONSTRAINT IF EXISTS FK_RegistrosBiometria_Reverso;
 ALTER TABLE [fab].[RegistrosBiometria] DROP CONSTRAINT IF EXISTS FK_RegistrosBiometria_Selfie;
-PRINT '✓ FKs: FotografiasEstudio eliminadas de RegistrosBiometria';
+
 
 ALTER TABLE [fab].[ValidacionesContactabilidad] DROP CONSTRAINT IF EXISTS FK_ValidContact_AlertaFraude;
-PRINT '✓ FK: FK_ValidContact_AlertaFraude eliminada';
+
 
 
 -- ==============================================================================
@@ -42,22 +41,22 @@ PRINT '✓ FK: FK_ValidContact_AlertaFraude eliminada';
 -- ==============================================================================
 
 DROP TABLE IF EXISTS [aud].[AuditoriaLogins];
-PRINT '✓ Tabla aud.AuditoriaLogins eliminada';
+
 
 DROP TABLE IF EXISTS [aud].[HistorialFotografias];
-PRINT '✓ Tabla aud.HistorialFotografias eliminada';
+
 
 DROP TABLE IF EXISTS [fab].[SolicitudesRecarga];
-PRINT '✓ Tabla fab.SolicitudesRecarga eliminada';
+
 
 DROP TABLE IF EXISTS [aud].[RevisionesFotografia];
-PRINT '✓ Tabla aud.RevisionesFotografia eliminada';
+
 
 DROP TABLE IF EXISTS [fab].[FotografiasEstudio];
-PRINT '✓ Tabla fab.FotografiasEstudio eliminada';
+
 
 DROP TABLE IF EXISTS [cat].[CatalogoTiposFotografia];
-PRINT '✓ Tabla cat.CatalogoTiposFotografia eliminada';
+
 
 
 -- ==============================================================================
@@ -65,7 +64,7 @@ PRINT '✓ Tabla cat.CatalogoTiposFotografia eliminada';
 -- ==============================================================================
 
 DROP TABLE IF EXISTS [fab].[ValidacionesAsesor];
-PRINT '✓ Tabla fab.ValidacionesAsesor eliminada';
+
 
 
 -- ==============================================================================
@@ -73,22 +72,22 @@ PRINT '✓ Tabla fab.ValidacionesAsesor eliminada';
 -- ==============================================================================
 
 DROP TABLE IF EXISTS [aud].[HistorialDatosSensibles];
-PRINT '✓ Tabla aud.HistorialDatosSensibles eliminada';
+
 
 DROP TABLE IF EXISTS [aud].[LogValidacionesOTP];
-PRINT '✓ Tabla aud.LogValidacionesOTP eliminada';
+
 
 DROP TABLE IF EXISTS [fab].[EscalamientosFabrica];
-PRINT '✓ Tabla fab.EscalamientosFabrica eliminada';
+
 
 DROP TABLE IF EXISTS [aud].[AlertasFraude];
-PRINT '✓ Tabla aud.AlertasFraude eliminada';
+
 
 DROP TABLE IF EXISTS [cat].[CatalogoMotivosEscalamiento];
-PRINT '✓ Tabla cat.CatalogoMotivosEscalamiento eliminada';
+
 
 DROP TABLE IF EXISTS [cat].[CatalogoReglasFraude];
-PRINT '✓ Tabla cat.CatalogoReglasFraude eliminada';
+
 
 
 -- ==============================================================================
@@ -96,13 +95,13 @@ PRINT '✓ Tabla cat.CatalogoReglasFraude eliminada';
 -- ==============================================================================
 
 DROP TABLE IF EXISTS [aud].[RegistroServiciosExternos];
-PRINT '✓ Tabla aud.RegistroServiciosExternos eliminada';
+
 
 DROP TABLE IF EXISTS [aud].[AuditoriaCambiosDatos];
-PRINT '✓ Tabla aud.AuditoriaCambiosDatos eliminada';
+
 
 DROP TABLE IF EXISTS [aud].[HistorialEstados];
-PRINT '✓ Tabla aud.HistorialEstados eliminada';
+
 
 
 -- ==============================================================================
@@ -110,25 +109,25 @@ PRINT '✓ Tabla aud.HistorialEstados eliminada';
 -- ==============================================================================
 
 DROP TABLE IF EXISTS [fab].[EvidenciasFabrica];
-PRINT '✓ Tabla fab.EvidenciasFabrica eliminada';
+
 
 DROP TABLE IF EXISTS [fab].[ConsentimientosLegales];
-PRINT '✓ Tabla fab.ConsentimientosLegales eliminada';
+
 
 DROP TABLE IF EXISTS [fab].[ValidacionesContactabilidad];
-PRINT '✓ Tabla fab.ValidacionesContactabilidad eliminada';
+
 
 DROP TABLE IF EXISTS [fab].[RegistrosBiometria];
-PRINT '✓ Tabla fab.RegistrosBiometria eliminada';
+
 
 DROP TABLE IF EXISTS [fab].[EvaluacionesRiesgo];
-PRINT '✓ Tabla fab.EvaluacionesRiesgo eliminada';
+
 
 DROP TABLE IF EXISTS [fab].[RetosSeguridad];
-PRINT '✓ Tabla fab.RetosSeguridad eliminada';
+
 
 DROP TABLE IF EXISTS [fab].[EstudiosCredito];
-PRINT '✓ Tabla fab.EstudiosCredito eliminada';
+
 
 
 -- ==============================================================================
@@ -136,13 +135,13 @@ PRINT '✓ Tabla fab.EstudiosCredito eliminada';
 -- ==============================================================================
 
 DROP TABLE IF EXISTS [fab].[TercerosFabricas];
-PRINT '✓ Tabla fab.TercerosFabricas eliminada';
+
 
 DROP TABLE IF EXISTS [fab].[DisponibilidadOperadores];
-PRINT '✓ Tabla fab.DisponibilidadOperadores eliminada';
+
 
 DROP TABLE IF EXISTS [fab].[OperadoresFabrica];
-PRINT '✓ Tabla fab.OperadoresFabrica eliminada';
+
 
 
 -- ==============================================================================
@@ -150,25 +149,25 @@ PRINT '✓ Tabla fab.OperadoresFabrica eliminada';
 -- ==============================================================================
 
 DROP TABLE IF EXISTS [cat].[CatalogoCanalesOrigen];
-PRINT '✓ Tabla cat.CatalogoCanalesOrigen eliminada';
+
 
 DROP TABLE IF EXISTS [cfg].[CentralesRiesgoCfg];
-PRINT '✓ Tabla cfg.CentralesRiesgoCfg eliminada';
+
 
 DROP TABLE IF EXISTS [cfg].[ConfiguracionReglasNegocio];
-PRINT '✓ Tabla cfg.ConfiguracionReglasNegocio eliminada';
+
 
 DROP TABLE IF EXISTS [cfg].[TransicionesEstado];
-PRINT '✓ Tabla cfg.TransicionesEstado eliminada';
+
 
 DROP TABLE IF EXISTS [cfg].[CatalogoEstados];
-PRINT '✓ Tabla cfg.CatalogoEstados eliminada';
+
 
 DROP TABLE IF EXISTS [cfg].[PasosEstudio];
-PRINT '✓ Tabla cfg.PasosEstudio eliminada';
+
 
 DROP TABLE IF EXISTS [cfg].[FasesEstudio];
-PRINT '✓ Tabla cfg.FasesEstudio eliminada';
+
 
 
 -- ==============================================================================
@@ -178,19 +177,19 @@ PRINT '✓ Tabla cfg.FasesEstudio eliminada';
 -- Los esquemas no se eliminan si tienen objetos, así que primero verificamos
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE schema_id = SCHEMA_ID('aud')) 
    DROP SCHEMA IF EXISTS aud;
-PRINT '✓ Esquema aud eliminado (si estaba vacío)';
+
 
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE schema_id = SCHEMA_ID('fab')) 
    DROP SCHEMA IF EXISTS fab;
-PRINT '✓ Esquema fab eliminado (si estaba vacío)';
+
 
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE schema_id = SCHEMA_ID('cat')) 
    DROP SCHEMA IF EXISTS cat;
-PRINT '✓ Esquema cat eliminado (si estaba vacío)';
+
 
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE schema_id = SCHEMA_ID('cfg')) 
    DROP SCHEMA IF EXISTS cfg;
-PRINT '✓ Esquema cfg eliminado (si estaba vacío)';
+
 
 
 -- ==============================================================================
@@ -204,32 +203,32 @@ PRINT '✓ Esquema cfg eliminado (si estaba vacío)';
 IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.KCRM_CadenaCreditos') AND name = 'ElegibleReactivacion')
 BEGIN
     ALTER TABLE dbo.KCRM_CadenaCreditos DROP COLUMN IF EXISTS ElegibleReactivacion;
-    PRINT '✓ Columna ElegibleReactivacion eliminada de KCRM_CadenaCreditos';
+
 END
 
 IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.KCRM_CadenaCreditos') AND name = 'EstadoActualFabricas')
 BEGIN
     ALTER TABLE dbo.KCRM_CadenaCreditos DROP COLUMN IF EXISTS EstadoActualFabricas;
-    PRINT '✓ Columna EstadoActualFabricas eliminada de KCRM_CadenaCreditos';
+
 END
 
 IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.KCRM_CadenaCreditos') AND name = 'MotivoBloqueoFabricas')
 BEGIN
     ALTER TABLE dbo.KCRM_CadenaCreditos DROP COLUMN IF EXISTS MotivoBloqueoFabricas;
-    PRINT '✓ Columna MotivoBloqueoFabricas eliminada de KCRM_CadenaCreditos';
+
 END
 
 IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.KCRM_CadenaCreditos') AND name = 'FechaCancelacionFabricas')
 BEGIN
     ALTER TABLE dbo.KCRM_CadenaCreditos DROP COLUMN IF EXISTS FechaCancelacionFabricas;
-    PRINT '✓ Columna FechaCancelacionFabricas eliminada de KCRM_CadenaCreditos';
+
 END
 
 -- Columnas de BERP_FABRICASOperadores
 IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.BERP_FABRICASOperadores') AND name = 'activo')
 BEGIN
     ALTER TABLE dbo.BERP_FABRICASOperadores DROP COLUMN IF EXISTS activo;
-    PRINT '✓ Columna activo eliminada de BERP_FABRICASOperadores';
+
 END
 
 
@@ -237,16 +236,7 @@ END
 -- RESUMEN
 -- ==============================================================================
 
-PRINT '';
 PRINT '============================================================';
-PRINT '  LIMPIEZA COMPLETADA';
+PRINT '  LIMPIEZA FÁBRICAS v2.8-PRUEBAS COMPLETADA';
 PRINT '============================================================';
-PRINT '';
-PRINT 'Elementos eliminados:';
-PRINT '  - 30 tablas de los esquemas aud/fab/cat/cfg';
-PRINT '  - 4 tablas réplica en dbo';
-PRINT '  - 4 esquemas lógicos (aud, fab, cat, cfg)';
-PRINT '  - 5 columnas adds de KCRM_CadenaCreditos y BERP_FABRICASOperadores';
-PRINT '';
 PRINT '✓ Limpieza ejecutada exitosamente';
-PRINT '';
