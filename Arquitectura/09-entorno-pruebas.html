@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Entorno de Pruebas — Fábricas de Crédito QUAC v2.7</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#fafbfc;--white:#ffffff;--text:#1a1a2e;--text-secondary:#555770;--border:#e2e5ea;--border-light:#f0f1f4;--accent:#7633ff;--accent-bg:#f3eeff;--red:#dc2626;--red-bg:#fef2f2;--green:#16a34a;--green-bg:#f0fdf4;--amber:#d97706;--amber-bg:#fffbeb;--violet:#7c3aed;--violet-bg:#f5f3ff;--cyan:#0891b2;--cyan-bg:#ecfeff;--code-bg:#f4f5f7;--sidebar-w:280px; }
+    *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}body{font-family:"Plus Jakarta Sans",-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased}
+    .sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--white);border-right:1px solid var(--border);overflow-y:auto;padding:24px 0;z-index:50}
+    .sidebar-title{font-size:13px;font-weight:700;color:var(--accent);padding:0 20px 16px;margin-bottom:4px;letter-spacing:-0.01em;border-bottom:1px solid var(--border-light)}
+    .sidebar nav a{display:block;padding:6px 20px;font-size:13px;color:var(--text-secondary);text-decoration:none;border-left:3px solid transparent;transition:all .15s}
+    .sidebar nav a:hover{color:var(--accent);background:var(--accent-bg);border-left-color:var(--accent)}
+    .sidebar nav a.indent{padding-left:36px;font-size:12px}
+    .sidebar nav a.active{color:var(--accent);font-weight:600;border-left-color:var(--accent);background:var(--accent-bg)}
+    .sidebar-section{padding:10px 20px 4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-secondary)}
+    .main{margin-left:var(--sidebar-w);max-width:960px;padding:48px 56px 120px}
+    h1{font-size:32px;font-weight:800;letter-spacing:-.03em;line-height:1.2;margin-bottom:8px}
+    h2{font-size:24px;font-weight:700;letter-spacing:-.02em;margin-top:56px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--border)}
+    h3{font-size:18px;font-weight:600;margin-top:32px;margin-bottom:12px}
+    h4{font-size:15px;font-weight:600;margin-top:24px;margin-bottom:8px}
+    p{margin-bottom:12px;color:var(--text-secondary);font-size:15px}strong{color:var(--text)}
+    .meta{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+    .meta-item{font-size:13px;color:var(--text-secondary)}.meta-item strong{font-weight:600;color:var(--text)}
+    pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:20px 24px;overflow-x:auto;margin:16px 0 20px;font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.65;color:var(--text)}
+    code{font-family:"JetBrains Mono",monospace;font-size:13px;background:var(--code-bg);padding:2px 6px;border-radius:4px}pre code{background:none;padding:0}
+    table{width:100%;border-collapse:collapse;margin:16px 0 20px;font-size:13px}
+    th{background:var(--code-bg);font-weight:600;text-align:left;padding:10px 14px;border-bottom:2px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-secondary)}
+    td{padding:9px 14px;border-bottom:1px solid var(--border-light);color:var(--text)}tr:hover td{background:var(--accent-bg)}td code{font-size:12px}
+    ul,ol{margin:8px 0 16px 24px}li{font-size:15px;color:var(--text-secondary);margin-bottom:4px}li strong{color:var(--text)}
+    .badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:.03em}
+    .badge--accent{background:var(--accent-bg);color:var(--accent)}.badge--red{background:var(--red-bg);color:var(--red)}.badge--green{background:var(--green-bg);color:var(--green)}.badge--amber{background:var(--amber-bg);color:var(--amber)}.badge--violet{background:var(--violet-bg);color:var(--violet)}.badge--cyan{background:var(--cyan-bg);color:var(--cyan)}
+    .callout{border-radius:8px;padding:16px 20px;margin:16px 0;font-size:14px}.callout p{margin-bottom:4px}
+    .callout--info{background:var(--accent-bg);border-left:4px solid var(--accent)}.callout--warn{background:var(--amber-bg);border-left:4px solid var(--amber)}.callout--danger{background:var(--red-bg);border-left:4px solid var(--red)}.callout--success{background:var(--green-bg);border-left:4px solid var(--green)}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:20px 0 24px}
+    .card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px;border-left:4px solid var(--accent)}
+    .card--violet{border-left-color:var(--violet)}.card--amber{border-left-color:var(--amber)}.card--green{border-left-color:var(--green)}.card--cyan{border-left-color:var(--cyan)}.card--red{border-left-color:var(--red)}
+    .card h4{margin-top:0;font-size:13px;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:.04em}.card .val{font-size:20px;font-weight:700;color:var(--text);margin:6px 0 4px}.card p{font-size:12px;margin:0}
+    hr{border:none;border-top:1px solid var(--border);margin:40px 0}
+    .step{display:flex;gap:16px;align-items:flex-start;padding:16px 20px;background:var(--white);border:1px solid var(--border);border-radius:8px;margin-bottom:10px}
+    .step-num{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+    .step-num--green{background:var(--green)}.step-num--cyan{background:var(--cyan)}.step-num--amber{background:var(--amber)}
+    .step h4{margin:0 0 4px;font-size:14px}.step p{margin:0;font-size:13px}
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-title">FÁBRICAS DE CRÉDITO v2.7</div>
+    <nav>
+      <div class="sidebar-section">Índice de Arquitectura</div>
+      <a href="index.html">00 · Índice</a>
+      <a href="01-vision-general.html">01 · Visión General</a>
+      <a href="02-diccionario-datos.html">02 · Diccionario de Datos</a>
+      <a href="03-maquina-estados.html">03 · Máquina de Estados</a>
+      <a href="04-seguridad-antifraude.html">04 · Seguridad y Antifraude</a>
+      <a href="05-fotografias-biometria.html">05 · Fotografías y Biometría</a>
+      <a href="06-servicios-backend.html">06 · Servicios Backend</a>
+      <a href="07-consentimientos-contactabilidad.html">07 · Consentimientos</a>
+      <a href="08-gaps-historial-cambios.html">08 · Gaps e Historial</a>
+      <a href="09-entorno-pruebas.html" class="active">09 · Entorno de Pruebas</a>
+      <div class="sidebar-section">Este archivo</div>
+      <a href="#info-general" class="active">Información general</a>
+      <a href="#archivos-permisos" class="indent">Archivos y permisos</a>
+      <a href="#servicio-systemd" class="indent">Servicio Systemd</a>
+      <a href="#nginx" class="indent">Nginx y proxy inverso</a>
+      <a href="#guia-operativa" class="indent">Guía operativa</a>
+      <div class="sidebar-section">Documentación General</div>
+      <a href="../documentacion-arquitectura-v2.html" target="_blank">📋 Arquitectura General</a>
+      <a href="../activacion-quac-proceso.html" target="_blank">⚡ Proceso de Activación</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <h1>Entorno de Pruebas API QUAC</h1>
+    <p style="font-size:17px;color:var(--text);font-weight:500;">Configuración del servidor de desarrollo · API .NET en Linux</p>
+    <div class="meta">
+      <div class="meta-item"><strong>Versión</strong> v2.7</div>
+      <div class="meta-item"><strong>Servidor</strong> 192.168.31.108</div>
+      <div class="meta-item"><strong>Dominio</strong> apiquac-dev.baguer.app</div>
+      <div class="meta-item"><strong>Tecnología</strong> .NET · Linux · Nginx</div>
+    </div>
+
+    <h2 id="info-general">Información general del entorno</h2>
+    <p>El entorno de pruebas de la API QUAC corre sobre un servidor Linux interno con exposición pública vía dominio corporativo. Todos los cambios de código se despliegan mediante FTP y se activan reiniciando el servicio <code>apiquac-dev.service</code>.</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <h4>IP del servidor</h4>
+        <div class="val">192.168.31.108</div>
+        <p>Red interna — Linux</p>
+      </div>
+      <div class="card card--cyan">
+        <h4>Dominio público</h4>
+        <div class="val" style="font-size:14px;color:var(--cyan)">apiquac-dev.baguer.app</div>
+        <p>HTTPS · Wildcard *.baguer.app</p>
+      </div>
+      <div class="card card--violet">
+        <h4>Puerto interno</h4>
+        <div class="val" style="color:var(--violet)">5005</div>
+        <p>Escucha en 127.0.0.1</p>
+      </div>
+      <div class="card card--amber">
+        <h4>Usuario FTP</h4>
+        <div class="val" style="font-size:18px;color:var(--amber)">baguer</div>
+        <p>Propietario de /home/apiquac-dev</p>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Parámetro</th>
+          <th>Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Sistema operativo</td><td>Linux</td></tr>
+        <tr><td>Tecnología</td><td>.NET (API REST)</td></tr>
+        <tr><td>IP del servidor</td><td><code>192.168.31.108</code></td></tr>
+        <tr><td>Dominio público</td><td><code>https://apiquac-dev.baguer.app/</code></td></tr>
+        <tr><td>Puerto de ejecución interno</td><td><code>5005</code></td></tr>
+        <tr><td>Usuario FTP / propietario de archivos</td><td><code>baguer</code></td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="archivos-permisos">Ubicación de archivos y permisos</h2>
+    <p>Los archivos compilados (resultado de <code>dotnet publish</code>) se alojan en la siguiente ruta dentro del servidor:</p>
+
+    <pre><code>/home/apiquac-dev</code></pre>
+
+    <div class="callout callout--info">
+      <p><strong>Gestión de permisos:</strong> La carpeta fue configurada para que pertenezca al usuario <code>baguer</code>. Esto permite que las actualizaciones de código se puedan subir por FTP sin problemas de permisos bloqueados por el usuario <code>root</code>.</p>
+    </div>
+
+    <p>Comando utilizado para asignar la propiedad:</p>
+    <pre><code>chown -R baguer:baguer /home/apiquac-dev</code></pre>
+
+    <h2 id="servicio-systemd">Servicio de segundo plano (Systemd)</h2>
+    <p>Para garantizar que la API de .NET se ejecute de forma continua, se inicie con el servidor y se recupere ante fallos, se creó un servicio demonio en Linux.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Parámetro</th>
+          <th>Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Nombre del servicio</td><td><code>apiquac-dev.service</code></td></tr>
+        <tr><td>Archivo de configuración</td><td><code>/etc/systemd/system/apiquac-dev.service</code></td></tr>
+        <tr><td>Directorio de trabajo</td><td><code>/home/apiquac-dev</code></td></tr>
+        <tr><td>Comando de ejecución</td><td><code>/usr/bin/dotnet /home/apiquac-dev/[NombreDeTuDll].dll</code></td></tr>
+        <tr><td>Variable de entorno</td><td><code>ASPNETCORE_ENVIRONMENT=Production</code></td></tr>
+        <tr><td>URL interna de escucha</td><td><code>http://127.0.0.1:5005</code></td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout--warn">
+      <p><strong>Importante:</strong> Reemplaza <code>[NombreDeTuDll].dll</code> con el nombre real del archivo DLL generado por <code>dotnet publish</code> (por ejemplo: <code>ApiQuac.dll</code>).</p>
+    </div>
+
+    <h2 id="nginx">Servidor web y proxy inverso (Nginx)</h2>
+    <p>Nginx está configurado como <strong>reverse proxy</strong> para recibir el tráfico de internet a través de los puertos 80 (HTTP) y 443 (HTTPS) y redirigirlo internamente al puerto 5005 de la API.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Parámetro</th>
+          <th>Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Archivo de configuración</td><td><code>/etc/nginx/conf.d/apiquac-dev.conf</code></td></tr>
+        <tr><td>Redirección HTTP → HTTPS</td><td>301 permanente (puerto 80 → 443)</td></tr>
+        <tr><td>Certificado SSL</td><td><code>/etc/nginx/ssl/baguer_app_wildcard/baguer_app_fullchain.crt</code></td></tr>
+        <tr><td>Llave privada SSL</td><td><code>/etc/nginx/ssl/baguer_app_wildcard/baguer_app.key</code></td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout--success">
+      <p><strong>Certificado Wildcard:</strong> Se reutiliza el certificado corporativo <code>*.baguer.app</code> ya existente. No es necesario emitir ni renovar un certificado específico para este entorno.</p>
+    </div>
+
+    <h2 id="guia-operativa">Guía operativa — Comandos frecuentes</h2>
+    <p>Flujo estándar para actualizar la API con nuevos cambios de código:</p>
+
+    <div style="margin:20px 0">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <h4>Subir archivos por FTP</h4>
+          <p>Sube los nuevos archivos compilados a <code>/home/apiquac-dev</code> con el usuario <code>baguer</code>. Puedes sobreescribir los archivos existentes directamente.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num step-num--green">2</div>
+        <div>
+          <h4>Reiniciar el servicio</h4>
+          <p>Conéctate por SSH y ejecuta el siguiente comando para que la API tome los nuevos cambios:</p>
+        </div>
+      </div>
+    </div>
+
+    <pre><code>sudo systemctl restart apiquac-dev.service</code></pre>
+
+    <div style="margin:20px 0">
+      <div class="step">
+        <div class="step-num step-num--cyan">3</div>
+        <div>
+          <h4>Ver los logs en tiempo real (opcional)</h4>
+          <p>Si la API falla o quieres monitorear la consola en vivo después del reinicio:</p>
+        </div>
+      </div>
+    </div>
+
+    <pre><code>sudo journalctl -u apiquac-dev.service -f</code></pre>
+
+    <h3>Otros comandos útiles</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Acción</th>
+          <th>Comando</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Ver estado de la API</td>
+          <td><code>sudo systemctl status apiquac-dev.service</code></td>
+        </tr>
+        <tr>
+          <td>Verificar sintaxis de Nginx</td>
+          <td><code>sudo nginx -t</code></td>
+        </tr>
+        <tr>
+          <td>Recargar Nginx (al modificar el <code>.conf</code>)</td>
+          <td><code>sudo systemctl reload nginx</code></td>
+        </tr>
+        <tr>
+          <td>Reiniciar servicio API</td>
+          <td><code>sudo systemctl restart apiquac-dev.service</code></td>
+        </tr>
+        <tr>
+          <td>Ver logs en tiempo real</td>
+          <td><code>sudo journalctl -u apiquac-dev.service -f</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>

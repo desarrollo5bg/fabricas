@@ -429,7 +429,7 @@
          <li><strong>BFF Tienda (19)</strong>: Orquestación por canal. Delega a Core. Expuestos al frontend.</li>
          <li><strong>BFF Web (17)</strong>: Autogestión para portal de clientes.</li>
          <li><strong>BFF Handoff (4)</strong>: Biometría en celular del cliente via link SMS.</li>
-         <li><strong>BFF Admin (44)</strong>: CRUD de maestros y parametrización (Roles: ADMIN_FABRICAS).</li>
+         <li><strong>BFF Admin (83)</strong>: CRUD de maestros y parametrización — 4 schemas, 83 SPs (Roles: ADMIN_FABRICAS).</li>
          <li><strong>Utilitarios (12)</strong> + <strong>Externos (12)</strong>: OTP, SMS, Email, Storage + Buró, OCR, FOSYGA, UBICA.</li>
        </ul>
     </div>
@@ -452,7 +452,7 @@
         <div style="font-size: 12px; color: var(--text-secondary);">BFF Handoff</div>
       </div>
       <div class="card" style="text-align: center; padding: 16px;">
-        <div style="font-size: 28px; font-weight: 800; color: var(--red);">44</div>
+        <div style="font-size: 28px; font-weight: 800; color: var(--red);">83</div>
         <div style="font-size: 12px; color: var(--text-secondary);">BFF Admin</div>
       </div>
       <div class="card" style="text-align: center; padding: 16px;">
@@ -463,11 +463,11 @@
 
      <div class="card-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 16px 0;">
        <div class="card" style="text-align: center; padding: 20px;">
-         <div style="font-size: 32px; font-weight: 800; color: var(--accent);">129</div>
+         <div style="font-size: 32px; font-weight: 800; color: var(--accent);">157</div>
          <div style="font-size: 13px; color: var(--text-secondary);">Endpoints REST</div>
        </div>
       <div class="card" style="text-align: center; padding: 20px;">
-        <div style="font-size: 32px; font-weight: 800; color: var(--green);">37</div>
+        <div style="font-size: 32px; font-weight: 800; color: var(--green);">83</div>
          <div style="font-size: 13px; color: var(--text-secondary);">Proc. Almacenados</div>
       </div>
       <div class="card" style="text-align: center; padding: 20px;">
@@ -511,7 +511,7 @@
     <div class="callout callout--success">
       <p><strong>Actualizacion v1.2 con Taxonomia de Servicios (ref: documentacion-arquitectura-v2.html):</strong></p>
       <ul style="margin-bottom: 12px; font-size: 13px;">
-         <li>Arquitectura de 6 capas: Core (22) + BFF Tienda (19) + BFF Web (17) + BFF Handoff (4) + BFF Admin (44) + Utilitários (12) + Externos (12)</li>
+         <li>Arquitectura de 6 capas: Core (22) + BFF Tienda (19) + BFF Web (17) + BFF Handoff (4) + BFF Admin (83) + Utilitários (12) + Externos (12)</li>
          <li>Cada endpoint BFF delega a servicios Core internos</li>
          <li>Modelo "Estado Dirigido por el Sistema" + payload estandar con next_action</li>
          <li>Session Handoff para biomatria viaSolicitudesRecarga</li>
@@ -651,52 +651,151 @@
         <tr><th>Servicio</th><th>Procedimiento Almacenado</th><th>Propósito</th></tr>
       </thead>
       <tbody>
-        <tr><td><span class="badge badge--violet">C-01</span></td><td><code>sp_CrearEstudio</code></td><td>Crear estudio con estado inicial y cursor en paso 1</td></tr>
-        <tr><td><span class="badge badge--violet">C-02</span></td><td><code>sp_ObtenerEstadoEstudio</code></td><td>Retornar estado completo del estudio +next_action</td></tr>
-        <tr><td><span class="badge badge--violet">C-03</span></td><td><code>sp_TransicionarEstado</code></td><td>Validar y ejecutar transición de estado (lee TransicionesEstado)</td></tr>
-        <tr><td><span class="badge badge--violet">C-04</span></td><td><code>sp_CalcularSiguientePaso</code></td><td>Determinar siguiente paso según IdPasoActual y PasosEstudio</td></tr>
-        <tr><td><span class="badge badge--violet">C-05</span></td><td><code>sp_AvanzarPaso</code></td><td>Actualizar IdPasoActual y marcar paso completado en Historial</td></tr>
-        <tr><td><span class="badge badge--violet">C-06</span></td><td><code>sp_VerificarElegibilidad</code></td><td>Validar bloqueo, cupo activo y cooling-off del tercero</td></tr>
-        <tr><td><span class="badge badge--violet">C-07</span></td><td><code>sp_UpsertTercero</code></td><td>Crear o actualizar tercero en TercerosFabricas</td></tr>
-        <tr><td><span class="badge badge--violet">C-08</span></td><td><code>sp_RegistrarEvaluacionRiesgo</code></td><td>Insertar resultado en EvaluacionesRiesgo</td></tr>
-        <tr><td><span class="badge badge--violet">C-09</span></td><td><code>sp_RegistrarBiometria</code></td><td>Guardar registro biométrico + FK a FotografiasEstudio</td></tr>
-        <tr><td><span class="badge badge--violet">C-10</span></td><td><code>sp_RegistrarConsentimiento</code></td><td>Insertar consentimiento legal en ConsentimientosLegales</td></tr>
-        <tr><td><span class="badge badge--violet">C-11</span></td><td><code>sp_EvaluarFraude</code></td><td>Ejecutar reglas de CatalogoReglasFraude y generar AlertasFraude</td></tr>
-        <tr><td><span class="badge badge--violet">C-12</span></td><td><code>sp_CrearEscalamiento</code></td><td>Registrar escalamiento a Fabrica con motivo tipificado</td></tr>
-        <tr><td><span class="badge badge--violet">C-13</span></td><td><code>sp_RegistrarRevisionFoto</code></td><td>Insertar decisión de revisión en RevisionesFotografia</td></tr>
-        <tr><td><span class="badge badge--violet">C-14</span></td><td><code>sp_ActivarCupo</code></td><td>Activación final: actualiza EstudiosCredito + notifica UBICA</td></tr>
-        <tr><td><span class="badge badge--violet">C-15</span></td><td><code>sp_RegistrarAuditoriaCambioDatos</code></td><td>Insertar en HistorialDatosSensibles (solo INSERT)</td></tr>
-        <tr><td><span class="badge badge--violet">C-16</span></td><td><code>sp_RegistrarLlamadaServicioExterno</code></td><td>Insertar en RegistroServiciosExternos con payload JSON</td></tr>
-        <tr><td><span class="badge badge--violet">C-17</span></td><td><code>sp_ListarEstados</code></td><td>SELECT de CatalogoEstados (solo lectura)</td></tr>
-        <tr><td><span class="badge badge--violet">C-18</span></td><td><code>sp_ListarPasosFases</code></td><td>SELECT de PasosEstudio + FasesEstudio (JOIN)</td></tr>
-        <tr><td><span class="badge badge--violet">C-19</span></td><td><code>sp_ListarCanales</code></td><td>SELECT de CatalogoCanalesOrigen (solo lectura)</td></tr>
-        <tr><td><span class="badge badge--violet">C-20</span></td><td><code>sp_ListarTiposDocumento</code></td><td>SELECT de tabla dominio QUAC (solo lectura)</td></tr>
-         <tr><td><span class="badge badge--violet">C-21</span></td><td><code>sp_ListarReglasNegocio</code></td><td>SELECT de ConfiguracionReglasNegocio (solo lectura)</td></tr>
-         <tr><td><span class="badge badge--violet">C-22</span></td><td><code>sp_RegistrarValidacionAsesor</code></td><td>Registra el resultado de la validación de identidad del asesor (código, biometría, dispositivo, intentos, timestamp). Tabla destino: fab.ValidacionesAsesores</td></tr>
-         <tr><td><span class="badge badge--violet">C-23</span></td><td><code>sp_EvaluarViabilidad</code></td><td>Orquesta la consulta de viabilidad a la central activa según cfg.CentralesRiesgoCfg (Datacredito / CIFIN / COMBINADO) y registra resultado en EvaluacionesRiesgo</td></tr>
-         <tr><td><span class="badge badge--violet">C-24</span></td><td><code>sp_EvaluarContactabilidad</code></td><td>Orquesta la consulta de contactabilidad a la central activa según cfg.CentralesRiesgoCfg (Datacredito / CIFIN / COMBINADO) y registra resultado en EvaluacionesRiesgo</td></tr>
-         <tr><td><span class="badge badge--violet">C-25</span></td><td><code>sp_ObtenerConfigCentralesRiesgo</code></td><td>SELECT de cfg.CentralesRiesgoCfg — retorna la configuración activa de centrales por tipo de servicio (solo lectura)</td></tr>
-         <tr><td><span class="badge badge--violet">C-26</span></td><td><code>sp_RegistrarEvaluacionCombinada</code></td><td>Inserta el resultado fusionado de una consulta combinada en EvaluacionesRiesgo con IdLogCentralExterno e IdLogCentralExternoSecundaria de ambas centrales</td></tr>
-         <tr><td><span class="badge badge--violet">C-27</span></td><td><code>sp_ListarCentralesRiesgo</code></td><td>SELECT de cfg.CentralesRiesgoCfg para el canal Core — retorna mapa completo de servicios activos/inactivos por central</td></tr>
+        <tr><td><span class="badge badge--violet">C-01</span></td><td><code>fab.InsertEstudioCredito</code></td><td>Crear estudio con estado inicial y cursor en paso 1</td></tr>
+        <tr><td><span class="badge badge--violet">C-02</span></td><td><code>fab.GetEstadoEstudio</code></td><td>Retornar estado completo del estudio + next_action</td></tr>
+        <tr><td><span class="badge badge--violet">C-03</span></td><td><code>fab.TransicionarEstado</code></td><td>Validar y ejecutar transición de estado (valida contra cfg.TransicionesEstado)</td></tr>
+        <tr><td><span class="badge badge--violet">C-04</span></td><td><code>fab.CalcularSiguientePaso</code></td><td>Determinar siguiente paso según IdPasoActual y cfg.PasosEstudio</td></tr>
+        <tr><td><span class="badge badge--violet">C-05</span></td><td><code>fab.AvanzarPaso</code></td><td>Actualizar IdPasoActual y marcar paso completado en Historial</td></tr>
+        <tr><td><span class="badge badge--violet">C-06</span></td><td><code>fab.VerificarElegibilidad</code></td><td>Validar bloqueo, cupo activo y cooling-off del tercero (solo lectura)</td></tr>
+        <tr><td><span class="badge badge--violet">C-07</span></td><td><code>fab.UpsertTerceroFabrica</code></td><td>Crear o actualizar tercero en fab.TercerosFabricas</td></tr>
+        <tr><td><span class="badge badge--violet">C-08</span></td><td><code>fab.InsertEvaluacionRiesgo</code></td><td>Insertar resultado genérico en fab.EvaluacionesRiesgo</td></tr>
+        <tr><td><span class="badge badge--violet">C-09</span></td><td><code>fab.InsertRegistroBiometria</code></td><td>Guardar registro biométrico en fab.RegistrosBiometria</td></tr>
+        <tr><td><span class="badge badge--violet">C-10</span></td><td><code>fab.InsertConsentimientoLegal</code></td><td>Insertar consentimiento legal en fab.ConsentimientosLegales</td></tr>
+        <tr><td><span class="badge badge--violet">C-11</span></td><td><code>fab.EvaluarFraude</code></td><td>Ejecutar reglas de cat.CatalogoReglasFraude y generar fab.AlertasFraude</td></tr>
+        <tr><td><span class="badge badge--violet">C-12</span></td><td><code>fab.InsertEscalamiento</code></td><td>Registrar escalamiento a Fábrica con motivo tipificado</td></tr>
+        <tr><td><span class="badge badge--violet">C-13</span></td><td><code>aud.InsertRevisionFotografia</code></td><td>Insertar decisión de revisión de fotografía en aud.RevisionesFotografia</td></tr>
+        <tr><td><span class="badge badge--violet">C-14</span></td><td><code>fab.ActivarCupo</code></td><td>Activación final del cupo aprobado en fab.EstudiosCredito</td></tr>
+        <tr><td><span class="badge badge--violet">C-15</span></td><td><code>aud.InsertAuditoriaCambioDatos</code></td><td>Insertar en aud.HistorialDatosSensibles (solo INSERT — inmutable)</td></tr>
+        <tr><td><span class="badge badge--violet">C-16</span></td><td><code>aud.InsertRegistroServicioExterno</code></td><td>Insertar en aud.RegistroServiciosExternos con payload JSON</td></tr>
+        <tr><td><span class="badge badge--violet">C-17</span></td><td><code>cfg.GetAllCatalogoEstados</code></td><td>SELECT de cfg.CatalogoEstados (solo lectura)</td></tr>
+        <tr><td><span class="badge badge--violet">C-18</span></td><td><code>cfg.GetAllFasesEstudio / cfg.GetByFasePasosEstudio</code></td><td>SELECT de cfg.FasesEstudio + cfg.PasosEstudio</td></tr>
+        <tr><td><span class="badge badge--violet">C-19</span></td><td><code>cat.GetAllCatalogoCanalesOrigen</code></td><td>SELECT de cat.CatalogoCanalesOrigen (solo lectura)</td></tr>
+        <tr><td><span class="badge badge--violet">C-20</span></td><td><code>fab.GetAllTiposDocumento</code></td><td>SELECT de fab.TiposDocumento (solo lectura)</td></tr>
+        <tr><td><span class="badge badge--violet">C-21</span></td><td><code>cfg.GetAllConfiguracionReglasNegocio</code></td><td>SELECT de cfg.ConfiguracionReglasNegocio (solo lectura)</td></tr>
+        <tr><td><span class="badge badge--violet">C-22</span></td><td><code>fab.InsertValidacionAsesor</code></td><td>Registra validación de identidad del asesor en fab.ValidacionesAsesor (código, biometría, dispositivo, intentos)</td></tr>
+        <tr><td><span class="badge badge--violet">C-23</span></td><td><code>fab.RegistrarEvaluacionViabilidad</code></td><td>Registra resultado de consulta de viabilidad crediticia en fab.EvaluacionesRiesgo</td></tr>
+        <tr><td><span class="badge badge--violet">C-24</span></td><td><code>fab.RegistrarEvaluacionContactabilidad</code></td><td>Registra resultado de consulta de contactabilidad en fab.EvaluacionesRiesgo</td></tr>
+        <tr><td><span class="badge badge--violet">C-25</span></td><td><code>cfg.GetByTipoServicioCentralesRiesgoCfg</code></td><td>SELECT de cfg.CentralesRiesgoCfg — retorna configuración activa por tipo de servicio</td></tr>
+        <tr><td><span class="badge badge--violet">C-26</span></td><td><code>fab.InsertEvaluacionCombinada</code></td><td>Inserta resultado fusionado de consulta combinada (dos centrales) en fab.EvaluacionesRiesgo</td></tr>
+        <tr><td><span class="badge badge--violet">C-27</span></td><td><code>cfg.GetAllCentralesRiesgoCfg</code></td><td>SELECT completo de cfg.CentralesRiesgoCfg — mapa de servicios activos/inactivos por central</td></tr>
       </tbody>
     </table>
 
-    <h3>G) BFF Admin — 11 procedimientos (uno por cada maestro)</h3>
+    <h3>G) BFF Admin — 83 procedimientos (4 schemas)</h3>
+    <p style="font-size:13px; color: var(--text-secondary); margin-bottom: 12px;">El BFF Admin llama SPs directamente — no pasa por Core. Cada recurso Admin mapea a un schema específico.</p>
     <table>
       <thead>
-        <tr><th>Maestro</th><th>Procedimiento Almacenado</th><th>Propósito</th></tr>
+        <tr><th>Schema / Tabla</th><th>Procedimientos Almacenados</th></tr>
       </thead>
       <tbody>
-        <tr><td><span class="badge badge--red">Estados</span></td><td><code>sp_CRUD_Estados</code></td><td>Alta, baja, modificación de CatalogoEstados</td></tr>
-        <tr><td><span class="badge badge--red">Fases</span></td><td><code>sp_CRUD_Fases</code></td><td>Alta, baja, modificación de FasesEstudio</td></tr>
-        <tr><td><span class="badge badge--red">Pasos</span></td><td><code>sp_CRUD_Pasos</code></td><td>Alta, baja, modificación de PasosEstudio</td></tr>
-        <tr><td><span class="badge badge--red">Transiciones</span></td><td><code>sp_CRUD_Transiciones</code></td><td>Alta y baja de TransicionesEstado</td></tr>
-        <tr><td><span class="badge badge--red">Reglas de Negocio</span></td><td><code>sp_CRUD_ReglasNegocio</code></td><td>Parametrización de ConfiguracionReglasNegocio</td></tr>
-        <tr><td><span class="badge badge--red">Canales</span></td><td><code>sp_CRUD_Canales</code></td><td>Gestión de CatalogoCanalesOrigen</td></tr>
-        <tr><td><span class="badge badge--red">Motivos de Escalamiento</span></td><td><code>sp_CRUD_MotivosEscalamiento</code></td><td>Gestión de CatalogoMotivosEscalamiento</td></tr>
-        <tr><td><span class="badge badge--red">Reglas de Fraude</span></td><td><code>sp_CRUD_ReglasFraude</code></td><td>Gestión de CatalogoReglasFraude (activar/desactivar)</td></tr>
-        <tr><td><span class="badge badge--red">Tipos de Fotografía</span></td><td><code>sp_CRUD_TiposFotografia</code></td><td>Gestión de CatalogoTiposFotografia</td></tr>
-        <tr><td><span class="badge badge--red">Operadores</span></td><td><code>sp_CRUD_Operadores</code></td><td>Gestión de OperadoresFabrica + DisponibilidadOperadores</td></tr>
+        <tr>
+          <td><span class="badge badge--green">cfg</span> Estados</td>
+          <td><code>cfg.GetAllCatalogoEstados</code>, <code>cfg.GetByCodigoCatalogoEstados</code>, <code>cfg.InsertCatalogoEstados</code>, <code>cfg.UpdateCatalogoEstados</code>, <code>cfg.DeactivateCatalogoEstados</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--green">cfg</span> Fases</td>
+          <td><code>cfg.GetAllFasesEstudio</code>, <code>cfg.GetByIdFasesEstudio</code>, <code>cfg.InsertFasesEstudio</code>, <code>cfg.UpdateFasesEstudio</code>, <code>cfg.DeactivateFasesEstudio</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--green">cfg</span> Pasos</td>
+          <td><code>cfg.GetByFasePasosEstudio</code>, <code>cfg.GetByIdPasosEstudio</code>, <code>cfg.InsertPasosEstudio</code>, <code>cfg.UpdatePasosEstudio</code>, <code>cfg.DeactivatePasosEstudio</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--green">cfg</span> Transiciones</td>
+          <td><code>cfg.GetAllTransicionesEstado</code>, <code>cfg.GetByOrigenTransicionesEstado</code>, <code>cfg.InsertTransicionesEstado</code>, <code>cfg.DeactivateTransicionesEstado</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--green">cfg</span> Reglas de Negocio</td>
+          <td><code>cfg.GetAllConfiguracionReglasNegocio</code>, <code>cfg.GetByClaveConfiguracionReglasNegocio</code>, <code>cfg.InsertConfiguracionReglasNegocio</code>, <code>cfg.UpdateConfiguracionReglasNegocio</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--green">cfg</span> Centrales Riesgo</td>
+          <td><code>cfg.GetAllCentralesRiesgoCfg</code>, <code>cfg.GetByTipoServicioCentralesRiesgoCfg</code>, <code>cfg.InsertCentralesRiesgoCfg</code>, <code>cfg.UpdateCentralesRiesgoCfg</code>, <code>cfg.DeactivateCentralesRiesgoCfg</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--cyan">cat</span> Canales Origen</td>
+          <td><code>cat.GetAllCatalogoCanalesOrigen</code>, <code>cat.InsertCatalogoCanalesOrigen</code>, <code>cat.UpdateCatalogoCanalesOrigen</code>, <code>cat.DeactivateCatalogoCanalesOrigen</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--cyan">cat</span> Motivos Escalamiento</td>
+          <td><code>cat.GetAllCatalogoMotivosEscalamiento</code>, <code>cat.InsertCatalogoMotivosEscalamiento</code>, <code>cat.UpdateCatalogoMotivosEscalamiento</code>, <code>cat.DeactivateCatalogoMotivosEscalamiento</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--cyan">cat</span> Reglas de Fraude</td>
+          <td><code>cat.GetAllCatalogoReglasFraude</code>, <code>cat.InsertCatalogoReglasFraude</code>, <code>cat.UpdateCatalogoReglasFraude</code>, <code>cat.DeactivateCatalogoReglasFraude</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--cyan">cat</span> Tipos Fotografía</td>
+          <td><code>cat.GetAllCatalogoTiposFotografia</code>, <code>cat.GetObligatoriasCatalogoTiposFotografia</code>, <code>cat.UpdateCatalogoTiposFotografia</code>, <code>cat.DeactivateCatalogoTiposFotografia</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--violet">fab</span> Tipos Documento</td>
+          <td><code>fab.GetAllTiposDocumento</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--violet">fab</span> Terceros</td>
+          <td><code>fab.UpsertTerceroFabrica</code>, <code>fab.VerificarElegibilidad</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--violet">fab</span> Operadores</td>
+          <td><code>fab.GetAllOperadoresFabrica</code>, <code>fab.GetByNitOperadoresFabrica</code>, <code>fab.GetByIdOperadoresFabrica</code>, <code>fab.GetByTipoOperadoresFabrica</code>, <code>fab.InsertOperadoresFabrica</code>, <code>fab.UpdateOperadoresFabrica</code>, <code>fab.DeactivateOperadoresFabrica</code>, <code>fab.ActivateOperadoresFabrica</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--violet">fab</span> Disponibilidad</td>
+          <td><code>fab.GetByOperadorDisponibilidadOperadores</code>, <code>fab.GetConectadosDisponibilidadOperadores</code>, <code>fab.ConectarDisponibilidadOperadores</code>, <code>fab.DesconectarDisponibilidadOperadores</code>, <code>fab.CambiarEstadoDisponibilidadOperadores</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--violet">fab</span> Estudios</td>
+          <td><code>fab.InsertEstudioCredito</code>, <code>fab.GetEstadoEstudio</code>, <code>fab.AvanzarPaso</code>, <code>fab.ActivarCupo</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--violet">fab</span> Transición Estado</td>
+          <td><code>fab.TransicionarEstado</code>, <code>fab.CalcularSiguientePaso</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--violet">fab</span> Fraude</td>
+          <td><code>fab.EvaluarFraude</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--violet">fab</span> Evaluaciones Riesgo</td>
+          <td><code>fab.InsertEvaluacionRiesgo</code>, <code>fab.RegistrarEvaluacionViabilidad</code>, <code>fab.RegistrarEvaluacionContactabilidad</code>, <code>fab.InsertEvaluacionCombinada</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--violet">fab</span> Consentimientos</td>
+          <td><code>fab.InsertConsentimientoLegal</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--violet">fab</span> Escalamientos</td>
+          <td><code>fab.InsertEscalamiento</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--violet">fab</span> Retos / OTP</td>
+          <td><code>fab.InsertReto</code>, <code>fab.ValidarReto</code>, <code>fab.GetEstadoReto</code>, <code>fab.MarcarRetoReenviado</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--violet">fab</span> Biometría</td>
+          <td><code>fab.InsertRegistroBiometria</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--violet">fab</span> Validación Asesor</td>
+          <td><code>fab.InsertValidacionAsesor</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--red">aud</span> Historial Datos</td>
+          <td><code>aud.InsertAuditoriaCambioDatos</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--red">aud</span> Log OTP</td>
+          <td><code>aud.InsertLogValidacionOTP</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--red">aud</span> Servicios Externos</td>
+          <td><code>aud.InsertRegistroServicioExterno</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge--red">aud</span> Revisiones Foto</td>
+          <td><code>aud.InsertRevisionFotografia</code></td>
+        </tr>
       </tbody>
     </table>
 
@@ -706,10 +805,10 @@
         <tr><th>Contexto</th><th>Procedimiento Almacenado</th><th>Propósito</th></tr>
       </thead>
       <tbody>
-        <tr><td><span class="badge badge--green">OTP</span></td><td><code>sp_EnviarOTP</code></td><td>Generar reto OTP, almacenar hash y disparar canal (SMS/WA/Email)</td></tr>
-        <tr><td><span class="badge badge--green">OTP</span></td><td><code>sp_ValidarOTP</code></td><td>Validar código contra hash almacenado, registrar en LogValidacionesOTP</td></tr>
-        <tr><td><span class="badge badge--green">Evaluación</span></td><td><code>sp_EjecutarPipelineAsync</code></td><td>Lanzar pipeline asíncrono de evaluaciones (Antecedentes→Preselecta→FOSYGA→UBICA)</td></tr>
-        <tr><td><span class="badge badge--green">Fraude</span></td><td><code>sp_ValidarDuplicidad</code></td><td>Verificar si celular/email ya existen con cupo activo (política de CatalogoReglasFraude)</td></tr>
+        <tr><td><span class="badge badge--green">U-01 OTP</span></td><td><code>fab.InsertReto</code></td><td>Generar reto OTP: almacena hash, canal y expiración en fab.RetosSeguridad</td></tr>
+        <tr><td><span class="badge badge--green">U-02 OTP</span></td><td><code>fab.ValidarReto</code></td><td>Validar código contra hash almacenado — auto-escribe en aud.LogValidacionesOTP en cada llamada</td></tr>
+        <tr><td><span class="badge badge--green">U-03 OTP</span></td><td><code>fab.GetEstadoReto</code></td><td>Consultar estado del reto (activo, expirado, validado, bloqueado)</td></tr>
+        <tr><td><span class="badge badge--green">U-04 OTP</span></td><td><code>fab.MarcarRetoReenviado</code></td><td>Modificar reto existente (nuevo canal, hash y expiración) — reinicia NumeroIntentos a 0, IdReto no cambia</td></tr>
       </tbody>
     </table>
 
@@ -760,7 +859,7 @@
       <p style="font-size: 13px;"><strong>Nota técnica Handoff:</strong> El Session Handoff usa polling HTTP cada 3 segundos + token UUID. Estado almacenado en <code>SolicitudesRecarga</code> con <code>TipoSolicitud = 'HANDOFF_BIOMETRIA'</code>. TTL de 15 minutos.</p>
     </div>
 
-    <h3 id="bff-admin">E) BFF Admin — 46 endpoints (Gestión de Maestros y Operadores)</h3>
+    <h3 id="bff-admin">E) BFF Admin — 83 endpoints (Gestión de Maestros y Operadores)</h3>
     <p>APIs de administración para gestionar la parametrización del sistema y los operadores de fábrica. Permiten CRUD completo sobre los catálogos y tablas de configuración sin necesidad de acceder directamente a la base de datos.</p>
     <table>
       <thead>
@@ -853,14 +952,14 @@
         <div class="task-check"></div>
         <div class="task-content">
           <div class="task-title">TASK-02: Implementar 22 Stored Procedures Core (F)</div>
-          <div class="task-desc">sp_CrearEstudio, sp_TransicionarEstado, sp_CalcularSiguientePaso, sp_AvanzarPaso, sp_VerificarElegibilidad, sp_UpsertTercero, sp_RegistrarEvaluacionRiesgo, sp_RegistrarBiometria, sp_RegistrarConsentimiento, sp_EvaluarFraude, sp_CrearEscalamiento, sp_RegistrarRevisionFoto, sp_ActivarCupo, sp_RegistrarAuditoriaCambioDatos, sp_RegistrarLlamadaServicioExterno, sp_ListarEstados, sp_ListarPasosFases, sp_ListarCanales, sp_ListarTiposDocumento, sp_ListarReglasNegocio, sp_ObtenerEstadoEstudio, sp_RegistrarValidacionAsesor.</div>
+          <div class="task-desc">fab.InsertEstudioCredito, fab.GetEstadoEstudio, fab.TransicionarEstado, fab.CalcularSiguientePaso, fab.AvanzarPaso, fab.VerificarElegibilidad, fab.UpsertTerceroFabrica, fab.InsertEvaluacionRiesgo, fab.InsertRegistroBiometria, fab.InsertConsentimientoLegal, fab.EvaluarFraude, fab.InsertEscalamiento, aud.InsertRevisionFotografia, fab.ActivarCupo, aud.InsertAuditoriaCambioDatos, aud.InsertRegistroServicioExterno, cfg.GetAllCatalogoEstados, cfg.GetAllFasesEstudio, cat.GetAllCatalogoCanalesOrigen, fab.GetAllTiposDocumento, cfg.GetAllConfiguracionReglasNegocio, fab.InsertValidacionAsesor.</div>
         </div>
       </li>
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">TASK-03: Implementar 4 Stored Procedures Transversales (H)</div>
-          <div class="task-desc">sp_EnviarOTP, sp_ValidarOTP, sp_EjecutarPipelineAsync, sp_ValidarDuplicidad.</div>
+          <div class="task-title">TASK-03: Implementar 4 Stored Procedures Util/OTP (H)</div>
+          <div class="task-desc">fab.InsertReto, fab.ValidarReto (auto-escribe aud.InsertLogValidacionOTP), fab.GetEstadoReto, fab.MarcarRetoReenviado.</div>
         </div>
       </li>
       <li class="task-item">
@@ -874,7 +973,7 @@
         <div class="task-check"></div>
         <div class="task-content">
           <div class="task-title">TASK-05: Implementar cliente HTTP para adaptadores externos (E-01..E-16)</div>
-          <div class="task-desc">Wrapper con reintentos, timeouts, circuit breaker. Registrar cada llamada en RegistroServiciosExternos vía sp_RegistrarLlamadaServicioExterno (C-16). Incluye los 4 nuevos adaptadores de centrales de riesgo: E-13 (VariablesAdviser), E-14 (Reconocer), E-15 (viabilidad combinada), E-16 (contactabilidad combinada).</div>
+          <div class="task-desc">Wrapper con reintentos, timeouts, circuit breaker. Registrar cada llamada en aud.RegistroServiciosExternos vía aud.InsertRegistroServicioExterno (C-16). Incluye los 4 nuevos adaptadores de centrales de riesgo: E-13 (VariablesAdviser), E-14 (Reconocer), E-15 (viabilidad combinada), E-16 (contactabilidad combinada).</div>
         </div>
       </li>
     </ul>
@@ -885,7 +984,7 @@
         <div class="task-check"></div>
         <div class="task-content">
           <div class="task-title">TASK-06: C-01 POST /core/estudios — Crear estudio</div>
-          <div class="task-desc">Llama sp_CrearEstudio. Estado inicial INICIADO, cursor en paso 1.</div>
+          <div class="task-desc">Llama fab.InsertEstudioCredito. Estado inicial INICIADO, cursor en paso 1.</div>
         </div>
       </li>
       <li class="task-item">
@@ -906,7 +1005,7 @@
         <div class="task-check"></div>
         <div class="task-content">
           <div class="task-title">TASK-09: C-08/C-09/C-10 — Registro de evaluaciones, biometría y consentimientos</div>
-          <div class="task-desc">POST /core/evaluaciones-riesgo (sp_RegistrarEvaluacionRiesgo), POST /core/biometria (sp_RegistrarBiometria), POST /core/consentimientos (sp_RegistrarConsentimiento).</div>
+          <div class="task-desc">POST /core/evaluaciones-riesgo (fab.InsertEvaluacionRiesgo), POST /core/biometria (fab.InsertRegistroBiometria), POST /core/consentimientos (fab.InsertConsentimientoLegal).</div>
         </div>
       </li>
     </ul>
@@ -924,21 +1023,21 @@
         <div class="task-check"></div>
         <div class="task-content">
           <div class="task-title">TASK-11: C-15/C-16 — Auditoría</div>
-          <div class="task-desc">POST /core/auditoria/cambio-datos (sp_RegistrarAuditoriaCambioDatos → HistorialDatosSensibles), POST /core/auditoria/servicio-externo (sp_RegistrarLlamadaServicioExterno → RegistroServiciosExternos).</div>
+          <div class="task-desc">POST /core/auditoria/cambio-datos (aud.InsertAuditoriaCambioDatos → HistorialDatosSensibles), POST /core/auditoria/servicio-externo (aud.InsertRegistroServicioExterno → RegistroServiciosExternos).</div>
         </div>
       </li>
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">TASK-12: C-17..C-22 — Catálogos + sp_RegistrarValidacionAsesor</div>
-          <div class="task-desc">GET endpoints de catálogos (estados, pasos, canales, tipos-documento, reglas-negocio). POST /core/validar-asesor → sp_RegistrarValidacionAsesor → fab.ValidacionesAsesores.</div>
+          <div class="task-title">TASK-12: C-17..C-22 — Catálogos + fab.InsertValidacionAsesor</div>
+          <div class="task-desc">GET endpoints de catálogos (estados, pasos, canales, tipos-documento, reglas-negocio). POST /core/validar-asesor → fab.InsertValidacionAsesor → fab.ValidacionesAsesores.</div>
         </div>
       </li>
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
           <div class="task-title">TASK-13: U-01..U-12 — Utilitarios (OTP, mensajería, storage)</div>
-          <div class="task-desc">POST /util/otp/enviar (sp_EnviarOTP), POST /util/otp/validar (sp_ValidarOTP), GET /util/otp/estado/{idReto}, POST /util/otp/reenviar. SMS/Email/WhatsApp genérico (E-10, E-11). Catálogos geográficos. POST /util/storage/presigned-url (TTL 15min). GET /util/health.</div>
+          <div class="task-desc">POST /util/otp/enviar (fab.InsertReto), POST /util/otp/validar (fab.ValidarReto → auto-escribe aud.InsertLogValidacionOTP), GET /util/otp/estado/{idReto} (fab.GetEstadoReto), POST /util/otp/reenviar (fab.MarcarRetoReenviado). SMS/Email/WhatsApp genérico (E-10, E-11). Catálogos geográficos. POST /util/storage/presigned-url (TTL 15min). GET /util/health.</div>
         </div>
       </li>
     </ul>
@@ -956,7 +1055,7 @@
         <div class="task-check"></div>
         <div class="task-content">
           <div class="task-title">TASK-15: T-03/T-04/T-05/T-19 — Datos, tokens y validación de asesor (Bloque 2–3)</div>
-          <div class="task-desc">POST datos-tercero (OCR o manual → C-07). POST token-tyc (contexto: "inicio_estudio" | "activacion_cupo" → U-01). POST validar-token (→ U-02). POST validar-asesor (biometría asesor → C-09 / sp_RegistrarValidacionAsesor).</div>
+          <div class="task-desc">POST datos-tercero (OCR o manual → C-07). POST token-tyc (contexto: "inicio_estudio" | "activacion_cupo" → U-01). POST validar-token (→ U-02). POST validar-asesor (biometría asesor → C-09 / fab.InsertValidacionAsesor).</div>
         </div>
       </li>
       <li class="task-item">
@@ -989,13 +1088,13 @@
       </li>
     </ul>
 
-    <h3>Fase 5: BFF Admin A-01..A-44 + 11 SPs Admin (Días 45–55)</h3>
+    <h3>Fase 5: BFF Admin A-01..A-83 + 83 SPs Admin (Días 45–55)</h3>
     <ul class="task-list">
       <li class="task-item">
         <div class="task-check"></div>
         <div class="task-content">
-          <div class="task-title">TASK-20: Implementar 11 Stored Procedures Admin (G)</div>
-          <div class="task-desc">sp_CRUD_Estados, sp_CRUD_Fases, sp_CRUD_Pasos, sp_CRUD_Transiciones, sp_CRUD_ReglasNegocio, sp_CRUD_Canales, sp_CRUD_MotivosEscalamiento, sp_CRUD_ReglasFraude, sp_CRUD_TiposFotografia, sp_CRUD_Operadores. Requieren rol ADMIN_FABRICAS o SUPERADMIN.</div>
+          <div class="task-title">TASK-20: Implementar 83 Stored Procedures Admin (G)</div>
+          <div class="task-desc">cfg (28 SPs): cfg.GetAllCatalogoEstados, cfg.InsertCatalogoEstados, cfg.UpdateCatalogoEstados, cfg.DeactivateCatalogoEstados, cfg.GetByCodigoCatalogoEstados, cfg.GetAllFasesEstudio, cfg.InsertFasesEstudio, cfg.UpdateFasesEstudio, cfg.DeactivateFasesEstudio, cfg.GetByIdFasesEstudio, cfg.GetByFasePasosEstudio, cfg.InsertPasosEstudio, cfg.UpdatePasosEstudio, cfg.DeactivatePasosEstudio, cfg.GetByIdPasosEstudio, cfg.GetAllTransicionesEstado, cfg.GetByOrigenTransicionesEstado, cfg.InsertTransicionesEstado, cfg.DeactivateTransicionesEstado, cfg.GetAllConfiguracionReglasNegocio, cfg.GetByClaveConfiguracionReglasNegocio, cfg.InsertConfiguracionReglasNegocio, cfg.UpdateConfiguracionReglasNegocio, cfg.GetAllCentralesRiesgoCfg, cfg.GetByTipoServicioCentralesRiesgoCfg, cfg.InsertCentralesRiesgoCfg, cfg.UpdateCentralesRiesgoCfg, cfg.DeactivateCentralesRiesgoCfg. cat (16 SPs): cat.GetAllCatalogoCanalesOrigen, cat.InsertCatalogoCanalesOrigen, cat.UpdateCatalogoCanalesOrigen, cat.DeactivateCatalogoCanalesOrigen, cat.GetAllCatalogoMotivosEscalamiento, cat.InsertCatalogoMotivosEscalamiento, cat.UpdateCatalogoMotivosEscalamiento, cat.DeactivateCatalogoMotivosEscalamiento, cat.GetAllCatalogoReglasFraude, cat.InsertCatalogoReglasFraude, cat.UpdateCatalogoReglasFraude, cat.DeactivateCatalogoReglasFraude, cat.GetAllCatalogoTiposFotografia, cat.GetObligatoriasCatalogoTiposFotografia, cat.UpdateCatalogoTiposFotografia, cat.DeactivateCatalogoTiposFotografia. fab (35 SPs) + aud (4 SPs): listados en sección G. Todos requieren rol ADMIN_FABRICAS o SUPERADMIN.</div>
         </div>
       </li>
       <li class="task-item">
@@ -1152,9 +1251,9 @@
         </tr>
         <tr>
           <td><strong>Sem 10–11</strong></td>
-          <td>BFF Admin A-01..A-49 (Días 45–55)</td>
+          <td>BFF Admin A-01..A-83 (Días 45–55)</td>
           <td>TASK-20 a TASK-22</td>
-          <td>11 SPs Admin + 1 SP CentralesRiesgo, CRUD maestros de parametrización, gestión de operadores, CRUD cfg.CentralesRiesgoCfg</td>
+          <td>83 SPs Admin (cfg=28, cat=16, fab=35, aud=4) — CRUD maestros de parametrización, gestión de operadores, centrales de riesgo</td>
         </tr>
         <tr>
           <td><strong>Sem 12–13</strong></td>

@@ -5638,24 +5638,28 @@ PC del asesor continúa el flujo ✓</pre>
 
       <!-- Procedimientos Almacenados -->
       <section id="procedimientos-almacenados">
-         <h2>F) Procedimientos Almacenados — 37 SPs <span class="badge badge--accent">Nuevo v2.7</span></h2>
+         <h2>F) Procedimientos Almacenados — 83 SPs <span class="badge badge--accent">v2.8</span></h2>
         <p>
           Los procedimientos almacenados son la <strong>única vía de escritura directa</strong> a las tablas transaccionales
-          y de auditoría del LOS. Cada servicio Core y Admin tiene al menos un SP asociado. Detalle completo en
-          <code>Arquitectura/06-servicios-backend.html</code>.
+          y de auditoría del LOS. Organizados en 4 schemas: <code>cfg</code>, <code>cat</code>, <code>fab</code> y <code>aud</code>.
+          Detalle completo en <code>DB/procedimientos/CONTEXT.md</code> y <code>Arquitectura/06-servicios-backend.html</code>.
         </p>
         <div class="card-grid">
-          <div class="card card--violet">
-             <h4>22 SPs Core</h4>
-             <p>sp_CrearEstudio, sp_TransicionarEstado, sp_EvaluarFraude, sp_RegistrarValidacionAsesor, etc.</p>
-           </div>
-          <div class="card card--red">
-            <h4>11 SPs Admin</h4>
-            <p>sp_CRUD_Estados, sp_CRUD_Fases, sp_CRUD_Pasos, sp_CRUD_Operadores, etc.</p>
-          </div>
           <div class="card card--green">
-            <h4>4 SPs Transversales</h4>
-            <p>sp_EnviarOTP, sp_ValidarOTP, sp_EjecutarPipelineAsync, sp_ValidarDuplicidad</p>
+            <h4>28 SPs — <code>cfg</code></h4>
+            <p>cfg.GetAllCatalogoEstados, cfg.GetByCodigoCatalogoEstados, cfg.InsertCatalogoEstados, cfg.UpdateCatalogoEstados, cfg.DeactivateCatalogoEstados, cfg.GetAllFasesEstudio, cfg.GetByIdFasesEstudio, cfg.InsertFasesEstudio, cfg.UpdateFasesEstudio, cfg.DeactivateFasesEstudio, cfg.GetByFasePasosEstudio, cfg.GetByIdPasosEstudio, cfg.InsertPasosEstudio, cfg.UpdatePasosEstudio, cfg.DeactivatePasosEstudio, cfg.GetAllTransicionesEstado, cfg.GetByOrigenTransicionesEstado, cfg.InsertTransicionesEstado, cfg.DeactivateTransicionesEstado, cfg.GetAllConfiguracionReglasNegocio, cfg.GetByClaveConfiguracionReglasNegocio, cfg.InsertConfiguracionReglasNegocio, cfg.UpdateConfiguracionReglasNegocio, cfg.GetAllCentralesRiesgoCfg, cfg.GetByTipoServicioCentralesRiesgoCfg, cfg.InsertCentralesRiesgoCfg, cfg.UpdateCentralesRiesgoCfg, cfg.DeactivateCentralesRiesgoCfg</p>
+          </div>
+          <div class="card card--cyan">
+            <h4>16 SPs — <code>cat</code></h4>
+            <p>cat.GetAllCatalogoCanalesOrigen, cat.InsertCatalogoCanalesOrigen, cat.UpdateCatalogoCanalesOrigen, cat.DeactivateCatalogoCanalesOrigen, cat.GetAllCatalogoMotivosEscalamiento, cat.InsertCatalogoMotivosEscalamiento, cat.UpdateCatalogoMotivosEscalamiento, cat.DeactivateCatalogoMotivosEscalamiento, cat.GetAllCatalogoReglasFraude, cat.InsertCatalogoReglasFraude, cat.UpdateCatalogoReglasFraude, cat.DeactivateCatalogoReglasFraude, cat.GetAllCatalogoTiposFotografia, cat.GetObligatoriasCatalogoTiposFotografia, cat.UpdateCatalogoTiposFotografia, cat.DeactivateCatalogoTiposFotografia</p>
+          </div>
+          <div class="card card--violet">
+            <h4>35 SPs — <code>fab</code></h4>
+            <p>fab.InsertEstudioCredito, fab.GetEstadoEstudio, fab.AvanzarPaso, fab.ActivarCupo, fab.TransicionarEstado, fab.CalcularSiguientePaso, fab.UpsertTerceroFabrica, fab.VerificarElegibilidad, fab.InsertEvaluacionRiesgo, fab.RegistrarEvaluacionViabilidad, fab.RegistrarEvaluacionContactabilidad, fab.InsertEvaluacionCombinada, fab.InsertRegistroBiometria, fab.InsertValidacionAsesor, fab.InsertConsentimientoLegal, fab.EvaluarFraude, fab.InsertEscalamiento, fab.InsertReto, fab.ValidarReto, fab.GetEstadoReto, fab.MarcarRetoReenviado, fab.GetAllTiposDocumento, fab.GetAllOperadoresFabrica, fab.GetByNitOperadoresFabrica, fab.GetByIdOperadoresFabrica, fab.GetByTipoOperadoresFabrica, fab.InsertOperadoresFabrica, fab.UpdateOperadoresFabrica, fab.DeactivateOperadoresFabrica, fab.ActivateOperadoresFabrica, fab.GetByOperadorDisponibilidadOperadores, fab.GetConectadosDisponibilidadOperadores, fab.ConectarDisponibilidadOperadores, fab.DesconectarDisponibilidadOperadores, fab.CambiarEstadoDisponibilidadOperadores</p>
+          </div>
+          <div class="card card--red">
+            <h4>4 SPs — <code>aud</code></h4>
+            <p>aud.InsertRevisionFotografia, aud.InsertAuditoriaCambioDatos, aud.InsertRegistroServicioExterno, aud.InsertLogValidacionOTP</p>
           </div>
         </div>
         <div class="callout callout--info">
