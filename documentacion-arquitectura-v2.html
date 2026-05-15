@@ -551,7 +551,6 @@
         <div class="sidebar-section">Correcciones v2.5</div>
         <a href="#division-responsabilidades">División Backend vs Frontend</a>
         <a href="#autenticacion-asesores">Autenticación de Asesores</a>
-        <a href="#concurrencia-idempotencia">Concurrencia e Idempotencia</a>
         <div class="sidebar-section">Auditoría DDL v2.6</div>
         <a href="#dict-fotografias-estudio">FotografiasEstudio Unificada</a>
         <a href="#dict-auditoria-logins">AuditoriaLogins</a>
@@ -594,7 +593,7 @@
           con 6 nuevas tablas especializadas. La versión 2.3 añade el
            <strong>módulo de gestión de fotografías</strong> con 5 nuevas tablas
            para el ciclo de vida completo de fotos obligatorias, revisión humana
-          y re-subida via link. La versión 2.4 documenta la <strong>Taxonomía de Servicios Backend</strong> con el diseño completo de APIs omnicanal (Web, Tienda, Handoff) y la estrategia Estado Dirigido por el Sistema.           La versión 2.5 añade la <strong>División de Responsabilidades Backend vs Frontend</strong> y la <strong>Autenticación Biométrica de Asesores</strong>. La versión 2.4 eliminó las columnas de idempotencia (ClaveIdempotencia y VersionFila) ya que la máquina de estados garantiza consistencia. La versión 2.6 refleja la <strong>Auditoría DDL — 18 gaps cerrados</strong>: tabla <code>FotografiasEstudio</code> unificada para proceso biométrico, nueva tabla <code>AuditoriaLogins</code> y columnas adicionales en <code>EstudiosCredito</code> (<code>NitComercio</code>, <code>CelularCliente</code>).
+          y re-subida via link. La versión 2.4 documenta la <strong>Taxonomía de Servicios Backend</strong> con el diseño completo de APIs omnicanal (Web, Tienda, Handoff) y la estrategia Estado Dirigido por el Sistema.           La versión 2.5 añade la <strong>División de Responsabilidades Backend vs Frontend</strong> y la <strong>Autenticación Biométrica de Asesores</strong>. La versión 2.6 refleja la <strong>Auditoría DDL — 18 gaps cerrados</strong>: tabla <code>FotografiasEstudio</code> unificada para proceso biométrico, nueva tabla <code>AuditoriaLogins</code> y columnas adicionales en <code>EstudiosCredito</code> (<code>NitComercio</code>, <code>CelularCliente</code>).
         </p>
 
         <div class="callout callout--info">
@@ -1022,9 +1021,9 @@
             </tr>
             <tr>
               <td><span class="badge badge--green">SA-07 ✓</span></td>
-              <td>Sin control de idempotencia, versionado optimista ni soft delete en estudios</td>
+              <td>Sin soft delete en estudios</td>
               <td><code>EstudiosCredito</code></td>
-              <td>Añadidas columnas: <code>ClaveIdempotencia</code>, <code>VersionFila</code>, <code>EliminadoLogico</code>, <code>IdCorrelacion</code>, <code>IdEscalamientoActivo</code></td>
+              <td>Añadidas columnas: <code>EliminadoLogico</code>, <code>IdCorrelacion</code>, <code>IdEscalamientoActivo</code></td>
             </tr>
             <tr>
               <td><span class="badge badge--green">SA-08 ✓</span></td>
@@ -5602,7 +5601,6 @@ PC del asesor continúa el flujo ✓</pre>
             <tr><td>U-09</td><td><span class="badge badge--cyan">GET</span></td><td><code>/util/catalogos/ciudades/{idDepto}</code></td><td>Ciudades por departamento.</td><td>Tabla dominio QUAC</td></tr>
             <tr><td>U-10</td><td><span class="badge badge--cyan">GET</span></td><td><code>/util/catalogos/tipos-documento</code></td><td>Tipos de documento de identidad.</td><td>Tabla dominio QUAC</td></tr>
             <tr><td>U-11</td><td><span class="badge badge--green">POST</span></td><td><code>/util/storage/presigned-url</code></td><td>URL pre-firmada para subida de foto (S3/Blob). TTL 15 min.</td><td>N/A</td></tr>
-            <tr><td>U-12</td><td><span class="badge badge--green">POST</span></td><td><code>/util/idempotencia/verificar</code></td><td>Verificar si <code>ClaveIdempotencia</code> fue procesada. HTTP 409 si duplicado.</td><td><code>EstudiosCredito</code></td></tr>
             <tr><td>U-13</td><td><span class="badge badge--cyan">GET</span></td><td><code>/util/health</code></td><td>Health check del sistema.</td><td>N/A</td></tr>
           </tbody>
         </table>
@@ -5702,14 +5700,12 @@ PC del asesor continúa el flujo ✓</pre>
     "phase":           "VERIFICACION_IDENTIDAD",
     "is_resuming":     false,
     "is_handoff":      false,
-    "idempotency_key": "idem-abc-123",
     "row_version":     3
   }
 }</pre>
 
         <div class="callout callout--info">
-          <p><strong>Principio de seguridad:</strong> Los campos <code>idempotency_key</code> y <code>row_version</code>
-          deben enviarse de vuelta en la siguiente request para garantizar idempotencia y optimistic locking.
+          deben enviarse de vuelta en la siguiente request.
           Si <code>row_version</code> no coincide → HTTP 409 + <code>next_action: ERROR_CONCURRENCY</code>.</p>
         </div>
       </section>
@@ -5749,7 +5745,6 @@ PC del asesor continúa el flujo ✓</pre>
             <tr><td><code>BLOCK_MAX_ATTEMPTS</code></td><td><span class="badge badge--red">Bloqueante</span></td><td>Máximo de intentos OTP o biometría agotados</td></tr>
             <tr><td><code>ERROR_TECHNICAL</code></td><td><span class="badge badge--red">Error</span></td><td>Error técnico inesperado del servidor</td></tr>
             <tr><td><code>ERROR_EXTERNAL_SERVICE</code></td><td><span class="badge badge--red">Error</span></td><td>Proveedor externo no disponible (buró, OCR, etc.)</td></tr>
-            <tr><td><code>ERROR_IDEMPOTENCY</code></td><td><span class="badge badge--red">Error</span></td><td>Clave de idempotencia duplicada — HTTP 409</td></tr>
             <tr><td><code>ERROR_CONCURRENCY</code></td><td><span class="badge badge--red">Error</span></td><td>Conflicto de versión de fila (optimistic lock) — HTTP 409</td></tr>
             <tr><td><code>ERROR_VALIDATION</code></td><td><span class="badge badge--red">Error</span></td><td>Payload inválido o datos de entrada incorrectos</td></tr>
           </tbody>
@@ -5887,7 +5882,6 @@ PC del asesor continúa el flujo ✓</pre>
              <tr><td><strong>Auth TIENDA</strong></td><td>JWT del asesor (rol <code>ASESOR_FABRICAS</code>, fuente: <code>fab.OperadoresFabrica</code> - GAP-19)</td></tr>
             <tr><td><strong>Auth HANDOFF</strong></td><td>Token UUID en path, TTL 15 min, scoped a 1 estudio</td></tr>
             <tr><td><strong>Auth CORE/EXT</strong></td><td>mTLS o API Key interna — jamás expuesto al exterior</td></tr>
-            <tr><td><strong>Idempotencia</strong></td><td>Header <code>X-Idempotency-Key</code> → HTTP 409 + <code>ERROR_IDEMPOTENCY</code> si duplicado</td></tr>
             <tr><td><strong>Optimistic Lock</strong></td><td><code>row_version</code> en body → HTTP 409 + <code>ERROR_CONCURRENCY</code> si mismatch</td></tr>
             <tr><td><strong>OTP</strong></td><td>Solo <code>HashToken</code> (SHA-256 + salt). Nunca el código plano.</td></tr>
             <tr><td><strong>Fotos</strong></td><td>URLs pre-firmadas TTL 15 min. Nunca en JSON de respuesta.</td></tr>
@@ -6217,233 +6211,8 @@ ORDER BY ec.IdEstudio;</code></pre>
 
       <hr>
 
-      <!-- CORRECCIÓN 5 — Concurrencia Optimista e Idempotencia -->
-      <section id="concurrencia-idempotencia">
-        <h2>Concurrencia Optimista e Idempotencia — Guía Práctica <span class="badge badge--accent">Nuevo v2.5</span></h2>
         <p>
           Dos mecanismos de protección son indispensables para un sistema financiero multicanal. Esta sección los explica
-          con ejemplos reales del día a día en la bodega y en la web.
-        </p>
-
-        <div class="card-grid">
-          <div class="card card--violet">
-            <h4>🔑 Idempotencia</h4>
-            <p>Garantiza que ejecutar la misma operación múltiples veces produce el mismo resultado que ejecutarla una sola vez.</p>
-          </div>
-          <div class="card card--cyan">
-            <h4>🔒 Concurrencia Optimista</h4>
-            <p>Permite que múltiples usuarios trabajen sobre el mismo registro sin bloquearlo, detectando y rechazando modificaciones conflictivas.</p>
-          </div>
-        </div>
-
-        <hr style="margin: 24px 0;">
-
-        <h3>Ejemplo 1 — Doble clic del asesor (Idempotencia)</h3>
-
-        <div class="callout callout--warn">
-          <p><strong>Escenario real:</strong> La asesora María en la bodega de Medellín hace doble clic en el botón
-          <em>"Aprobar Estudio"</em> porque la respuesta tardó 2 segundos. Su conexión es lenta.</p>
-        </div>
-
-        <table>
-          <thead>
-            <tr><th>Sin protección ❌</th><th>Con <code>ClaveIdempotencia</code> ✅</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Se crean <strong>2 aprobaciones</strong> en la base de datos</td>
-              <td>El segundo request llega con el <strong>mismo UUID</strong> → el UNIQUE INDEX sobre <code>ClaveIdempotencia</code> lo rechaza instantáneamente</td>
-            </tr>
-            <tr>
-              <td>El cupo se <strong>desembolsa dos veces</strong></td>
-              <td>La API retorna <strong>HTTP 409 Conflict</strong> con <code>next_action: ERROR_IDEMPOTENCY</code></td>
-            </tr>
-            <tr>
-              <td>Requiere proceso de reversión manual por el área de cartera</td>
-              <td>El Frontend muestra la respuesta original del primer request al asesor</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <h4>Flujo técnico — Cómo funciona el UNIQUE INDEX</h4>
-        <pre><code>── Request 1 (clic 1) ─────────────────────────────────────────────────────────
-POST /tienda/solicitud/EST-2026-00123/activar-cupo
-Headers: X-Idempotency-Key: "idem-abc-789-xyz"
-Body:    { "idValidacionAsesor": 4521, "tipoCierre": "EXPRESS" }
-
-Backend:
-  1. Verifica UNIQUE INDEX en EstudiosCredito.ClaveIdempotencia = "idem-abc-789-xyz"
-  2. No existe → ejecuta la activación
-  3. UPDATE EstudiosCredito SET IdEstadoActual = CUPO_ACTIVO, ClaveIdempotencia = "idem-abc-789-xyz"
-  4. Retorna HTTP 200 { "next_action": "FINAL_SUCCESS", ... }
-
-── Request 2 (clic 2, 800ms después) ─────────────────────────────────────────
-POST /tienda/solicitud/EST-2026-00123/activar-cupo
-Headers: X-Idempotency-Key: "idem-abc-789-xyz"   ← mismo UUID
-
-Backend:
-  1. Verifica UNIQUE INDEX en EstudiosCredito.ClaveIdempotencia = "idem-abc-789-xyz"
-  2. YA EXISTE → no ejecuta nada, retorna la respuesta cacheada del request 1
-  3. Retorna HTTP 409 { "next_action": "ERROR_IDEMPOTENCY", "original_response": {...} }
-
-Frontend:
-  Recibe HTTP 409 → muestra la pantalla de "Cupo activado exitosamente" (respuesta original)</code></pre>
-
-        <hr style="margin: 24px 0;">
-
-        <h3>Ejemplo 2 — Cliente y asesor abren el estudio al mismo tiempo (Concurrencia Optimista)</h3>
-
-        <div class="callout callout--warn">
-          <p><strong>Escenario real:</strong> El cliente Juan abre su estudio en su celular (flujo web) para actualizar
-          su dirección. Al <em>mismo tiempo</em>, el asesor Pedro lo tiene abierto en el PC de la bodega para agregar
-          una nota sobre la visita.</p>
-        </div>
-
-        <pre><code>T+0:00  Juan (celular)  abre el estudio → Backend retorna { VersionFila: "0x00000000000007D1" }
-T+0:00  Pedro (PC)      abre el estudio → Backend retorna { VersionFila: "0x00000000000007D1" }
-         (ambos tienen la misma versión de la fila — el estudio no ha sido modificado)
-
-T+0:15  Juan actualiza su dirección:
-          PUT /web/solicitud/EST-2026-00123/datos-direccion
-          Body: { "ciudad": "Manizales", "VersionFila": "0x00000000000007D1" }
-
-Backend:
-  UPDATE EstudiosCredito
-  SET CiudadCapturada = 'Manizales', VersionFila = NEXT_ROW_VERSION()
-  WHERE IdEstudio = 123
-    AND VersionFila = 0x00000000000007D1  ← condición de concurrencia
-
-  → Afecta 1 fila ✓  → Nueva VersionFila: "0x00000000000007D2"
-  → HTTP 200 { "next_action": "ADVANCE_STEP" }
-
-T+0:18  Pedro agrega nota (tiene aún VersionFila vieja = 0x7D1):
-          POST /tienda/solicitud/EST-2026-00123/agregar-nota
-          Body: { "nota": "Cliente vive cerca del parque", "VersionFila": "0x00000000000007D1" }
-
-Backend:
-  UPDATE EstudiosCredito
-  SET NotaAsesor = 'Cliente vive cerca del parque', VersionFila = NEXT_ROW_VERSION()
-  WHERE IdEstudio = 123
-    AND VersionFila = 0x00000000000007D1  ← ya no coincide (está en 0x7D2)
-
-  → Afecta 0 filas ✗
-  → HTTP 409 { "next_action": "ERROR_CONCURRENCY",
-               "mensaje": "Este estudio fue modificado por otro usuario. Recarga para ver los cambios." }
-
-Pedro recibe la alerta → recarga → ve la dirección actualizada por Juan → puede agregar su nota con la nueva versión.</code></pre>
-
-        <h4>¿Por qué concurrencia optimista es mejor que bloqueo pesimista?</h4>
-        <table>
-          <thead>
-            <tr><th>Aspecto</th><th>Concurrencia Optimista ✅</th><th>Bloqueo Pesimista (SELECT FOR UPDATE)</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Congela la fila</td>
-              <td>No — múltiples usuarios pueden leer libremente</td>
-              <td>Sí — bloquea la fila para todos los demás desde que se abre el registro</td>
-            </tr>
-            <tr>
-              <td>Escalabilidad</td>
-              <td>Alta — no hay recursos retenidos en el servidor de BD</td>
-              <td>Baja — si el asesor abre un estudio y va a almorzar, la fila queda bloqueada por horas</td>
-            </tr>
-            <tr>
-              <td>Riesgo de deadlock</td>
-              <td>Ninguno — los conflictos se detectan al momento de escritura</td>
-              <td>Alto — dos procesos esperando locks del otro generan deadlocks</td>
-            </tr>
-            <tr>
-              <td>Implementación en SQL Server</td>
-              <td><code>VersionFila ROWVERSION</code> — columna automática, cero código adicional</td>
-              <td><code>WITH (UPDLOCK, HOLDLOCK)</code> — gestión manual de transactions</td>
-            </tr>
-            <tr>
-              <td>Frecuencia de conflictos real</td>
-              <td>Muy baja — los conflictos simultáneos genuinos son raros en el flujo normal</td>
-              <td>Irrelevante — bloquea siempre, aunque no haya conflicto</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="callout callout--success">
-          <p><strong>Decisión de diseño:</strong> El campo <code>VersionFila ROWVERSION</code> ya está en <code>EstudiosCredito</code>.
-          SQL Server lo actualiza automáticamente en cada UPDATE. El LOS solo necesita incluirlo en el WHERE de cada
-          actualización y retornarlo en cada respuesta dentro del campo <code>meta.row_version</code>.</p>
-        </div>
-
-        <hr style="margin: 24px 0;">
-
-        <h3>Ejemplo 3 — Timeout de red en creación web (Idempotencia en móvil)</h3>
-
-        <div class="callout callout--warn">
-          <p><strong>Escenario real:</strong> El cliente Andrés envía su solicitud desde su celular con señal 3G débil
-          en el centro de Bogotá. El request llega al servidor y se procesa exitosamente, pero la respuesta nunca regresa
-          al celular (timeout de red).</p>
-        </div>
-
-        <pre><code>T+0:00  Andrés presiona "Enviar solicitud"
-T+0:01  App genera UUID: "idem-ANR-2026-6677" y lo almacena en sessionStorage
-T+0:01  POST /web/solicitud/iniciar
-        Headers: X-Idempotency-Key: "idem-ANR-2026-6677"
-        Body:    { "nit": "1023456789", "canal": "WEB" }
-
-T+0:04  Backend procesa exitosamente:
-          INSERT EstudiosCredito → IdEstudio: EST-2026-04521
-          HTTP 200 { "study_id": "EST-2026-04521", "next_action": "RENDER_SCREEN", ... }
-
-T+0:04  ⚡ Timeout de red — la respuesta se pierde en tránsito. El celular no recibe nada.
-
-T+0:06  App detecta timeout (>5 segundos sin respuesta)
-T+0:06  App reintenta automáticamente con el MISMO UUID:
-        POST /web/solicitud/iniciar
-        Headers: X-Idempotency-Key: "idem-ANR-2026-6677"  ← idéntico al anterior
-
-T+0:07  Backend detecta que "idem-ANR-2026-6677" ya fue procesado:
-          NO crea un segundo EstudiosCredito
-          Retorna la respuesta original cacheada:
-          HTTP 200 { "study_id": "EST-2026-04521", "next_action": "RENDER_SCREEN", ... }
-
-T+0:07  App recibe la respuesta → Andrés ve la pantalla de "Datos básicos" sin saber que hubo un retry ✓</code></pre>
-
-        <h4>Reglas de implementación de Idempotencia en el LOS</h4>
-        <table>
-          <thead>
-            <tr><th>Regla</th><th>Detalle</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Header obligatorio en mutaciones</td>
-              <td>Todo POST/PUT/PATCH debe incluir <code>X-Idempotency-Key: {uuid}</code>. El servidor retorna HTTP 400 si falta en operaciones que lo requieren.</td>
-            </tr>
-            <tr>
-              <td>TTL del registro</td>
-              <td>Las claves de idempotencia se mantienen por <strong>24 horas</strong>. Después de ese periodo, el mismo UUID puede reutilizarse (muy improbable en la práctica).</td>
-            </tr>
-            <tr>
-              <td>GET/HEAD son idempotentes por definición</td>
-              <td>Las consultas no necesitan <code>X-Idempotency-Key</code> — releer siempre retorna el estado actual sin efectos secundarios.</td>
-            </tr>
-            <tr>
-              <td>Respuesta en 409</td>
-              <td>El HTTP 409 por idempotencia incluye la respuesta original en <code>original_response</code>. El Frontend puede usarla directamente.</td>
-            </tr>
-            <tr>
-              <td>Generación del UUID</td>
-              <td>El UUID debe generarse en el <strong>cliente</strong> (Frontend/App) antes de enviar el request, no en el Backend. Esto garantiza que el mismo intento tenga siempre el mismo UUID aunque haya retries.</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-
-      <!-- Historial de Versiones -->
-      <!-- Gaps Resueltos v2.9 -->
-      <section id="gaps-v29">
-        <h2>Gaps Identificados y Resueltos (v2.9) <span class="badge badge--accent">Gestión de Centrales de Riesgo</span></h2>
-        <p>
-          Se incorporó el modelo de configuración y trazabilidad para las dos centrales de riesgo:
-          <strong>Datacredito</strong> (Preselecta + Reconocer) y <strong>CIFIN/TransUnion</strong>
-          (VariablesAdviser + UBICA). Cada central ofrece un servicio de <em>viabilidad</em> y uno de
           <em>contactabilidad</em>. Se puede configurar qué central se usa para cada servicio, o activar
           el modo combinado que consulta ambas y entrega una respuesta unificada.
         </p>
@@ -6594,7 +6363,7 @@ T+0:07  App recibe la respuesta → Andrés ve la pantalla de "Datos básicos" s
             <tr>
               <td><span class="badge badge--accent">v2.5</span></td>
               <td>2026-04-15</td>
-              <td>División de responsabilidades Backend vs Frontend. Autenticación biométrica de asesores (<code>ValidacionesAsesor</code>). Guía de concurrencia optimista e idempotencia.</td>
+              <td>División de responsabilidades Backend vs Frontend. Autenticación biométrica de asesores (<code>ValidacionesAsesor</code>). </td>
             </tr>
             <tr>
               <td><span class="badge badge--accent">v2.4</span></td>

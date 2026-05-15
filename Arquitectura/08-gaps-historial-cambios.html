@@ -100,7 +100,7 @@
     <p>Estas decisiones son definitivas y están reflejadas en el DDL <code>FABRICASv2.sql</code>. No requieren revisión adicional.</p>
 
     <div class="callout callout--danger">
-      <p><strong>ClaveIdempotencia y VersionFila eliminadas (C-06).</strong> Ambas columnas fueron removidas de <code>EstudiosCredito</code>. La máquina de estados garantiza la consistencia del flujo — no se requiere control de idempotencia a nivel de columna.</p>
+      
     </div>
 
     <div class="callout callout--warn">
@@ -119,7 +119,6 @@
           <td>La columna <code>IdTienda</code> se renombra a <code>IdBodega</code> para alinear con la nomenclatura del ERP</td>
         </tr>
         <tr>
-          <td>Eliminar ClaveIdempotencia</td>
           <td><code>EstudiosCredito</code></td>
           <td><span class="badge badge--cyan">C-06</span></td>
           <td>Columna eliminada — la máquina de estados controla duplicados</td>
@@ -254,7 +253,6 @@
         <tr><td><span class="gap-id">C-03</span></td><td>Tablas</td><td>Sin tabla de validaciones realizadas por el asesor</td><td>Creada <code>ValidacionesAsesor</code></td></tr>
         <tr><td><span class="gap-id">C-04</span></td><td>Tablas</td><td>Sin registro de logins de asesores</td><td>Creada <code>AuditoriaLogins</code> INSERT-ONLY</td></tr>
         <tr><td><span class="gap-id">C-05</span></td><td>Columnas</td><td>Falta campo LoginTienda en AuditoriaLogins</td><td>Columna LoginTienda agregada</td></tr>
-        <tr><td><span class="gap-id">C-06</span></td><td>Columnas</td><td>ClaveIdempotencia y VersionFila redundantes</td><td>Ambas columnas eliminadas de EstudiosCredito</td></tr>
       </tbody>
     </table>
 
@@ -373,18 +371,6 @@
       <thead>
         <tr><th>Elemento eliminado</th><th>Tabla</th><th>Gap</th><th>Razón</th></tr>
       </thead>
-      <tbody>
-        <tr>
-          <td><code>ClaveIdempotencia</code></td>
-          <td><code>EstudiosCredito</code></td>
-          <td><span class="badge badge--cyan">C-06</span></td>
-          <td>La máquina de estados garantiza consistencia. Una columna de idempotencia separada duplica la lógica sin agregar valor.</td>
-        </tr>
-        <tr>
-          <td><code>VersionFila</code></td>
-          <td><code>EstudiosCredito</code></td>
-          <td><span class="badge badge--cyan">C-06</span></td>
-          <td>Control de concurrencia optimista descartado. El modelo de fábrica es secuencial por diseño.</td>
         </tr>
         <tr>
           <td><code>SELFIE</code> en <code>TipoEvidencia</code></td>

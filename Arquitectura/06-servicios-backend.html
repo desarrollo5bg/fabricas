@@ -58,7 +58,6 @@
       <a href="#registro" class="indent">RegistroServiciosExternos</a>
       <a href="#evaluaciones" class="indent">EvaluacionesRiesgo</a>
       <a href="#bff" class="indent">Patrón BFF</a>
-      <a href="#concurrencia-idempotencia" class="indent">Concurrencia e Idempotencia</a>
       <a href="#bff-tienda" class="indent">A) BFF Tienda</a>
       <a href="#bff-web" class="indent">B) BFF Web</a>
       <a href="#bff-handoff" class="indent">C) BFF Handoff</a>
@@ -117,8 +116,6 @@
     <p>Tabla de log inmutable — cada llamada HTTP a un servicio externo genera exactamente una fila. Permite auditoría completa, replay y análisis de tiempos.</p>
 
     <div class="callout callout--info">
-      <p><strong>Sin ClaveIdempotencia.</strong> La máquina de estados controla duplicados a nivel de estudio — no se requiere ClaveIdempotencia en el log de servicios. Si un paso se repite (p.ej. reenvío de OTP), se inserta una nueva fila con la nueva invocación.</p>
-    </div>
 
     <h3>DDL de la tabla</h3>
     <pre><code>CREATE TABLE RegistroServiciosExternos (
@@ -654,158 +651,6 @@ CREATE INDEX IX_RegServ_Servicio_Resultado
     <div class="callout callout--success">
       <p><strong>Regla de oro SP:</strong> Toda escritura a tablas transaccionales o de auditoría pasa por un SP. Las APIs solo hacen READs directos a tablas de catálogo (maestros). Ningún INSERT/UPDATE/DELETE desde aplicación.</p>
     </div>
-
-    <h2 id="concurrencia-idempotencia">Concurrencia Optimista e Idempotencia — Guía Práctica <span class="badge badge--accent">Nuevo v2.5</span></h2>
-    <p>Dos mecanismos de protección son indispensables para un sistema financiero multicanal. Esta sección los explica con ejemplos reales del día a día en la bodega y en la web.</p>
-
-    <div class="card-grid">
-      <div class="card card--violet">
-        <h4>🔑 Idempotencia</h4>
-        <p>Garantiza que ejecutar la misma operación múltiples veces produce el mismo resultado que ejecutarla una sola vez.</p>
-      </div>
-      <div class="card card--cyan">
-        <h4>🔒 Concurrencia Optimista</h4>
-        <p>Permite que múltiples usuarios trabajen sobre el mismo registro sin bloquearlo, detectando y rechazando modificaciones conflictivas.</p>
-      </div>
-    </div>
-
-    <hr style="margin: 24px 0;">
-
-    <h3>Ejemplo 1 — Doble clic del asesor (Idempotencia)</h3>
-    <div class="callout callout--warn">
-      <p><strong>Escenario real:</strong> La asesora María en la bodega de Medellín hace doble clic en el botón <em>"Aprobar Estudio"</em> porque la respuesta tardó 2 segundos. Su conexión es lenta.</p>
-    </div>
-    <table>
-      <thead>
-        <tr><th>Sin protección ❌</th><th>Con <code>ClaveIdempotencia</code> ✅</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Se crean <strong>2 aprobaciones</strong> en la base de datos</td><td>El segundo request llega con el <strong>mismo UUID</strong> → el UNIQUE INDEX sobre <code>ClaveIdempotencia</code> lo rechaza instantáneamente</td></tr>
-        <tr><td>El cupo se <strong>desembolsa dos veces</strong></td><td>La API retorna <strong>HTTP 409 Conflict</strong> con <code>next_action: ERROR_IDEMPOTENCY</code></td></tr>
-        <tr><td>Requiere proceso de reversión manual por el área de cartera</td><td>El Frontend muestra la respuesta original del primer request al asesor</td></tr>
-      </tbody>
-    </table>
-
-    <h4>Flujo técnico — Cómo funciona el UNIQUE INDEX</h4>
-    <pre><code>── Request 1 (clic 1) ─────────────────────────────────────────────────────────
-POST /tienda/solicitud/EST-2026-00123/activar-cupo
-Headers: X-Idempotency-Key: "idem-abc-789-xyz"
-Body:    { "idValidacionAsesor": 4521, "tipoCierre": "EXPRESS" }
-
-Backend:
-  1. Verifica UNIQUE INDEX en EstudiosCredito.ClaveIdempotencia = "idem-abc-789-xyz"
-  2. No existe → ejecuta la activación
-  3. UPDATE EstudiosCredito SET IdEstadoActual = CUPO_ACTIVO, ClaveIdempotencia = "idem-abc-789-xyz"
-  4. Retorna HTTP 200 { "next_action": "FINAL_SUCCESS", ... }
-
-── Request 2 (clic 2, 800ms después) ─────────────────────────────────────────
-POST /tienda/solicitud/EST-2026-00123/activar-cupo
-Headers: X-Idempotency-Key: "idem-abc-789-xyz"   ← mismo UUID
-
-Backend:
-  1. Verifica UNIQUE INDEX en EstudiosCredito.ClaveIdempotencia = "idem-abc-789-xyz"
-  2. YA EXISTE → no ejecuta nada, retorna la respuesta cacheada del request 1
-  3. Retorna HTTP 409 { "next_action": "ERROR_IDEMPOTENCY", "original_response": {...} }
-
-Frontend:
-  Recibe HTTP 409 → muestra la pantalla de "Cupo activado exitosamente" (respuesta original)</code></pre>
-
-    <hr style="margin: 24px 0;">
-
-    <h3>Ejemplo 2 — Cliente y asesor abren el estudio al mismo tiempo (Concurrencia Optimista)</h3>
-    <div class="callout callout--warn">
-      <p><strong>Escenario real:</strong> El cliente Juan abre su estudio en su celular (flujo web) para actualizar su dirección. Al <em>mismo tiempo</em>, el asesor Pedro lo tiene abierto en el PC de la bodega para agregar una nota sobre la visita.</p>
-    </div>
-    <pre><code>T+0:00  Juan (celular)  abre el estudio → Backend retorna { VersionFila: "0x00000000000007D1" }
-T+0:00  Pedro (PC)      abre el estudio → Backend retorna { VersionFila: "0x00000000000007D1" }
-         (ambos tienen la misma versión de la fila — el estudio no ha sido modificado)
-
-T+0:15  Juan actualiza su dirección:
-          PUT /web/solicitud/EST-2026-00123/datos-direccion
-          Body: { "ciudad": "Manizales", "VersionFila": "0x00000000000007D1" }
-
-Backend:
-  UPDATE EstudiosCredito
-  SET CiudadCapturada = 'Manizales', VersionFila = NEXT_ROW_VERSION()
-  WHERE IdEstudio = 123
-    AND VersionFila = 0x00000000000007D1  ← condición de concurrencia
-
-  → Afecta 1 fila ✓  → Nueva VersionFila: "0x00000000000007D2"
-  → HTTP 200 { "next_action": "ADVANCE_STEP" }
-
-T+0:18  Pedro agrega nota (tiene aún VersionFila vieja = 0x7D1):
-          POST /tienda/solicitud/EST-2026-00123/agregar-nota
-          Body: { "nota": "Cliente vive cerca del parque", "VersionFila": "0x00000000000007D1" }
-
-Backend:
-  UPDATE EstudiosCredito
-  SET NotaAsesor = 'Cliente vive cerca del parque', VersionFila = NEXT_ROW_VERSION()
-  WHERE IdEstudio = 123
-    AND VersionFila = 0x00000000000007D1  ← ya no coincide (está en 0x7D2)
-
-  → Afecta 0 filas ✗
-  → HTTP 409 { "next_action": "ERROR_CONCURRENCY",
-               "mensaje": "Este estudio fue modificado por otro usuario. Recarga para ver los cambios." }
-
-Pedro recibe la alerta → recarga → ve la dirección actualizada por Juan → puede agregar su nota con la nueva versión.</code></pre>
-
-    <h4>¿Por qué concurrencia optimista es mejor que bloqueo pesimista?</h4>
-    <table>
-      <thead><tr><th>Aspecto</th><th>Concurrencia Optimista ✅</th><th>Bloqueo Pesimista</th></tr></thead>
-      <tbody>
-        <tr><td>Congela la fila</td><td>No — múltiples usuarios pueden leer libremente</td><td>Sí — bloquea la fila para todos los demás desde que se abre el registro</td></tr>
-        <tr><td>Escalabilidad</td><td>Alta — no hay recursos retenidos en el servidor de BD</td><td>Baja — si el asesor abre un estudio y va a almorzar, la fila queda bloqueada por horas</td></tr>
-        <tr><td>Riesgo de deadlock</td><td>Ninguno — los conflictos se detectan al momento de escritura</td><td>Alto — dos procesos esperando locks del otro generan deadlocks</td></tr>
-        <tr><td>Implementación en SQL Server</td><td><code>VersionFila ROWVERSION</code> — columna automática, cero código adicional</td><td><code>WITH (UPDLOCK, HOLDLOCK)</code> — gestión manual de transactions</td></tr>
-        <tr><td>Frecuencia de conflictos real</td><td>Muy baja — los conflictos simultáneos genuinos son raros en el flujo normal</td><td>Irrelevante — bloquea siempre, aunque no haya conflicto</td></tr>
-      </tbody>
-    </table>
-
-    <div class="callout callout--success">
-      <p><strong>Decisión de diseño:</strong> El campo <code>VersionFila ROWVERSION</code> ya está en <code>EstudiosCredito</code>. SQL Server lo actualiza automáticamente en cada UPDATE. El LOS solo necesita incluirlo en el WHERE de cada actualización y retornarlo en cada respuesta dentro del campo <code>meta.row_version</code>.</p>
-    </div>
-
-    <hr style="margin: 24px 0;">
-
-    <h3>Ejemplo 3 — Timeout de red en creación web (Idempotencia en móvil)</h3>
-    <div class="callout callout--warn">
-      <p><strong>Escenario real:</strong> El cliente Andrés envía su solicitud desde su celular con señal 3G débil en el centro de Bogotá. El request llega al servidor y se procesa exitosamente, pero la respuesta nunca regresa al celular (timeout de red).</p>
-    </div>
-    <pre><code>T+0:00  Andrés presiona "Enviar solicitud"
-T+0:01  App genera UUID: "idem-ANR-2026-6677" y lo almacena en sessionStorage
-T+0:01  POST /web/solicitud/iniciar
-        Headers: X-Idempotency-Key: "idem-ANR-2026-6677"
-        Body:    { "nit": "1023456789", "canal": "WEB" }
-
-T+0:04  Backend procesa exitosamente:
-          INSERT EstudiosCredito → IdEstudio: EST-2026-04521
-          HTTP 200 { "study_id": "EST-2026-04521", "next_action": "RENDER_SCREEN", ... }
-
-T+0:04  ⚡ Timeout de red — la respuesta se pierde en tránsito. El celular no recibe nada.
-
-T+0:06  App detecta timeout (>5 segundos sin respuesta)
-T+0:06  App reintenta automáticamente con el MISMO UUID:
-        POST /web/solicitud/iniciar
-        Headers: X-Idempotency-Key: "idem-ANR-2026-6677"  ← idéntico al anterior
-
-T+0:07  Backend detecta que "idem-ANR-2026-6677" ya fue procesado:
-          NO crea un segundo EstudiosCredito
-          Retorna la respuesta original cacheada:
-          HTTP 200 { "study_id": "EST-2026-04521", "next_action": "RENDER_SCREEN", ... }
-
-T+0:07  App recibe la respuesta → Andrés ve la pantalla de "Datos básicos" sin saber que hubo un retry ✓</code></pre>
-
-    <h4>Reglas de implementación de Idempotencia en el LOS</h4>
-    <table>
-      <thead><tr><th>Regla</th><th>Detalle</th></tr></thead>
-      <tbody>
-        <tr><td>Header obligatorio en mutaciones</td><td>Todo POST/PUT/PATCH debe incluir <code>X-Idempotency-Key: {uuid}</code>. El servidor retorna HTTP 400 si falta en operaciones que lo requieren.</td></tr>
-        <tr><td>TTL del registro</td><td>Las claves de idempotencia se mantienen por <strong>24 horas</strong>. Después de ese periodo, el mismo UUID puede reutilizarse (muy improbable en la práctica).</td></tr>
-        <tr><td>GET/HEAD son idempotentes por definición</td><td>Las consultas no necesitan <code>X-Idempotency-Key</code> — releer siempre retorna el estado actual sin efectos secundarios.</td></tr>
-        <tr><td>Respuesta en 409</td><td>El HTTP 409 por idempotencia incluye la respuesta original en <code>original_response</code>. El Frontend puede usarla directamente.</td></tr>
-        <tr><td>Generación del UUID</td><td>El UUID debe generarse en el <strong>cliente</strong> (Frontend/App) antes de enviar el request, no en el Backend. Esto garantiza que el mismo intento tenga siempre el mismo UUID aunque haya retries.</td></tr>
-      </tbody>
-    </table>
 
   </main>
 </body>
