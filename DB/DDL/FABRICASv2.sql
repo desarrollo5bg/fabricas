@@ -47,7 +47,7 @@
   - SA-04: Nueva tabla HistorialDatosSensibles (mutaciones email/cel con contexto)
   - SA-05: Nueva tabla AlertasFraude (registro inmutable de alertas, INSERT-ONLY)
   - SA-06: Nueva tabla CatalogoReglasFraude (tipificación de reglas de detección)
-  - SA-07: EstudiosCredito +EliminadoLogico +IdCorrelacion +IdEscalamientoActivo (ClaveIdempotencia y VersionFila eliminados por decisión PO)
+  - SA-07: EstudiosCredito +EliminadoLogico +IdCorrelacion +IdEscalamientoActivo
   - SA-08: HistorialEstados +IdCorrelacion
   - SA-09: RetosSeguridad +DireccionEnvio
   - SA-10: ValidacionesContactabilidad +IdAlertaFraude +FK
@@ -59,7 +59,6 @@
   - C-03: Nueva tabla ValidacionesAsesor (log de validación biométrica de identidad del asesor)
   - C-04: IdValidacionAsesor BIGINT NULL FK → ValidacionesAsesor (columna en CREATE TABLE; FK como ALTER por dependencia circular)
   - C-05: NitComercio VARCHAR(20) NOT NULL añadido a EstudiosCredito (NIT del comercio donde se origina el cupo)
-  - C-06: ClaveIdempotencia y VersionFila ELIMINADOS de EstudiosCredito (la máquina de estados y reglas de negocio previenen duplicados en la capa de servicio)
 
   CAMBIOS v2.5 — 18 Audit Gaps (2026-04-15):
   - GAP-01: SolicitudesRecarga.IdTipoFoto cambiado de NOT NULL a NULL (handoff biométrico)
@@ -937,7 +936,7 @@ END
 --   SA-04: HistorialDatosSensibles      — trazabilidad de mutaciones de campos de contacto (email, celular)
 --   SA-05: AlertasFraude                — registro de alertas de fraude detectadas por reglas de negocio
 --   SA-06: CatalogoReglasFraude         — catálogo tipificado de reglas de detección de fraude
---   SA-07: ALTER EstudiosCredito        — IdEscalamiento + ClaveIdempotencia + VersionFila + EliminadoLogico + IdCorrelacion
+--   SA-07: ALTER EstudiosCredito        — IdEscalamiento + EliminadoLogico + IdCorrelacion
 --   SA-08: ALTER HistorialEstados       — IdCorrelacion para trazabilidad distribuida
 --   SA-09: ALTER RetosSeguridad         — DireccionEnvio para registrar email/cel exacto al que se envió el OTP
 --   SA-10: ALTER ValidacionesContactabilidad — IdAlertaFraude FK para vincular alerta de fraude al resultado UBICA
@@ -1202,7 +1201,6 @@ END
 -- 5.7  EstudiosCredito — columnas de control incorporadas en CREATE TABLE
 --      SA-07: EliminadoLogico, IdCorrelacion e IdEscalamientoActivo ya están
 --             definidos directamente en el CREATE TABLE de la Sección 3.1.
---             ClaveIdempotencia y VersionFila ELIMINADOS por decisión del PO:
 --             la máquina de estados y las reglas de negocio del servicio ya
 --             previenen duplicados sin necesidad de control en base de datos.
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -2787,7 +2785,6 @@ END
 --   C-04: ALTER EstudiosCredito — añadir IdValidacionAsesor BIGINT NULL
 --         FK → ValidacionesAsesor.IdValidacion (vincula estudio con la validación
 --         que autorizó al asesor para la sesión)
---   C-05: ClaveIdempotencia y VersionFila ya existen en EstudiosCredito — sin cambios DDL
 -- ==============================================================================
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -3011,7 +3008,7 @@ END
   ║                           IdFotografiaSelfie (cols; FKs siguen ALTER)        ║
   ║                                                                              ║
   ║  COLUMNAS ELIMINADAS (decisión PO):                                          ║
-  ║  └── EstudiosCredito: ClaveIdempotencia, VersionFila                         ║
+  ║  └── EstudiosCredito:                          ║
   ║      (la maquina de estados + reglas de servicio previenen duplicados)       ║
   ║                                                                              ║
   ║  ESTADOS NUEVOS EN CatalogoEstados:                                          ║
