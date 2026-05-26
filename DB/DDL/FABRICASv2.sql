@@ -3252,3 +3252,184 @@ PRINT '  PARCHE V2.8 — CENTRALES DE RIESGO COMPLETADO';
 PRINT '================================================================';
 PRINT '  Fecha: ' + CONVERT(VARCHAR, GETDATE(), 120);
 PRINT '================================================================';
+
+
+-- ==============================================================================
+-- ══════════════════════════════════════════════════════════════════════════════
+-- ==============================================================================
+-- SECCIÓN 10: PARCHE V2.9 — BOT UBICA (VALIDACIÓN DE IDENTIDAD)
+-- Fecha: 2026-05-25
+-- Descripción: Tablas y seeds para el sistema de validación de identidad por
+--              voz. Orquesta llamadas automáticas vía Bot de Voz y soporta
+--              Plan B de validación manual por asesor.
+-- Bloquea: Integración CIFIN/Datacredito en T-06a/b y W-07
+-- ==============================================================================
+
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 10.1 cat.CatalogoDiagnosticosBot
+--      Fuente de verdad del motor de decisiones (DiagnosticoDecisionEngine).
+--      Define los 10 diagnósticos posibles que puede devolver el Bot de Voz
+--      o registrar un asesor en Plan B, con la acción que el sistema debe
+--      ejecutar para cada uno. NUNCA se hardcodea lógica en el orquestador.
+-- ─────────────────────────────────────────────────────────────────────────────
+IF NOT EXISTS (SELECT 1 FROM sys.tables t
+               JOIN sys.schemas s ON t.schema_id = s.schema_id
+               WHERE s.name = 'cat' AND t.name = 'CatalogoDiagnosticosBot')
+BEGIN
+    CREATE TABLE cat.CatalogoDiagnosticosBot (
+        IdDiagnostico       INT             NOT NULL IDENTITY(1,1),
+        Codigo              VARCHAR(40)     NOT NULL,
+        Descripcion         NVARCHAR(200)   NOT NULL,
+        AccionSistema       VARCHAR(20)     NOT NULL,   -- CONTINUAR | BLOQUEAR | ESCALAR | PLAN_B | DESCARTAR_LINEA
+        NivelAlerta         VARCHAR(10)     NOT NULL,   -- VERDE | AMARILLO | ROJO | GRIS | ERROR
+        GeneraAlertaFraude  BIT             NOT NULL    CONSTRAINT DF_CatDiagBot_GeneraAlerta DEFAULT(0),
+        EsTerminal          BIT             NOT NULL    CONSTRAINT DF_CatDiagBot_EsTerminal   DEFAULT(0),
+        Activo              BIT             NOT NULL    CONSTRAINT DF_CatDiagBot_Activo        DEFAULT(1),
+        Observaciones       NVARCHAR(400)   NULL,
+
+        CONSTRAINT PK_CatalogoDiagnosticosBot PRIMARY KEY (IdDiagnostico),
+        CONSTRAINT UQ_CatalogoDiagnosticosBot_Codigo UNIQUE (Codigo),
+        CONSTRAINT CK_CatDiagBot_Accion CHECK (AccionSistema IN ('CONTINUAR','BLOQUEAR','ESCALAR','PLAN_B','DESCARTAR_LINEA')),
+        CONSTRAINT CK_CatDiagBot_Nivel  CHECK (NivelAlerta   IN ('VERDE','AMARILLO','ROJO','GRIS','ERROR'))
+    )
+    PRINT '✓ cat.CatalogoDiagnosticosBot creada';
+END
+ELSE
+    PRINT '— cat.CatalogoDiagnosticosBot ya existe, omitida';
+
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 10.2 fab.CampanasValidacionIdentidad
+--      Una campaña por estudio. Registra si la validación se hizo vía Bot
+--      automático o vía asesor manual (Plan B), el diagnóstico final y el
+--      Paquete de Inconsistencia que se entrega a Fábrica de Soporte.
+-- ─────────────────────────────────────────────────────────────────────────────
+IF NOT EXISTS (SELECT 1 FROM sys.tables t
+               JOIN sys.schemas s ON t.schema_id = s.schema_id
+               WHERE s.name = 'fab' AND t.name = 'CampanasValidacionIdentidad')
+BEGIN
+    CREATE TABLE fab.CampanasValidacionIdentidad (
+        IdCampana               INT             NOT NULL IDENTITY(1,1),
+        CodigoCampana           VARCHAR(30)     NOT NULL,   -- CAMP-{yyyyMMdd}-{IdCampana}
+        IdEstudio               BIGINT          NOT NULL,
+        Canal                   VARCHAR(10)     NOT NULL,   -- BOT | MANUAL
+        MotivoManual            VARCHAR(20)     NULL,       -- FALLA_BOT | DECISION_ASESOR | NULL si Canal=BOT
+        EstadoCampana           VARCHAR(15)     NOT NULL    CONSTRAINT DF_CampVal_Estado DEFAULT('EN_PROCESO'),
+        IdDiagnosticoFinal      INT             NULL,       -- FK a cat.CatalogoDiagnosticosBot
+        PaqueteInconsistencia   NVARCHAR(MAX)   NULL,       -- JSON para Fábrica de Soporte (diagnóstico + tags + URL audio)
+        TotalLineasUsadas       TINYINT         NULL,
+        TotalIntentos           TINYINT         NULL,
+        FechaInicioMarcacion    DATETIME2(3)    NULL,
+        FechaFinMarcacion       DATETIME2(3)    NULL,
+        FechaCreacion           DATETIME2(3)    NOT NULL    CONSTRAINT DF_CampVal_FechaCreacion DEFAULT(SYSUTCDATETIME()),
+        NitAsesor               VARCHAR(20)     NOT NULL,   -- Inmutable — GAP-19
+
+        CONSTRAINT PK_CampanasValidacionIdentidad  PRIMARY KEY (IdCampana),
+        CONSTRAINT UQ_CampVal_CodigoCampana        UNIQUE (CodigoCampana),
+        CONSTRAINT UQ_CampVal_IdEstudio            UNIQUE (IdEstudio),   -- una campaña activa por estudio
+        CONSTRAINT FK_CampVal_IdEstudio            FOREIGN KEY (IdEstudio)          REFERENCES fab.EstudiosCredito(IdEstudio),
+        CONSTRAINT FK_CampVal_IdDiagnosticoFinal   FOREIGN KEY (IdDiagnosticoFinal) REFERENCES cat.CatalogoDiagnosticosBot(IdDiagnostico),
+        CONSTRAINT CK_CampVal_Canal                CHECK (Canal          IN ('BOT','MANUAL')),
+        CONSTRAINT CK_CampVal_MotivoManual         CHECK (MotivoManual   IN ('FALLA_BOT','DECISION_ASESOR') OR MotivoManual IS NULL),
+        CONSTRAINT CK_CampVal_EstadoCampana        CHECK (EstadoCampana  IN ('EN_PROCESO','COMPLETADA','FALLIDA'))
+    )
+    PRINT '✓ fab.CampanasValidacionIdentidad creada';
+END
+ELSE
+    PRINT '— fab.CampanasValidacionIdentidad ya existe, omitida';
+
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 10.3 fab.IntentosValidacionBot
+--      Una fila por llamada individual. Registra timestamps exactos, diagnóstico
+--      del intento, URL del audio grabado y variables biométricas detectadas
+--      por el Bot (género de voz, edad estimada, acento, coincidencias).
+-- ─────────────────────────────────────────────────────────────────────────────
+IF NOT EXISTS (SELECT 1 FROM sys.tables t
+               JOIN sys.schemas s ON t.schema_id = s.schema_id
+               WHERE s.name = 'fab' AND t.name = 'IntentosValidacionBot')
+BEGIN
+    CREATE TABLE fab.IntentosValidacionBot (
+        IdIntento                   INT             NOT NULL IDENTITY(1,1),
+        IdCampana                   INT             NOT NULL,
+        OrdenLinea                  TINYINT         NOT NULL,   -- 1..5 — posición en lista priorizada
+        NumeroMarcado               VARCHAR(15)     NOT NULL,
+        NumeroIntento               TINYINT         NOT NULL,   -- 1..3 por línea
+        IdDiagnosticoIntento        INT             NULL,       -- FK a cat.CatalogoDiagnosticosBot
+        FechaInicio                 DATETIME2(3)    NOT NULL,
+        FechaFin                    DATETIME2(3)    NULL,
+        DuracionSegundos            INT             NULL,
+        UrlAudio                    VARCHAR(500)    NULL,
+        -- Variables biométricas devueltas por el Bot (pueden ser NULL si no aplica)
+        GeneroVozDetectado          VARCHAR(10)     NULL,       -- MASCULINO | FEMENINO | INDEFINIDO
+        EdadEstimadaVoz             TINYINT         NULL,
+        AcentoDetectado             VARCHAR(30)     NULL,
+        CoincidenciaNombre          BIT             NULL,
+        CoincidenciaCedula          BIT             NULL,
+        DescripcionDiscrepancia     NVARCHAR(400)   NULL,
+        FechaCreacion               DATETIME2(3)    NOT NULL    CONSTRAINT DF_IntVal_FechaCreacion DEFAULT(SYSUTCDATETIME()),
+
+        CONSTRAINT PK_IntentosValidacionBot         PRIMARY KEY (IdIntento),
+        CONSTRAINT FK_IntVal_IdCampana              FOREIGN KEY (IdCampana)             REFERENCES fab.CampanasValidacionIdentidad(IdCampana),
+        CONSTRAINT FK_IntVal_IdDiagnosticoIntento   FOREIGN KEY (IdDiagnosticoIntento)  REFERENCES cat.CatalogoDiagnosticosBot(IdDiagnostico),
+        CONSTRAINT CK_IntVal_GeneroVoz              CHECK (GeneroVozDetectado IN ('MASCULINO','FEMENINO','INDEFINIDO') OR GeneroVozDetectado IS NULL),
+        CONSTRAINT UQ_IntVal_Intento                UNIQUE (IdCampana, OrdenLinea, NumeroIntento)
+    )
+    PRINT '✓ fab.IntentosValidacionBot creada';
+END
+ELSE
+    PRINT '— fab.IntentosValidacionBot ya existe, omitida';
+
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 10.4 Seeds — cat.CatalogoDiagnosticosBot
+--      10 diagnósticos fijos. AccionSistema es la única fuente de verdad que
+--      consume DiagnosticoDecisionEngine — sin hardcodeo en el orquestador C#.
+-- ─────────────────────────────────────────────────────────────────────────────
+IF NOT EXISTS (SELECT 1 FROM cat.CatalogoDiagnosticosBot WHERE Codigo = 'CONFIRMACION_POSITIVA')
+BEGIN
+    INSERT INTO cat.CatalogoDiagnosticosBot
+        (Codigo, Descripcion, AccionSistema, NivelAlerta, GeneraAlertaFraude, EsTerminal, Observaciones)
+    VALUES
+        ('CONFIRMACION_POSITIVA',       'Cliente confirmó identidad satisfactoriamente',                                    'CONTINUAR',       'VERDE',    0, 1, 'Aborta intentos restantes y avanza el estudio'),
+        ('ALERTA_SUPLANTACION',         'El bot detectó indicios claros de suplantación de identidad',                      'BLOQUEAR',        'ROJO',     1, 1, 'Crea aud.AlertasFraude + fab.EscalamientosFabrica prioridad CRITICA'),
+        ('INFORMACION_PARCIAL',         'El cliente respondió pero la información fue insuficiente o ambigua',              'ESCALAR',         'AMARILLO', 0, 0, 'Genera escalamiento NORMAL a Fábrica de Soporte'),
+        ('TERCERO_CONTESTA',            'Contestó una persona distinta al solicitante',                                     'ESCALAR',         'AMARILLO', 0, 0, 'Genera escalamiento NORMAL'),
+        ('CLIENTE_NIEGA_LINEA',         'El cliente afirma que el número no le pertenece',                                  'ESCALAR',         'AMARILLO', 0, 0, 'Genera escalamiento NORMAL — posible error en centrales'),
+        ('DISCREPANCIA_BIOMETRICA',     'Las variables biométricas de voz no coinciden con el perfil del solicitante',      'ESCALAR',         'AMARILLO', 0, 0, 'Genera escalamiento NORMAL con tags biométricos en paquete'),
+        ('NUMERO_EQUIVOCADO',           'El número marcado no corresponde al solicitante — descarta la línea',              'DESCARTAR_LINEA', 'GRIS',     0, 0, 'Pasa a la siguiente línea de la lista priorizada'),
+        ('SIN_RESPUESTA',               'La llamada no fue contestada en este intento',                                     'CONTINUAR',       'GRIS',     0, 0, 'Cuenta el intento y sigue con la estrategia Round-Robin'),
+        ('SIN_RESPUESTA_MAX_INTENTOS',  'Se agotaron todos los intentos sin respuesta en ninguna línea',                   'CONTINUAR',       'GRIS',     0, 1, 'Flujo continúa por buena fe — sin bloqueo'),
+        ('ERROR_TECNICO_BOT',           'El bot falló técnicamente — timeout, error de red o respuesta malformada',         'PLAN_B',          'ERROR',    0, 0, 'Activa ManualValidacionStrategy automáticamente');
+    PRINT '✓ Seeds cat.CatalogoDiagnosticosBot insertados (10 filas)';
+END
+ELSE
+    PRINT '— Seeds cat.CatalogoDiagnosticosBot ya existen, omitidos';
+
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 10.5 Seeds — cfg.ConfiguracionReglasNegocio (parámetros operativos BOT Ubica)
+-- ─────────────────────────────────────────────────────────────────────────────
+IF NOT EXISTS (SELECT 1 FROM cfg.ConfiguracionReglasNegocio WHERE Codigo = 'BOT_UBICA_TIMEOUT_SEGUNDOS')
+BEGIN
+    INSERT INTO cfg.ConfiguracionReglasNegocio (Codigo, Nombre, Valor, TipoDato, Categoria, Descripcion)
+    VALUES
+        ('BOT_UBICA_TIMEOUT_SEGUNDOS',   'Timeout Bot Voz',          '300', 'INT',     'GENERAL', 'Timeout máximo en segundos para esperar respuesta del Bot de Voz'),
+        ('BOT_UBICA_MAX_INTENTOS_LINEA', 'Máx intentos por línea',   '3',   'INT',     'GENERAL', 'Número máximo de intentos por línea de contacto'),
+        ('BOT_UBICA_MAX_LINEAS',         'Máx líneas por campaña',   '5',   'INT',     'GENERAL', 'Número máximo de líneas a marcar por campaña');
+    PRINT '✓ Seeds cfg.ConfiguracionReglasNegocio (BOT Ubica) insertados (3 filas)';
+END
+ELSE
+    PRINT '— Seeds cfg.ConfiguracionReglasNegocio (BOT Ubica) ya existen, omitidos';
+
+
+PRINT '================================================================';
+PRINT '  PARCHE V2.9 — BOT UBICA COMPLETADO';
+PRINT '================================================================';
+PRINT '  Tablas creadas: cat.CatalogoDiagnosticosBot,';
+PRINT '                  fab.CampanasValidacionIdentidad,';
+PRINT '                  fab.IntentosValidacionBot';
+PRINT '  Seeds: 10 diagnósticos + 3 parámetros operativos';
+PRINT '  Fecha: ' + CONVERT(VARCHAR, GETDATE(), 120);
+PRINT '================================================================';
