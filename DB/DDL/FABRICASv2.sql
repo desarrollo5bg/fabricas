@@ -154,9 +154,6 @@ BEGIN TRY
     -- ── V2.5 Auditoría ──────────────────────────────────────────────────────
     DROP TABLE IF EXISTS [aud].[AuditoriaLogins];
 
-    -- ── V2.4 ValidacionesAsesor ─────────────────────────────────────────────
-    DROP TABLE IF EXISTS [fab].[ValidacionesAsesor];
-
     -- ── V2.3 Evidencias ────────────────────────────────────────────────────
     DROP TABLE IF EXISTS [fab].[EvidenciasFabrica];
 
@@ -170,6 +167,9 @@ BEGIN TRY
 
     -- ── V3.1 EstudiosCredito (tabla central, referenciada por muchas) ──────
     DROP TABLE IF EXISTS [fab].[EstudiosCredito];
+
+    -- ── V2.4 ValidacionesAsesor (FK desde EstudiosCredito) ─────────────────
+    DROP TABLE IF EXISTS [fab].[ValidacionesAsesor];
 
     -- ── V2.1/V2.6 Operadores ────────────────────────────────────────────────
     DROP TABLE IF EXISTS [fab].[DisponibilidadOperadores];
