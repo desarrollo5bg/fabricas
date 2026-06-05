@@ -22,10 +22,11 @@
 -- Retorna: IdCampana (int), CodigoCampana (varchar)
 -- ============================================================================
 CREATE OR ALTER PROCEDURE [fab].[InsertCampanaValidacion]
-    @IdEstudio      INT,
-    @Canal          VARCHAR(10),    -- BOT | MANUAL
-    @MotivoManual   VARCHAR(20),    -- FALLA_BOT | DECISION_ASESOR | NULL si Canal=BOT
-    @NitAsesor      VARCHAR(20)
+    @IdEstudio          INT,
+    @Canal              VARCHAR(10),    -- BOT | MANUAL
+    @MotivoManual       VARCHAR(20),    -- FALLA_BOT | DECISION_ASESOR | NULL si Canal=BOT
+    @NitAsesor          VARCHAR(20),
+    @CentralConsultada  VARCHAR(20) = NULL  -- CIFIN | DATACREDITO | NULL (v2026-06-05)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -70,6 +71,14 @@ BEGIN
             RETURN;
         END;
 
+        -- Validar CentralConsultada
+        IF @Canal = 'BOT' AND @CentralConsultada IS NOT NULL
+           AND @CentralConsultada NOT IN ('CIFIN', 'DATACREDITO')
+        BEGIN
+            RAISERROR('CentralConsultada inválida: %s. Use: CIFIN, DATACREDITO o NULL.', 16, 1, @CentralConsultada);
+            RETURN;
+        END;
+
         -- INSERT inicial — CodigoCampana se genera en el UPDATE siguiente
         INSERT INTO [fab].[CampanasValidacionIdentidad] (
             CodigoCampana,
@@ -77,7 +86,8 @@ BEGIN
             Canal,
             MotivoManual,
             EstadoCampana,
-            NitAsesor
+            NitAsesor,
+            CentralConsultada
         )
         VALUES (
             'CAMP-PENDIENTE',   -- placeholder — se actualiza abajo con el Id generado
@@ -85,7 +95,8 @@ BEGIN
             @Canal,
             @MotivoManual,
             'EN_PROCESO',
-            @NitAsesor
+            @NitAsesor,
+            @CentralConsultada
         );
 
         DECLARE @IdCampana INT = SCOPE_IDENTITY();
@@ -337,7 +348,8 @@ BEGIN
         c.FechaInicioMarcacion,
         c.FechaFinMarcacion,
         c.FechaCreacion,
-        c.NitAsesor
+        c.NitAsesor,
+        c.CentralConsultada
     FROM [fab].[CampanasValidacionIdentidad] c
     LEFT JOIN [cat].[CatalogoDiagnosticosBot] d ON d.IdDiagnostico = c.IdDiagnosticoFinal
     WHERE c.IdEstudio    = @IdEstudio

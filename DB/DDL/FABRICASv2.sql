@@ -3324,6 +3324,7 @@ BEGIN
         FechaFinMarcacion       DATETIME2(3)    NULL,
         FechaCreacion           DATETIME2(3)    NOT NULL    CONSTRAINT DF_CampVal_FechaCreacion DEFAULT(SYSUTCDATETIME()),
         NitAsesor               VARCHAR(20)     NOT NULL,   -- Inmutable — GAP-19
+        CentralConsultada       VARCHAR(20)     NULL,       -- CIFIN | DATACREDITO — qué central se consultó (v2026-06-05)
 
         CONSTRAINT PK_CampanasValidacionIdentidad  PRIMARY KEY (IdCampana),
         CONSTRAINT UQ_CampVal_CodigoCampana        UNIQUE (CodigoCampana),
@@ -3332,7 +3333,8 @@ BEGIN
         CONSTRAINT FK_CampVal_IdDiagnosticoFinal   FOREIGN KEY (IdDiagnosticoFinal) REFERENCES cat.CatalogoDiagnosticosBot(IdDiagnostico),
         CONSTRAINT CK_CampVal_Canal                CHECK (Canal          IN ('BOT','MANUAL')),
         CONSTRAINT CK_CampVal_MotivoManual         CHECK (MotivoManual   IN ('FALLA_BOT','DECISION_ASESOR') OR MotivoManual IS NULL),
-        CONSTRAINT CK_CampVal_EstadoCampana        CHECK (EstadoCampana  IN ('EN_PROCESO','COMPLETADA','FALLIDA'))
+        CONSTRAINT CK_CampVal_EstadoCampana        CHECK (EstadoCampana  IN ('EN_PROCESO','COMPLETADA','FALLIDA')),
+        CONSTRAINT CK_CampVal_CentralConsultada    CHECK (CentralConsultada IN ('CIFIN','DATACREDITO') OR CentralConsultada IS NULL)
     )
     PRINT '✓ fab.CampanasValidacionIdentidad creada';
 END
