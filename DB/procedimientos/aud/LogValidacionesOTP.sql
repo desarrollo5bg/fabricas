@@ -15,7 +15,7 @@
 -- ============================================================================
 -- aud.InsertLogValidacionOTP
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [aud].[InsertLogValidacionOTP]
+CREATE  PROCEDURE [aud].[InsertLogValidacionOTP]
     @IdReto             BIGINT,
     @IdEstudio          BIGINT,
     @NitTercero         VARCHAR(20),

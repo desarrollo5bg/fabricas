@@ -19,7 +19,7 @@
 -- ============================================================================
 -- fab.InsertEstudioCredito (C-01 CrearEstudio)
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[InsertEstudioCredito]
+CREATE  PROCEDURE [fab].[InsertEstudioCredito]
     @NitTercero         VARCHAR(20),
     @IdCanal            INT,
     @IdOperadorCreador  INT,
@@ -62,20 +62,20 @@ BEGIN
         -- Obtener código de estado inicial (Grupo = 'INICIAL')
         DECLARE @CodigoEstadoInicial VARCHAR(40);
         SELECT TOP 1 @CodigoEstadoInicial = Codigo
-        FROM [cfg].[CatalogoEstados]
+        FROM [cfg].[EstadosEstudio]
         WHERE Grupo = 'INICIAL'
         ORDER BY IdEstado ASC;
 
         IF @CodigoEstadoInicial IS NULL
         BEGIN
-            RAISERROR('No hay estado inicial configurado en cfg.CatalogoEstados.', 16, 1);
+            RAISERROR('No hay estado inicial configurado en cfg.EstadosEstudio.', 16, 1);
             RETURN;
         END;
 
         -- Obtener IdEstado correspondiente al código inicial
         DECLARE @IdEstadoInicial INT;
         SELECT @IdEstadoInicial = IdEstado
-        FROM [cfg].[CatalogoEstados]
+        FROM [cfg].[EstadosEstudio]
         WHERE Codigo = @CodigoEstadoInicial;
 
         -- Obtener NitComercio de la bodega asociada al operador creador (si existe)
@@ -218,7 +218,7 @@ BEGIN
         tf.NombreTercero,
         cc.Nombre AS [NombreCanal]
     FROM [fab].[EstudiosCredito] ec
-    LEFT JOIN [cfg].[CatalogoEstados] ce ON ce.IdEstado = ec.IdEstadoActual
+    LEFT JOIN [cfg].[EstadosEstudio] ce ON ce.IdEstado = ec.IdEstadoActual
     LEFT JOIN [cfg].[PasosEstudio] ps ON ps.IdPaso = ec.IdPasoActual
     LEFT JOIN [cfg].[FasesEstudio] fs ON fs.IdFase = ps.IdFase
     LEFT JOIN [fab].[TercerosFabricas] tf ON tf.NitTercero = ec.NitTercero
@@ -231,7 +231,7 @@ END;
 -- ============================================================================
 -- fab.AvanzarPaso (C-05 AvanzarPaso)
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[AvanzarPaso]
+CREATE  PROCEDURE [fab].[AvanzarPaso]
     @IdEstudio           BIGINT,
     @IdPasoCompletado    INT,
     @Resultado           VARCHAR(20) = 'COMPLETADO',
@@ -325,7 +325,7 @@ END;
 -- ============================================================================
 -- fab.ActivarCupo (C-14 ActivarCupo)
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[ActivarCupo]
+CREATE  PROCEDURE [fab].[ActivarCupo]
     @IdEstudio              BIGINT,
     @IdOperadorAprobador    INT,
     @MontoAprobado          DECIMAL(18,2),
@@ -352,7 +352,7 @@ BEGIN
         -- Validar que no esté ya en estado terminal (aprobado o rechazado)
         DECLARE @EsTerminal BIT;
         SELECT @EsTerminal = EsTerminal
-        FROM [cfg].[CatalogoEstados]
+        FROM [cfg].[EstadosEstudio]
         WHERE IdEstado = @IdEstadoActual;
 
         IF @EsTerminal = 1
@@ -364,13 +364,13 @@ BEGIN
         -- Obtener IdEstado del estado APROBADO
         DECLARE @IdEstadoAprobado INT;
         SELECT TOP 1 @IdEstadoAprobado = IdEstado
-        FROM [cfg].[CatalogoEstados]
+        FROM [cfg].[EstadosEstudio]
         WHERE Codigo = 'APROBADO'
         ORDER BY IdEstado ASC;
 
         IF @IdEstadoAprobado IS NULL
         BEGIN
-            RAISERROR('No existe estado APROBADO configurado en cfg.CatalogoEstados.', 16, 1);
+            RAISERROR('No existe estado APROBADO configurado en cfg.EstadosEstudio.', 16, 1);
             RETURN;
         END;
 

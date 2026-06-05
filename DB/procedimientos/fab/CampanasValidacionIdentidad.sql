@@ -21,7 +21,7 @@
 -- Previene duplicados: lanza error si el estudio ya tiene campaña EN_PROCESO.
 -- Retorna: IdCampana (int), CodigoCampana (varchar)
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[InsertCampanaValidacion]
+CREATE  PROCEDURE [fab].[InsertCampanaValidacion]
     @IdEstudio          INT,
     @Canal              VARCHAR(10),    -- BOT | MANUAL
     @MotivoManual       VARCHAR(20),    -- FALLA_BOT | DECISION_ASESOR | NULL si Canal=BOT
@@ -133,7 +133,7 @@ END;
 -- garantiza idempotencia — no se puede registrar el mismo intento dos veces.
 -- Retorna: IdIntento (int)
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[InsertIntentoValidacion]
+CREATE  PROCEDURE [fab].[InsertIntentoValidacion]
     @IdCampana              INT,
     @OrdenLinea             TINYINT,
     @NumeroMarcado          VARCHAR(15),
@@ -234,7 +234,7 @@ END;
 -- y el PaqueteInconsistencia (JSON para Fábrica de Soporte).
 -- Solo UPDATE — no Upsert.
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[UpdateDiagnosticoFinalCampana]
+CREATE  PROCEDURE [fab].[UpdateDiagnosticoFinalCampana]
     @IdCampana              INT,
     @IdDiagnosticoFinal     INT,
     @EstadoCampana          VARCHAR(15),        -- COMPLETADA | FALLIDA
@@ -325,7 +325,7 @@ END;
 -- Retorna la campaña con su diagnóstico final (si existe) para polling.
 -- Retorna 0 filas si no hay campaña activa — no es un error.
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[GetCampanaActivaPorEstudio]
+CREATE  PROCEDURE [fab].[GetCampanaActivaPorEstudio]
     @IdEstudio INT
 AS
 BEGIN

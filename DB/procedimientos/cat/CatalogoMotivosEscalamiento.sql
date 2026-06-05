@@ -13,7 +13,7 @@
 -- ============================================================================
 -- cat.GetAllCatalogoMotivosEscalamiento
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cat].[GetAllCatalogoMotivosEscalamiento]
+CREATE  PROCEDURE [cat].[GetAllCatalogoMotivosEscalamiento]
     @SoloActivos BIT         = 1,
     @Origen      VARCHAR(20) = NULL
 AS
@@ -39,7 +39,7 @@ END;
 -- ============================================================================
 -- cat.InsertCatalogoMotivosEscalamiento
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cat].[InsertCatalogoMotivosEscalamiento]
+CREATE  PROCEDURE [cat].[InsertCatalogoMotivosEscalamiento]
     @Codigo      VARCHAR(50),
     @Nombre      NVARCHAR(150),
     @Descripcion NVARCHAR(500) = NULL,
@@ -84,7 +84,7 @@ END;
 -- ============================================================================
 -- cat.UpdateCatalogoMotivosEscalamiento
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cat].[UpdateCatalogoMotivosEscalamiento]
+CREATE  PROCEDURE [cat].[UpdateCatalogoMotivosEscalamiento]
     @IdMotivo    INT,
     @Nombre      NVARCHAR(150),
     @Descripcion NVARCHAR(500) = NULL,
@@ -129,7 +129,7 @@ END;
 -- ============================================================================
 -- cat.DeactivateCatalogoMotivosEscalamiento
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cat].[DeactivateCatalogoMotivosEscalamiento]
+CREATE  PROCEDURE [cat].[DeactivateCatalogoMotivosEscalamiento]
     @IdMotivo INT
 AS
 BEGIN

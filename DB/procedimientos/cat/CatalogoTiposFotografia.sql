@@ -15,7 +15,7 @@
 -- ============================================================================
 -- cat.GetAllCatalogoTiposFotografia
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cat].[GetAllCatalogoTiposFotografia]
+CREATE  PROCEDURE [cat].[GetAllCatalogoTiposFotografia]
     @SoloActivos BIT = 1
 AS
 BEGIN
@@ -41,7 +41,7 @@ END;
 -- ============================================================================
 -- cat.GetObligatoriasCatalogoTiposFotografia
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cat].[GetObligatoriasCatalogoTiposFotografia]
+CREATE  PROCEDURE [cat].[GetObligatoriasCatalogoTiposFotografia]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -63,7 +63,7 @@ END;
 -- ============================================================================
 -- cat.UpdateCatalogoTiposFotografia
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cat].[UpdateCatalogoTiposFotografia]
+CREATE  PROCEDURE [cat].[UpdateCatalogoTiposFotografia]
     @IdTipoFoto    INT,
     @Nombre        NVARCHAR(100),
     @Descripcion   NVARCHAR(300) = NULL,
@@ -105,7 +105,7 @@ END;
 -- ============================================================================
 -- cat.DeactivateCatalogoTiposFotografia
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cat].[DeactivateCatalogoTiposFotografia]
+CREATE  PROCEDURE [cat].[DeactivateCatalogoTiposFotografia]
     @IdTipoFoto INT
 AS
 BEGIN

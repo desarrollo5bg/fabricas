@@ -13,7 +13,7 @@
 -- ============================================================================
 -- cat.GetAllCatalogoCanalesOrigen
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cat].[GetAllCatalogoCanalesOrigen]
+CREATE  PROCEDURE [cat].[GetAllCatalogoCanalesOrigen]
     @SoloActivos BIT = 1
 AS
 BEGIN
@@ -36,7 +36,7 @@ END;
 -- ============================================================================
 -- cat.InsertCatalogoCanalesOrigen
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cat].[InsertCatalogoCanalesOrigen]
+CREATE  PROCEDURE [cat].[InsertCatalogoCanalesOrigen]
     @Codigo      VARCHAR(20),
     @Nombre      NVARCHAR(100),
     @Descripcion NVARCHAR(300) = NULL,
@@ -75,7 +75,7 @@ END;
 -- ============================================================================
 -- cat.UpdateCatalogoCanalesOrigen
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cat].[UpdateCatalogoCanalesOrigen]
+CREATE  PROCEDURE [cat].[UpdateCatalogoCanalesOrigen]
     @IdCanal     INT,
     @Nombre      NVARCHAR(100),
     @Descripcion NVARCHAR(300) = NULL
@@ -113,7 +113,7 @@ END;
 -- ============================================================================
 -- cat.DeactivateCatalogoCanalesOrigen
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cat].[DeactivateCatalogoCanalesOrigen]
+CREATE  PROCEDURE [cat].[DeactivateCatalogoCanalesOrigen]
     @IdCanal INT
 AS
 BEGIN

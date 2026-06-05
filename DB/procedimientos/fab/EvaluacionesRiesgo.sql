@@ -19,7 +19,7 @@
 -- ============================================================================
 -- fab.InsertEvaluacionRiesgo (C-08)
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[InsertEvaluacionRiesgo]
+CREATE  PROCEDURE [fab].[InsertEvaluacionRiesgo]
     @IdEstudio                      BIGINT,
     @IdPaso                         INT = NULL,
     @TipoEvaluacion                 VARCHAR(30),
@@ -113,7 +113,7 @@ END;
 -- ============================================================================
 -- fab.RegistrarEvaluacionViabilidad (C-23)
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[RegistrarEvaluacionViabilidad]
+CREATE  PROCEDURE [fab].[RegistrarEvaluacionViabilidad]
     @IdEstudio              BIGINT,
     @NitTercero             VARCHAR(20),
     @CentralConsultada      VARCHAR(20),
@@ -176,7 +176,7 @@ END;
 -- ============================================================================
 -- fab.RegistrarEvaluacionContactabilidad (C-24)
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[RegistrarEvaluacionContactabilidad]
+CREATE  PROCEDURE [fab].[RegistrarEvaluacionContactabilidad]
     @IdEstudio              BIGINT,
     @NitTercero             VARCHAR(20),
     @CentralConsultada      VARCHAR(20),
@@ -266,7 +266,7 @@ END;
 -- ============================================================================
 -- fab.InsertEvaluacionCombinada (C-26)
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[InsertEvaluacionCombinada]
+CREATE  PROCEDURE [fab].[InsertEvaluacionCombinada]
     @IdEstudio                          BIGINT,
     @NitTercero                         VARCHAR(20),
     @Resultado                          VARCHAR(20),

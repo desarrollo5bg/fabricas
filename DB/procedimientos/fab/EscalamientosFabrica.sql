@@ -13,7 +13,7 @@
 -- ============================================================================
 -- fab.InsertEscalamiento (C-12)
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[InsertEscalamiento]
+CREATE  PROCEDURE [fab].[InsertEscalamiento]
     @IdEstudio              BIGINT,
     @IdMotivo               INT,
     @IdOperadorCreador      INT,

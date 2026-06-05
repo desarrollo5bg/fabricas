@@ -20,7 +20,7 @@
 -- ============================================================================
 -- fab.GetAllOperadoresFabrica
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[GetAllOperadoresFabrica]
+CREATE  PROCEDURE [fab].[GetAllOperadoresFabrica]
     @SoloActivos  BIT         = 1,
     @TipoOperador VARCHAR(20) = NULL
 AS
@@ -47,7 +47,7 @@ END;
 -- ============================================================================
 -- fab.GetByNitOperadoresFabrica
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[GetByNitOperadoresFabrica]
+CREATE  PROCEDURE [fab].[GetByNitOperadoresFabrica]
     @NitOperador VARCHAR(20)
 AS
 BEGIN
@@ -71,7 +71,7 @@ END;
 -- ============================================================================
 -- fab.GetByIdOperadoresFabrica
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[GetByIdOperadoresFabrica]
+CREATE  PROCEDURE [fab].[GetByIdOperadoresFabrica]
     @IdOperador INT
 AS
 BEGIN
@@ -95,7 +95,7 @@ END;
 -- ============================================================================
 -- fab.GetByTipoOperadoresFabrica
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[GetByTipoOperadoresFabrica]
+CREATE  PROCEDURE [fab].[GetByTipoOperadoresFabrica]
     @TipoOperador VARCHAR(20),
     @SoloActivos  BIT = 1
 AS
@@ -126,7 +126,7 @@ END;
 -- ============================================================================
 -- fab.InsertOperadoresFabrica
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[InsertOperadoresFabrica]
+CREATE  PROCEDURE [fab].[InsertOperadoresFabrica]
     @NitOperador      VARCHAR(20),
     @NombreOperador   NVARCHAR(200),
     @CorreoOperador   NVARCHAR(100) = NULL,
@@ -177,7 +177,7 @@ END;
 -- fab.UpdateOperadoresFabrica
 --   NitOperador es INMUTABLE — no se puede cambiar.
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[UpdateOperadoresFabrica]
+CREATE  PROCEDURE [fab].[UpdateOperadoresFabrica]
     @IdOperador       INT,
     @NombreOperador   NVARCHAR(200),
     @CorreoOperador   NVARCHAR(100) = NULL,
@@ -224,7 +224,7 @@ END;
 -- ============================================================================
 -- fab.DeactivateOperadoresFabrica
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[DeactivateOperadoresFabrica]
+CREATE  PROCEDURE [fab].[DeactivateOperadoresFabrica]
     @IdOperador INT
 AS
 BEGIN
@@ -277,7 +277,7 @@ END;
 -- ============================================================================
 -- fab.ActivateOperadoresFabrica
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[ActivateOperadoresFabrica]
+CREATE  PROCEDURE [fab].[ActivateOperadoresFabrica]
     @IdOperador INT
 AS
 BEGIN

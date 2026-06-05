@@ -13,7 +13,7 @@
 -- ============================================================================
 -- cat.GetAllCatalogoReglasFraude
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cat].[GetAllCatalogoReglasFraude]
+CREATE  PROCEDURE [cat].[GetAllCatalogoReglasFraude]
     @SoloActivas BIT         = 1,
     @NivelRiesgo VARCHAR(10) = NULL
 AS
@@ -40,7 +40,7 @@ END;
 -- ============================================================================
 -- cat.InsertCatalogoReglasFraude
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cat].[InsertCatalogoReglasFraude]
+CREATE  PROCEDURE [cat].[InsertCatalogoReglasFraude]
     @Codigo           VARCHAR(50),
     @Nombre           NVARCHAR(150),
     @Descripcion      NVARCHAR(500) = NULL,
@@ -91,7 +91,7 @@ END;
 -- ============================================================================
 -- cat.UpdateCatalogoReglasFraude
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cat].[UpdateCatalogoReglasFraude]
+CREATE  PROCEDURE [cat].[UpdateCatalogoReglasFraude]
     @IdReglaFraude    INT,
     @Nombre           NVARCHAR(150),
     @Descripcion      NVARCHAR(500) = NULL,
@@ -143,7 +143,7 @@ END;
 -- ============================================================================
 -- cat.DeactivateCatalogoReglasFraude
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cat].[DeactivateCatalogoReglasFraude]
+CREATE  PROCEDURE [cat].[DeactivateCatalogoReglasFraude]
     @IdReglaFraude INT
 AS
 BEGIN

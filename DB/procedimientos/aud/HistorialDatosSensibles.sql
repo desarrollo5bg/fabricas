@@ -13,7 +13,7 @@
 -- ============================================================================
 -- aud.InsertAuditoriaCambioDatos (C-15)
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [aud].[InsertAuditoriaCambioDatos]
+CREATE  PROCEDURE [aud].[InsertAuditoriaCambioDatos]
     @IdEstudio              BIGINT,
     @NitTercero             VARCHAR(20),
     @CampoCambiado          VARCHAR(50),

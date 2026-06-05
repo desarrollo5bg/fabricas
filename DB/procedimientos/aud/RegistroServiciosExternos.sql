@@ -13,7 +13,7 @@
 -- ============================================================================
 -- aud.InsertRegistroServicioExterno (C-16)
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [aud].[InsertRegistroServicioExterno]
+CREATE  PROCEDURE [aud].[InsertRegistroServicioExterno]
     @IdEstudio              BIGINT = NULL,
     @IdPaso                 INT = NULL,
     @NombreServicio         VARCHAR(50),

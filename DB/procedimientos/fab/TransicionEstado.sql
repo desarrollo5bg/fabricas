@@ -15,7 +15,7 @@
 -- ============================================================================
 -- fab.TransicionarEstado (C-03)
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[TransicionarEstado]
+CREATE  PROCEDURE [fab].[TransicionarEstado]
     @IdEstudio              BIGINT,
     @CodigoEstadoDestino    VARCHAR(40),
     @IdOperador             INT,
@@ -45,11 +45,11 @@ BEGIN
 
         -- Obtener código estado actual y destino
         SELECT @CodigoEstadoOrigen = Codigo
-        FROM [cfg].[CatalogoEstados]
+        FROM [cfg].[EstadosEstudio]
         WHERE IdEstado = @IdEstadoActual;
 
         SELECT @IdEstadoDestino = IdEstado
-        FROM [cfg].[CatalogoEstados]
+        FROM [cfg].[EstadosEstudio]
         WHERE Codigo = @CodigoEstadoDestino;
 
         IF @IdEstadoDestino IS NULL
@@ -131,7 +131,7 @@ END;
 -- ============================================================================
 -- fab.CalcularSiguientePaso (C-04)
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[CalcularSiguientePaso]
+CREATE  PROCEDURE [fab].[CalcularSiguientePaso]
     @IdPasoActual INT
 AS
 BEGIN

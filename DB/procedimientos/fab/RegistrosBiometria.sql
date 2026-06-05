@@ -13,7 +13,7 @@
 -- ============================================================================
 -- fab.InsertRegistroBiometria (C-09)
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[InsertRegistroBiometria]
+CREATE  PROCEDURE [fab].[InsertRegistroBiometria]
     @IdEstudio                  BIGINT,
     @IdTransaccionProveedor     VARCHAR(100) = NULL,
     @TipoVerificacion           VARCHAR(20),

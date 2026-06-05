@@ -14,7 +14,7 @@
 -- ============================================================================
 -- cfg.GetAllCentralesRiesgoCfg
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[GetAllCentralesRiesgoCfg]
+CREATE  PROCEDURE [cfg].[GetAllCentralesRiesgoCfg]
     @SoloActivas BIT = 1
 AS
 BEGIN
@@ -41,7 +41,7 @@ END;
 -- ============================================================================
 -- cfg.GetByTipoServicioCentralesRiesgoCfg
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[GetByTipoServicioCentralesRiesgoCfg]
+CREATE  PROCEDURE [cfg].[GetByTipoServicioCentralesRiesgoCfg]
     @TipoServicio VARCHAR(30),
     @Canal        VARCHAR(20) = NULL
 AS
@@ -69,7 +69,7 @@ END;
 -- ============================================================================
 -- cfg.InsertCentralesRiesgoCfg
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[InsertCentralesRiesgoCfg]
+CREATE  PROCEDURE [cfg].[InsertCentralesRiesgoCfg]
     @TipoServicio    VARCHAR(30),
     @CentralActiva   VARCHAR(30),
     @NombreServicio  VARCHAR(50),
@@ -135,7 +135,7 @@ END;
 -- ============================================================================
 -- cfg.UpdateCentralesRiesgoCfg
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[UpdateCentralesRiesgoCfg]
+CREATE  PROCEDURE [cfg].[UpdateCentralesRiesgoCfg]
     @IdConfig        INT,
     @CentralActiva   VARCHAR(30),
     @NombreServicio  VARCHAR(50),
@@ -189,7 +189,7 @@ END;
 -- ============================================================================
 -- cfg.DeactivateCentralesRiesgoCfg
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[DeactivateCentralesRiesgoCfg]
+CREATE  PROCEDURE [cfg].[DeactivateCentralesRiesgoCfg]
     @IdConfig INT
 AS
 BEGIN

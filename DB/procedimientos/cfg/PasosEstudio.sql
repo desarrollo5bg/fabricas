@@ -14,7 +14,7 @@
 -- ============================================================================
 -- cfg.GetByFasePasosEstudio
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[GetByFasePasosEstudio]
+CREATE  PROCEDURE [cfg].[GetByFasePasosEstudio]
     @IdFase      INT,
     @SoloActivos BIT = 1
 AS
@@ -45,7 +45,7 @@ END;
 -- ============================================================================
 -- cfg.GetByIdPasosEstudio
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[GetByIdPasosEstudio]
+CREATE  PROCEDURE [cfg].[GetByIdPasosEstudio]
     @IdPaso INT
 AS
 BEGIN
@@ -73,7 +73,7 @@ END;
 -- ============================================================================
 -- cfg.InsertPasosEstudio
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[InsertPasosEstudio]
+CREATE  PROCEDURE [cfg].[InsertPasosEstudio]
     @IdFase               INT,
     @Codigo               VARCHAR(40),
     @Nombre               NVARCHAR(150),
@@ -143,7 +143,7 @@ END;
 -- ============================================================================
 -- cfg.UpdatePasosEstudio
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[UpdatePasosEstudio]
+CREATE  PROCEDURE [cfg].[UpdatePasosEstudio]
     @IdPaso               INT,
     @Nombre               NVARCHAR(150),
     @OrdenEnFase          INT,
@@ -207,7 +207,7 @@ END;
 -- ============================================================================
 -- cfg.DeactivatePasosEstudio
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[DeactivatePasosEstudio]
+CREATE  PROCEDURE [cfg].[DeactivatePasosEstudio]
     @IdPaso INT
 AS
 BEGIN

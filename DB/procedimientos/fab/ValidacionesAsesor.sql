@@ -13,7 +13,7 @@
 -- ============================================================================
 -- fab.InsertValidacionAsesor (C-22)
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[InsertValidacionAsesor]
+CREATE  PROCEDURE [fab].[InsertValidacionAsesor]
     @IdAsesor                   INT = NULL,
     @NitAsesor                  VARCHAR(20) = NULL,
     @CodigoAsesor               VARCHAR(20),

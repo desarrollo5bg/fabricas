@@ -15,7 +15,7 @@
 --   Devuelve todas las transiciones enriquecidas con los códigos de los estados
 --   origen y destino. Con @SoloActivas = 1 filtra las transiciones inactivas.
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[GetAllTransicionesEstado]
+CREATE  PROCEDURE [cfg].[GetAllTransicionesEstado]
     @SoloActivas BIT = 0
 AS
 BEGIN
@@ -31,8 +31,8 @@ BEGIN
         t.Descripcion,
         t.Activa
     FROM [cfg].[TransicionesEstado] t
-    INNER JOIN [cfg].[CatalogoEstados] eOrigen  ON eOrigen.IdEstado  = t.IdEstadoOrigen
-    INNER JOIN [cfg].[CatalogoEstados] eDestino ON eDestino.IdEstado = t.IdEstadoDestino
+    INNER JOIN [cfg].[EstadosEstudio] eOrigen  ON eOrigen.IdEstado  = t.IdEstadoOrigen
+    INNER JOIN [cfg].[EstadosEstudio] eDestino ON eDestino.IdEstado = t.IdEstadoDestino
     WHERE (@SoloActivas = 0 OR t.Activa = 1)
     ORDER BY eOrigen.Codigo, eDestino.Codigo;
 END;
@@ -43,13 +43,13 @@ END;
 --   Devuelve las transiciones activas disponibles desde un estado origen dado.
 --   Parámetro: @CodigoOrigen — código del estado desde el que se va a transicionar.
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[GetByOrigenTransicionesEstado]
+CREATE  PROCEDURE [cfg].[GetByOrigenTransicionesEstado]
     @CodigoOrigen VARCHAR(40)
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    IF NOT EXISTS (SELECT 1 FROM [cfg].[CatalogoEstados] WHERE Codigo = @CodigoOrigen)
+    IF NOT EXISTS (SELECT 1 FROM [cfg].[EstadosEstudio] WHERE Codigo = @CodigoOrigen)
     BEGIN
         RAISERROR('No se encontró un estado con código ''%s''.', 16, 1, @CodigoOrigen);
         RETURN;
@@ -62,8 +62,8 @@ BEGIN
         t.RequiereMotivo,
         t.Descripcion
     FROM [cfg].[TransicionesEstado] t
-    INNER JOIN [cfg].[CatalogoEstados] eOrigen  ON eOrigen.IdEstado  = t.IdEstadoOrigen
-    INNER JOIN [cfg].[CatalogoEstados] eDestino ON eDestino.IdEstado = t.IdEstadoDestino
+    INNER JOIN [cfg].[EstadosEstudio] eOrigen  ON eOrigen.IdEstado  = t.IdEstadoOrigen
+    INNER JOIN [cfg].[EstadosEstudio] eDestino ON eDestino.IdEstado = t.IdEstadoDestino
     WHERE eOrigen.Codigo = @CodigoOrigen
       AND t.Activa = 1
     ORDER BY eDestino.Codigo;
@@ -75,7 +75,7 @@ END;
 --   Inserta una nueva transición entre dos estados existentes.
 --   No hay Update: para corregir una transición se desactiva y se crea una nueva.
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[InsertTransicionesEstado]
+CREATE  PROCEDURE [cfg].[InsertTransicionesEstado]
     @CodigoOrigen   VARCHAR(40),
     @CodigoDestino  VARCHAR(40),
     @RequiereMotivo BIT           = 0,
@@ -91,8 +91,8 @@ BEGIN
         DECLARE @IdEstadoOrigen  INT;
         DECLARE @IdEstadoDestino INT;
 
-        SELECT @IdEstadoOrigen  = IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = @CodigoOrigen;
-        SELECT @IdEstadoDestino = IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = @CodigoDestino;
+        SELECT @IdEstadoOrigen  = IdEstado FROM [cfg].[EstadosEstudio] WHERE Codigo = @CodigoOrigen;
+        SELECT @IdEstadoDestino = IdEstado FROM [cfg].[EstadosEstudio] WHERE Codigo = @CodigoDestino;
 
         IF @IdEstadoOrigen IS NULL
         BEGIN
@@ -136,7 +136,7 @@ END;
 --   Marca la transición como inactiva (Activa = 0).
 --   No se elimina: el historial de estados puede referenciar transiciones pasadas.
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[DeactivateTransicionesEstado]
+CREATE  PROCEDURE [cfg].[DeactivateTransicionesEstado]
     @IdTransicion INT
 AS
 BEGIN

@@ -13,7 +13,7 @@
 -- ============================================================================
 -- aud.InsertRevisionFotografia (C-13)
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [aud].[InsertRevisionFotografia]
+CREATE  PROCEDURE [aud].[InsertRevisionFotografia]
     @IdFotografia           BIGINT,
     @IdEstudio              BIGINT,
     @IdRevisor              INT,

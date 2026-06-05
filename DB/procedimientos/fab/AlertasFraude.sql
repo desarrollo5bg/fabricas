@@ -13,7 +13,7 @@
 -- ============================================================================
 -- fab.EvaluarFraude (C-11)
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[EvaluarFraude]
+CREATE  PROCEDURE [fab].[EvaluarFraude]
     @IdEstudio              BIGINT,
     @IdOperadorEvaluador    INT = NULL
 AS

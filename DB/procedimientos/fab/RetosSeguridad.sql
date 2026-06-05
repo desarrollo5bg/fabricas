@@ -21,7 +21,7 @@
 -- ============================================================================
 -- fab.InsertReto
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[InsertReto]
+CREATE  PROCEDURE [fab].[InsertReto]
     @IdEstudio        BIGINT,
     @NitTercero       VARCHAR(20),
     @CanalEnvio       VARCHAR(20),
@@ -78,7 +78,7 @@ END;
 -- ============================================================================
 -- fab.ValidarReto
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[ValidarReto]
+CREATE  PROCEDURE [fab].[ValidarReto]
     @IdReto               BIGINT,
     @HashTokenIngresado   VARCHAR(256),
     @DireccionIP          VARCHAR(45)    = NULL,
@@ -184,7 +184,7 @@ END;
 -- ============================================================================
 -- fab.GetEstadoReto
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[GetEstadoReto]
+CREATE  PROCEDURE [fab].[GetEstadoReto]
     @IdReto BIGINT
 AS
 BEGIN
@@ -212,7 +212,7 @@ END;
 -- ============================================================================
 -- fab.MarcarRetoReenviado
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[MarcarRetoReenviado]
+CREATE  PROCEDURE [fab].[MarcarRetoReenviado]
     @IdReto              BIGINT,
     @NuevoCanalEnvio     VARCHAR(20),
     @HashTokenNuevo      VARCHAR(256),

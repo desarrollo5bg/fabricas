@@ -14,7 +14,7 @@
 -- ============================================================================
 -- cfg.GetAllFasesEstudio
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[GetAllFasesEstudio]
+CREATE  PROCEDURE [cfg].[GetAllFasesEstudio]
     @SoloActivas BIT = 1
 AS
 BEGIN
@@ -36,7 +36,7 @@ END;
 -- ============================================================================
 -- cfg.GetByIdFasesEstudio
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[GetByIdFasesEstudio]
+CREATE  PROCEDURE [cfg].[GetByIdFasesEstudio]
     @IdFase INT
 AS
 BEGIN
@@ -57,7 +57,7 @@ END;
 -- ============================================================================
 -- cfg.InsertFasesEstudio
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[InsertFasesEstudio]
+CREATE  PROCEDURE [cfg].[InsertFasesEstudio]
     @Codigo          VARCHAR(30),
     @Nombre          NVARCHAR(100),
     @OrdenEjecucion  INT,
@@ -102,7 +102,7 @@ END;
 -- ============================================================================
 -- cfg.UpdateFasesEstudio
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[UpdateFasesEstudio]
+CREATE  PROCEDURE [cfg].[UpdateFasesEstudio]
     @IdFase          INT,
     @Nombre          NVARCHAR(100),
     @OrdenEjecucion  INT,
@@ -149,7 +149,7 @@ END;
 -- ============================================================================
 -- cfg.DeactivateFasesEstudio
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[DeactivateFasesEstudio]
+CREATE  PROCEDURE [cfg].[DeactivateFasesEstudio]
     @IdFase INT
 AS
 BEGIN

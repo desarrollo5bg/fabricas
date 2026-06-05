@@ -1,21 +1,21 @@
 /*
-  Stored Procedures — cfg.CatalogoEstados
+  Stored Procedures — cfg.EstadosEstudio
   Fecha:  2026-05-06
   Autor:  Edwin Trigos
 
   Procedimientos:
-    cfg.GetAllCatalogoEstados
-    cfg.GetByCodigoCatalogoEstados
-    cfg.InsertCatalogoEstados
-    cfg.UpdateCatalogoEstados
-    cfg.DeactivateCatalogoEstados
+    cfg.GetAllEstadosEstudio
+    cfg.GetByCodigoEstadosEstudio
+    cfg.InsertEstadosEstudio
+    cfg.UpdateEstadosEstudio
+    cfg.DeactivateEstadosEstudio
 */
 
 -- ============================================================================
--- cfg.GetAllCatalogoEstados
+-- cfg.GetAllEstadosEstudio
 --   Devuelve todos los estados. Con @SoloActivos = 1 filtra estados inactivos.
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[GetAllCatalogoEstados]
+CREATE  PROCEDURE [cfg].[GetAllEstadosEstudio]
     @SoloActivos BIT = 0
 AS
 BEGIN
@@ -30,16 +30,16 @@ BEGIN
         e.PermitePausa,
         e.Descripcion,
         e.Activo
-    FROM [cfg].[CatalogoEstados] e
+    FROM [cfg].[EstadosEstudio] e
     WHERE (@SoloActivos = 0 OR e.Activo = 1)
     ORDER BY e.Grupo, e.Nombre;
 END;
 
 
 -- ============================================================================
--- cfg.GetByCodigoCatalogoEstados
+-- cfg.GetByCodigoEstadosEstudio
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[GetByCodigoCatalogoEstados]
+CREATE  PROCEDURE [cfg].[GetByCodigoEstadosEstudio]
     @Codigo VARCHAR(40)
 AS
 BEGIN
@@ -54,16 +54,16 @@ BEGIN
         e.PermitePausa,
         e.Descripcion,
         e.Activo
-    FROM [cfg].[CatalogoEstados] e
+    FROM [cfg].[EstadosEstudio] e
     WHERE e.Codigo = @Codigo;
 END;
 
 
 -- ============================================================================
--- cfg.InsertCatalogoEstados
+-- cfg.InsertEstadosEstudio
 --   Inserta un nuevo estado. Codigo es inmutable (no se puede cambiar después).
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[InsertCatalogoEstados]
+CREATE  PROCEDURE [cfg].[InsertEstadosEstudio]
     @Codigo       VARCHAR(40),
     @Nombre       NVARCHAR(100),
     @Grupo        VARCHAR(20),
@@ -83,12 +83,12 @@ BEGIN
             RAISERROR('El grupo ''%s'' no es válido. Valores permitidos: INICIAL, PROCESO, TERMINAL, BLOQUEO, REACTIVACION.', 16, 1, @Grupo);
         END;
 
-        IF EXISTS (SELECT 1 FROM [cfg].[CatalogoEstados] WHERE Codigo = @Codigo)
+        IF EXISTS (SELECT 1 FROM [cfg].[EstadosEstudio] WHERE Codigo = @Codigo)
         BEGIN
             RAISERROR('Ya existe un estado con el código ''%s''.', 16, 1, @Codigo);
         END;
 
-        INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+        INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
         VALUES (@Codigo, @Nombre, @Grupo, @EsTerminal, @PermitePausa, @Descripcion);
 
         SET @IdEstado = SCOPE_IDENTITY();
@@ -108,10 +108,10 @@ END;
 
 
 -- ============================================================================
--- cfg.UpdateCatalogoEstados
+-- cfg.UpdateEstadosEstudio
 --   Actualiza un estado existente. Codigo es INMUTABLE: no se permite cambiarlo.
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[UpdateCatalogoEstados]
+CREATE  PROCEDURE [cfg].[UpdateEstadosEstudio]
     @IdEstado     INT,
     @Nombre       NVARCHAR(100),
     @Grupo        VARCHAR(20),
@@ -130,12 +130,12 @@ BEGIN
             RAISERROR('El grupo ''%s'' no es válido. Valores permitidos: INICIAL, PROCESO, TERMINAL, BLOQUEO, REACTIVACION.', 16, 1, @Grupo);
         END;
 
-        IF NOT EXISTS (SELECT 1 FROM [cfg].[CatalogoEstados] WHERE IdEstado = @IdEstado)
+        IF NOT EXISTS (SELECT 1 FROM [cfg].[EstadosEstudio] WHERE IdEstado = @IdEstado)
         BEGIN
             RAISERROR('No se encontró un estado con IdEstado = %d.', 16, 1, @IdEstado);
         END;
 
-        UPDATE [cfg].[CatalogoEstados]
+        UPDATE [cfg].[EstadosEstudio]
         SET
             Nombre       = @Nombre,
             Grupo        = @Grupo,
@@ -157,12 +157,12 @@ END;
 
 
 -- ============================================================================
--- cfg.DeactivateCatalogoEstados
+-- cfg.DeactivateEstadosEstudio
 --   Marca el estado como inactivo (Activo = 0).
 --   No elimina el registro: los estados son referenciados por EstudiosCredito
 --   e historial — el borrado físico rompería integridad referencial.
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[DeactivateCatalogoEstados]
+CREATE  PROCEDURE [cfg].[DeactivateEstadosEstudio]
     @IdEstado INT
 AS
 BEGIN
@@ -171,18 +171,18 @@ BEGIN
     BEGIN TRY
         BEGIN TRANSACTION;
 
-        IF NOT EXISTS (SELECT 1 FROM [cfg].[CatalogoEstados] WHERE IdEstado = @IdEstado)
+        IF NOT EXISTS (SELECT 1 FROM [cfg].[EstadosEstudio] WHERE IdEstado = @IdEstado)
         BEGIN
             RAISERROR('No se encontró un estado con IdEstado = %d.', 16, 1, @IdEstado);
         END;
 
-        IF NOT EXISTS (SELECT 1 FROM [cfg].[CatalogoEstados] WHERE IdEstado = @IdEstado AND Activo = 1)
+        IF NOT EXISTS (SELECT 1 FROM [cfg].[EstadosEstudio] WHERE IdEstado = @IdEstado AND Activo = 1)
         BEGIN
             -- Severity 10 = informativo, no lanza excepción al cliente
             RAISERROR('El estado con IdEstado = %d ya se encuentra inactivo.', 10, 1, @IdEstado);
         END;
 
-        UPDATE [cfg].[CatalogoEstados]
+        UPDATE [cfg].[EstadosEstudio]
         SET Activo = 0
         WHERE IdEstado = @IdEstado;
 

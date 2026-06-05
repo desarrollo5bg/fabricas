@@ -13,7 +13,7 @@
 -- ============================================================================
 -- cat.GetAllCatalogoDiagnosticosBot
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cat].[GetAllCatalogoDiagnosticosBot]
+CREATE  PROCEDURE [cat].[GetAllCatalogoDiagnosticosBot]
     @SoloActivos  BIT          = 1,
     @NivelAlerta  VARCHAR(10)  = NULL,
     @AccionSistema VARCHAR(20) = NULL
@@ -42,7 +42,7 @@ END;
 -- ============================================================================
 -- cat.GetByCodigoCatalogoDiagnosticosBot
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cat].[GetByCodigoCatalogoDiagnosticosBot]
+CREATE  PROCEDURE [cat].[GetByCodigoCatalogoDiagnosticosBot]
     @Codigo VARCHAR(40)
 AS
 BEGIN
@@ -67,7 +67,7 @@ END;
 -- cat.UpdateCatalogoDiagnosticoBot
 -- Solo actualiza los campos mutables. Codigo e IdDiagnostico son inmutables.
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cat].[UpdateCatalogoDiagnosticoBot]
+CREATE  PROCEDURE [cat].[UpdateCatalogoDiagnosticoBot]
     @Codigo            VARCHAR(40),
     @Descripcion       NVARCHAR(200),
     @AccionSistema     VARCHAR(20),
@@ -124,7 +124,7 @@ END;
 -- Activa o desactiva un diagnóstico. No elimina — soft toggle.
 -- Protección: no se puede desactivar un diagnóstico con campañas EN_PROCESO.
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cat].[ToggleActivoCatalogoDiagnosticoBot]
+CREATE  PROCEDURE [cat].[ToggleActivoCatalogoDiagnosticoBot]
     @Codigo  VARCHAR(40),
     @Activo  BIT
 AS

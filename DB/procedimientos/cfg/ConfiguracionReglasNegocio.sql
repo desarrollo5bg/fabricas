@@ -13,7 +13,7 @@
 -- ============================================================================
 -- cfg.GetAllConfiguracionReglasNegocio
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[GetAllConfiguracionReglasNegocio]
+CREATE  PROCEDURE [cfg].[GetAllConfiguracionReglasNegocio]
     @Categoria VARCHAR(30) = NULL
 AS
 BEGIN
@@ -40,7 +40,7 @@ END;
 -- ============================================================================
 -- cfg.GetByClaveConfiguracionReglasNegocio
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[GetByClaveConfiguracionReglasNegocio]
+CREATE  PROCEDURE [cfg].[GetByClaveConfiguracionReglasNegocio]
     @Codigo VARCHAR(50)
 AS
 BEGIN
@@ -71,7 +71,7 @@ END;
 -- ============================================================================
 -- cfg.InsertConfiguracionReglasNegocio
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[InsertConfiguracionReglasNegocio]
+CREATE  PROCEDURE [cfg].[InsertConfiguracionReglasNegocio]
     @Codigo        VARCHAR(50),
     @Nombre        NVARCHAR(150),
     @Valor         NVARCHAR(500),
@@ -133,7 +133,7 @@ END;
 -- ============================================================================
 -- cfg.UpdateConfiguracionReglasNegocio
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [cfg].[UpdateConfiguracionReglasNegocio]
+CREATE  PROCEDURE [cfg].[UpdateConfiguracionReglasNegocio]
     @Codigo        VARCHAR(50),
     @Nombre        NVARCHAR(150),
     @Valor         NVARCHAR(500),

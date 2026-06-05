@@ -15,7 +15,7 @@
 -- ============================================================================
 -- fab.UpsertTerceroFabrica (C-07)
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[UpsertTerceroFabrica]
+CREATE  PROCEDURE [fab].[UpsertTerceroFabrica]
     @NitTercero                 VARCHAR(20),
     @NombreTercero              NVARCHAR(200) = NULL,
     @EstadoTercero              VARCHAR(20) = NULL,
@@ -135,7 +135,7 @@ END;
 -- ============================================================================
 -- fab.VerificarElegibilidad (C-06)
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[VerificarElegibilidad]
+CREATE  PROCEDURE [fab].[VerificarElegibilidad]
     @NitTercero VARCHAR(20)
 AS
 BEGIN
@@ -178,7 +178,7 @@ BEGIN
     IF EXISTS (
         SELECT 1
         FROM [fab].[EstudiosCredito] ec
-        JOIN [cfg].[CatalogoEstados] ce ON ce.IdEstado = ec.IdEstadoActual
+        JOIN [cfg].[EstadosEstudio] ce ON ce.IdEstado = ec.IdEstadoActual
         WHERE ec.NitTercero = @NitTercero
           AND ce.EsTerminal = 0
           AND ec.EliminadoLogico = 0
@@ -206,7 +206,7 @@ BEGIN
     IF EXISTS (
         SELECT 1
         FROM [fab].[EstudiosCredito] ec
-        JOIN [cfg].[CatalogoEstados] ce ON ce.IdEstado = ec.IdEstadoActual
+        JOIN [cfg].[EstadosEstudio] ce ON ce.IdEstado = ec.IdEstadoActual
         WHERE ec.NitTercero = @NitTercero
           AND ce.EsTerminal = 1
           AND DATEDIFF(DAY, ec.FechaFinalizacion, GETDATE()) <= @CoolingOffDias

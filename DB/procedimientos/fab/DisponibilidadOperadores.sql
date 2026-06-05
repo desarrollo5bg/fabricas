@@ -14,7 +14,7 @@
 -- ============================================================================
 -- fab.GetByOperadorDisponibilidadOperadores
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[GetByOperadorDisponibilidadOperadores]
+CREATE  PROCEDURE [fab].[GetByOperadorDisponibilidadOperadores]
     @IdOperador INT,
     @LimiteDias INT = 30
 AS
@@ -41,7 +41,7 @@ END;
 -- ============================================================================
 -- fab.GetConectadosDisponibilidadOperadores
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[GetConectadosDisponibilidadOperadores]
+CREATE  PROCEDURE [fab].[GetConectadosDisponibilidadOperadores]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -68,7 +68,7 @@ END;
 --   Registra nueva sesión. Si el operador ya tiene sesión activa, la cierra
 --   automáticamente antes de crear la nueva.
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[ConectarDisponibilidadOperadores]
+CREATE  PROCEDURE [fab].[ConectarDisponibilidadOperadores]
     @IdOperador       INT,
     @NitOperador      VARCHAR(20),
     @DireccionIP      VARCHAR(45) = NULL,
@@ -123,7 +123,7 @@ END;
 -- ============================================================================
 -- fab.DesconectarDisponibilidadOperadores
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[DesconectarDisponibilidadOperadores]
+CREATE  PROCEDURE [fab].[DesconectarDisponibilidadOperadores]
     @IdOperador    INT,
     @Observaciones NVARCHAR(500) = NULL
 AS
@@ -170,7 +170,7 @@ END;
 --   Cambia el estado de la sesión activa (CONECTADO ↔ EN_PAUSA / NO_DISPONIBLE).
 --   Para desconectar usar DesconectarDisponibilidadOperadores.
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[CambiarEstadoDisponibilidadOperadores]
+CREATE  PROCEDURE [fab].[CambiarEstadoDisponibilidadOperadores]
     @IdOperador           INT,
     @EstadoDisponibilidad VARCHAR(20),
     @Observaciones        NVARCHAR(500) = NULL

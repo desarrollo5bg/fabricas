@@ -13,7 +13,7 @@
 -- ============================================================================
 -- fab.InsertConsentimientoLegal (C-10)
 -- ============================================================================
-CREATE OR ALTER PROCEDURE [fab].[InsertConsentimientoLegal]
+CREATE  PROCEDURE [fab].[InsertConsentimientoLegal]
     @IdEstudio              BIGINT,
     @NitTercero             VARCHAR(20),
     @TipoConsentimiento     VARCHAR(40),
