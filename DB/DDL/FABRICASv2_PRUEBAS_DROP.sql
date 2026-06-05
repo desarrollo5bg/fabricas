@@ -161,7 +161,7 @@ DROP TABLE IF EXISTS [cfg].[ConfiguracionReglasNegocio];
 DROP TABLE IF EXISTS [cfg].[TransicionesEstado];
 
 
-DROP TABLE IF EXISTS [cfg].[CatalogoEstados];
+DROP TABLE IF EXISTS [cfg].[EstudiosCredito];
 
 
 DROP TABLE IF EXISTS [cfg].[PasosEstudio];

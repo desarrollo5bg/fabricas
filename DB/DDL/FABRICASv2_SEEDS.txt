@@ -105,11 +105,11 @@ END
 
 
 -- ==============================================================================
--- 4. CatalogoEstados (20+ estados)
+-- 4. EstudiosCredito (20+ estados)
 -- ==============================================================================
-IF NOT EXISTS (SELECT 1 FROM [cfg].[CatalogoEstados] WHERE Codigo = 'BORRADOR')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[EstudiosCredito] WHERE Codigo = 'BORRADOR')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion) VALUES
+    INSERT INTO [cfg].[EstudiosCredito] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion) VALUES
     ('BORRADOR', 'En Validación Previa', 'INICIAL', 0, 1, 'El cliente se encuentra en pasos iniciales.'),
     ('IDENTIFICADO', 'Identificado', 'INICIAL', 0, 0, 'Cliente identificado con documento válido.'),
     ('EN_PROCESO', 'En Proceso', 'PROCESO', 0, 1, 'El estudio de crédito está en curso.'),
@@ -126,11 +126,11 @@ BEGIN
     ('REACTIVACION', 'En Reactivación', 'REACTIVACION', 0, 0, 'Proceso de reactivación de cupo.'),
     ('REACTIVADO', 'Reactivado', 'TERMINAL', 1, 0, 'Cupo reactivado exitosamente.');
     
-    PRINT '✓ cfg.CatalogoEstados: 15 registros insertados';
+    PRINT '✓ cfg.EstudiosCredito: 15 registros insertados';
 END
 ELSE
 BEGIN
-    PRINT '○ cfg.CatalogoEstados: ya tiene datos, omitido';
+    PRINT '○ cfg.EstudiosCredito: ya tiene datos, omitido';
 END
 
 
@@ -140,19 +140,19 @@ END
 IF NOT EXISTS (SELECT * FROM [cfg].[TransicionesEstado])
 BEGIN
     -- Obtener los Ids de estado
-    DECLARE @E_BORRADOR INT = (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'BORRADOR');
-    DECLARE @E_IDENTIFICADO INT = (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'IDENTIFICADO');
-    DECLARE @E_EN_PROCESO INT = (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'EN_PROCESO');
-    DECLARE @E_PENDIENTE_OTP INT = (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'PENDIENTE_OTP');
-    DECLARE @E_PENDIENTE_REVISION INT = (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'PENDIENTE_REVISION');
-    DECLARE @E_REVISION_FABRICA INT = (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'REVISION_FABRICA');
-    DECLARE @E_APROBADO INT = (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'APROBADO');
-    DECLARE @E_RECHAZADO INT = (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'RECHAZADO');
-    DECLARE @E_CANCELADO INT = (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'CANCELADO');
-    DECLARE @E_EXPIRADO INT = (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'EXPIRADO');
-    DECLARE @E_BLOQUEADO_CUPO INT = (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'BLOQUEADO_CUPO');
-    DECLARE @E_BLOQUEADO_MORA INT = (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'BLOQUEADO_MORA');
-    DECLARE @E_BLOQUEADO_FRAUDE INT = (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'BLOQUEADO_FRAUDE');
+    DECLARE @E_BORRADOR INT = (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'BORRADOR');
+    DECLARE @E_IDENTIFICADO INT = (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'IDENTIFICADO');
+    DECLARE @E_EN_PROCESO INT = (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'EN_PROCESO');
+    DECLARE @E_PENDIENTE_OTP INT = (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'PENDIENTE_OTP');
+    DECLARE @E_PENDIENTE_REVISION INT = (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'PENDIENTE_REVISION');
+    DECLARE @E_REVISION_FABRICA INT = (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'REVISION_FABRICA');
+    DECLARE @E_APROBADO INT = (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'APROBADO');
+    DECLARE @E_RECHAZADO INT = (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'RECHAZADO');
+    DECLARE @E_CANCELADO INT = (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'CANCELADO');
+    DECLARE @E_EXPIRADO INT = (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'EXPIRADO');
+    DECLARE @E_BLOQUEADO_CUPO INT = (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'BLOQUEADO_CUPO');
+    DECLARE @E_BLOQUEADO_MORA INT = (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'BLOQUEADO_MORA');
+    DECLARE @E_BLOQUEADO_FRAUDE INT = (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'BLOQUEADO_FRAUDE');
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo) VALUES
     -- Inicio → Identificado
@@ -313,9 +313,9 @@ END
 -- ==============================================================================
 -- 10. Estados nuevos para fotografía (PH-08)
 -- ==============================================================================
-IF NOT EXISTS (SELECT 1 FROM [cfg].[CatalogoEstados] WHERE Codigo = 'PENDIENTE_FOTOS')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[EstudiosCredito] WHERE Codigo = 'PENDIENTE_FOTOS')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion) VALUES
+    INSERT INTO [cfg].[EstudiosCredito] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion) VALUES
     ('PENDIENTE_FOTOS', 'Pendiente Fotos', 'PROCESO', 0, 0, 'Esperando carga de fotografías del documento.'),
     ('FOTOS_EN_REVISION', 'Fotos en Revisión', 'PROCESO', 0, 0, 'Fotos en proceso de revisión manual.');
     
@@ -335,7 +335,7 @@ PRINT 'Total insertado por catálogo:';
 PRINT '  cfg.FasesEstudio:               7';
 PRINT '  cfg.ConfiguracionReglasNegocio: 8';
 PRINT '  cfg.PasosEstudio:              13';
-PRINT '  cfg.CatalogoEstados:          17';
+PRINT '  cfg.EstudiosCredito:          17';
 PRINT '  cfg.TransicionesEstado:     ~17';
 PRINT '  cat.CatalogoCanalesOrigen:    3';
 PRINT '  cat.CatalogoReglasFraude:      8';

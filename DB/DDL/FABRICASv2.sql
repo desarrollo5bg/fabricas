@@ -51,7 +51,7 @@
   - SA-08: HistorialEstados +IdCorrelacion
   - SA-09: RetosSeguridad +DireccionEnvio
   - SA-10: ValidacionesContactabilidad +IdAlertaFraude +FK
-  - SA-11: CatalogoEstados: estados REVISION_FABRICA y BLOQUEADO_FRAUDE + 6 transiciones
+  - SA-11: EstadosEstudio: estados REVISION_FABRICA y BLOQUEADO_FRAUDE + 6 transiciones
 
   CAMBIOS v2.4 — Correcciones de Arquitectura (2026-04-15):
   - C-01: Auth — Reglas de negocio OTP_EXPIRACION_MINUTOS, OTP_MAXIMO_INTENTOS, JWT_ORIGEN_WEB, JWT_ORIGEN_BODEGA en ConfiguracionReglasNegocio
@@ -118,6 +118,107 @@ IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'fab') EXEC('CREATE SCHEMA
 IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'aud') EXEC('CREATE SCHEMA aud');
 
 
+-- ==============================================================================
+-- SECCIÓN 0: LIMPIEZA — DROP DE TODO LO CREADO POR ESTE SCRIPT
+-- ==============================================================================
+-- Ejecutar esto para resetear completamente y poder recrear desde cero.
+-- Orden: tablas hijas (con FK) primero, tablas padre (referenciadas) después.
+-- ==============================================================================
+BEGIN TRY
+    PRINT '═══════════════════════════════════════════════════════════════════';
+    PRINT '  LIMPIEZA — DROP DE TABLAS CREADAS POR FÁBRICAS V2';
+    PRINT '═══════════════════════════════════════════════════════════════════';
+
+    -- ── V2.9 BOT UBICA ───────────────────────────────────────────────────────
+    DROP TABLE IF EXISTS [fab].[IntentosValidacionBot];
+    DROP TABLE IF EXISTS [fab].[CampanasValidacionIdentidad];
+    DROP TABLE IF EXISTS [cat].[CatalogoDiagnosticosBot];
+
+    -- ── V2.7/V2.8 Auditoría/Gestión fotográfica ─────────────────────────────
+    DROP TABLE IF EXISTS [aud].[HistorialFotografias];
+    DROP TABLE IF EXISTS [aud].[RevisionesFotografia];
+    DROP TABLE IF EXISTS [fab].[SolicitudesRecarga];
+    DROP TABLE IF EXISTS [fab].[RegistrosBiometria];
+    DROP TABLE IF EXISTS [fab].[FotografiasEstudio];
+    DROP TABLE IF EXISTS [cat].[CatalogoTiposFotografia];
+
+    -- ── V2.2 Fraude/Escalamiento ────────────────────────────────────────────
+    DROP TABLE IF EXISTS [fab].[ValidacionesContactabilidad];
+    DROP TABLE IF EXISTS [fab].[EscalamientosFabrica];
+    DROP TABLE IF EXISTS [aud].[AlertasFraude];
+    DROP TABLE IF EXISTS [aud].[LogValidacionesOTP];
+    DROP TABLE IF EXISTS [aud].[HistorialDatosSensibles];
+    DROP TABLE IF EXISTS [cat].[CatalogoReglasFraude];
+    DROP TABLE IF EXISTS [cat].[CatalogoMotivosEscalamiento];
+
+    -- ── V2.5 Auditoría ──────────────────────────────────────────────────────
+    DROP TABLE IF EXISTS [aud].[AuditoriaLogins];
+
+    -- ── V2.4 ValidacionesAsesor ─────────────────────────────────────────────
+    DROP TABLE IF EXISTS [fab].[ValidacionesAsesor];
+
+    -- ── V2.3 Evidencias ────────────────────────────────────────────────────
+    DROP TABLE IF EXISTS [fab].[EvidenciasFabrica];
+
+    -- ── V3 Transaccionales (dependen de EstudiosCredito) ────────────────────
+    DROP TABLE IF EXISTS [aud].[HistorialEstados];
+    DROP TABLE IF EXISTS [aud].[AuditoriaCambiosDatos];
+    DROP TABLE IF EXISTS [aud].[RegistroServiciosExternos];
+    DROP TABLE IF EXISTS [fab].[EvaluacionesRiesgo];
+    DROP TABLE IF EXISTS [fab].[RetosSeguridad];
+    DROP TABLE IF EXISTS [fab].[ConsentimientosLegales];
+
+    -- ── V3.1 EstudiosCredito (tabla central, referenciada por muchas) ──────
+    DROP TABLE IF EXISTS [fab].[EstudiosCredito];
+
+    -- ── V2.1/V2.6 Operadores ────────────────────────────────────────────────
+    DROP TABLE IF EXISTS [fab].[DisponibilidadOperadores];
+    DROP TABLE IF EXISTS [fab].[OperadoresFabrica];
+    DROP TABLE IF EXISTS [fab].[TercerosFabricas];
+
+    -- ── V1 Config (catálogos / máquina de estados) ──────────────────────────
+    DROP TABLE IF EXISTS [cfg].[TransicionesEstado];
+    DROP TABLE IF EXISTS [cfg].[EstadosEstudio];
+    DROP TABLE IF EXISTS [cfg].[PasosEstudio];
+    DROP TABLE IF EXISTS [cfg].[FasesEstudio];
+    DROP TABLE IF EXISTS [cfg].[ConfiguracionReglasNegocio];
+    DROP TABLE IF EXISTS [cfg].[CentralesRiesgoCfg];
+    DROP TABLE IF EXISTS [cat].[CatalogoCanalesOrigen];
+
+    -- ── Revertir ALTER TABLE en tablas externas (KCRM_CadenaCreditos) ──────
+    IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'QUAC.dbo.KCRM_CadenaCreditos') AND name = 'EstadoActualFabricas')
+        ALTER TABLE QUAC.dbo.KCRM_CadenaCreditos DROP COLUMN EstadoActualFabricas;
+    IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'QUAC.dbo.KCRM_CadenaCreditos') AND name = 'MotivoBloqueoFabricas')
+        ALTER TABLE QUAC.dbo.KCRM_CadenaCreditos DROP COLUMN MotivoBloqueoFabricas;
+    IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'QUAC.dbo.KCRM_CadenaCreditos') AND name = 'FechaCancelacionFabricas')
+        ALTER TABLE QUAC.dbo.KCRM_CadenaCreditos DROP COLUMN FechaCancelacionFabricas;
+    IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'QUAC.dbo.KCRM_CadenaCreditos') AND name = 'ElegibleReactivacion')
+    BEGIN
+        -- Dropear DEFAULT constraint (nombre autogenerado como DF__KCRM_Cade__*)
+        DECLARE @df_name NVARCHAR(128);
+        SELECT @df_name = dc.name
+        FROM sys.default_constraints dc
+        WHERE dc.parent_object_id = OBJECT_ID(N'QUAC.dbo.KCRM_CadenaCreditos')
+          AND dc.parent_column_id = (
+              SELECT column_id FROM sys.columns
+              WHERE object_id = OBJECT_ID(N'QUAC.dbo.KCRM_CadenaCreditos')
+                AND name = 'ElegibleReactivacion'
+          );
+        IF @df_name IS NOT NULL
+            EXEC('ALTER TABLE QUAC.dbo.KCRM_CadenaCreditos DROP CONSTRAINT ' + @df_name);
+        ALTER TABLE QUAC.dbo.KCRM_CadenaCreditos DROP COLUMN ElegibleReactivacion;
+    END
+
+    PRINT '✓ Limpieza completada — todas las tablas Fábricas V2 eliminadas';
+END TRY
+BEGIN CATCH
+    PRINT '✗ ERROR en limpieza: ' + ERROR_MESSAGE();
+    PRINT '  Revisar dependencias — puede faltar una tabla hija por dropear.';
+    THROW;
+END CATCH
+GO
+
+-- ==============================================================================
 -- SECCIÓN 1: TABLAS DE CONFIGURACIÓN (MAQUINA DE ESTADOS)
 -- ==============================================================================
 -- Estas tablas definen el flujo, estados y reglas de negocio.
@@ -177,11 +278,11 @@ END
 
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- 1.3 CatalogoEstados: Todos los estados posibles del estudio
+-- 1.3 EstadosEstudio: Todos los estados posibles del estudio
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'cfg.CatalogoEstados') AND type in (N'U'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'cfg.EstadosEstudio') AND type in (N'U'))
 BEGIN
-    CREATE TABLE [cfg].[CatalogoEstados] (
+    CREATE TABLE [cfg].[EstadosEstudio] (
         IdEstado            INT IDENTITY(1,1)   NOT NULL,
         Codigo              VARCHAR(40)         NOT NULL,
         Nombre              NVARCHAR(100)       NOT NULL,
@@ -191,11 +292,11 @@ BEGIN
         Descripcion         NVARCHAR(500)       NULL,
         Activo              BIT                 NOT NULL DEFAULT 1,
         
-        CONSTRAINT PK_CatalogoEstados PRIMARY KEY (IdEstado),
-        CONSTRAINT UQ_CatalogoEstados_Codigo UNIQUE (Codigo),
-        CONSTRAINT CK_CatalogoEstados_Grupo CHECK (Grupo IN ('INICIAL','PROCESO','TERMINAL','BLOQUEO','REACTIVACION'))
+        CONSTRAINT PK_EstadosEstudio PRIMARY KEY (IdEstado),
+        CONSTRAINT UQ_EstadosEstudio_Codigo UNIQUE (Codigo),
+        CONSTRAINT CK_EstadosEstudio_Grupo CHECK (Grupo IN ('INICIAL','PROCESO','TERMINAL','BLOQUEO','REACTIVACION'))
     );
-    PRINT '✓ Tabla CatalogoEstados creada';
+    PRINT '✓ Tabla EstadosEstudio creada';
 END
 
 
@@ -213,8 +314,8 @@ BEGIN
         Activa              BIT                 NOT NULL DEFAULT 1,
         
         CONSTRAINT PK_TransicionesEstado PRIMARY KEY (IdTransicion),
-        CONSTRAINT FK_Transiciones_Origen FOREIGN KEY (IdEstadoOrigen) REFERENCES [cfg].[CatalogoEstados](IdEstado),
-        CONSTRAINT FK_Transiciones_Destino FOREIGN KEY (IdEstadoDestino) REFERENCES [cfg].[CatalogoEstados](IdEstado),
+        CONSTRAINT FK_Transiciones_Origen FOREIGN KEY (IdEstadoOrigen) REFERENCES [cfg].[EstadosEstudio](IdEstado),
+        CONSTRAINT FK_Transiciones_Destino FOREIGN KEY (IdEstadoDestino) REFERENCES [cfg].[EstadosEstudio](IdEstado),
         CONSTRAINT UQ_Transiciones_OrigenDestino UNIQUE (IdEstadoOrigen, IdEstadoDestino)
     );
     PRINT '✓ Tabla TransicionesEstado creada';
@@ -462,7 +563,7 @@ BEGIN
         IdCanal                INT                 NULL,       -- FK a CatalogoCanalesOrigen.IdCanal (G-DB-01)
         
         -- Estado de la máquina de estados
-        IdEstadoActual          INT                 NOT NULL,   -- FK a CatalogoEstados
+        IdEstadoActual          INT                 NOT NULL,   -- FK a EstadosEstudio
         IdPasoActual            INT                 NULL,       -- FK a PasosEstudio (cursor de reanudación)
         
         -- Resultado del estudio
@@ -517,7 +618,7 @@ BEGIN
         IdValidacionAsesor     BIGINT              NULL,                  -- FK → ValidacionesAsesor.IdValidacion (NULL en canal WEB)
         
         CONSTRAINT PK_EstudiosCredito PRIMARY KEY (IdEstudio),
-        CONSTRAINT FK_EstudiosCredito_Estado FOREIGN KEY (IdEstadoActual) REFERENCES [cfg].[CatalogoEstados](IdEstado),
+        CONSTRAINT FK_EstudiosCredito_Estado FOREIGN KEY (IdEstadoActual) REFERENCES [cfg].[EstadosEstudio](IdEstado),
         CONSTRAINT FK_EstudiosCredito_Paso FOREIGN KEY (IdPasoActual) REFERENCES [cfg].[PasosEstudio](IdPaso),
         CONSTRAINT FK_EstudiosCredito_Canal FOREIGN KEY (IdCanal) REFERENCES [cat].[CatalogoCanalesOrigen](IdCanal),  -- G-DB-01
         CONSTRAINT FK_EstudiosCredito_Tercero FOREIGN KEY (NitTercero) REFERENCES [fab].[TercerosFabricas](NitTercero),  -- G-DB-02
@@ -835,8 +936,8 @@ BEGIN
         
         CONSTRAINT PK_HistorialEstados PRIMARY KEY (IdHistorial),
         CONSTRAINT FK_Hist_Request FOREIGN KEY (IdEstudio) REFERENCES [fab].[EstudiosCredito](IdEstudio),
-        CONSTRAINT FK_Hist_EstAnterior FOREIGN KEY (IdEstadoAnterior) REFERENCES [cfg].[CatalogoEstados](IdEstado),
-        CONSTRAINT FK_Hist_EstNuevo FOREIGN KEY (IdEstadoNuevo) REFERENCES [cfg].[CatalogoEstados](IdEstado),
+        CONSTRAINT FK_Hist_EstAnterior FOREIGN KEY (IdEstadoAnterior) REFERENCES [cfg].[EstadosEstudio](IdEstado),
+        CONSTRAINT FK_Hist_EstNuevo FOREIGN KEY (IdEstadoNuevo) REFERENCES [cfg].[EstadosEstudio](IdEstado),
         CONSTRAINT FK_Hist_Paso FOREIGN KEY (IdPasoRelacionado) REFERENCES [cfg].[PasosEstudio](IdPaso),
         CONSTRAINT CK_HistorialEstados_TipoUsr CHECK (TipoUsuario IN ('SISTEMA','ASESOR','CALL_CENTER','CLIENTE','ADMINISTRADOR'))  -- GAP-02: añadidos CLIENTE y ADMINISTRADOR
     );
@@ -1075,7 +1176,7 @@ BEGIN
         -- Contexto completo para el asesor
         DescripcionContexto     NVARCHAR(1000)          NULL,       -- Texto libre con el resumen de por qué llegó
         PasoEnQueEscalo         VARCHAR(40)             NULL,       -- Código del paso en que se escaló
-        IdEstadoAlEscalar       INT                     NOT NULL,   -- FK → CatalogoEstados (estado en el momento de escalar)
+        IdEstadoAlEscalar       INT                     NOT NULL,   -- FK → EstadosEstudio (estado en el momento de escalar)
         SnapshotDatosCliente    NVARCHAR(MAX)           NULL,       -- JSON snapshot de datos clave del cliente en ese momento
 
         -- Quién escaló
@@ -1099,7 +1200,7 @@ BEGIN
         CONSTRAINT FK_EscalamientosFabrica_Estudio FOREIGN KEY (IdEstudio) REFERENCES [fab].[EstudiosCredito](IdEstudio),
         CONSTRAINT FK_EscalamientosFabrica_Motivo FOREIGN KEY (IdMotivoEscalamiento) REFERENCES [cat].[CatalogoMotivosEscalamiento](IdMotivo),
         CONSTRAINT FK_EscalamientosFabrica_Alerta FOREIGN KEY (IdAlertaOrigen) REFERENCES [aud].[AlertasFraude](IdAlerta),
-        CONSTRAINT FK_EscalamientosFabrica_EstadoAlEscalar FOREIGN KEY (IdEstadoAlEscalar) REFERENCES [cfg].[CatalogoEstados](IdEstado),
+        CONSTRAINT FK_EscalamientosFabrica_EstadoAlEscalar FOREIGN KEY (IdEstadoAlEscalar) REFERENCES [cfg].[EstadosEstudio](IdEstado),
         CONSTRAINT CK_EscalamientosFabrica_Estado CHECK (EstadoEscalamiento IN ('ABIERTO','EN_GESTION','RESUELTO','CERRADO_SIN_RESOLUCION')),
         CONSTRAINT CK_EscalamientosFabrica_Resultado CHECK (ResultadoGestion IS NULL OR ResultadoGestion IN ('APROBADO','RECHAZADO','DEVUELTO_FLUJO'))
     );
@@ -1245,17 +1346,17 @@ END
 
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- 5.11 NUEVO ESTADO: REVISION_FABRICA — estado faltante en CatalogoEstados
+-- 5.11 NUEVO ESTADO: REVISION_FABRICA — estado faltante en EstadosEstudio
 --      CRÍTICO: El escenario de estrés requiere un estado para "en revisión manual
 --      por la fábrica de crédito". El estado PENDIENTE_CALL es para call center,
 --      no para revisión por asesor de fábrica.
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM CatalogoEstados WHERE Codigo = 'REVISION_FABRICA')
+IF NOT EXISTS (SELECT * FROM EstadosEstudio WHERE Codigo = 'REVISION_FABRICA')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('REVISION_FABRICA', 'En Revisión Manual — Fábrica de Crédito', 'PROCESO', 0, 0,
             'Estudio derivado a revisión manual por asesor de fábrica de crédito, usualmente por alerta de fraude o anomalía en el flujo');
-    PRINT '✓ Estado REVISION_FABRICA insertado en CatalogoEstados';
+    PRINT '✓ Estado REVISION_FABRICA insertado en EstadosEstudio';
 END
 
 
@@ -1264,12 +1365,12 @@ END
 --      Permite cerrar un estudio por sospecha de fraude confirmada sin rechazarlo
 --      por razones de riesgo crediticio (son categorizaciones distintas).
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM CatalogoEstados WHERE Codigo = 'BLOQUEADO_FRAUDE')
+IF NOT EXISTS (SELECT * FROM EstadosEstudio WHERE Codigo = 'BLOQUEADO_FRAUDE')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('BLOQUEADO_FRAUDE', 'Bloqueado por Sospecha de Fraude', 'TERMINAL', 1, 0,
             'Solicitud bloqueada por detección de patrón de fraude. Requiere investigación por área de seguridad.');
-    PRINT '✓ Estado BLOQUEADO_FRAUDE insertado en CatalogoEstados';
+    PRINT '✓ Estado BLOQUEADO_FRAUDE insertado en EstadosEstudio';
 END
 
 
@@ -1320,153 +1421,153 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 
  -- INICIAL: Borrador (validación previa)
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'BORRADOR')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'BORRADOR')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('BORRADOR', 'En Validación Previa', 'INICIAL', 0, 0,
      'El cliente se encuentra en pasos iniciales: identificación, creación, validacion de cupo o preparacion para estudio.');
     PRINT '✓ Estado BORRADOR insertado';
 END
 
  -- INICIAL: Pendiente Cliente Previo
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_CLIENTE_PREVIO')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'PENDIENTE_CLIENTE_PREVIO')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('PENDIENTE_CLIENTE_PREVIO', 'Pendiente Cliente — Previo', 'INICIAL', 0, 1,
      'Se requiere una accion del cliente antes de crear la solicitud formal: completar datos, corregir correo, recibir token, validar identidad, etc.');
     PRINT '✓ Estado PENDIENTE_CLIENTE_PREVIO insertado';
 END
 
  -- INICIAL: Expirado Previo
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'EXPIRADO_PREVIO')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'EXPIRADO_PREVIO')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('EXPIRADO_PREVIO', 'Expirada — Previo', 'INICIAL', 1, 0,
      'El proceso previo no continuo dentro del tiempo permitido o agoto intentos criticos antes de solicitud formal.');
     PRINT '✓ Estado EXPIRADO_PREVIO insertado';
 END
 
  -- BLOQUEO: Cupo Ya Activo
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'CUPO_YA_ACTIVO')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'CUPO_YA_ACTIVO')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('CUPO_YA_ACTIVO', 'Cupo Ya Activo', 'BLOQUEO', 1, 0,
      'El cliente ya cuenta con cupo disponible y no requiere nuevo estudio.');
     PRINT '✓ Estado CUPO_YA_ACTIVO insertado';
 END
 
  -- BLOQUEO: No Aplica Por Mora
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'NO_APLICA_MORA')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'NO_APLICA_MORA')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('NO_APLICA_MORA', 'No Aplica — Por Mora', 'BLOQUEO', 1, 0,
      'No puede continuar por cartera en mora u otra restriccion previa.');
     PRINT '✓ Estado NO_APLICA_MORA insertado';
 END
 
  -- REACTIVACION: Desbloqueado
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'DESBLOQUEADO')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'DESBLOQUEADO')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('DESBLOQUEADO', 'Desbloqueado', 'REACTIVACION', 0, 0,
      'Se rehabilito un cupo bloqueado sin iniciar una nueva solicitud formal.');
     PRINT '✓ Estado DESBLOQUEADO insertado';
 END
 
  -- REACTIVACION: Reactivado
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'REACTIVADO')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'REACTIVADO')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('REACTIVADO', 'Reactivado', 'REACTIVACION', 0, 0,
      'Se reactivo un cupo eliminado previamente bajo reglas definidas.');
     PRINT '✓ Estado REACTIVADO insertado';
 END
 
  -- PROCESO: En Progreso
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'EN_PROGRESO')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'EN_PROGRESO')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('EN_PROGRESO', 'En Proceso', 'PROCESO', 0, 1,
      'La solicitud avanza normalmente entre validaciones, reglas y bloques del flujo.');
     PRINT '✓ Estado EN_PROGRESO insertado';
 END
 
  -- PROCESO: Pausado
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'PAUSADO')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'PAUSADO')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('PAUSADO', 'Pausado', 'PROCESO', 0, 0,
      'El cliente se retiro de la tienda o del portal; estudio en espera de reanudacion.');
     PRINT '✓ Estado PAUSADO insertado';
 END
 
  -- PROCESO: Pendiente Cliente
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_CLIENTE')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'PENDIENTE_CLIENTE')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('PENDIENTE_CLIENTE', 'Pendiente Cliente', 'PROCESO', 0, 1,
      'Se requiere accion del cliente para continuar: direccion, captura documental, biometria, token final, etc.');
     PRINT '✓ Estado PENDIENTE_CLIENTE insertado';
 END
 
  -- PROCESO: Pendiente OTP
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_OTP')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'PENDIENTE_OTP')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('PENDIENTE_OTP', 'Pendiente Validacion OTP', 'PROCESO', 0, 1,
      'Esperando que el cliente valide el token de seguridad.');
     PRINT '✓ Estado PENDIENTE_OTP insertado';
 END
 
  -- PROCESO: Pendiente Biometria
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_BIOMETRIA')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'PENDIENTE_BIOMETRIA')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('PENDIENTE_BIOMETRIA', 'Pendiente Biometria', 'PROCESO', 0, 1,
      'Esperando captura y validacion biometrica.');
     PRINT '✓ Estado PENDIENTE_BIOMETRIA insertado';
 END
 
  -- PROCESO: Pendiente Fotos
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_FOTOS')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'PENDIENTE_FOTOS')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('PENDIENTE_FOTOS', 'Pendiente Envio de Fotos', 'PROCESO', 0, 1,
      'Esperando que el cliente envie fotos para validacion manual.');
     PRINT '✓ Estado PENDIENTE_FOTOS insertado';
 END
 
  -- PROCESO: Fotos en Revision
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'FOTOS_EN_REVISION')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'FOTOS_EN_REVISION')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('FOTOS_EN_REVISION', 'Fotos en Revision Manual', 'PROCESO', 0, 0,
      'Fotos recibidas, en revision manual por el equipo de credito.');
     PRINT '✓ Estado FOTOS_EN_REVISION insertado';
 END
 
  -- PROCESO: Pendiente Validacion Automatica
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('PENDIENTE_VALIDACION_AUTOMATICA', 'Pendiente Validacion Automatica', 'PROCESO', 0, 1,
      'La solicitud esta esperando respuesta de motores, integraciones o procesos automaticos externos.');
     PRINT '✓ Estado PENDIENTE_VALIDACION_AUTOMATICA insertado';
 END
 
  -- PROCESO: En Fabrica
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'EN_FABRICA')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'EN_FABRICA')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('EN_FABRICA', 'En Fabrica de Soporte', 'PROCESO', 0, 0,
      'Caso enviado a gestion manual por excepcion, novedad o validacion no concluyente.');
     PRINT '✓ Estado EN_FABRICA insertado';
 END
 
  -- PROCESO: Cupo Preaprobado
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'CUPO_PREAPROBADO')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'CUPO_PREAPROBADO')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('CUPO_PREAPROBADO', 'Cupo Preaprobado', 'PROCESO', 0, 1,
      'Cupo calculado exitosamente, pendiente verificacion de identidad.');
     PRINT '✓ Estado CUPO_PREAPROBADO insertado';
@@ -1476,53 +1577,53 @@ END
 -- Este estado ya se inserta en seccion 5.11, aqui solo verificamos que exista para logs
 
  -- TERMINAL: Aprobado
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'APROBADO')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'APROBADO')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES ('APROBADO', 'Cupo Activado', 'TERMINAL', 1, 0,
      'Solicitud aprobada y cupo activado exitosamente.');
     PRINT '✓ Estado APROBADO insertado';
 END
 
  -- TERMINAL: Rechazado
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'RECHAZADO')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'RECHAZADO')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
     VALUES ('RECHAZADO','Rechazado','TERMINAL',1,0,'Solicitud rechazada por alguna validacion.');
     PRINT '✓ Estado RECHAZADO insertado';
 END
 
  -- TERMINAL: No Viable Antecedentes Previo
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'NO_VIABLE_ANTECEDENTES_PREVIO')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'NO_VIABLE_ANTECEDENTES_PREVIO')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
     VALUES ('NO_VIABLE_ANTECEDENTES_PREVIO','No Viable — Antecedentes (Previo)','TERMINAL',1,0,
      'Rechazo en validaciones previas por antecedentes o reportes negativos.');
     PRINT '✓ Estado NO_VIABLE_ANTECEDENTES_PREVIO insertado';
 END
 
  -- TERMINAL: No Viable Antecedentes
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'NO_VIABLE_ANTECEDENTES')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'NO_VIABLE_ANTECEDENTES')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
     VALUES ('NO_VIABLE_ANTECEDENTES','No Viable — Antecedentes','TERMINAL',1,0,
      'Rechazo por antecedentes negativos en solicitud formal.');
     PRINT '✓ Estado NO_VIABLE_ANTECEDENTES insertado';
 END
 
  -- TERMINAL: No Viable Centrales
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'NO_VIABLE_CENTRALES')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'NO_VIABLE_CENTRALES')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
     VALUES ('NO_VIABLE_CENTRALES','No Viable — Centrales','TERMINAL',1,0,
      'Rechazo por modelo de viabilidad, centrales o preselecta.');
     PRINT '✓ Estado NO_VIABLE_CENTRALES insertado';
 END
 
  -- TERMINAL: No Aplica Para Cupo
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'NO_APLICA_CUPO')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'NO_APLICA_CUPO')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
     VALUES ('NO_APLICA_CUPO','No Aplica — Para Cupo','TERMINAL',1,0,
      'Cumple viabilidad base, pero no supera reglas complementarias definidas para otorgamiento.');
     PRINT '✓ Estado NO_APLICA_CUPO insertado';
@@ -1531,23 +1632,23 @@ END
  -- TERMINAL: Bloqueado Fraude (ya existe en secciones anteriores)
 
  -- TERMINAL: Expirado
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'EXPIRADO')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'EXPIRADO')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
     VALUES ('EXPIRADO','Expirada','TERMINAL',1,0,'No retomo dentro del tiempo permitido.');
     PRINT '✓ Estado EXPIRADO insertado';
 END
 
  -- TERMINAL: Cancelado Cliente
-IF NOT EXISTS (SELECT 1 FROM CatalogoEstados WHERE Codigo = 'CANCELADO_CLIENTE')
+IF NOT EXISTS (SELECT 1 FROM EstadosEstudio WHERE Codigo = 'CANCELADO_CLIENTE')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo,Nombre,Grupo,EsTerminal,PermitePausa,Descripcion)
     VALUES ('CANCELADO_CLIENTE','Cancelada por Cliente','TERMINAL',1,0,
      'El cliente desistio voluntariamente durante la solicitud formal.');
     PRINT '✓ Estado CANCELADO_CLIENTE insertado';
 END
 
-PRINT '✓ Seeds v2.6 insertados en CatalogoEstados (23 estados)';
+PRINT '✓ Seeds v2.6 insertados en EstadosEstudio (23 estados)';
 
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -1583,197 +1684,197 @@ BEGIN
     -- Transiciones desde BORRADOR (validación previa)
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Iniciar procesamiento del estudio'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'BORRADOR' AND eDestino.Codigo = 'EN_PROGRESO';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cancelación voluntaria antes de iniciar'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'BORRADOR' AND eDestino.Codigo = 'CANCELADO_CLIENTE';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cliente se retracta en validación previa'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'BORRADOR' AND eDestino.Codigo = 'PENDIENTE_CLIENTE_PREVIO';
     
     -- Transiciones desde PENDIENTE_CLIENTE_PREVIO
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cliente completa datos pendientes'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'PENDIENTE_CLIENTE_PREVIO' AND eDestino.Codigo = 'BORRADOR';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cancelación voluntaria en previo'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'PENDIENTE_CLIENTE_PREVIO' AND eDestino.Codigo = 'CANCELADO_CLIENTE';
     
     -- Transiciones desde EN_PROGRESO (estudio activo)
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cliente se retira, pausar estudio'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'PAUSADO';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Esperando validación OTP'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'PENDIENTE_OTP';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Esperando biométrica'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'PENDIENTE_BIOMETRIA';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Esperando fotos del cliente'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'PENDIENTE_FOTOS';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Esperando respuesta de servicio externo'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cupo preaprobado confirmado'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'CUPO_PREAPROBADO';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Todas las validaciones aprobadas'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'APROBADO';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Rechazado por validación de riesgo'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'RECHAZADO';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Rechazo por antecedentes'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'NO_VIABLE_ANTECEDENTES';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Rechazo por centrales/preselecta'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'NO_VIABLE_CENTRALES';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'No aplica para cupo: no supera reglas complementarias'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'NO_APLICA_CUPO';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Derivar a fábrica de soporte'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'EN_FABRICA';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Fraude detectado'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'BLOQUEADO_FRAUDE';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cancelación voluntaria durante el proceso'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'CANCELADO_CLIENTE';
     
     -- Transiciones desde PAUSADO
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cliente regresa, reanudar estudio'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'PAUSADO' AND eDestino.Codigo = 'EN_PROGRESO';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Estudio expiró por inactividad'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'PAUSADO' AND eDestino.Codigo = 'EXPIRADO';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cancelación voluntaria mientras pausado'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'PAUSADO' AND eDestino.Codigo = 'CANCELADO_CLIENTE';
     
     -- Transiciones desde PENDIENTE_OTP
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'OTP validado exitosamente'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'PENDIENTE_OTP' AND eDestino.Codigo = 'EN_PROGRESO';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cliente se retira, pausar'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'PENDIENTE_OTP' AND eDestino.Codigo = 'PAUSADO';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'OTP fallido, intentos agotados'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'PENDIENTE_OTP' AND eDestino.Codigo = 'RECHAZADO';
     
     -- Transiciones desde PENDIENTE_BIOMETRIA
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Biometría validada exitosamente'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'PENDIENTE_BIOMETRIA' AND eDestino.Codigo = 'EN_PROGRESO';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Cliente se retira, pausar'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'PENDIENTE_BIOMETRIA' AND eDestino.Codigo = 'PAUSADO';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Biometría fallida, derivar a fábrica'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'PENDIENTE_BIOMETRIA' AND eDestino.Codigo = 'EN_FABRICA';
     
     -- Transiciones desde PENDIENTE_FOTOS
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Fotos recibidas, en revisión'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'PENDIENTE_FOTOS' AND eDestino.Codigo = 'FOTOS_EN_REVISION';
     
     -- Transiciones desde FOTOS_EN_REVISION
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Asesor aprueba fotos: proceso se reanuda'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'FOTOS_EN_REVISION' AND eDestino.Codigo = 'EN_PROGRESO';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Asesor rechaza fotos: nueva solicitud'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'FOTOS_EN_REVISION' AND eDestino.Codigo = 'PENDIENTE_FOTOS';
     
     -- Transiciones desde EN_FABRICA
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Fábrica resuelve: reanudar flujo'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'EN_FABRICA' AND eDestino.Codigo = 'EN_PROGRESO';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Fábrica determina rechazo'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'EN_FABRICA' AND eDestino.Codigo = 'RECHAZADO';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Fábrica detecta fraude'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'EN_FABRICA' AND eDestino.Codigo = 'BLOQUEADO_FRAUDE';
     
     -- Transiciones desde PENDIENTE_VALIDACION_AUTOMATICA
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 0, 'Validación automática exitosa'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA' AND eDestino.Codigo = 'EN_PROGRESO';
     
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Validación automática fallida'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA' AND eDestino.Codigo = 'EN_FABRICA';
     
     -- Transiciones especiales de rechazos específicos
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT eOrigen.IdEstado, eDestino.IdEstado, 1, 'Preselecta rechaza por antecedentes'
-    FROM CatalogoEstados eOrigen, CatalogoEstados eDestino
+    FROM EstadosEstudio eOrigen, EstadosEstudio eDestino
     WHERE eOrigen.Codigo = 'EN_PROGRESO' AND eDestino.Codigo = 'NO_VIABLE_ANTECEDENTES_PREVIO';
     
     PRINT '✓ Seeds v2.6 insertados en TransicionesEstado';
@@ -1922,11 +2023,11 @@ DECLARE
     @IdRechazado    INT,
     @IdPendCall     INT;
 
-SELECT @IdRevFabrica = IdEstado FROM CatalogoEstados WHERE Codigo = 'REVISION_FABRICA';
-SELECT @IdBloqFraude = IdEstado FROM CatalogoEstados WHERE Codigo = 'BLOQUEADO_FRAUDE';
-SELECT @IdEnProgreso = IdEstado FROM CatalogoEstados WHERE Codigo = 'EN_PROGRESO';
-SELECT @IdRechazado  = IdEstado FROM CatalogoEstados WHERE Codigo = 'RECHAZADO';
-SELECT @IdPendCall   = IdEstado FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_CALL';
+SELECT @IdRevFabrica = IdEstado FROM EstadosEstudio WHERE Codigo = 'REVISION_FABRICA';
+SELECT @IdBloqFraude = IdEstado FROM EstadosEstudio WHERE Codigo = 'BLOQUEADO_FRAUDE';
+SELECT @IdEnProgreso = IdEstado FROM EstadosEstudio WHERE Codigo = 'EN_PROGRESO';
+SELECT @IdRechazado  = IdEstado FROM EstadosEstudio WHERE Codigo = 'RECHAZADO';
+SELECT @IdPendCall   = IdEstado FROM EstadosEstudio WHERE Codigo = 'PENDIENTE_CALL';
 
 -- EN_PROGRESO → REVISION_FABRICA (alerta de fraude, anomalía de flujo)
 IF @IdEnProgreso IS NOT NULL AND @IdRevFabrica IS NOT NULL
@@ -2059,7 +2160,7 @@ END
 --   PH-05: HistorialFotografias      — auditoría inmutable de todos los cambios
 --   PH-06: ALTER EstudiosCredito     — FotografiasAprobadas + EstadoRevisionFotos
 --   PH-07: ALTER RegistrosBiometria  — FKs a las 3 fotografías del proceso
---   PH-08: Nuevos estados de CatalogoEstados: PENDIENTE_FOTOS + FOTOS_EN_REVISION
+--   PH-08: Nuevos estados de EstadosEstudio: PENDIENTE_FOTOS + FOTOS_EN_REVISION
 --   PH-09: Seeds ConfiguracionReglasNegocio (parámetros foto)
 --   PH-10: Seeds de todos los catálogos de fotografía
 -- ==============================================================================
@@ -2480,9 +2581,9 @@ END
 --                         fábrica debe revisarlas antes de continuar.
 --                         Estado intermedio entre carga y aprobación.
 -- ─────────────────────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT * FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_FOTOS')
+IF NOT EXISTS (SELECT * FROM EstadosEstudio WHERE Codigo = 'PENDIENTE_FOTOS')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES (
         'PENDIENTE_FOTOS',
         'Pendiente Carga de Fotografías',
@@ -2490,13 +2591,13 @@ BEGIN
         'El proceso está bloqueado porque al menos una fotografía obligatoria (frente/reverso cédula o selfie) '
         + 'está faltante o fue rechazada. Se ha enviado link de re-carga al cliente.'
     );
-    PRINT '✓ Estado PENDIENTE_FOTOS insertado en CatalogoEstados';
+    PRINT '✓ Estado PENDIENTE_FOTOS insertado en EstadosEstudio';
 END
 
 
-IF NOT EXISTS (SELECT * FROM CatalogoEstados WHERE Codigo = 'FOTOS_EN_REVISION')
+IF NOT EXISTS (SELECT * FROM EstadosEstudio WHERE Codigo = 'FOTOS_EN_REVISION')
 BEGIN
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
+    INSERT INTO [cfg].[EstadosEstudio] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion)
     VALUES (
         'FOTOS_EN_REVISION',
         'Fotografías en Revisión Manual',
@@ -2504,7 +2605,7 @@ BEGIN
         'Todas las fotografías obligatorias fueron cargadas por el cliente. '
         + 'El asesor de fábrica está revisando las imágenes para aprobarlas o rechazarlas.'
     );
-    PRINT '✓ Estado FOTOS_EN_REVISION insertado en CatalogoEstados';
+    PRINT '✓ Estado FOTOS_EN_REVISION insertado en EstadosEstudio';
 END
 
 
@@ -2519,11 +2620,11 @@ DECLARE
     @IdPendBiom     INT,
     @IdRechazado2   INT;
 
-SELECT @IdPendFotos  = IdEstado FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_FOTOS';
-SELECT @IdFotosRev   = IdEstado FROM CatalogoEstados WHERE Codigo = 'FOTOS_EN_REVISION';
-SELECT @IdEnProgreso2 = IdEstado FROM CatalogoEstados WHERE Codigo = 'EN_PROGRESO';
-SELECT @IdPendBiom   = IdEstado FROM CatalogoEstados WHERE Codigo = 'PENDIENTE_BIOMETRIA';
-SELECT @IdRechazado2 = IdEstado FROM CatalogoEstados WHERE Codigo = 'RECHAZADO';
+SELECT @IdPendFotos  = IdEstado FROM EstadosEstudio WHERE Codigo = 'PENDIENTE_FOTOS';
+SELECT @IdFotosRev   = IdEstado FROM EstadosEstudio WHERE Codigo = 'FOTOS_EN_REVISION';
+SELECT @IdEnProgreso2 = IdEstado FROM EstadosEstudio WHERE Codigo = 'EN_PROGRESO';
+SELECT @IdPendBiom   = IdEstado FROM EstadosEstudio WHERE Codigo = 'PENDIENTE_BIOMETRIA';
+SELECT @IdRechazado2 = IdEstado FROM EstadosEstudio WHERE Codigo = 'RECHAZADO';
 
 -- EN_PROGRESO → PENDIENTE_FOTOS (foto faltante o rechazada detectada durante el flujo)
 IF @IdEnProgreso2 IS NOT NULL AND @IdPendFotos IS NOT NULL
@@ -3011,7 +3112,7 @@ END
   ║  └── EstudiosCredito:                          ║
   ║      (la maquina de estados + reglas de servicio previenen duplicados)       ║
   ║                                                                              ║
-  ║  ESTADOS NUEVOS EN CatalogoEstados:                                          ║
+  ║  ESTADOS NUEVOS EN EstadosEstudio:                                          ║
   ║  ├── REVISION_FABRICA               (SA-11 — estado PROCESO)                 ║
   ║  ├── BLOQUEADO_FRAUDE               (SA-11 — estado TERMINAL)                ║
   ║  ├── PENDIENTE_FOTOS                (PH-08 — estado PROCESO)                 ║
@@ -3023,7 +3124,7 @@ END
   ║                                                                              ║
   ║  DATOS SEMILLA INSERTADOS:           14 catálogos                            ║
   ║  ├── FasesEstudio:                   7 registros                             ║
-  ║  ├── CatalogoEstados:               15 registros (11 base + 4 nuevos)        ║
+  ║  ├── EstadosEstudio:               15 registros (11 base + 4 nuevos)        ║
   ║  ├── PasosEstudio:                  13 registros                             ║
   ║  ├── TransicionesEstado:            40 registros (+8 nuevas v2.3)            ║
   ║  ├── ConfiguracionReglasNegocio:    20 registros (v2.4 duplicados eliminados)║

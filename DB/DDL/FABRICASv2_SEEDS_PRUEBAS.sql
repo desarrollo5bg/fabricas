@@ -22,10 +22,10 @@ END
 
 
 -- 10.2 Estados del Proceso (23 estados) — sync completo con v2.6
-IF NOT EXISTS (SELECT 1 FROM [cfg].[CatalogoEstados] WHERE Codigo = 'BORRADOR')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[EstudiosCredito] WHERE Codigo = 'BORRADOR')
 BEGIN
     -- INICIAL
-    INSERT INTO [cfg].[CatalogoEstados] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion) VALUES
+    INSERT INTO [cfg].[EstudiosCredito] (Codigo, Nombre, Grupo, EsTerminal, PermitePausa, Descripcion) VALUES
     ('BORRADOR', 'En Validación Previa', 'INICIAL', 0, 0, 'El cliente se encuentra en pasos iniciales.'),
     ('PENDIENTE_CLIENTE_PREVIO', 'Pendiente Cliente — Previo', 'INICIAL', 0, 1, 'Se requiere acción del cliente antes de crear solicitud formal.'),
     ('EXPIRADO_PREVIO', 'Expirada — Previo', 'INICIAL', 1, 0, 'El proceso previo no continuó dentro del tiempo permitido.'),
@@ -90,220 +90,220 @@ END
 -- 10.4 TransicionesEstado (idempotente por fila — se pueden agregar transiciones sin borrar las existentes)
 
 -- Transiciones desde BORRADOR
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'BORRADOR' AND d.Codigo = 'EN_PROGRESO')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'BORRADOR' AND d.Codigo = 'EN_PROGRESO')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Iniciar procesamiento del estudio'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'BORRADOR' AND d.Codigo = 'EN_PROGRESO';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'BORRADOR' AND d.Codigo = 'EN_PROGRESO';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'BORRADOR' AND d.Codigo = 'CANCELADO_CLIENTE')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'BORRADOR' AND d.Codigo = 'CANCELADO_CLIENTE')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Cancelación voluntaria antes de iniciar'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'BORRADOR' AND d.Codigo = 'CANCELADO_CLIENTE';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'BORRADOR' AND d.Codigo = 'CANCELADO_CLIENTE';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'BORRADOR' AND d.Codigo = 'PENDIENTE_CLIENTE_PREVIO')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'BORRADOR' AND d.Codigo = 'PENDIENTE_CLIENTE_PREVIO')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Cliente se retracta en validación previa'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'BORRADOR' AND d.Codigo = 'PENDIENTE_CLIENTE_PREVIO';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'BORRADOR' AND d.Codigo = 'PENDIENTE_CLIENTE_PREVIO';
 
 -- Transiciones desde PENDIENTE_CLIENTE_PREVIO
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PENDIENTE_CLIENTE_PREVIO' AND d.Codigo = 'BORRADOR')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PENDIENTE_CLIENTE_PREVIO' AND d.Codigo = 'BORRADOR')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Cliente completa datos pendientes'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'PENDIENTE_CLIENTE_PREVIO' AND d.Codigo = 'BORRADOR';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'PENDIENTE_CLIENTE_PREVIO' AND d.Codigo = 'BORRADOR';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PENDIENTE_CLIENTE_PREVIO' AND d.Codigo = 'CANCELADO_CLIENTE')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PENDIENTE_CLIENTE_PREVIO' AND d.Codigo = 'CANCELADO_CLIENTE')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Cancelación voluntaria en previo'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'PENDIENTE_CLIENTE_PREVIO' AND d.Codigo = 'CANCELADO_CLIENTE';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'PENDIENTE_CLIENTE_PREVIO' AND d.Codigo = 'CANCELADO_CLIENTE';
 
 -- Transiciones desde EN_PROGRESO
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'PAUSADO')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'PAUSADO')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Cliente se retira, pausar estudio'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'PAUSADO';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'PAUSADO';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'PENDIENTE_OTP')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'PENDIENTE_OTP')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Esperando validación OTP'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'PENDIENTE_OTP';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'PENDIENTE_OTP';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'PENDIENTE_BIOMETRIA')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'PENDIENTE_BIOMETRIA')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Esperando biométrica'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'PENDIENTE_BIOMETRIA';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'PENDIENTE_BIOMETRIA';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'PENDIENTE_FOTOS')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'PENDIENTE_FOTOS')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Esperando fotos del cliente'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'PENDIENTE_FOTOS';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'PENDIENTE_FOTOS';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Esperando respuesta de servicio externo'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'CUPO_PREAPROBADO')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'CUPO_PREAPROBADO')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Cupo preaprobado confirmado'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'CUPO_PREAPROBADO';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'CUPO_PREAPROBADO';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'APROBADO')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'APROBADO')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Todas las validaciones aprobadas'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'APROBADO';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'APROBADO';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'RECHAZADO')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'RECHAZADO')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 1, 'Rechazado por validación de riesgo'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'RECHAZADO';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'RECHAZADO';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'NO_VIABLE_ANTECEDENTES')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'NO_VIABLE_ANTECEDENTES')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 1, 'Rechazo por antecedentes'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'NO_VIABLE_ANTECEDENTES';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'NO_VIABLE_ANTECEDENTES';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'NO_VIABLE_CENTRALES')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'NO_VIABLE_CENTRALES')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 1, 'Rechazo por centrales/preselecta'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'NO_VIABLE_CENTRALES';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'NO_VIABLE_CENTRALES';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'NO_APLICA_CUPO')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'NO_APLICA_CUPO')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 1, 'No aplica para cupo: no supera reglas complementarias'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'NO_APLICA_CUPO';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'NO_APLICA_CUPO';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'EN_FABRICA')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'EN_FABRICA')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 1, 'Derivar a fábrica de soporte'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'EN_FABRICA';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'EN_FABRICA';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'BLOQUEADO_FRAUDE')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'BLOQUEADO_FRAUDE')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 1, 'Regla de fraude crítica: bloqueo automático inmediato'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'BLOQUEADO_FRAUDE';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'BLOQUEADO_FRAUDE';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'CANCELADO_CLIENTE')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'CANCELADO_CLIENTE')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Cancelación voluntaria durante el proceso'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'CANCELADO_CLIENTE';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'CANCELADO_CLIENTE';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'NO_VIABLE_ANTECEDENTES_PREVIO')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'NO_VIABLE_ANTECEDENTES_PREVIO')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 1, 'Preselecta rechaza por antecedentes'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'NO_VIABLE_ANTECEDENTES_PREVIO';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'NO_VIABLE_ANTECEDENTES_PREVIO';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'REVISION_FABRICA')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'REVISION_FABRICA')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 1, 'Anomalía detectada: derivar a revisión manual por fábrica de crédito'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'REVISION_FABRICA';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'EN_PROGRESO' AND d.Codigo = 'REVISION_FABRICA';
 
 -- Transiciones desde PAUSADO
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PAUSADO' AND d.Codigo = 'EN_PROGRESO')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PAUSADO' AND d.Codigo = 'EN_PROGRESO')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Cliente regresa, reanudar estudio'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'PAUSADO' AND d.Codigo = 'EN_PROGRESO';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'PAUSADO' AND d.Codigo = 'EN_PROGRESO';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PAUSADO' AND d.Codigo = 'EXPIRADO')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PAUSADO' AND d.Codigo = 'EXPIRADO')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Estudio expiró por inactividad'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'PAUSADO' AND d.Codigo = 'EXPIRADO';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'PAUSADO' AND d.Codigo = 'EXPIRADO';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PAUSADO' AND d.Codigo = 'CANCELADO_CLIENTE')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PAUSADO' AND d.Codigo = 'CANCELADO_CLIENTE')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Cancelación voluntaria mientras pausado'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'PAUSADO' AND d.Codigo = 'CANCELADO_CLIENTE';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'PAUSADO' AND d.Codigo = 'CANCELADO_CLIENTE';
 
 -- Transiciones desde PENDIENTE_OTP
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PENDIENTE_OTP' AND d.Codigo = 'EN_PROGRESO')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PENDIENTE_OTP' AND d.Codigo = 'EN_PROGRESO')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'OTP validado exitosamente'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'PENDIENTE_OTP' AND d.Codigo = 'EN_PROGRESO';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'PENDIENTE_OTP' AND d.Codigo = 'EN_PROGRESO';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PENDIENTE_OTP' AND d.Codigo = 'PAUSADO')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PENDIENTE_OTP' AND d.Codigo = 'PAUSADO')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Cliente se retira, pausar'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'PENDIENTE_OTP' AND d.Codigo = 'PAUSADO';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'PENDIENTE_OTP' AND d.Codigo = 'PAUSADO';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PENDIENTE_OTP' AND d.Codigo = 'RECHAZADO')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PENDIENTE_OTP' AND d.Codigo = 'RECHAZADO')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 1, 'OTP fallido, intentos agotados'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'PENDIENTE_OTP' AND d.Codigo = 'RECHAZADO';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'PENDIENTE_OTP' AND d.Codigo = 'RECHAZADO';
 
 -- Transiciones desde PENDIENTE_BIOMETRIA
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PENDIENTE_BIOMETRIA' AND d.Codigo = 'EN_PROGRESO')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PENDIENTE_BIOMETRIA' AND d.Codigo = 'EN_PROGRESO')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Biometría validada exitosamente'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'PENDIENTE_BIOMETRIA' AND d.Codigo = 'EN_PROGRESO';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'PENDIENTE_BIOMETRIA' AND d.Codigo = 'EN_PROGRESO';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PENDIENTE_BIOMETRIA' AND d.Codigo = 'PAUSADO')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PENDIENTE_BIOMETRIA' AND d.Codigo = 'PAUSADO')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Cliente se retira, pausar'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'PENDIENTE_BIOMETRIA' AND d.Codigo = 'PAUSADO';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'PENDIENTE_BIOMETRIA' AND d.Codigo = 'PAUSADO';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PENDIENTE_BIOMETRIA' AND d.Codigo = 'EN_FABRICA')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PENDIENTE_BIOMETRIA' AND d.Codigo = 'EN_FABRICA')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 1, 'Biometría fallida, derivar a fábrica'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'PENDIENTE_BIOMETRIA' AND d.Codigo = 'EN_FABRICA';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'PENDIENTE_BIOMETRIA' AND d.Codigo = 'EN_FABRICA';
 
 -- Transiciones desde PENDIENTE_FOTOS
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PENDIENTE_FOTOS' AND d.Codigo = 'FOTOS_EN_REVISION')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PENDIENTE_FOTOS' AND d.Codigo = 'FOTOS_EN_REVISION')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Fotos recibidas, en revisión'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'PENDIENTE_FOTOS' AND d.Codigo = 'FOTOS_EN_REVISION';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'PENDIENTE_FOTOS' AND d.Codigo = 'FOTOS_EN_REVISION';
 
 -- Transiciones desde FOTOS_EN_REVISION
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'FOTOS_EN_REVISION' AND d.Codigo = 'EN_PROGRESO')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'FOTOS_EN_REVISION' AND d.Codigo = 'EN_PROGRESO')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Asesor aprueba fotos: proceso se reanuda'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'FOTOS_EN_REVISION' AND d.Codigo = 'EN_PROGRESO';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'FOTOS_EN_REVISION' AND d.Codigo = 'EN_PROGRESO';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'FOTOS_EN_REVISION' AND d.Codigo = 'PENDIENTE_FOTOS')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'FOTOS_EN_REVISION' AND d.Codigo = 'PENDIENTE_FOTOS')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 1, 'Asesor rechaza fotos: nueva solicitud'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'FOTOS_EN_REVISION' AND d.Codigo = 'PENDIENTE_FOTOS';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'FOTOS_EN_REVISION' AND d.Codigo = 'PENDIENTE_FOTOS';
 
 -- Transiciones desde EN_FABRICA
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_FABRICA' AND d.Codigo = 'EN_PROGRESO')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_FABRICA' AND d.Codigo = 'EN_PROGRESO')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Fábrica resuelve: reanudar flujo'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'EN_FABRICA' AND d.Codigo = 'EN_PROGRESO';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'EN_FABRICA' AND d.Codigo = 'EN_PROGRESO';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_FABRICA' AND d.Codigo = 'RECHAZADO')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_FABRICA' AND d.Codigo = 'RECHAZADO')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 1, 'Fábrica determina rechazo'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'EN_FABRICA' AND d.Codigo = 'RECHAZADO';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'EN_FABRICA' AND d.Codigo = 'RECHAZADO';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_FABRICA' AND d.Codigo = 'BLOQUEADO_FRAUDE')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'EN_FABRICA' AND d.Codigo = 'BLOQUEADO_FRAUDE')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 1, 'Fábrica detecta fraude'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'EN_FABRICA' AND d.Codigo = 'BLOQUEADO_FRAUDE';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'EN_FABRICA' AND d.Codigo = 'BLOQUEADO_FRAUDE';
 
 -- Transiciones desde PENDIENTE_VALIDACION_AUTOMATICA
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA' AND d.Codigo = 'EN_PROGRESO')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA' AND d.Codigo = 'EN_PROGRESO')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 0, 'Validación automática exitosa'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA' AND d.Codigo = 'EN_PROGRESO';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA' AND d.Codigo = 'EN_PROGRESO';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA' AND d.Codigo = 'EN_FABRICA')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA' AND d.Codigo = 'EN_FABRICA')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 1, 'Validación automática fallida'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA' AND d.Codigo = 'EN_FABRICA';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'PENDIENTE_VALIDACION_AUTOMATICA' AND d.Codigo = 'EN_FABRICA';
 
 -- Transiciones desde REVISION_FABRICA (SA-11)
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'REVISION_FABRICA' AND d.Codigo = 'EN_PROGRESO')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'REVISION_FABRICA' AND d.Codigo = 'EN_PROGRESO')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 1, 'Asesor de fábrica resuelve: devolver al flujo automático'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'REVISION_FABRICA' AND d.Codigo = 'EN_PROGRESO';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'REVISION_FABRICA' AND d.Codigo = 'EN_PROGRESO';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'REVISION_FABRICA' AND d.Codigo = 'RECHAZADO')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'REVISION_FABRICA' AND d.Codigo = 'RECHAZADO')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 1, 'Asesor de fábrica determina rechazo definitivo'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'REVISION_FABRICA' AND d.Codigo = 'RECHAZADO';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'REVISION_FABRICA' AND d.Codigo = 'RECHAZADO';
 
-IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[CatalogoEstados] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[CatalogoEstados] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'REVISION_FABRICA' AND d.Codigo = 'BLOQUEADO_FRAUDE')
+IF NOT EXISTS (SELECT 1 FROM [cfg].[TransicionesEstado] t INNER JOIN [cfg].[EstudiosCredito] o ON o.IdEstado = t.IdEstadoOrigen INNER JOIN [cfg].[EstudiosCredito] d ON d.IdEstado = t.IdEstadoDestino WHERE o.Codigo = 'REVISION_FABRICA' AND d.Codigo = 'BLOQUEADO_FRAUDE')
     INSERT INTO [cfg].[TransicionesEstado] (IdEstadoOrigen, IdEstadoDestino, RequiereMotivo, Descripcion)
     SELECT o.IdEstado, d.IdEstado, 1, 'Asesor de fábrica confirma sospecha de fraude'
-    FROM [cfg].[CatalogoEstados] o, [cfg].[CatalogoEstados] d WHERE o.Codigo = 'REVISION_FABRICA' AND d.Codigo = 'BLOQUEADO_FRAUDE';
+    FROM [cfg].[EstudiosCredito] o, [cfg].[EstudiosCredito] d WHERE o.Codigo = 'REVISION_FABRICA' AND d.Codigo = 'BLOQUEADO_FRAUDE';
 
 
 -- 10.5 ConfiguracionReglasNegocio
@@ -843,11 +843,11 @@ END
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 11.6  fab.EstudiosCredito — 5 estudios en distintos estados
---   Depende de: cfg.CatalogoEstados, cfg.PasosEstudio, cat.CatalogoCanalesOrigen,
+--   Depende de: cfg.EstudiosCredito, cfg.PasosEstudio, cat.CatalogoCanalesOrigen,
 --               dbo.bodegas, fab.OperadoresFabrica, fab.TercerosFabricas
 -- ─────────────────────────────────────────────────────────────────────────────
 IF OBJECT_ID(N'fab.EstudiosCredito', N'U') IS NOT NULL
-AND OBJECT_ID(N'cfg.CatalogoEstados', N'U') IS NOT NULL
+AND OBJECT_ID(N'cfg.EstudiosCredito', N'U') IS NOT NULL
 AND OBJECT_ID(N'cat.CatalogoCanalesOrigen', N'U') IS NOT NULL
 BEGIN
     -- ── Estudio 1: Cliente A (10000001) — BORRADOR, paso INGRESO_DOCUMENTO ──
@@ -864,7 +864,7 @@ BEGIN
             (SELECT IdOperador FROM [fab].[OperadoresFabrica] WHERE NitOperador = '12345678'),
             '12345678',
             (SELECT IdCanal FROM [cat].[CatalogoCanalesOrigen] WHERE Codigo = 'TIENDA'),
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'BORRADOR'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'BORRADOR'),
             (SELECT IdPaso FROM [cfg].[PasosEstudio] WHERE Codigo = 'INGRESO_DOCUMENTO'),
             0, 0, 0, 0, 0, 'PENDIENTE',
             'ana.garcia@prueba.co', 'ingreso-documento', 'CORR-TEST-001';
@@ -884,7 +884,7 @@ BEGIN
             (SELECT IdOperador FROM [fab].[OperadoresFabrica] WHERE NitOperador = '12345678'),
             '12345678',
             (SELECT IdCanal FROM [cat].[CatalogoCanalesOrigen] WHERE Codigo = 'TIENDA'),
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'APROBADO'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'APROBADO'),
             NULL,
             1, 0, 0, 0, 0, 'NORMAL', 2000000, 'APROBADO',
             'carlos.ramirez@prueba.co', DATEADD(MONTH, -3, GETDATE()), 'CORR-TEST-002';
@@ -904,7 +904,7 @@ BEGIN
             (SELECT IdOperador FROM [fab].[OperadoresFabrica] WHERE NitOperador = '12345678'),
             '12345678',
             (SELECT IdCanal FROM [cat].[CatalogoCanalesOrigen] WHERE Codigo = 'TIENDA'),
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'RECHAZADO'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'RECHAZADO'),
             NULL,
             0, 0, 0, 0, 0, 'NORMAL', 'Mora detectada en listas restrictivas', 'PENDIENTE',
             'laura.mendoza@prueba.co', DATEADD(DAY, -15, GETDATE()), 'CORR-TEST-003';
@@ -924,7 +924,7 @@ BEGIN
             '10000004', '800123456', '3151234567',
             NULL, NULL, NULL,
             (SELECT IdCanal FROM [cat].[CatalogoCanalesOrigen] WHERE Codigo = 'WEB'),
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'EN_PROGRESO'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'EN_PROGRESO'),
             (SELECT IdPaso FROM [cfg].[PasosEstudio] WHERE Codigo = 'TOKENIZACION'),
             0, 0, 0, 0, 0, 'PENDIENTE',
             'pedro.vargas@prueba.co', 'tokenizacion',
@@ -948,7 +948,7 @@ BEGIN
             (SELECT IdOperador FROM [fab].[OperadoresFabrica] WHERE NitOperador = '12345678'),
             '12345678',
             (SELECT IdCanal FROM [cat].[CatalogoCanalesOrigen] WHERE Codigo = 'TIENDA'),
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'REVISION_FABRICA'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'REVISION_FABRICA'),
             NULL,
             1, 0, 0, 0, 0, 1500000, 'APROBADO',
             'maria.fernandez@prueba.co',
@@ -1068,13 +1068,13 @@ END
 -- ─────────────────────────────────────────────────────────────────────────────
 IF OBJECT_ID(N'aud.HistorialEstados', N'U') IS NOT NULL
 AND OBJECT_ID(N'fab.EstudiosCredito', N'U') IS NOT NULL
-AND OBJECT_ID(N'cfg.CatalogoEstados', N'U') IS NOT NULL
+AND OBJECT_ID(N'cfg.EstudiosCredito', N'U') IS NOT NULL
 BEGIN
     -- ── Cliente A (10000001): INICIO → BORRADOR ──
     IF NOT EXISTS (
         SELECT 1 FROM [aud].[HistorialEstados] h
         INNER JOIN [fab].[EstudiosCredito] ec ON h.IdEstudio = ec.IdEstudio
-        INNER JOIN [cfg].[CatalogoEstados] ce ON h.IdEstadoNuevo = ce.IdEstado
+        INNER JOIN [cfg].[EstudiosCredito] ce ON h.IdEstadoNuevo = ce.IdEstado
         WHERE ec.NitTercero = '10000001' AND ce.Codigo = 'BORRADOR'
     )
         INSERT INTO [aud].[HistorialEstados]
@@ -1083,14 +1083,14 @@ BEGIN
             (SELECT TOP 1 IdEstudio FROM [fab].[EstudiosCredito]
              WHERE NitTercero = '10000001' AND EliminadoLogico = 0 ORDER BY FechaCreacion DESC),
             NULL,
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'BORRADOR'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'BORRADOR'),
             'ASESOR', 'Inicio de estudio de crédito', '12345678', 'CORR-TEST-001';
 
     -- ── Cliente D (10000004): INICIO → BORRADOR ──
     IF NOT EXISTS (
         SELECT 1 FROM [aud].[HistorialEstados] h
         INNER JOIN [fab].[EstudiosCredito] ec ON h.IdEstudio = ec.IdEstudio
-        INNER JOIN [cfg].[CatalogoEstados] ce ON h.IdEstadoNuevo = ce.IdEstado
+        INNER JOIN [cfg].[EstudiosCredito] ce ON h.IdEstadoNuevo = ce.IdEstado
         WHERE ec.NitTercero = '10000004' AND ce.Codigo = 'BORRADOR'
     )
         INSERT INTO [aud].[HistorialEstados]
@@ -1099,7 +1099,7 @@ BEGIN
             (SELECT TOP 1 IdEstudio FROM [fab].[EstudiosCredito]
              WHERE NitTercero = '10000004' AND EliminadoLogico = 0 ORDER BY FechaCreacion DESC),
             NULL,
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'BORRADOR'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'BORRADOR'),
             'CLIENTE', 'Inicio de solicitud de cupo', 'CORR-TEST-004',
             DATEADD(MINUTE, -30, GETDATE());
 
@@ -1107,7 +1107,7 @@ BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM [aud].[HistorialEstados] h
         INNER JOIN [fab].[EstudiosCredito] ec ON h.IdEstudio = ec.IdEstudio
-        INNER JOIN [cfg].[CatalogoEstados] ce ON h.IdEstadoNuevo = ce.IdEstado
+        INNER JOIN [cfg].[EstudiosCredito] ce ON h.IdEstadoNuevo = ce.IdEstado
         WHERE ec.NitTercero = '10000004' AND ce.Codigo = 'EN_PROGRESO'
     )
         INSERT INTO [aud].[HistorialEstados]
@@ -1115,8 +1115,8 @@ BEGIN
         SELECT
             (SELECT TOP 1 IdEstudio FROM [fab].[EstudiosCredito]
              WHERE NitTercero = '10000004' AND EliminadoLogico = 0 ORDER BY FechaCreacion DESC),
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'BORRADOR'),
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'EN_PROGRESO'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'BORRADOR'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'EN_PROGRESO'),
             'CLIENTE', 'Cliente completó datos personales — avance al flujo', 'CORR-TEST-004',
             DATEADD(MINUTE, -15, GETDATE());
 
@@ -1124,7 +1124,7 @@ BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM [aud].[HistorialEstados] h
         INNER JOIN [fab].[EstudiosCredito] ec ON h.IdEstudio = ec.IdEstudio
-        INNER JOIN [cfg].[CatalogoEstados] ce ON h.IdEstadoNuevo = ce.IdEstado
+        INNER JOIN [cfg].[EstudiosCredito] ce ON h.IdEstadoNuevo = ce.IdEstado
         WHERE ec.NitTercero = '10000003' AND ce.Codigo = 'BORRADOR'
     )
         INSERT INTO [aud].[HistorialEstados]
@@ -1133,7 +1133,7 @@ BEGIN
             (SELECT TOP 1 IdEstudio FROM [fab].[EstudiosCredito]
              WHERE NitTercero = '10000003' AND EliminadoLogico = 0 ORDER BY FechaCreacion DESC),
             NULL,
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'BORRADOR'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'BORRADOR'),
             'ASESOR', 'Inicio de estudio de crédito', '12345678', 'CORR-TEST-003',
             DATEADD(DAY, -15, DATEADD(MINUTE, -45, GETDATE()));
 
@@ -1141,7 +1141,7 @@ BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM [aud].[HistorialEstados] h
         INNER JOIN [fab].[EstudiosCredito] ec ON h.IdEstudio = ec.IdEstudio
-        INNER JOIN [cfg].[CatalogoEstados] ce ON h.IdEstadoNuevo = ce.IdEstado
+        INNER JOIN [cfg].[EstudiosCredito] ce ON h.IdEstadoNuevo = ce.IdEstado
         WHERE ec.NitTercero = '10000003' AND ce.Codigo = 'EN_PROGRESO'
     )
         INSERT INTO [aud].[HistorialEstados]
@@ -1149,8 +1149,8 @@ BEGIN
         SELECT
             (SELECT TOP 1 IdEstudio FROM [fab].[EstudiosCredito]
              WHERE NitTercero = '10000003' AND EliminadoLogico = 0 ORDER BY FechaCreacion DESC),
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'BORRADOR'),
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'EN_PROGRESO'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'BORRADOR'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'EN_PROGRESO'),
             'ASESOR', 'Datos capturados — avance al flujo de validaciones', '12345678', 'CORR-TEST-003',
             DATEADD(DAY, -15, DATEADD(MINUTE, -30, GETDATE()));
 
@@ -1158,7 +1158,7 @@ BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM [aud].[HistorialEstados] h
         INNER JOIN [fab].[EstudiosCredito] ec ON h.IdEstudio = ec.IdEstudio
-        INNER JOIN [cfg].[CatalogoEstados] ce ON h.IdEstadoNuevo = ce.IdEstado
+        INNER JOIN [cfg].[EstudiosCredito] ce ON h.IdEstadoNuevo = ce.IdEstado
         WHERE ec.NitTercero = '10000003' AND ce.Codigo = 'RECHAZADO'
     )
         INSERT INTO [aud].[HistorialEstados]
@@ -1166,8 +1166,8 @@ BEGIN
         SELECT
             (SELECT TOP 1 IdEstudio FROM [fab].[EstudiosCredito]
              WHERE NitTercero = '10000003' AND EliminadoLogico = 0 ORDER BY FechaCreacion DESC),
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'EN_PROGRESO'),
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'RECHAZADO'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'EN_PROGRESO'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'RECHAZADO'),
             'SISTEMA', 'Mora detectada en listas restrictivas — rechazo automático', '12345678', 'CORR-TEST-003',
             DATEADD(DAY, -15, GETDATE());
 
@@ -1175,7 +1175,7 @@ BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM [aud].[HistorialEstados] h
         INNER JOIN [fab].[EstudiosCredito] ec ON h.IdEstudio = ec.IdEstudio
-        INNER JOIN [cfg].[CatalogoEstados] ce ON h.IdEstadoNuevo = ce.IdEstado
+        INNER JOIN [cfg].[EstudiosCredito] ce ON h.IdEstadoNuevo = ce.IdEstado
         WHERE ec.NitTercero = '10000005' AND ce.Codigo = 'BORRADOR'
     )
         INSERT INTO [aud].[HistorialEstados]
@@ -1184,7 +1184,7 @@ BEGIN
             (SELECT TOP 1 IdEstudio FROM [fab].[EstudiosCredito]
              WHERE NitTercero = '10000005' AND EliminadoLogico = 0 ORDER BY FechaCreacion DESC),
             NULL,
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'BORRADOR'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'BORRADOR'),
             'ASESOR', 'Inicio de estudio de crédito', '12345678', 'CORR-TEST-005',
             DATEADD(HOUR, -3, GETDATE());
 
@@ -1192,7 +1192,7 @@ BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM [aud].[HistorialEstados] h
         INNER JOIN [fab].[EstudiosCredito] ec ON h.IdEstudio = ec.IdEstudio
-        INNER JOIN [cfg].[CatalogoEstados] ce ON h.IdEstadoNuevo = ce.IdEstado
+        INNER JOIN [cfg].[EstudiosCredito] ce ON h.IdEstadoNuevo = ce.IdEstado
         WHERE ec.NitTercero = '10000005' AND ce.Codigo = 'EN_PROGRESO'
     )
         INSERT INTO [aud].[HistorialEstados]
@@ -1200,8 +1200,8 @@ BEGIN
         SELECT
             (SELECT TOP 1 IdEstudio FROM [fab].[EstudiosCredito]
              WHERE NitTercero = '10000005' AND EliminadoLogico = 0 ORDER BY FechaCreacion DESC),
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'BORRADOR'),
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'EN_PROGRESO'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'BORRADOR'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'EN_PROGRESO'),
             'ASESOR', 'Datos capturados y consentimiento firmado', '12345678', 'CORR-TEST-005',
             DATEADD(HOUR, -2, GETDATE());
 
@@ -1209,7 +1209,7 @@ BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM [aud].[HistorialEstados] h
         INNER JOIN [fab].[EstudiosCredito] ec ON h.IdEstudio = ec.IdEstudio
-        INNER JOIN [cfg].[CatalogoEstados] ce ON h.IdEstadoNuevo = ce.IdEstado
+        INNER JOIN [cfg].[EstudiosCredito] ce ON h.IdEstadoNuevo = ce.IdEstado
         WHERE ec.NitTercero = '10000005' AND ce.Codigo = 'REVISION_FABRICA'
     )
         INSERT INTO [aud].[HistorialEstados]
@@ -1217,8 +1217,8 @@ BEGIN
         SELECT
             (SELECT TOP 1 IdEstudio FROM [fab].[EstudiosCredito]
              WHERE NitTercero = '10000005' AND EliminadoLogico = 0 ORDER BY FechaCreacion DESC),
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'EN_PROGRESO'),
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'REVISION_FABRICA'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'EN_PROGRESO'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'REVISION_FABRICA'),
             'SISTEMA', 'Validaciones completadas — enviado a fábrica para revisión final', '12345678', 'CORR-TEST-005',
             DATEADD(HOUR, -1, GETDATE());
 
@@ -1226,7 +1226,7 @@ BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM [aud].[HistorialEstados] h
         INNER JOIN [fab].[EstudiosCredito] ec ON h.IdEstudio = ec.IdEstudio
-        INNER JOIN [cfg].[CatalogoEstados] ce ON h.IdEstadoNuevo = ce.IdEstado
+        INNER JOIN [cfg].[EstudiosCredito] ce ON h.IdEstadoNuevo = ce.IdEstado
         WHERE ec.NitTercero = '10000002' AND ce.Codigo = 'BORRADOR'
     )
         INSERT INTO [aud].[HistorialEstados]
@@ -1235,7 +1235,7 @@ BEGIN
             (SELECT TOP 1 IdEstudio FROM [fab].[EstudiosCredito]
              WHERE NitTercero = '10000002' AND EliminadoLogico = 0 ORDER BY FechaCreacion DESC),
             NULL,
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'BORRADOR'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'BORRADOR'),
             'ASESOR', 'Inicio de estudio de crédito', '12345678', 'CORR-TEST-002',
             DATEADD(MONTH, -3, DATEADD(HOUR, -5, GETDATE()));
 
@@ -1243,7 +1243,7 @@ BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM [aud].[HistorialEstados] h
         INNER JOIN [fab].[EstudiosCredito] ec ON h.IdEstudio = ec.IdEstudio
-        INNER JOIN [cfg].[CatalogoEstados] ce ON h.IdEstadoNuevo = ce.IdEstado
+        INNER JOIN [cfg].[EstudiosCredito] ce ON h.IdEstadoNuevo = ce.IdEstado
         WHERE ec.NitTercero = '10000002' AND ce.Codigo = 'EN_PROGRESO'
     )
         INSERT INTO [aud].[HistorialEstados]
@@ -1251,8 +1251,8 @@ BEGIN
         SELECT
             (SELECT TOP 1 IdEstudio FROM [fab].[EstudiosCredito]
              WHERE NitTercero = '10000002' AND EliminadoLogico = 0 ORDER BY FechaCreacion DESC),
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'BORRADOR'),
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'EN_PROGRESO'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'BORRADOR'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'EN_PROGRESO'),
             'ASESOR', 'Datos capturados y consentimiento firmado', '12345678', 'CORR-TEST-002',
             DATEADD(MONTH, -3, DATEADD(HOUR, -4, GETDATE()));
 
@@ -1260,7 +1260,7 @@ BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM [aud].[HistorialEstados] h
         INNER JOIN [fab].[EstudiosCredito] ec ON h.IdEstudio = ec.IdEstudio
-        INNER JOIN [cfg].[CatalogoEstados] ce ON h.IdEstadoNuevo = ce.IdEstado
+        INNER JOIN [cfg].[EstudiosCredito] ce ON h.IdEstadoNuevo = ce.IdEstado
         WHERE ec.NitTercero = '10000002' AND ce.Codigo = 'REVISION_FABRICA'
     )
         INSERT INTO [aud].[HistorialEstados]
@@ -1268,8 +1268,8 @@ BEGIN
         SELECT
             (SELECT TOP 1 IdEstudio FROM [fab].[EstudiosCredito]
              WHERE NitTercero = '10000002' AND EliminadoLogico = 0 ORDER BY FechaCreacion DESC),
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'EN_PROGRESO'),
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'REVISION_FABRICA'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'EN_PROGRESO'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'REVISION_FABRICA'),
             'SISTEMA', 'Validaciones exitosas — enviado a fábrica', '12345678', 'CORR-TEST-002',
             DATEADD(MONTH, -3, DATEADD(HOUR, -3, GETDATE()));
 
@@ -1277,7 +1277,7 @@ BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM [aud].[HistorialEstados] h
         INNER JOIN [fab].[EstudiosCredito] ec ON h.IdEstudio = ec.IdEstudio
-        INNER JOIN [cfg].[CatalogoEstados] ce ON h.IdEstadoNuevo = ce.IdEstado
+        INNER JOIN [cfg].[EstudiosCredito] ce ON h.IdEstadoNuevo = ce.IdEstado
         WHERE ec.NitTercero = '10000002' AND ce.Codigo = 'APROBADO'
     )
         INSERT INTO [aud].[HistorialEstados]
@@ -1285,8 +1285,8 @@ BEGIN
         SELECT
             (SELECT TOP 1 IdEstudio FROM [fab].[EstudiosCredito]
              WHERE NitTercero = '10000002' AND EliminadoLogico = 0 ORDER BY FechaCreacion DESC),
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'REVISION_FABRICA'),
-            (SELECT IdEstado FROM [cfg].[CatalogoEstados] WHERE Codigo = 'APROBADO'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'REVISION_FABRICA'),
+            (SELECT IdEstado FROM [cfg].[EstudiosCredito] WHERE Codigo = 'APROBADO'),
             'ASESOR', 'Cupo aprobado por analista — activación en KCRM', '12345678', 'CORR-TEST-002',
             DATEADD(MONTH, -3, GETDATE());
 
