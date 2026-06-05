@@ -2182,7 +2182,7 @@ BEGIN
         IdTipoFoto          INT IDENTITY(1,1)   NOT NULL,
         Codigo              VARCHAR(30)         NOT NULL,   -- FOTO_FRONTAL_DOC, FOTO_TRASERA_DOC, SELFIE
         Nombre              NVARCHAR(100)       NOT NULL,   -- Nombre legible para el asesor/UI
-        Descripcion         NVARCHAR(300)       NULL,       -- Instrucción de qué debe contener esta foto
+        Descripcion         NVARCHAR(500)       NULL,       -- Instrucción de qué debe contener esta foto
         EsObligatoria       BIT                 NOT NULL DEFAULT 1,  -- 1 = bloquea aprobación si falta o está rechazada
         OrdenRevision       INT                 NOT NULL,            -- Orden en que aparece en el módulo de revisión (1,2,3)
         ServicioAWS         VARCHAR(30)         NULL,       -- Referencia informativa: REKOGNITION_DETECT_FACES, etc.
